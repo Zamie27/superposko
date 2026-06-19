@@ -105,7 +105,7 @@ class GoogleLoginController extends Controller
             'university' => ['required', 'string', 'max:255'],
             'group_number' => ['required', 'string', 'max:255'],
             'kkn_address' => ['required', 'string', 'max:1000'],
-            'password' => ['nullable', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
+            'password' => ['required', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
         ])->validate();
 
         // Find existing user by email or create new
@@ -122,14 +122,7 @@ class GoogleLoginController extends Controller
         $user->group_number = $input['group_number'];
         $user->kkn_address = $input['kkn_address'];
 
-        if (! empty($input['password'])) {
-            $user->password = Hash::make($input['password']);
-        } else {
-            // If new user, set an empty password since they login with Google
-            if (! $user->exists) {
-                $user->password = '';
-            }
-        }
+        $user->password = Hash::make($input['password']);
 
         $user->save();
 

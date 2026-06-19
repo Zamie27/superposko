@@ -54,12 +54,6 @@ const handleLanjutkanPassword = () => {
     }
 };
 
-const handleLewatiPassword = () => {
-    form.password = '';
-    form.password_confirmation = '';
-    submit();
-};
-
 const submit = () => {
     form.post('/auth/google/complete');
 };
@@ -128,9 +122,9 @@ const submit = () => {
         <!-- STEP 2: Opsional Tambah Password -->
         <div v-else class="space-y-6">
             <div class="space-y-1">
-                <h3 class="text-md font-semibold text-slate-900">Tambahkan kata sandi ke akun Anda?</h3>
+                <h3 class="text-md font-semibold text-slate-900">Buat Kata Sandi Akun</h3>
                 <p class="text-sm text-muted-foreground">
-                    Ini opsional. Jika dilewati, Anda hanya bisa masuk menggunakan akun Google Anda.
+                    Kata sandi diperlukan untuk keamanan akun Anda.
                 </p>
             </div>
 
@@ -189,23 +183,14 @@ const submit = () => {
             </div>
 
             <!-- Tombol Navigasi Bawah -->
-            <div class="flex items-center gap-4 mt-6">
-                <button
-                    type="button"
-                    @click="handleLewatiPassword"
-                    :disabled="form.processing"
-                    class="flex-1 rounded-xl border border-black bg-white hover:bg-slate-50 py-3 text-sm font-bold text-black transition duration-200 flex items-center justify-center gap-2"
-                >
-                    <Spinner v-if="form.processing && form.password === ''" />
-                    Lewati
-                </button>
+            <div class="mt-6">
                 <button
                     type="button"
                     @click="handleLanjutkanPassword"
                     :disabled="form.processing || !isPasswordValid"
-                    class="flex-1 rounded-xl bg-black hover:bg-slate-900 py-3 text-sm font-bold text-white transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    class="w-full rounded-xl bg-black hover:bg-slate-900 py-3 text-sm font-bold text-white transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                    <Spinner v-if="form.processing && form.password !== ''" />
+                    <Spinner v-if="form.processing" />
                     Lanjutkan
                 </button>
             </div>
