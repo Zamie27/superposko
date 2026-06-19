@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\PaymentController::test
- * @see app/Http/Controllers/PaymentController.php:20
+ * @see app/Http/Controllers/PaymentController.php:18
  * @route '/payment/test'
  */
 export const test = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ test.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::test
- * @see app/Http/Controllers/PaymentController.php:20
+ * @see app/Http/Controllers/PaymentController.php:18
  * @route '/payment/test'
  */
 test.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ test.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PaymentController::test
- * @see app/Http/Controllers/PaymentController.php:20
+ * @see app/Http/Controllers/PaymentController.php:18
  * @route '/payment/test'
  */
 test.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ test.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\PaymentController::test
- * @see app/Http/Controllers/PaymentController.php:20
+ * @see app/Http/Controllers/PaymentController.php:18
  * @route '/payment/test'
  */
 test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\PaymentController::test
- * @see app/Http/Controllers/PaymentController.php:20
+ * @see app/Http/Controllers/PaymentController.php:18
  * @route '/payment/test'
  */
     const testForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\PaymentController::test
- * @see app/Http/Controllers/PaymentController.php:20
+ * @see app/Http/Controllers/PaymentController.php:18
  * @route '/payment/test'
  */
         testForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\PaymentController::test
- * @see app/Http/Controllers/PaymentController.php:20
+ * @see app/Http/Controllers/PaymentController.php:18
  * @route '/payment/test'
  */
         testForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     test.form = testForm
 /**
 * @see \App\Http\Controllers\PaymentController::token
- * @see app/Http/Controllers/PaymentController.php:31
+ * @see app/Http/Controllers/PaymentController.php:29
  * @route '/payment/test/token'
  */
 export const token = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ token.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::token
- * @see app/Http/Controllers/PaymentController.php:31
+ * @see app/Http/Controllers/PaymentController.php:29
  * @route '/payment/test/token'
  */
 token.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ token.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PaymentController::token
- * @see app/Http/Controllers/PaymentController.php:31
+ * @see app/Http/Controllers/PaymentController.php:29
  * @route '/payment/test/token'
  */
 token.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ token.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\PaymentController::token
- * @see app/Http/Controllers/PaymentController.php:31
+ * @see app/Http/Controllers/PaymentController.php:29
  * @route '/payment/test/token'
  */
     const tokenForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ token.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\PaymentController::token
- * @see app/Http/Controllers/PaymentController.php:31
+ * @see app/Http/Controllers/PaymentController.php:29
  * @route '/payment/test/token'
  */
         tokenForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
