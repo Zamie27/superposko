@@ -1,116 +1,437 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { dashboard, login } from '@/routes';
-import { register } from '@/routes';
+import { dashboard, login, register } from '@/routes';
+import { ref } from 'vue';
+
+const isMenuOpen = ref(false);
+
+const operasionalFeatures = [
+    {
+        title: 'E-Bendahara (Kas & Keuangan)',
+        description: 'Manajemen transparan arus kas masuk/keluar dengan lampiran bukti nota digital. Menghindari risiko nombok dan selisih dana.',
+        icon: `<svg class="h-6 w-6 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>`
+    },
+    {
+        title: 'Digital Logbook & Proker',
+        description: 'Sistem pelaporan kegiatan harian untuk DPL dan Kanban Board untuk melacak status progres program kerja (To Do, In Progress, Done).',
+        icon: `<svg class="h-6 w-6 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+        </svg>`
+    },
+    {
+        title: 'Manajemen Inventaris & Logistik',
+        description: 'Katalogisasi barang milik posko (stok) maupun barang pinjaman warga, dilengkapi sistem peringatan stok menipis dan checklist pengembalian.',
+        icon: `<svg class="h-6 w-6 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+        </svg>`
+    }
+];
+
+const pendukungFeatures = [
+    {
+        title: 'Buku Kontak Desa',
+        description: 'Directory digital kontak warga penting (RT/RW/Tokoh) untuk mempermudah koordinasi lapangan yang mendadak.',
+        icon: `<svg class="h-6 w-6 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>`
+    },
+    {
+        title: 'Schedule Management (Piket & Agenda)',
+        description: 'Kalender terpadu untuk jadwal piket harian, rapat, dan agenda kerja bersama untuk menjaga disiplin anggota.',
+        icon: `<svg class="h-6 w-6 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 3V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>`
+    },
+    {
+        title: 'Repository Proker (Lost & Found)',
+        description: 'Wadah sentral untuk menyimpan proposal, surat izin, notulensi, dan feedback warga per program kerja agar tidak tercecer di laptop anggota.',
+        icon: `<svg class="h-6 w-6 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20"></path>
+        </svg>`
+    },
+    {
+        title: 'Voting & Aspirasi',
+        description: 'Fitur polling cepat untuk pengambilan keputusan internal kelompok secara demokratis dan transparan.',
+        icon: `<svg class="h-6 w-6 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>`
+    }
+];
+
+const checklistFeatures = [
+    'E-Bendahara (Kas & Keuangan)',
+    'Digital Logbook & Proker',
+    'Manajemen Inventaris & Logistik',
+    'Buku Kontak Desa',
+    'Schedule Management (Piket & Agenda)',
+    'Repository Proker (Lost & Found)',
+    'Voting & Aspirasi'
+];
+
+const faqs = [
+    {
+        question: 'Apakah biaya Rp 50.000 berlaku per anggota?',
+        answer: 'Tidak, biaya Rp 50.000/bulan adalah biaya flat per kelompok posko KKN, berapapun jumlah anggota di dalamnya.'
+    },
+    {
+        question: 'Bagaimana cara mendaftarkan kelompok kami?',
+        answer: 'Klik "Daftar Sekarang", lengkapi formulir info posko KKN Anda, lakukan aktivasi pembayaran flat, dan tim Anda langsung aktif.'
+    },
+    {
+        question: 'Apakah data kami aman setelah masa KKN selesai?',
+        answer: 'Ya, seluruh data tersimpan dengan aman dan dapat diunduh kapan saja oleh pihak posko untuk keperluan pelaporan.'
+    }
+];
 </script>
 
 <template>
-    <Head title="Welcome">
-        <link rel="preconnect" href="https://rsms.me/" />
-        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-    </Head>
-    <div
-        class="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] lg:justify-center lg:p-8 dark:bg-[#0a0a0a]"
-    >
-        <header
-            class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl"
-        >
-            <nav class="flex items-center justify-end gap-4">
-                <Link
-                    v-if="$page.props.auth.user"
-                    :href="dashboard()"
-                    class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                >
-                    Dashboard
+    <Head title="SuperPosko - Platform Manajemen KKN Modern" />
+
+    <div class="min-h-screen bg-[#F4F7F7] text-slate-900 font-sans antialiased selection:bg-[#38BDF8] selection:text-slate-950">
+        
+        <!-- Navigation Header -->
+        <header class="sticky top-0 z-50 w-full border-b border-slate-200/50 bg-white shadow-md">
+            <div class="mx-auto flex max-w-7xl h-16 items-center justify-between px-6 lg:px-8">
+                <!-- Logo Only (No text span as logo contains branding text) -->
+                <Link href="/" class="flex items-center group">
+                    <img src="/logo_superposko.png" alt="SuperPosko" class="h-9 w-auto transition-transform duration-300 group-hover:scale-105" />
                 </Link>
-                <template v-else>
+
+                <!-- Desktop Nav -->
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+                    <Link href="/" class="text-[#38BDF8] transition-colors">Home</Link>
+                    <a href="#fitur" class="hover:text-[#38BDF8] transition-colors">Fitur</a>
+                    <a href="#pricing" class="hover:text-[#38BDF8] transition-colors">Harga</a>
+                    <a href="#faq" class="hover:text-[#38BDF8] transition-colors">FAQ</a>
+                </nav>
+
+                <!-- Actions -->
+                <div class="hidden md:flex items-center gap-4">
                     <Link
-                        :href="login()"
-                        class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
+                        v-if="$page.props.auth.user"
+                        :href="dashboard()"
+                        class="rounded-lg bg-[#38BDF8] hover:bg-[#38BDF8]/90 px-4.5 py-2 text-sm font-semibold text-white transition duration-200"
                     >
-                        Log in
+                        Dashboard
                     </Link>
+                    <template v-else>
+                        <Link
+                            :href="login()"
+                            class="text-sm font-semibold text-slate-700 hover:text-[#38BDF8] transition-colors"
+                        >
+                            Masuk
+                        </Link>
+                        <Link
+                            :href="register()"
+                            class="rounded-lg bg-[#38BDF8] hover:bg-[#38BDF8]/90 px-4.5 py-2 text-sm font-semibold text-white transition duration-200"
+                        >
+                            Daftar Posko
+                        </Link>
+                    </template>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center gap-2 md:hidden">
+                    <button 
+                        @click="isMenuOpen = !isMenuOpen" 
+                        type="button" 
+                        class="rounded-lg p-2 text-slate-600 hover:bg-slate-200/50"
+                    >
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Dropdown Nav -->
+            <div v-if="isMenuOpen" class="border-b border-slate-200/50 bg-[#F4F7F7] px-6 py-4 md:hidden">
+                <nav class="flex flex-col gap-4 text-sm font-semibold text-slate-600">
+                    <a href="#fitur" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Fitur</a>
+                    <a href="#pricing" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Harga</a>
+                    <a href="#faq" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">FAQ</a>
+                    <div class="h-px bg-slate-200/50 my-2"></div>
                     <Link
-                        :href="register()"
-                        class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
+                        v-if="$page.props.auth.user"
+                        :href="dashboard()"
+                        @click="isMenuOpen = false"
+                        class="text-center rounded-lg bg-[#38BDF8] py-2.5 text-sm font-bold text-white"
                     >
-                        Register
+                        Dashboard
                     </Link>
-                </template>
-            </nav>
+                    <template v-else>
+                        <Link
+                            :href="login()"
+                            @click="isMenuOpen = false"
+                            class="text-center py-2 text-sm font-semibold text-slate-700"
+                        >
+                            Masuk
+                        </Link>
+                        <Link
+                            :href="register()"
+                            @click="isMenuOpen = false"
+                            class="text-center rounded-lg bg-[#38BDF8] py-2.5 text-sm font-bold text-white"
+                        >
+                            Daftar Posko
+                        </Link>
+                    </template>
+                </nav>
+            </div>
         </header>
-        <div
-            class="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0"
-        >
-            <main
-                class="flex w-full max-w-[335px] flex-col-reverse overflow-hidden rounded-lg lg:max-w-4xl lg:flex-row"
-            >
-                <div
-                    class="flex-1 rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"
-                >
-                    <h1 class="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-50">Selamat Datang di SuperPosko</h1>
-                    <p class="mb-6 text-[14px] leading-relaxed text-neutral-500 dark:text-neutral-400">
-                        Platform SaaS modular untuk mempermudah, merapikan, dan mendigitalisasi operasional serta administrasi kelompok KKN (Kuliah Kerja Nyata) secara transparan dan terstruktur.
+
+        <!-- Hero Section -->
+        <section class="relative overflow-hidden bg-white min-h-[calc(100vh-4rem)] flex flex-col justify-center py-0">
+            <div class="absolute top-0 left-1/2 -z-10 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-[#38BDF8]/5 blur-3xl"></div>
+            
+            <div class="mx-auto max-w-7xl px-6 lg:px-8 text-center py-16">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-[#38BDF8]/10 px-3.5 py-1.5 text-xs font-semibold text-sky-600">
+                    🚀 Kolaborasi Tim KKN Modern & Terstruktur
+                </span>
+                
+                <h1 class="mt-6 text-4xl font-extrabold tracking-tight sm:text-6xl text-slate-900 leading-[1.15]">
+                    Atur Posko KKN Kamu <br class="hidden sm:inline" />
+                    <span class="text-[#38BDF8]">
+                        Dalam Satu Platform!
+                    </span>
+                </h1>
+
+                <p class="mx-auto mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-slate-600">
+                    Platform posko KKN digital modern untuk koordinasi program kerja, pencatatan keuangan transparan, pembagian piket, dan manajemen peminjaman logistik yang praktis.
+                </p>
+
+                <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+                    <Link
+                        v-if="$page.props.auth.user"
+                        :href="dashboard()"
+                        class="rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 px-6 py-3.5 text-base font-bold text-white shadow-md shadow-[#38BDF8]/10 transition duration-200"
+                    >
+                        Buka Dashboard Tim
+                    </Link>
+                    <Link
+                        v-else
+                        :href="register()"
+                        class="rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 px-6 py-3.5 text-base font-bold text-white shadow-md shadow-[#38BDF8]/10 transition duration-200"
+                    >
+                        Daftar Sekarang
+                    </Link>
+                    <a
+                        href="#fitur"
+                        class="rounded-xl border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 px-6 py-3.5 text-base font-semibold text-slate-700 transition duration-200"
+                    >
+                        Pelajari Fitur
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="fitur" class="py-20 bg-white border-y border-slate-200/50">
+            <div class="mx-auto max-w-7xl px-6 lg:px-8">
+                
+                <!-- Category 1: Modul Operasional Utama -->
+                <div class="mb-16">
+                    <div class="max-w-3xl mb-10">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">Pondasi Operasional</h2>
+                        <h3 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                            Modul Operasional Utama (Pondasi)
+                        </h3>
+                    </div>
+                    <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                        <div 
+                            v-for="feat in operasionalFeatures" 
+                            :key="feat.title"
+                            class="flex flex-col items-start p-8 rounded-2xl border border-slate-200/60 bg-[#F4F7F7]/30 hover:bg-[#F4F7F7]/50 transition duration-300"
+                        >
+                            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#38BDF8]/10 mb-6" v-html="feat.icon"></div>
+                            <h4 class="text-lg font-bold text-slate-900">{{ feat.title }}</h4>
+                            <p class="mt-3 text-sm leading-relaxed text-slate-600">{{ feat.description }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category 2: Modul Pendukung -->
+                <div>
+                    <div class="max-w-3xl mb-10">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-[#38BDF8]">Anti-Drama Internal</h2>
+                        <h3 class="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                            Modul Pendukung (Anti-Drama Internal)
+                        </h3>
+                    </div>
+                    <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                        <div 
+                            v-for="feat in pendukungFeatures" 
+                            :key="feat.title"
+                            class="flex flex-col items-start p-8 rounded-2xl border border-slate-200/60 bg-[#F4F7F7]/30 hover:bg-[#F4F7F7]/50 transition duration-300"
+                        >
+                            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#38BDF8]/10 mb-6" v-html="feat.icon"></div>
+                            <h4 class="text-lg font-bold text-slate-900">{{ feat.title }}</h4>
+                            <p class="mt-3 text-sm leading-relaxed text-slate-600">{{ feat.description }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Pricing Card Section -->
+        <section id="pricing" class="py-20 lg:py-24">
+            <div class="mx-auto max-w-7xl px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                        Harga Flat per Posko KKN
+                    </h2>
+                    <p class="mt-4 text-base text-slate-600">
+                        Investasi hemat demi transparansi keuangan dan keteraturan administrasi seluruh anggota kelompok posko KKN Anda.
                     </p>
-                    <ul class="mb-6 flex flex-col gap-4">
-                        <li class="flex items-start gap-3">
-                            <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-400 font-bold text-[11px]">1</span>
-                            <div>
-                                <h2 class="font-medium text-neutral-900 dark:text-neutral-50">E-Bendahara (Kas & Nota)</h2>
-                                <p class="text-neutral-500 dark:text-neutral-400 text-xs">Pencatatan kas masuk/keluar secara transparan dengan bukti nota digital.</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-400 font-bold text-[11px]">2</span>
-                            <div>
-                                <h2 class="font-medium text-neutral-900 dark:text-neutral-50">Digital Logbook & Proker</h2>
-                                <p class="text-neutral-500 dark:text-neutral-400 text-xs">Laporan harian mahasiswa dan manajemen visual program kerja posko.</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-400 font-bold text-[11px]">3</span>
-                            <div>
-                                <h2 class="font-medium text-neutral-900 dark:text-neutral-50">Logistik & Piket Harian</h2>
-                                <p class="text-neutral-500 dark:text-neutral-400 text-xs">Pelacakan stok barang pinjaman warga serta pembagian jadwal piket.</p>
-                            </div>
+                </div>
+
+                <!-- Pricing Card -->
+                <div class="mx-auto max-w-md rounded-2xl border border-[#38BDF8]/40 bg-white p-8 text-center shadow-md">
+                    <span class="text-xs font-bold uppercase tracking-wider text-sky-600">Akses Penuh SaaS</span>
+                    <h3 class="mt-2 text-2xl font-bold text-slate-900">Paket Posko</h3>
+                    <div class="my-6 flex items-baseline justify-center gap-1">
+                        <span class="text-4xl font-extrabold text-slate-900">Rp 50.000</span>
+                        <span class="text-sm font-semibold text-slate-500">/ bulan (40 hari)</span>
+                    </div>
+                    <p class="text-sm leading-relaxed text-slate-600">
+                        Dapatkan akses penuh ke seluruh modul platform untuk satu posko KKN tanpa batasan kuota user/anggota kelompok.
+                    </p>
+                    
+                    <div class="mt-8">
+                        <Link
+                            v-if="$page.props.auth.user"
+                            :href="dashboard()"
+                            class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-slate-950 transition duration-200"
+                        >
+                            Masuk ke Dashboard
+                        </Link>
+                        <Link
+                            v-else
+                            :href="register()"
+                            class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-slate-950 transition duration-200"
+                        >
+                            Daftar Sekarang
+                        </Link>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="my-6 border-t border-slate-100"></div>
+
+                    <!-- Features Checklist -->
+                    <ul class="space-y-3.5 text-left text-sm text-slate-600">
+                        <li v-for="item in checklistFeatures" :key="item" class="flex items-center gap-3">
+                            <svg class="h-5 w-5 shrink-0 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span>{{ item }}</span>
                         </li>
                     </ul>
-                    <ul class="flex gap-3 text-sm leading-normal">
-                        <li>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="py-20 bg-white/50 border-t border-slate-200/50">
+            <div class="mx-auto max-w-4xl px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-extrabold tracking-tight text-slate-900">Pertanyaan Umum</h2>
+                    <p class="mt-3 text-slate-600">Punya pertanyaan lain mengenai SuperPosko?</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div 
+                        v-for="faq in faqs" 
+                        :key="faq.question"
+                        class="rounded-xl border border-slate-200 bg-white p-6"
+                    >
+                        <h3 class="text-base font-bold text-slate-900">{{ faq.question }}</h3>
+                        <p class="mt-2.5 text-sm leading-relaxed text-slate-600">{{ faq.answer }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Banner Section -->
+        <section class="py-12 bg-[#F4F7F7]">
+            <div class="mx-auto max-w-7xl px-6 lg:px-8">
+                <div class="relative overflow-hidden rounded-2xl bg-[#38BDF8] px-8 py-12 text-center shadow-xl md:px-16 md:py-16">
+                    <div class="relative z-10 max-w-2xl mx-auto">
+                        <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                            Siap mengaktifkan SuperPosko?
+                        </h2>
+                        <p class="mt-4 text-base text-white/90 font-medium">
+                            Ajak kelompok posko Anda berkolaborasi secara digital dan transparan demi pengabdian masyarakat yang sukses.
+                        </p>
+                        <div class="mt-8 flex justify-center gap-4.5">
                             <Link
                                 v-if="$page.props.auth.user"
                                 :href="dashboard()"
-                                class="inline-block rounded-md bg-sky-500 hover:bg-sky-600 px-5 py-2 text-sm leading-normal font-semibold text-white transition-colors duration-200 dark:bg-sky-600 dark:hover:bg-sky-700"
+                                class="rounded-xl bg-white hover:bg-slate-100 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-sm transition duration-200"
                             >
-                                Buka Dashboard
+                                Masuk ke Dasbor
                             </Link>
                             <Link
                                 v-else
                                 :href="register()"
-                                class="inline-block rounded-md bg-sky-500 hover:bg-sky-600 px-5 py-2 text-sm leading-normal font-semibold text-white transition-colors duration-200 dark:bg-sky-600 dark:hover:bg-sky-700"
+                                class="rounded-xl bg-white hover:bg-slate-100 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-sm transition duration-200"
                             >
-                                Daftar Kelompok KKN
+                                Daftar Sekarang
                             </Link>
-                        </li>
-                    </ul>
-                </div>
-                <div
-                    class="relative -mb-px aspect-[335/364] w-full shrink-0 overflow-hidden rounded-t-lg bg-sky-50 lg:mb-0 lg:-ml-px lg:aspect-auto lg:w-[438px] lg:rounded-t-none lg:rounded-r-lg dark:bg-slate-950"
-                >
-                    <!-- SuperPosko Logo -->
-                    <div class="flex h-full w-full items-center justify-center p-8 bg-gradient-to-br from-sky-400/20 to-sky-600/30 dark:from-sky-950/40 dark:to-slate-900/60">
-                        <img
-                            class="w-4/5 max-w-[280px] object-contain drop-shadow-md select-none transition-transform duration-500 hover:scale-105 dark:invert dark:hue-rotate-180"
-                            src="/logo_superposko.png"
-                            alt="SuperPosko Logo"
-                        />
+                        </div>
                     </div>
-                    <div
-                        class="absolute inset-0 rounded-t-lg shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-t-none lg:rounded-r-lg dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]"
-                    ></div>
                 </div>
-            </main>
-        </div>
-        <div class="hidden h-14.5 lg:block"></div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-slate-900 py-16 text-slate-400 border-t border-slate-800/50">
+            <div class="mx-auto max-w-7xl px-6 lg:px-8">
+                <div class="grid grid-cols-1 gap-12 md:grid-cols-4">
+                    <div class="md:col-span-2">
+                        <div class="flex items-center gap-2 text-white">
+                            <!-- Footer logo as icon only without text -->
+                            <img src="/icon_superposko.png" alt="SuperPosko Icon" class="h-10 w-auto" />
+                        </div>
+                        <p class="mt-4 max-w-md text-sm leading-relaxed">
+                            SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">Pintasan</h4>
+                        <ul class="mt-4 space-y-2.5 text-sm">
+                            <li><a href="#fitur" class="hover:text-[#38BDF8] transition-colors">Fitur Utama</a></li>
+                            <li><a href="#pricing" class="hover:text-[#38BDF8] transition-colors">Harga Paket</a></li>
+                            <li><a href="#faq" class="hover:text-[#38BDF8] transition-colors">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">Hubungi Kami</h4>
+                        <ul class="mt-4 space-y-2.5 text-sm">
+                            <li>Email: kuukok.id@gmail.com</li>
+                            <li>Telepon: +62 851-7173-9232</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-12 border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+                    <p>
+                        &copy; 2026 
+                        <a href="https://kuukok.my.id" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline font-medium">Kuukok.id</a> 
+                        - Solusi digital profesional. Hak Cipta Dilindungi.
+                    </p>
+                    <p>Dibuat dengan dedikasi untuk memajukan pengabdian masyarakat mahasiswa Indonesia.</p>
+                </div>
+            </div>
+        </footer>
+
     </div>
 </template>
+
+<style>
+html {
+    scroll-behavior: smooth;
+}
+</style>
