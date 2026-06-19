@@ -4,7 +4,8 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
-
+/* Paksa light mode — override Tailwind v4 default prefers-color-scheme dark */
+@custom-variant dark (&:is(.dark *));
 
 
 @theme inline {
@@ -92,6 +93,7 @@
 }
 
 :root {
+    color-scheme: light;
     --background: hsl(0 0% 100%);
     --foreground: hsl(0 0% 3.9%);
     --card: hsl(0 0% 100%);
