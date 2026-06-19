@@ -1,0 +1,70 @@
+services:
+  # 1. Container Aplikasi (Backend Laravel 13 & PHP 8.4 + Node.js 24)
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: superposko-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    ports:
+      - "9001:8000"
+      - "5173:5173"
+    volumes:
+      - ./:/var/www/html:Z
+    networks:
+      - superposko-network
+
+  # 2. Web Server (Nginx)
+  nginx:
+    image: nginx:alpine
+    container_name: superposko-nginx
+    restart: unless-stopped
+    ports:
+      - "9091:80"
+    volumes:
+      - ./:/var/www/html:Z
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:Z
+    depends_on:
+      - app
+    networks:
+      - superposko-network
+
+  # 3. Database Server (MySQL)
+  mysql:
+    image: mysql:8.4
+    container_name: superposko-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: db_superposko
+      MYSQL_USER: superposko_user
+      MYSQL_PASSWORD: superposko_password
+      MYSQL_ROOT_PASSWORD: root_password_superposko
+    ports:
+      - "3306:3306"
+    volumes:
+      - superposko-db-data:/var/lib/mysql:Z
+    networks:
+      - superposko-network
+
+  # 4. Database Management (PHPMyAdmin)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: superposko-pma
+    restart: always
+    ports:
+      - "9093:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=superposko-db
+    depends_on:
+      - mysql
+    networks:
+      - superposko-network
+
+networks:
+  superposko-network:
+    driver: bridge
+
+volumes:
+  superposko-db-data:
