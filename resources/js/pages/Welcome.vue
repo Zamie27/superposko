@@ -304,14 +304,14 @@ const faqs = [
                         <Link
                             v-if="$page.props.auth.user"
                             :href="dashboard()"
-                            class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-slate-950 transition duration-200"
+                            class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-white transition duration-200"
                         >
                             Masuk ke Dashboard
                         </Link>
                         <Link
                             v-else
                             :href="register()"
-                            class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-slate-950 transition duration-200"
+                            class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-white transition duration-200"
                         >
                             Daftar Sekarang
                         </Link>

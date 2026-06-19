@@ -20,7 +20,7 @@ class GoogleLoginTest extends TestCase
         $this->assertStringContainsString('accounts.google.com', $response->getTargetUrl());
     }
 
-    public function test_google_callback_registers_and_logins_new_user(): void
+    public function test_google_callback_redirects_new_user_to_complete_profile(): void
     {
         $mockUser = $this->createMock(\Laravel\Socialite\Two\User::class);
         $mockUser->method('getId')->willReturn('google-id-123');
@@ -37,22 +37,25 @@ class GoogleLoginTest extends TestCase
 
         $response = $this->get(route('auth.google.callback'));
 
-        $response->assertRedirect(route('dashboard'));
-
-        $this->assertDatabaseHas('users', [
+        // Should redirect to complete profile route
+        $response->assertRedirect(route('auth.google.complete'));
+        $this->assertEquals([
+            'name' => 'Budi Google',
             'email' => 'budi.google@example.com',
             'google_id' => 'google-id-123',
-            'name' => 'Budi Google',
-        ]);
+        ], session('google_auth_user'));
 
-        $this->assertAuthenticated();
+        $this->assertGuest();
     }
 
-    public function test_google_callback_logins_existing_user_and_links_google_id(): void
+    public function test_google_callback_logins_existing_user_with_completed_profile(): void
     {
         $existingUser = User::factory()->create([
             'email' => 'budi.google@example.com',
-            'google_id' => null,
+            'google_id' => 'google-id-123',
+            'university' => 'Universitas Indonesia',
+            'group_number' => 'Kelompok 1',
+            'kkn_address' => 'Sleman, DIY',
         ]);
 
         $mockUser = $this->createMock(\Laravel\Socialite\Two\User::class);
@@ -71,13 +74,47 @@ class GoogleLoginTest extends TestCase
         $response = $this->get(route('auth.google.callback'));
 
         $response->assertRedirect(route('dashboard'));
+        $this->assertAuthenticatedAs($existingUser);
+    }
 
-        $this->assertDatabaseHas('users', [
-            'id' => $existingUser->id,
-            'email' => 'budi.google@example.com',
-            'google_id' => 'google-id-123',
+    public function test_complete_profile_page_can_be_rendered(): void
+    {
+        $response = $this->withSession([
+            'google_auth_user' => [
+                'name' => 'Budi Google',
+                'email' => 'budi.google@example.com',
+                'google_id' => 'google-id-123',
+            ],
+        ])->get(route('auth.google.complete'));
+
+        $response->assertOk();
+    }
+
+    public function test_user_can_complete_profile_and_register_successfully(): void
+    {
+        $response = $this->withSession([
+            'google_auth_user' => [
+                'name' => 'Budi Google',
+                'email' => 'budi.google@example.com',
+                'google_id' => 'google-id-123',
+            ],
+        ])->post(route('auth.google.complete.store'), [
+            'university' => 'Universitas Indonesia',
+            'group_number' => 'Kelompok 12',
+            'kkn_address' => 'Jalan Kaliurang KM 12',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
         ]);
 
-        $this->assertAuthenticatedAs($existingUser);
+        $response->assertRedirect(route('dashboard'));
+        $this->assertAuthenticated();
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'budi.google@example.com',
+            'google_id' => 'google-id-123',
+            'university' => 'Universitas Indonesia',
+            'group_number' => 'Kelompok 12',
+            'kkn_address' => 'Jalan Kaliurang KM 12',
+        ]);
     }
 }
