@@ -31,4 +31,14 @@ export default defineConfig({
             formVariants: true,
         }),
     ],
+    build: {
+        rollupOptions: {
+            onwarn(warning, warn) {
+                if (warning.code === 'INVALID_ANNOTATION' && warning.message.includes('node_modules')) {
+                    return;
+                }
+                warn(warning);
+            },
+        },
+    },
 });
