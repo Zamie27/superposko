@@ -6,7 +6,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Buku Kontak',
-                href: '/contacts',
+                href: '/host/contacts',
             },
         ],
     },

@@ -6,7 +6,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Voting & Aspirasi',
-                href: '/voting',
+                href: '/host/voting',
             },
         ],
     },

@@ -20,7 +20,7 @@ defineOptions({
             },
             {
                 title: 'Test Payment',
-                href: '/payment/test',
+                href: '/host/payment/test',
             },
         ],
     },
@@ -62,7 +62,7 @@ const handlePayment = async () => {
     resultData.value = null;
 
     try {
-        const response = await fetch('/payment/test/token', {
+        const response = await fetch('/host/payment/test/token', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

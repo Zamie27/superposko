@@ -6,7 +6,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Kas & Keuangan',
-                href: '/finance',
+                href: '/host/finance',
             },
         ],
     },

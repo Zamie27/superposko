@@ -10,7 +10,7 @@ defineOptions({
             },
             {
                 title: 'Piket & Agenda',
-                href: '/management/schedule',
+                href: '/host/management/schedule',
             },
         ],
     },

@@ -6,7 +6,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Logbook & Proker',
-                href: '/logbook',
+                href: '/host/logbook',
             },
         ],
     },

@@ -80,10 +80,21 @@ const checklistFeatures = [
     'Support 24/7'
 ];
 
+const props = defineProps<{
+    packageName: string;
+    packagePrice: number;
+    packageStrikePrice: number;
+    packageDescription: string;
+    footerAbout: string;
+    footerEmail: string;
+    footerPhone: string;
+    footerCopyright: string;
+}>();
+
 const faqs = [
     {
-        question: 'Apakah biaya Rp 100.000 berlaku per anggota?',
-        answer: 'Tidak, biaya Rp 100.000/bulan adalah biaya flat per kelompok posko KKN, berapapun jumlah anggota di dalamnya.'
+        question: 'Apakah biaya langganan flat?',
+        answer: 'Ya, biaya flat per kelompok posko KKN, berapapun jumlah anggota di dalamnya.'
     },
     {
         question: 'Bagaimana cara mendaftarkan kelompok kami?',
@@ -291,7 +302,7 @@ const faqs = [
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="text-center max-w-2xl mx-auto mb-12">
                     <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-                        Harga Flat per Posko KKN
+                        Harga Langganan Terjangkau
                     </h2>
                     <p class="mt-4 text-base text-slate-600">
                         Investasi hemat demi transparansi keuangan dan keteraturan administrasi seluruh anggota kelompok posko KKN Anda.
@@ -301,13 +312,16 @@ const faqs = [
                 <!-- Pricing Card -->
                 <div class="mx-auto max-w-md rounded-2xl border border-[#38BDF8]/40 bg-white p-8 text-center shadow-md">
                     <span class="text-xs font-bold uppercase tracking-wider text-sky-600">Akses Penuh SaaS</span>
-                    <h3 class="mt-2 text-2xl font-bold text-slate-900">Paket Posko</h3>
-                    <div class="my-6 flex items-baseline justify-center gap-1">
-                        <span class="text-4xl font-extrabold text-slate-900">Rp 100.000</span>
-                        <span class="text-sm font-semibold text-slate-500">/ bulan (40 hari)</span>
+                    <h3 class="mt-2 text-2xl font-bold text-slate-900">{{ packageName }}</h3>
+                    <div class="my-6 flex items-baseline justify-center gap-1.5 flex-col items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm line-through text-slate-400">Rp {{ packageStrikePrice.toLocaleString('id-ID') }}</span>
+                            <span class="text-4xl font-extrabold text-slate-900">Rp {{ packagePrice.toLocaleString('id-ID') }}</span>
+                        </div>
+                        <span class="text-xs text-slate-500 mt-1">Sekali bayar untuk 1 Siklus Posko (40 Hari)</span>
                     </div>
                     <p class="text-sm leading-relaxed text-slate-600">
-                        Dapatkan akses penuh ke seluruh modul platform untuk satu posko KKN tanpa batasan kuota user/anggota kelompok.
+                        {{ packageDescription }}
                     </p>
                     
                     <div class="mt-8">
@@ -377,6 +391,7 @@ const faqs = [
                         </p>
                         <div class="mt-8 flex justify-center gap-4.5">
                             <Link
+                                id="dashboard-cta-link"
                                 v-if="$page.props.auth.user"
                                 :href="dashboard()"
                                 class="rounded-xl bg-white hover:bg-slate-100 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-sm transition duration-200"
@@ -384,6 +399,7 @@ const faqs = [
                                 Masuk ke Dasbor
                             </Link>
                             <Link
+                                id="register-cta-link"
                                 v-else
                                 :href="register()"
                                 class="rounded-xl bg-white hover:bg-slate-100 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-sm transition duration-200"
@@ -406,7 +422,7 @@ const faqs = [
                             <img src="/icon_superposko.png" alt="SuperPosko Icon" class="h-10 w-auto" />
                         </div>
                         <p class="mt-4 max-w-md text-sm leading-relaxed">
-                            SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.
+                            {{ footerAbout }}
                         </p>
                     </div>
                     <div>
@@ -420,8 +436,8 @@ const faqs = [
                     <div>
                         <h4 class="text-xs font-bold uppercase tracking-wider text-white">Hubungi Kami</h4>
                         <ul class="mt-4 space-y-2.5 text-sm">
-                            <li>Email: kuukok.id@gmail.com</li>
-                            <li>Telepon: +62 851-7173-9232</li>
+                            <li>Email: {{ footerEmail }}</li>
+                            <li>Telepon: {{ footerPhone }}</li>
                         </ul>
                     </div>
                 </div>
@@ -429,7 +445,7 @@ const faqs = [
                 <div class="mt-12 border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
                     <p>
                         &copy; 2026 
-                        <a href="https://kuukok.my.id" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline font-medium">Kuukok.id</a> 
+                        <a href="https://kuukok.my.id" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline font-medium">{{ footerCopyright }}</a> 
                         - Solusi digital profesional. Hak Cipta Dilindungi.
                     </p>
                     <p>Dibuat dengan dedikasi untuk memajukan pengabdian masyarakat mahasiswa Indonesia.</p>

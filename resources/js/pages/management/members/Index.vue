@@ -55,13 +55,13 @@ const openEditModal = (member: any) => {
 
 const submitForm = () => {
     if (editingMember.value) {
-        form.put(`/management/members/${editingMember.value.id}`, {
+        form.put(`/host/management/members/${editingMember.value.id}`, {
             onSuccess: () => {
                 isModalOpen.value = false;
             },
         });
     } else {
-        form.post('/management/members', {
+        form.post('/host/management/members', {
             onSuccess: () => {
                 isModalOpen.value = false;
             },
@@ -71,7 +71,7 @@ const submitForm = () => {
 
 const deleteMember = (id: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus anggota ini?')) {
-        router.delete(`/management/members/${id}`);
+        router.delete(`/host/management/members/${id}`);
     }
 };
 
@@ -84,7 +84,7 @@ defineOptions({
             },
             {
                 title: 'Anggota',
-                href: '/management/members',
+                href: '/host/management/members',
             },
         ],
     },

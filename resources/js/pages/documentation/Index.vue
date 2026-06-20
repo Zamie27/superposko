@@ -29,7 +29,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Dokumentasi',
-                href: '/documentation',
+                href: '/host/documentation',
             },
         ],
     },
@@ -78,7 +78,7 @@ const uploadFileInChunks = async (item: UploadItem) => {
     const uploadUuid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-        if (item.status === 'error') {
+        if ((item.status as string) === 'error') {
             break;
         }
 
@@ -94,7 +94,7 @@ const uploadFileInChunks = async (item: UploadItem) => {
         formData.append('filename', file.name);
 
         try {
-            const response = await axios.post('/documentation/upload-chunk', formData, {
+            const response = await axios.post('/host/documentation/upload-chunk', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Accept': 'application/json'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { ChevronRight } from '@lucide/vue';
+import { ChevronRight, Lock } from '@lucide/vue';
 import {
     Collapsible,
     CollapsibleContent,
@@ -42,6 +42,7 @@ const { isCurrentUrl } = useCurrentUrl();
                             <SidebarMenuButton :tooltip="item.title">
                                 <component :is="item.icon" v-if="item.icon" />
                                 <span>{{ item.title }}</span>
+                                <Lock v-if="item.locked" class="size-3.5 ml-1 text-slate-400" />
                                 <ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                             </SidebarMenuButton>
                         </CollapsibleTrigger>
@@ -51,6 +52,7 @@ const { isCurrentUrl } = useCurrentUrl();
                                     <SidebarMenuSubButton as-child :is-active="isCurrentUrl(subItem.href)">
                                         <Link :href="subItem.href">
                                             <span>{{ subItem.title }}</span>
+                                            <Lock v-if="item.locked" class="size-3 ml-auto text-slate-400/80" />
                                         </Link>
                                     </SidebarMenuSubButton>
                                 </SidebarMenuSubItem>
@@ -68,6 +70,7 @@ const { isCurrentUrl } = useCurrentUrl();
                         <Link :href="item.href">
                             <component :is="item.icon" v-if="item.icon" />
                             <span>{{ item.title }}</span>
+                            <Lock v-if="item.locked" class="size-3.5 ml-auto text-slate-400" />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

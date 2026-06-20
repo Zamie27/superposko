@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
-import { CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, Contact, Archive, Vote, Image } from '@lucide/vue';
+import { Link, usePage } from '@inertiajs/vue3';
+import { 
+    CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
+    Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
+    ShoppingBag, Settings 
+} from '@lucide/vue';
+import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -17,71 +22,153 @@ import {
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Test Payment',
-        href: '/payment/test',
-        icon: CreditCard,
-    },
-    {
-        title: 'Kas & Keuangan',
-        href: '/finance',
-        icon: Wallet,
-    },
-    {
-        title: 'Logbook & Proker',
-        href: '/logbook',
-        icon: BookOpen,
-    },
-    {
-        title: 'Manajemen',
-        href: '#',
-        icon: Box,
-        items: [
+const page = usePage();
+
+const filteredNavItems = computed<NavItem[]>(() => {
+    const user = page.props.auth?.user as any;
+    if (!user) {
+        return [];
+    }
+
+    if (user.role === 'admin') {
+        return [
             {
-                title: 'Inventaris',
-                href: '/management/inventory',
+                title: 'Dashboard Admin',
+                href: '/admin/dashboard',
+                icon: LayoutGrid,
             },
             {
-                title: 'Logistik',
-                href: '/management/logistic',
+                title: 'Manajemen User',
+                href: '/admin/users',
+                icon: Users,
             },
             {
-                title: 'Piket & Agenda',
-                href: '/management/schedule',
+                title: 'Manajemen Harga',
+                href: '/admin/prices',
+                icon: CreditCard,
             },
             {
-                title: 'Anggota',
-                href: '/management/members',
+                title: 'Manajemen Langganan',
+                href: '/admin/subscriptions',
+                icon: CheckCircle2,
             },
-        ],
-    },
-    {
-        title: 'Buku Kontak',
-        href: '/contacts',
-        icon: Contact,
-    },
-    {
-        title: 'Repository Proker',
-        href: '/repository',
-        icon: Archive,
-    },
-    {
-        title: 'Voting & Aspirasi',
-        href: '/voting',
-        icon: Vote,
-    },
-    {
-        title: 'Dokumentasi',
-        href: '/documentation',
-        icon: Image,
-    },
-];
+            {
+                title: 'Manajemen Preorder',
+                href: '/admin/preorders',
+                icon: ShoppingBag,
+            },
+            {
+                title: 'Pengaturan Website',
+                href: '/admin/settings',
+                icon: Settings,
+            },
+        ];
+    }
+
+    const isSubscribed = user.is_subscribed;
+
+    const items: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: '/host/dashboard',
+            icon: LayoutGrid,
+        },
+    ];
+
+    const preorderPromoActive = page.props.preorder_promo_active;
+
+    // If not subscribed, always show the Preorder or Payment link
+    if (!isSubscribed) {
+        if (preorderPromoActive) {
+            items.push({
+                title: 'Preorder!',
+                href: '/user/preorder',
+                icon: ShoppingBag,
+            });
+        } else {
+            items.push({
+                title: 'Bayar Langganan',
+                href: '/host/payment/test',
+                icon: CreditCard,
+            });
+        }
+    }
+
+    // Host menu items (marked as locked if the user is not subscribed)
+    if (isSubscribed || preorderPromoActive) {
+        items.push({
+            title: 'Test Payment',
+            href: '/host/payment/test',
+            icon: CreditCard,
+            locked: !isSubscribed,
+        });
+    }
+
+    items.push(
+        {
+            title: 'Kas & Keuangan',
+            href: '/host/finance',
+            icon: Wallet,
+            locked: !isSubscribed,
+        },
+        {
+            title: 'Logbook & Proker',
+            href: '/host/logbook',
+            icon: BookOpen,
+            locked: !isSubscribed,
+        },
+        {
+            title: 'Manajemen',
+            href: '#',
+            icon: Box,
+            locked: !isSubscribed,
+            items: [
+                {
+                    title: 'Inventaris',
+                    href: '/host/management/inventory',
+                },
+                {
+                    title: 'Logistik',
+                    href: '/host/management/logistic',
+                },
+                {
+                    title: 'Piket & Agenda',
+                    href: '/host/management/schedule',
+                },
+                {
+                    title: 'Anggota',
+                    href: '/host/management/members',
+                },
+            ],
+        },
+        {
+            title: 'Buku Kontak',
+            href: '/host/contacts',
+            icon: Contact,
+            locked: !isSubscribed,
+        },
+        {
+            title: 'Repository Proker',
+            href: '/host/repository',
+            icon: Archive,
+            locked: !isSubscribed,
+        },
+        {
+            title: 'Voting & Aspirasi',
+            href: '/host/voting',
+            icon: Vote,
+            locked: !isSubscribed,
+        },
+        {
+            title: 'Dokumentasi',
+            href: '/host/documentation',
+            icon: Image,
+            locked: !isSubscribed,
+        }
+    );
+
+    return items;
+});
 
 const footerNavItems: NavItem[] = [
     {
@@ -98,7 +185,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                        <Link :href="dashboard().url">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
@@ -107,7 +194,7 @@ const footerNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain :items="filteredNavItems" />
         </SidebarContent>
 
         <SidebarFooter>

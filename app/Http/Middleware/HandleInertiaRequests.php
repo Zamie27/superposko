@@ -2,7 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -38,29 +41,37 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'preorder_promo_active' => filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN),
             'auth' => [
                 'user' => $request->user() ? array_merge($request->user()->toArray(), [
-                    'display_role' => $request->user()->host_id ? ucfirst($request->user()->role) : ($request->user()->role === 'host' ? 'Host' : 'User'),
-                    'is_subscribed' => $request->user()->role === 'host', // Assuming host role means subscribed for now
+                    'display_role' => $request->user()->role === 'admin' ? 'Admin' : ($request->user()->host_id ? ucfirst($request->user()->role) : ($request->user()->role === 'host' ? 'Host' : 'User')),
+                    'is_subscribed' => $request->user()->role === 'admin' ||
+                        ($request->user()->role === 'host' && ($request->user()->subscription_expires_at === null || $request->user()->subscription_expires_at->isFuture())) ||
+                        ($request->user()->host_id && $request->user()->host && ($request->user()->host->subscription_expires_at === null || $request->user()->host->subscription_expires_at->isFuture())),
                 ]) : null,
             ],
-            'immich' => \Illuminate\Support\Facades\Cache::remember('immich_storage', 300, function () {
+            'immich' => Cache::remember('immich_storage', 300, function () {
                 $url = rtrim(config('services.immich.url', ''), '/');
                 $apiKey = config('services.immich.api_key', '');
-                if (!$apiKey) return null;
+                if (! $apiKey) {
+                    return null;
+                }
                 try {
-                    $response = \Illuminate\Support\Facades\Http::withHeaders([
+                    $response = Http::withHeaders([
                         'x-api-key' => $apiKey,
                         'Accept' => 'application/json',
                     ])->get("{$url}/api/users/me");
                     if ($response->successful()) {
                         $data = $response->json();
+
                         return [
                             'quotaSizeInBytes' => $data['quotaSizeInBytes'] ?? 0,
                             'quotaUsageInBytes' => $data['quotaUsageInBytes'] ?? 0,
                         ];
                     }
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
+
                 return null;
             }),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

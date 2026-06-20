@@ -23,7 +23,7 @@ class DocumentationTest extends TestCase
 
     public function test_guests_are_redirected_from_documentation_index(): void
     {
-        $response = $this->get(route('documentation.index'));
+        $response = $this->get(route('host.documentation.index'));
         $response->assertRedirect(route('login'));
     }
 
@@ -46,7 +46,7 @@ class DocumentationTest extends TestCase
             ], 200),
         ]);
 
-        $response = $this->get(route('documentation.index'));
+        $response = $this->get(route('host.documentation.index'));
 
         $response->assertOk();
         $response->assertInertia(fn ($page) => $page
@@ -59,10 +59,10 @@ class DocumentationTest extends TestCase
 
     public function test_chunk_upload_requires_validation(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'host']);
         $this->actingAs($user);
 
-        $response = $this->post(route('documentation.upload_chunk'), []);
+        $response = $this->post(route('host.documentation.upload_chunk'), []);
 
         $response->assertRedirect();
         $response->assertSessionHasErrors(['file', 'chunkIndex', 'totalChunks', 'uploadUuid', 'filename']);
@@ -70,7 +70,7 @@ class DocumentationTest extends TestCase
 
     public function test_successful_chunked_upload_process(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'host']);
         $this->actingAs($user);
 
         // Fake Immich asset upload
@@ -83,7 +83,7 @@ class DocumentationTest extends TestCase
 
         // Chunk 1 of 2
         $fileChunk1 = UploadedFile::fake()->create('chunk0.bin', 100);
-        $response1 = $this->postJson(route('documentation.upload_chunk'), [
+        $response1 = $this->postJson(route('host.documentation.upload_chunk'), [
             'file' => $fileChunk1,
             'chunkIndex' => 0,
             'totalChunks' => 2,
@@ -102,7 +102,7 @@ class DocumentationTest extends TestCase
 
         // Chunk 2 of 2 (Trigger completion)
         $fileChunk2 = UploadedFile::fake()->create('chunk1.bin', 100);
-        $response2 = $this->postJson(route('documentation.upload_chunk'), [
+        $response2 = $this->postJson(route('host.documentation.upload_chunk'), [
             'file' => $fileChunk2,
             'chunkIndex' => 1,
             'totalChunks' => 2,

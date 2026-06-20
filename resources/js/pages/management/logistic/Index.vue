@@ -10,7 +10,7 @@ defineOptions({
             },
             {
                 title: 'Logistik',
-                href: '/management/logistic',
+                href: '/host/management/logistic',
             },
         ],
     },

@@ -6,7 +6,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Repository Proker',
-                href: '/repository',
+                href: '/host/repository',
             },
         ],
     },

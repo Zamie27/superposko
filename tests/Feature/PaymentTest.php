@@ -14,7 +14,7 @@ class PaymentTest extends TestCase
 
     public function test_guest_cannot_access_payment_test_page()
     {
-        $response = $this->get(route('payment.test'));
+        $response = $this->get(route('host.payment.test'));
 
         $response->assertRedirect(route('login'));
     }
@@ -23,14 +23,14 @@ class PaymentTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->get(route('payment.test'));
+        $response = $this->actingAs($user)->get(route('host.payment.test'));
 
         $response->assertOk();
     }
 
     public function test_authenticated_user_can_create_snap_token()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'host']);
 
         $mockMidtrans = Mockery::mock(MidtransService::class);
         $mockMidtrans->shouldReceive('createSnapTransaction')
@@ -43,7 +43,7 @@ class PaymentTest extends TestCase
         $this->app->instance(MidtransService::class, $mockMidtrans);
 
         $response = $this->actingAs($user)
-            ->postJson(route('payment.token'));
+            ->postJson(route('host.payment.token'));
 
         $response->assertOk()
             ->assertJson([

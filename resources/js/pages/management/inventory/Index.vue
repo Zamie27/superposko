@@ -10,7 +10,7 @@ defineOptions({
             },
             {
                 title: 'Inventaris',
-                href: '/management/inventory',
+                href: '/host/management/inventory',
             },
         ],
     },

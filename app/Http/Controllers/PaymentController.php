@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
 use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class PaymentController extends Controller
         $user = $request->user();
 
         $orderId = 'TEST-'.time().'-'.rand(1000, 9999);
-        $amount = 100000; // Rp 100.000
+        $amount = (int) Setting::get('package_price', 100000);
 
         $params = [
             'transaction_details' => [
