@@ -136,7 +136,7 @@ const handlePayment = async () => {
                     <p class="text-xs text-slate-500 mt-0.5">Akses penuh 40 hari / 1 siklus posko KKN</p>
                 </div>
                 <div class="text-right">
-                    <span class="text-2xl font-extrabold text-slate-900">Rp 50.000</span>
+                    <span class="text-2xl font-extrabold text-slate-900">Rp 100.000</span>
                     <p class="text-xs text-slate-500 mt-0.5">Sekali bayar</p>
                 </div>
             </div>
@@ -193,7 +193,7 @@ const handlePayment = async () => {
 
             <p class="text-xs leading-relaxed text-slate-600">
                 <span v-if="transactionStatus === 'success'">
-                    Terima kasih! Pembayaran Anda dengan ID Order <strong>{{ resultData?.order_id }}</strong> sebesar Rp 50.000 telah kami terima.
+                    Terima kasih! Pembayaran Anda dengan ID Order <strong>{{ resultData?.order_id }}</strong> sebesar Rp 100.000 telah kami terima.
                 </span>
                 <span v-else-if="transactionStatus === 'pending'">
                     Silakan selesaikan pembayaran Anda melalui metode yang Anda pilih. ID Order: <strong>{{ resultData?.order_id }}</strong>.

@@ -31,7 +31,7 @@ class PaymentController extends Controller
         $user = $request->user();
 
         $orderId = 'TEST-'.time().'-'.rand(1000, 9999);
-        $amount = 50000; // Rp 50.000
+        $amount = 100000; // Rp 100.000
 
         $params = [
             'transaction_details' => [

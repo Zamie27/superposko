@@ -17,6 +17,9 @@ interface Asset {
 
 const props = defineProps<{
     assets: Asset[];
+    immichUrl?: string;
+    immichEmail?: string;
+    immichPassword?: string;
     error: string | null;
     success?: string | null;
 }>();
@@ -40,9 +43,9 @@ type UploadItem = {
     error?: string;
 };
 
+const CHUNK_SIZE = 15 * 1024 * 1024; // 15MB chunks
 const uploadQueue = ref<UploadItem[]>([]);
 const isUploadPanelMinimized = ref(false);
-
 const uploadInput = ref<HTMLInputElement | null>(null);
 
 const handleFileChange = (e: Event) => {
@@ -58,47 +61,64 @@ const handleFileChange = (e: Event) => {
                 status: 'pending',
             };
             uploadQueue.value.push(item);
-            uploadFile(item);
+            uploadFileInChunks(item);
         });
         
         if (uploadInput.value) {
-uploadInput.value.value = '';
-}
+            uploadInput.value.value = '';
+        }
     }
 };
 
-const uploadFile = (item: UploadItem) => {
+const uploadFileInChunks = async (item: UploadItem) => {
     item.status = 'uploading';
-    
-    const formData = new FormData();
-    formData.append('file', item.file);
+    const file = item.file;
+    const totalSize = file.size;
+    const totalChunks = Math.ceil(totalSize / CHUNK_SIZE);
+    const uploadUuid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
-    axios.post('/documentation/upload', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            'Accept': 'application/json'
-        },
-        onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                item.progress = percentCompleted;
+    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        if (item.status === 'error') {
+            break;
+        }
+
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, totalSize);
+        const chunk = file.slice(start, end);
+
+        const formData = new FormData();
+        formData.append('file', chunk);
+        formData.append('chunkIndex', chunkIndex.toString());
+        formData.append('totalChunks', totalChunks.toString());
+        formData.append('uploadUuid', uploadUuid);
+        formData.append('filename', file.name);
+
+        try {
+            const response = await axios.post('/documentation/upload-chunk', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Accept': 'application/json'
+                },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const chunkPercent = (progressEvent.loaded / progressEvent.total);
+                        const totalProgress = Math.round(((chunkIndex + chunkPercent) / totalChunks) * 100);
+                        item.progress = Math.min(totalProgress, 99);
+                    }
+                }
+            });
+
+            if (response.data.status === 'success') {
+                item.status = 'success';
+                item.progress = 100;
+                router.reload({ only: ['assets'] });
             }
+        } catch (error: any) {
+            item.status = 'error';
+            item.error = error.response?.data?.message || 'Gagal mengunggah potongan file.';
+            break;
         }
-    }).then(() => {
-        item.status = 'success';
-        item.progress = 100;
-        router.reload({ only: ['assets'] }); // Refresh the gallery
-    }).catch((error) => {
-        item.status = 'error';
-
-        if (error.response?.status === 413) {
-            item.error = 'Ukuran file terlalu besar (Maks 500MB)';
-        } else if (error.response?.status === 422) {
-            item.error = error.response.data.errors?.file?.[0] || 'Format tidak didukung';
-        } else {
-            item.error = error.response?.data?.message || 'Gagal mengunggah';
-        }
-    });
+    }
 };
 
 const clearCompleted = () => {
@@ -168,29 +188,56 @@ const closeLightbox = () => {
     <Head title="Dokumentasi" />
 
     <div class="flex h-full flex-1 flex-col gap-6 p-4">
-        <!-- Header & Upload -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card border rounded-lg p-4">
+        <!-- Header & Upload Info -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-card border rounded-lg p-5 shadow-xs">
             <div>
-                <h2 class="text-xl font-bold">Galeri Dokumentasi</h2>
-                <p class="text-sm text-muted-foreground">Terkoneksi dengan server Immich</p>
+                <h2 class="text-xl font-bold tracking-tight">Galeri Dokumentasi</h2>
+                <p class="text-sm text-muted-foreground mt-1">Terkoneksi dengan server Immich.</p>
             </div>
             
-            <div class="flex items-center gap-2">
-                <Label for="file-upload" class="cursor-pointer">
-                    <div class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium text-sm transition-colors">
-                        <Upload class="w-4 h-4" />
-                        <span>Unggah</span>
+            <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+                <!-- Credentials Info -->
+                <div v-if="immichEmail || immichPassword" class="flex flex-col sm:flex-row gap-4 p-3 bg-muted/40 border border-slate-100 dark:border-slate-800 rounded-lg text-xs text-muted-foreground flex-1 sm:flex-none">
+                    <div v-if="immichEmail">
+                        <span class="font-semibold block text-slate-700 dark:text-slate-300">Email Login Immich:</span>
+                        <code class="bg-background px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 select-all font-mono">{{ immichEmail }}</code>
                     </div>
-                </Label>
-                <input 
-                    id="file-upload" 
-                    type="file" 
-                    class="hidden" 
-                    ref="uploadInput"
-                    accept="image/*,video/*"
-                    multiple
-                    @change="handleFileChange"
-                />
+                    <div v-if="immichPassword">
+                        <span class="font-semibold block text-slate-700 dark:text-slate-300">Password:</span>
+                        <code class="bg-background px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 select-all font-mono">{{ immichPassword }}</code>
+                    </div>
+                </div>
+
+                <!-- Local Upload Button -->
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <Label for="file-upload" class="cursor-pointer w-full sm:w-auto">
+                        <div class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 rounded-md font-semibold text-sm transition-colors shadow-xs justify-center">
+                            <Upload class="w-4 h-4" />
+                            <span>Unggah</span>
+                        </div>
+                    </Label>
+                    <input 
+                        id="file-upload" 
+                        type="file" 
+                        class="hidden" 
+                        ref="uploadInput"
+                        accept="image/*,video/*"
+                        multiple
+                        @change="handleFileChange"
+                    />
+
+                    <!-- External Immich link -->
+                    <a 
+                        v-if="immichUrl" 
+                        :href="immichUrl" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="flex items-center justify-center p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted border rounded-md transition-colors h-[38px] w-[38px]"
+                        title="Buka Web Immich"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                    </a>
+                </div>
             </div>
         </div>
 

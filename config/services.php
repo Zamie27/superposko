@@ -51,6 +51,8 @@ return [
     'immich' => [
         'url' => env('IMMICH_URL'),
         'api_key' => env('IMMICH_API_KEY'),
+        'email' => env('IMMICH_EMAIL'),
+        'password' => env('IMMICH_PASSWORD'),
     ],
 
 ];
