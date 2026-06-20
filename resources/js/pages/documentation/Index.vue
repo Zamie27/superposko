@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { Upload, X, Download, Play, Image as ImageIcon } from '@lucide/vue';
+import { Upload, X, Download, Play, Image as ImageIcon, ChevronLeft, ChevronRight } from '@lucide/vue';
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-
 
 interface Asset {
     id: string;
@@ -16,7 +15,7 @@ interface Asset {
     createdAt: string;
 }
 
-defineProps<{
+const props = defineProps<{
     assets: Asset[];
     error: string | null;
     success?: string | null;
@@ -111,6 +110,50 @@ const removeUpload = (id: string) => {
 };
 
 const activeAsset = ref<Asset | null>(null);
+
+const activeAssetIndex = computed(() => {
+    if (!activeAsset.value) {
+return -1;
+}
+
+    return props.assets.findIndex(a => a.id === activeAsset.value?.id);
+});
+
+const showPrev = () => {
+    const index = activeAssetIndex.value;
+
+    if (index > 0) {
+        activeAsset.value = props.assets[index - 1];
+    }
+};
+
+const showNext = () => {
+    const index = activeAssetIndex.value;
+
+    if (index !== -1 && index < props.assets.length - 1) {
+        activeAsset.value = props.assets[index + 1];
+    }
+};
+
+const handleKeyDown = (e: KeyboardEvent) => {
+    if (!activeAsset.value) {
+return;
+}
+
+    if (e.key === 'ArrowLeft') {
+        showPrev();
+    } else if (e.key === 'ArrowRight') {
+        showNext();
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeyDown);
+});
 
 const openLightbox = (asset: Asset) => {
     activeAsset.value = asset;
@@ -240,31 +283,64 @@ const closeLightbox = () => {
     </div>
 
     <Dialog :open="!!activeAsset" @update:open="!$event && closeLightbox()">
-        <DialogContent class="max-w-[90vw] w-[90vw] h-[90vh] bg-black/95 border-none shadow-2xl text-white flex flex-col p-0 overflow-hidden sm:rounded-xl">
-            <div class="absolute top-4 right-4 z-50 flex items-center gap-2">
-                <a :href="activeAsset?.file_url + '?download=true'" class="text-white hover:text-primary transition-colors">
-                    <Button variant="ghost" size="icon" class="h-10 w-10 bg-black/50 hover:bg-white/20 rounded-full" title="Unduh">
-                        <Download class="w-5 h-5" />
+        <DialogContent 
+            :show-close-button="false"
+            class="max-w-[100vw] w-full h-[100vh] sm:max-w-[100vw] sm:h-[100vh] bg-black/98 border-none shadow-2xl text-white flex flex-col p-0 overflow-hidden rounded-none sm:rounded-none gap-0"
+        >
+            <!-- Top bar -->
+            <div class="absolute top-0 inset-x-0 z-50 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 via-black/45 to-transparent pointer-events-none">
+                <div class="text-sm font-semibold text-white/90 drop-shadow-md select-none">
+                    {{ activeAssetIndex + 1 }} / {{ assets.length }}
+                </div>
+                <div class="flex items-center gap-3 pointer-events-auto">
+                    <a :href="(activeAsset?.file_url ?? '') + '?download=true'" class="text-white hover:text-primary transition-colors">
+                        <Button variant="ghost" size="icon" class="h-10 w-10 bg-black/40 hover:bg-white/10 rounded-full" title="Unduh">
+                            <Download class="w-5 h-5" />
+                        </Button>
+                    </a>
+                    <Button variant="ghost" size="icon" class="h-10 w-10 bg-black/40 hover:bg-white/10 text-white rounded-full transition-colors" @click="closeLightbox" title="Tutup (Esc)">
+                        <X class="w-5 h-5" />
                     </Button>
-                </a>
-                <Button variant="ghost" size="icon" class="h-10 w-10 bg-black/50 hover:bg-white/20 text-white rounded-full transition-colors" @click="closeLightbox">
-                    <X class="w-5 h-5" />
-                </Button>
+                </div>
             </div>
-            
-            <div class="flex-1 w-full h-full flex items-center justify-center p-4 md:p-8">
+
+            <!-- Main media content -->
+            <div class="relative flex-1 w-full h-full flex items-center justify-center p-0 select-none bg-black">
+                <!-- Prev Button -->
+                <button 
+                    v-if="activeAssetIndex > 0"
+                    @click="showPrev"
+                    class="absolute left-6 z-50 p-3 bg-black/40 hover:bg-black/75 hover:scale-105 active:scale-95 text-white rounded-full transition-all border border-white/10 shadow-lg cursor-pointer"
+                    title="Sebelumnya (←)"
+                >
+                    <ChevronLeft class="w-7 h-7" />
+                </button>
+
+                <!-- Next Button -->
+                <button 
+                    v-if="activeAssetIndex < assets.length - 1"
+                    @click="showNext"
+                    class="absolute right-6 z-50 p-3 bg-black/40 hover:bg-black/75 hover:scale-105 active:scale-95 text-white rounded-full transition-all border border-white/10 shadow-lg cursor-pointer"
+                    title="Berikutnya (→)"
+                >
+                    <ChevronRight class="w-7 h-7" />
+                </button>
+
+                <!-- Image view -->
                 <img 
                     v-if="activeAsset?.type === 'IMAGE'" 
                     :src="activeAsset?.file_url" 
-                    class="max-w-full max-h-full object-contain rounded-md shadow-lg" 
+                    class="w-full h-full max-w-[100vw] max-h-[100vh] object-contain select-none" 
+                    alt="Media Detail"
                 />
                 
+                <!-- Video view -->
                 <video 
                     v-else-if="activeAsset?.type === 'VIDEO'" 
                     :src="activeAsset?.file_url" 
                     controls 
                     autoplay
-                    class="max-w-full max-h-full rounded-md shadow-lg outline-none"
+                    class="w-full h-full max-w-[100vw] max-h-[100vh] object-contain outline-none"
                 ></video>
             </div>
         </DialogContent>
