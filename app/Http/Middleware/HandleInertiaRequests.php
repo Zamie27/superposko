@@ -39,8 +39,30 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? array_merge($request->user()->toArray(), [
+                    'display_role' => $request->user()->host_id ? ucfirst($request->user()->role) : ($request->user()->role === 'host' ? 'Host' : 'User'),
+                    'is_subscribed' => $request->user()->role === 'host', // Assuming host role means subscribed for now
+                ]) : null,
             ],
+            'immich' => \Illuminate\Support\Facades\Cache::remember('immich_storage', 300, function () {
+                $url = rtrim(config('services.immich.url', ''), '/');
+                $apiKey = config('services.immich.api_key', '');
+                if (!$apiKey) return null;
+                try {
+                    $response = \Illuminate\Support\Facades\Http::withHeaders([
+                        'x-api-key' => $apiKey,
+                        'Accept' => 'application/json',
+                    ])->get("{$url}/api/users/me");
+                    if ($response->successful()) {
+                        $data = $response->json();
+                        return [
+                            'quotaSizeInBytes' => $data['quotaSizeInBytes'] ?? 0,
+                            'quotaUsageInBytes' => $data['quotaUsageInBytes'] ?? 0,
+                        ];
+                    }
+                } catch (\Exception $e) {}
+                return null;
+            }),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

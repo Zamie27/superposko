@@ -25,7 +25,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'google_id', 'university', 'group_number', 'kkn_address'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'university', 'group_number', 'kkn_address', 'role', 'host_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -44,5 +44,21 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the members belonging to this host.
+     */
+    public function members()
+    {
+        return $this->hasMany(User::class, 'host_id');
+    }
+
+    /**
+     * Get the host this user belongs to.
+     */
+    public function host()
+    {
+        return $this->belongsTo(User::class, 'host_id');
     }
 }

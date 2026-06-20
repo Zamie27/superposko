@@ -57,6 +57,13 @@ const pendukungFeatures = [
         icon: `<svg class="h-6 w-6 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>`
+    },
+    {
+        title: 'Galeri Dokumentasi',
+        description: 'Penyimpanan terpusat khusus untuk foto dan video dokumentasi program kerja posko dengan kapasitas penyimpanan lega hingga 20 GB.',
+        icon: `<svg class="h-6 w-6 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>`
     }
 ];
 
@@ -67,13 +74,16 @@ const checklistFeatures = [
     'Buku Kontak Desa',
     'Schedule Management (Piket & Agenda)',
     'Repository Proker (Lost & Found)',
-    'Voting & Aspirasi'
+    'Voting & Aspirasi',
+    'Galeri Dokumentasi (Penyimpanan 20 GB)',
+    'Menambahkan Anggota Sampai 20 Akun',
+    'Support 24/7'
 ];
 
 const faqs = [
     {
-        question: 'Apakah biaya Rp 50.000 berlaku per anggota?',
-        answer: 'Tidak, biaya Rp 50.000/bulan adalah biaya flat per kelompok posko KKN, berapapun jumlah anggota di dalamnya.'
+        question: 'Apakah biaya Rp 100.000 berlaku per anggota?',
+        answer: 'Tidak, biaya Rp 100.000/bulan adalah biaya flat per kelompok posko KKN, berapapun jumlah anggota di dalamnya.'
     },
     {
         question: 'Bagaimana cara mendaftarkan kelompok kami?',
@@ -260,11 +270,11 @@ const faqs = [
                             Modul Pendukung (Anti-Drama Internal)
                         </h3>
                     </div>
-                    <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                    <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:flex lg:flex-wrap lg:justify-center">
                         <div 
                             v-for="feat in pendukungFeatures" 
                             :key="feat.title"
-                            class="flex flex-col items-start p-8 rounded-2xl border border-slate-200/60 bg-[#F4F7F7]/30 hover:bg-[#F4F7F7]/50 transition duration-300"
+                            class="flex flex-col items-start p-8 rounded-2xl border border-slate-200/60 bg-[#F4F7F7]/30 hover:bg-[#F4F7F7]/50 transition duration-300 lg:w-[calc(25%-1.5rem)]"
                         >
                             <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#38BDF8]/10 mb-6" v-html="feat.icon"></div>
                             <h4 class="text-lg font-bold text-slate-900">{{ feat.title }}</h4>
@@ -293,7 +303,7 @@ const faqs = [
                     <span class="text-xs font-bold uppercase tracking-wider text-sky-600">Akses Penuh SaaS</span>
                     <h3 class="mt-2 text-2xl font-bold text-slate-900">Paket Posko</h3>
                     <div class="my-6 flex items-baseline justify-center gap-1">
-                        <span class="text-4xl font-extrabold text-slate-900">Rp 50.000</span>
+                        <span class="text-4xl font-extrabold text-slate-900">Rp 100.000</span>
                         <span class="text-sm font-semibold text-slate-500">/ bulan (40 hari)</span>
                     </div>
                     <p class="text-sm leading-relaxed text-slate-600">

@@ -19,11 +19,31 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 const { isMobile, state } = useSidebar();
+
+const formatBytes = (bytes: number, decimals = 2) => {
+    if (!+bytes) return '0 B';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+};
 </script>
 
 <template>
     <SidebarMenu>
         <SidebarMenuItem>
+            <!-- Immich Storage Info -->
+            <div v-if="page.props.immich && state !== 'collapsed'" class="mb-3 p-3 bg-card border rounded-lg shadow-sm">
+                <p class="text-xs font-semibold text-slate-700 mb-1">Penyimpanan Dokumentasi</p>
+                <div class="flex justify-between items-center text-xs text-muted-foreground mb-1">
+                    <span>{{ formatBytes(page.props.immich.quotaUsageInBytes) }} dari {{ formatBytes(page.props.immich.quotaSizeInBytes) }}</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-[#38BDF8] h-1.5 rounded-full" :style="`width: ${Math.min((page.props.immich.quotaUsageInBytes / page.props.immich.quotaSizeInBytes) * 100, 100)}%`"></div>
+                </div>
+            </div>
+
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                     <SidebarMenuButton

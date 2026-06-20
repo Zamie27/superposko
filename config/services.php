@@ -48,4 +48,9 @@ return [
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
     ],
 
+    'immich' => [
+        'url' => env('IMMICH_URL'),
+        'api_key' => env('IMMICH_API_KEY'),
+    ],
+
 ];
