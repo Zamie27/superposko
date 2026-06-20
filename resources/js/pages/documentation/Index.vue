@@ -74,7 +74,7 @@ const uploadFile = (item: UploadItem) => {
     const formData = new FormData();
     formData.append('file', item.file);
 
-    axios.post(route('documentation.upload'), formData, {
+    axios.post('/documentation/upload', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
             'Accept': 'application/json'

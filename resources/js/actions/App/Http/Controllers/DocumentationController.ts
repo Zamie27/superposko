@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:24
 * @route '/documentation'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:24
 * @route '/documentation'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:24
 * @route '/documentation'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:24
 * @route '/documentation'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:24
 * @route '/documentation'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:24
 * @route '/documentation'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:24
 * @route '/documentation'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:138
 * @route '/documentation/upload'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:138
 * @route '/documentation/upload'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:138
 * @route '/documentation/upload'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:138
 * @route '/documentation/upload'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:138
 * @route '/documentation/upload'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:79
 * @route '/documentation/thumbnail/{id}'
 */
 export const thumbnail = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -153,7 +153,7 @@ thumbnail.definition = {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:79
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnail.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -180,7 +180,7 @@ thumbnail.url = (args: { id: string | number } | [id: string | number ] | string
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:79
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnail.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ thumbnail.get = (args: { id: string | number } | [id: string | number ] | string
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:79
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnail.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ thumbnail.head = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:79
 * @route '/documentation/thumbnail/{id}'
 */
 const thumbnailForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ const thumbnailForm = (args: { id: string | number } | [id: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:79
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnailForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -220,7 +220,7 @@ thumbnailForm.get = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:79
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnailForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -237,7 +237,7 @@ thumbnail.form = thumbnailForm
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:99
 * @route '/documentation/file/{id}'
 */
 export const file = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -252,7 +252,7 @@ file.definition = {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:99
 * @route '/documentation/file/{id}'
 */
 file.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -279,7 +279,7 @@ file.url = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:99
 * @route '/documentation/file/{id}'
 */
 file.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -289,7 +289,7 @@ file.get = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:99
 * @route '/documentation/file/{id}'
 */
 file.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -299,7 +299,7 @@ file.head = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:99
 * @route '/documentation/file/{id}'
 */
 const fileForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -309,7 +309,7 @@ const fileForm = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:99
 * @route '/documentation/file/{id}'
 */
 fileForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -319,7 +319,7 @@ fileForm.get = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:99
 * @route '/documentation/file/{id}'
 */
 fileForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -50,8 +50,8 @@ class DocumentationController extends Controller
                     return [
                         'id' => $asset['id'],
                         'type' => $asset['type'], // IMAGE or VIDEO
-                        'thumbnail_url' => route('documentation.thumbnail', ['id' => $asset['id']]),
-                        'file_url' => route('documentation.file', ['id' => $asset['id']]),
+                        'thumbnail_url' => route('documentation.thumbnail', ['id' => $asset['id']], false),
+                        'file_url' => route('documentation.file', ['id' => $asset['id']], false),
                         'createdAt' => $asset['fileCreatedAt'] ?? $asset['createdAt'] ?? null,
                     ];
                 })->toArray();
