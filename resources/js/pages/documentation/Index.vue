@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Head, router } from '@inertiajs/vue3';
 import { Upload, X, Download, Play, Image as ImageIcon } from '@lucide/vue';
-
 import axios from 'axios';
-import { router } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
-const props = defineProps<{
-    assets: Array<{
-        id: string;
-        type: string;
-        thumbnail_url: string;
-        file_url: string;
-        createdAt: string;
-    }>;
+
+interface Asset {
+    id: string;
+    type: string;
+    thumbnail_url: string;
+    file_url: string;
+    createdAt: string;
+}
+
+defineProps<{
+    assets: Asset[];
     error: string | null;
     success?: string | null;
 }>();
@@ -48,6 +48,7 @@ const uploadInput = ref<HTMLInputElement | null>(null);
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files.length > 0) {
         Array.from(target.files).forEach(file => {
             const id = Math.random().toString(36).substring(7);
@@ -61,7 +62,9 @@ const handleFileChange = (e: Event) => {
             uploadFile(item);
         });
         
-        if (uploadInput.value) uploadInput.value.value = '';
+        if (uploadInput.value) {
+uploadInput.value.value = '';
+}
     }
 };
 
@@ -88,6 +91,7 @@ const uploadFile = (item: UploadItem) => {
         router.reload({ only: ['assets'] }); // Refresh the gallery
     }).catch((error) => {
         item.status = 'error';
+
         if (error.response?.status === 413) {
             item.error = 'Ukuran file terlalu besar (Maks 500MB)';
         } else if (error.response?.status === 422) {
@@ -106,9 +110,9 @@ const removeUpload = (id: string) => {
     uploadQueue.value = uploadQueue.value.filter(i => i.id !== id);
 };
 
-const activeAsset = ref<typeof props.assets[0] | null>(null);
+const activeAsset = ref<Asset | null>(null);
 
-const openLightbox = (asset: typeof props.assets[0]) => {
+const openLightbox = (asset: Asset) => {
     activeAsset.value = asset;
 };
 

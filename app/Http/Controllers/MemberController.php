@@ -3,17 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class MemberController extends Controller
 {
     /**
      * Display a listing of the members.
      */
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         // Ensure only host can access member management directly (or host and roles with access)
         $user = $request->user();
@@ -23,17 +25,17 @@ class MemberController extends Controller
 
         return Inertia::render('management/members/Index', [
             'members' => $members,
-            'isHost' => is_null($user->host_id)
+            'isHost' => is_null($user->host_id),
         ]);
     }
 
     /**
      * Store a newly created member in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!is_null($user->host_id)) {
+        if (! is_null($user->host_id)) {
             abort(403, 'Hanya Host yang dapat menambah anggota.');
         }
 
@@ -61,10 +63,10 @@ class MemberController extends Controller
     /**
      * Update the specified member in storage.
      */
-    public function update(Request $request, User $member)
+    public function update(Request $request, User $member): RedirectResponse
     {
         $user = $request->user();
-        if (!is_null($user->host_id) || $member->host_id !== $user->id) {
+        if (! is_null($user->host_id) || $member->host_id !== $user->id) {
             abort(403, 'Anda tidak berhak mengubah anggota ini.');
         }
 
@@ -78,8 +80,8 @@ class MemberController extends Controller
         $member->name = $validated['name'];
         $member->email = $validated['email'];
         $member->role = $validated['role'];
-        
-        if (!empty($validated['password'])) {
+
+        if (! empty($validated['password'])) {
             $member->password = Hash::make($validated['password']);
         }
 
@@ -91,10 +93,10 @@ class MemberController extends Controller
     /**
      * Remove the specified member from storage.
      */
-    public function destroy(Request $request, User $member)
+    public function destroy(Request $request, User $member): RedirectResponse
     {
         $user = $request->user();
-        if (!is_null($user->host_id) || $member->host_id !== $user->id) {
+        if (! is_null($user->host_id) || $member->host_id !== $user->id) {
             abort(403, 'Anda tidak berhak menghapus anggota ini.');
         }
 

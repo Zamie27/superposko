@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -48,16 +50,20 @@ class User extends Authenticatable
 
     /**
      * Get the members belonging to this host.
+     *
+     * @return HasMany<User, $this>
      */
-    public function members()
+    public function members(): HasMany
     {
         return $this->hasMany(User::class, 'host_id');
     }
 
     /**
      * Get the host this user belongs to.
+     *
+     * @return BelongsTo<User, $this>
      */
-    public function host()
+    public function host(): BelongsTo
     {
         return $this->belongsTo(User::class, 'host_id');
     }

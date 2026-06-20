@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
-use Inertia\Inertia;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class DocumentationController extends Controller
 {
     protected string $url;
+
     protected string $apiKey;
 
     public function __construct()
@@ -18,7 +21,7 @@ class DocumentationController extends Controller
         $this->apiKey = config('services.immich.api_key', '');
     }
 
-    public function index()
+    public function index(): Response
     {
         // Jika API key belum diset, return kosong
         if (empty($this->apiKey)) {
@@ -39,8 +42,9 @@ class DocumentationController extends Controller
 
             if ($response->successful()) {
                 $responseData = $response->json();
+                /** @var array<int, array<string, mixed>> $assets */
                 $assets = $responseData['assets']['items'] ?? $responseData['items'] ?? $responseData ?? [];
-                
+
                 // Map the assets to include local proxy URLs
                 $mappedAssets = collect($assets)->map(function ($asset) {
                     return [
@@ -61,20 +65,22 @@ class DocumentationController extends Controller
 
             return Inertia::render('documentation/Index', [
                 'assets' => [],
-                'error' => session('error', 'Gagal mengambil data dari Immich: ' . $response->status()),
+                'error' => session('error', 'Gagal mengambil data dari Immich: '.$response->status()),
                 'success' => session('success'),
             ]);
         } catch (\Exception $e) {
             return Inertia::render('documentation/Index', [
                 'assets' => [],
-                'error' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'error' => 'Terjadi kesalahan: '.$e->getMessage(),
             ]);
         }
     }
 
-    public function thumbnail($id)
+    public function thumbnail(string $id): \Symfony\Component\HttpFoundation\Response
     {
-        if (empty($this->apiKey)) abort(404);
+        if (empty($this->apiKey)) {
+            abort(404);
+        }
 
         $response = Http::withHeaders([
             'x-api-key' => $this->apiKey,
@@ -82,7 +88,7 @@ class DocumentationController extends Controller
 
         if ($response->successful()) {
             return response($response->body(), 200, [
-                'Content-Type' => $response->header('Content-Type', 'image/webp'),
+                'Content-Type' => $response->header('Content-Type'),
                 'Cache-Control' => 'public, max-age=86400', // Cache for 1 day
             ]);
         }
@@ -90,9 +96,11 @@ class DocumentationController extends Controller
         abort(404);
     }
 
-    public function file(Request $request, $id)
+    public function file(Request $request, string $id): \Symfony\Component\HttpFoundation\Response
     {
-        if (empty($this->apiKey)) abort(404);
+        if (empty($this->apiKey)) {
+            abort(404);
+        }
 
         $isDownload = $request->query('download') === 'true';
 
@@ -105,8 +113,8 @@ class DocumentationController extends Controller
 
         if ($response->successful()) {
             $headers = [
-                'Content-Type' => $response->header('Content-Type'),
-                'Content-Length' => $response->header('Content-Length'),
+                'Content-Type' => (string) $response->header('Content-Type'),
+                'Content-Length' => (string) $response->header('Content-Length'),
                 'Accept-Ranges' => 'bytes',
             ];
 
@@ -117,7 +125,7 @@ class DocumentationController extends Controller
             }
 
             return response()->stream(function () use ($response) {
-                while (!$response->toPsrResponse()->getBody()->eof()) {
+                while (! $response->toPsrResponse()->getBody()->eof()) {
                     echo $response->toPsrResponse()->getBody()->read(1024 * 8);
                     flush();
                 }
@@ -127,7 +135,7 @@ class DocumentationController extends Controller
         abort(404);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         if (empty($this->apiKey)) {
             return back()->with('error', 'API Key Immich belum dikonfigurasi.');
@@ -137,19 +145,25 @@ class DocumentationController extends Controller
             'file' => ['required', 'file', 'mimes:jpeg,png,jpg,gif,mp4,mov,avi', 'max:512000'], // 500MB max
         ]);
 
+        /** @var UploadedFile $file */
         $file = $request->file('file');
-        
+
         // Immich requires some specific metadata
         $deviceId = 'SuperPosko-Web';
         $deviceAssetId = Str::uuid()->toString(); // unique ID per upload
         $now = now()->toIso8601String();
 
         try {
+            $stream = fopen($file->getPathname(), 'r');
+            if ($stream === false) {
+                throw new \RuntimeException('Gagal membuka file.');
+            }
+
             $response = Http::timeout(300)->withHeaders([
                 'x-api-key' => $this->apiKey,
                 'Accept' => 'application/json',
             ])->attach(
-                'assetData', fopen($file->getPathname(), 'r'), $file->getClientOriginalName()
+                'assetData', $stream, $file->getClientOriginalName()
             )->post("{$this->url}/api/assets", [
                 'deviceId' => $deviceId,
                 'deviceAssetId' => $deviceAssetId,
@@ -162,18 +176,21 @@ class DocumentationController extends Controller
                 if ($request->wantsJson()) {
                     return response()->json(['message' => 'File berhasil diunggah ke Dokumentasi.']);
                 }
+
                 return back()->with('success', 'File berhasil diunggah ke Dokumentasi.');
             }
 
             if ($request->wantsJson()) {
-                return response()->json(['message' => 'Gagal mengunggah ke Immich: ' . $response->body()], 400);
+                return response()->json(['message' => 'Gagal mengunggah ke Immich: '.$response->body()], 400);
             }
-            return back()->with('error', 'Gagal mengunggah ke Immich: ' . $response->body());
+
+            return back()->with('error', 'Gagal mengunggah ke Immich: '.$response->body());
         } catch (\Exception $e) {
             if ($request->wantsJson()) {
-                return response()->json(['message' => 'Terjadi kesalahan saat mengunggah: ' . $e->getMessage()], 500);
+                return response()->json(['message' => 'Terjadi kesalahan saat mengunggah: '.$e->getMessage()], 500);
             }
-            return back()->with('error', 'Terjadi kesalahan saat mengunggah: ' . $e->getMessage());
+
+            return back()->with('error', 'Terjadi kesalahan saat mengunggah: '.$e->getMessage());
         }
     }
 }
