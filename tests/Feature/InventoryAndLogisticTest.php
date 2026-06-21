@@ -52,7 +52,7 @@ class InventoryAndLogisticTest extends TestCase
             'host_id' => $host->id,
         ]);
 
-        $image = UploadedFile::fake()->image('wajan.jpg');
+        $image = UploadedFile::fake()->image('wajan.png');
 
         $payload = [
             'name' => 'Wajan Goreng',
@@ -135,7 +135,7 @@ class InventoryAndLogisticTest extends TestCase
         $host = User::factory()->create(['role' => 'host']);
         $this->actingAs($host);
 
-        $oldImage = UploadedFile::fake()->image('old.jpg');
+        $oldImage = UploadedFile::fake()->image('old.png');
         $oldImagePath = Storage::disk('public')->putFile('inventories', $oldImage);
 
         $inventory = Inventory::create([
@@ -146,7 +146,7 @@ class InventoryAndLogisticTest extends TestCase
             'image_path' => $oldImagePath,
         ]);
 
-        $newImage = UploadedFile::fake()->image('new.jpg');
+        $newImage = UploadedFile::fake()->image('new.png');
 
         $payload = [
             'name' => 'Baru',
@@ -204,7 +204,7 @@ class InventoryAndLogisticTest extends TestCase
         $host = User::factory()->create(['role' => 'host']);
         $this->actingAs($host);
 
-        $image = UploadedFile::fake()->image('item.jpg');
+        $image = UploadedFile::fake()->image('item.png');
         $imagePath = Storage::disk('public')->putFile('inventories', $image);
 
         $inventory = Inventory::create([

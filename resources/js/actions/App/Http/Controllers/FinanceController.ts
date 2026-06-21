@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\FinanceController::index
 * @see app/Http/Controllers/FinanceController.php:21
@@ -306,11 +306,6 @@ destroyForm.delete = (args: { finance: number | { id: number } } | [finance: num
 
 destroy.form = destroyForm
 
-const finance = {
-    index: Object.assign(index, index),
-    store: Object.assign(store, store),
-    update: Object.assign(update, update),
-    destroy: Object.assign(destroy, destroy),
-}
+const FinanceController = { index, store, update, destroy }
 
-export default finance
+export default FinanceController

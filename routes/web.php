@@ -17,6 +17,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LogisticController;
 use App\Http\Controllers\LogbookController;
+use App\Http\Controllers\FinanceController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -78,7 +79,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         })->name('host.dashboard');
 
         // Sidebar Menus
-        Route::inertia('finance', 'finance/Index')->name('finance.index');
+        // E-Bendahara (Kas & Keuangan)
+        Route::get('finance', [FinanceController::class, 'index'])->name('finance.index');
+        Route::post('finance', [FinanceController::class, 'store'])->name('finance.store');
+        Route::post('finance/{finance}', [FinanceController::class, 'update'])->name('finance.update');
+        Route::delete('finance/{finance}', [FinanceController::class, 'destroy'])->name('finance.destroy');
         
         // Logbook & Proker
         Route::get('logbook', [LogbookController::class, 'index'])->name('logbook.index');

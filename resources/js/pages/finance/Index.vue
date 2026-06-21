@@ -1,6 +1,49 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import ComingSoon from '@/components/ComingSoon.vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import { 
+    Plus, Edit, Trash2, Calendar, FileText, ArrowUpRight, ArrowDownLeft, Wallet, 
+    X, ImageIcon, Search, Filter, Printer, ExternalLink, Info
+} from '@lucide/vue';
+import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
+import { useToast } from '@/composables/useToast';
+import { useConfirm } from '@/composables/useConfirm';
+
+interface ProgramKerja {
+    id: number;
+    name: string;
+    budget: number;
+}
+
+interface Creator {
+    id: number;
+    name: string;
+}
+
+interface FinanceRecord {
+    id: number;
+    type: 'income' | 'expense';
+    amount: number;
+    title: string;
+    description: string | null;
+    date: string;
+    receipt_path: string | null;
+    program_kerja_id: number | null;
+    program_kerja: { id: number; name: string } | null;
+    creator: Creator;
+}
+
+const props = defineProps<{
+    finances: FinanceRecord[];
+    programKerjas: ProgramKerja[];
+    metrics: {
+        total_income: number;
+        total_expense: number;
+        balance: number;
+    };
+    canWrite: boolean;
+}>();
 
 defineOptions({
     layout: {
@@ -12,15 +55,709 @@ defineOptions({
         ],
     },
 });
+
+const toast = useToast();
+const { confirm } = useConfirm();
+
+// State
+const searchQuery = ref('');
+const filterType = ref<'all' | 'income' | 'expense'>('all');
+const filterProker = ref<number | 'all'>('all');
+const activeTab = ref<'ledger' | 'summary'>('ledger');
+
+// Modal States
+const isModalOpen = ref(false);
+const editingRecord = ref<FinanceRecord | null>(null);
+const previewImage = ref<string | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
+const filePreview = ref<string | null>(null);
+
+// Form
+const form = useForm({
+    type: 'expense' as 'income' | 'expense',
+    amount: '' as number | '',
+    title: '',
+    description: '',
+    date: new Date().toISOString().split('T')[0],
+    program_kerja_id: '' as number | '' | 'null',
+    receipt_file: null as File | null,
+});
+
+// Format currency helper
+const formatRupiah = (val: number) => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(val);
+};
+
+// Filtered Records
+const filteredFinances = computed(() => {
+    return props.finances.filter(record => {
+        const matchesSearch = record.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            (record.description && record.description.toLowerCase().includes(searchQuery.value.toLowerCase()));
+        
+        const matchesType = filterType.value === 'all' || record.type === filterType.value;
+        
+        const matchesProker = filterProker.value === 'all' || record.program_kerja_id === Number(filterProker.value);
+
+        return matchesSearch && matchesType && matchesProker;
+    });
+});
+
+// Proker spending breakdowns
+const prokerSpentBreakdown = computed(() => {
+    return props.programKerjas.map(proker => {
+        const spent = props.finances
+            .filter(f => f.program_kerja_id === proker.id && f.type === 'expense')
+            .reduce((sum, f) => sum + f.amount, 0);
+        return {
+            ...proker,
+            spent,
+            percent: proker.budget > 0 ? Math.round((spent / proker.budget) * 100) : 0
+        };
+    }).sort((a, b) => b.spent - a.spent);
+});
+
+// Actions
+const openAddModal = () => {
+    editingRecord.value = null;
+    form.reset();
+    form.type = 'expense';
+    form.date = new Date().toISOString().split('T')[0];
+    form.program_kerja_id = '';
+    filePreview.value = null;
+    isModalOpen.value = true;
+};
+
+const openEditModal = (record: FinanceRecord) => {
+    editingRecord.value = record;
+    form.type = record.type;
+    form.amount = record.amount;
+    form.title = record.title;
+    form.description = record.description || '';
+    form.date = record.date;
+    form.program_kerja_id = record.program_kerja_id || '';
+    filePreview.value = record.receipt_path;
+    isModalOpen.value = true;
+};
+
+const handleFileChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+        const file = target.files[0];
+        form.receipt_file = file;
+        filePreview.value = URL.createObjectURL(file);
+    }
+};
+
+const submitForm = () => {
+    // Sanitize program_kerja_id
+    if (form.program_kerja_id === 'null' || form.program_kerja_id === '') {
+        form.program_kerja_id = '';
+    }
+
+    if (editingRecord.value) {
+        // Form post due to file upload constraints
+        form.post(`/finance/${editingRecord.value.id}`, {
+            onSuccess: () => {
+                isModalOpen.value = false;
+                toast.success('Transaksi berhasil diperbarui');
+            },
+            onError: (err) => {
+                toast.error('Gagal memperbarui transaksi. Cek isian Anda.');
+            }
+        });
+    } else {
+        form.post('/finance', {
+            onSuccess: () => {
+                isModalOpen.value = false;
+                toast.success('Transaksi berhasil dicatat');
+            },
+            onError: (err) => {
+                toast.error('Gagal menyimpan transaksi. Cek isian Anda.');
+            }
+        });
+    }
+};
+
+const deleteRecord = async (record: FinanceRecord) => {
+    const proceed = await confirm({
+        title: 'Hapus Transaksi',
+        message: `Apakah Anda yakin ingin menghapus transaksi "${record.title}"? Saldo kas akan terhitung ulang otomatis.`,
+        confirmText: 'Ya, Hapus',
+        cancelText: 'Batal',
+        variant: 'destructive'
+    });
+
+    if (proceed) {
+        router.delete(`/finance/${record.id}`, {
+            onSuccess: () => {
+                toast.success('Transaksi berhasil dihapus');
+            },
+            onError: () => {
+                toast.error('Gagal menghapus transaksi');
+            }
+        });
+    }
+};
+
+const triggerPrint = () => {
+    window.print();
+};
 </script>
 
 <template>
-    <Head title="Kas & Keuangan" />
+    <Head title="E-Bendahara - Kas & Keuangan" />
 
-    <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-        <ComingSoon 
-            title="E-Bendahara (Kas & Keuangan)" 
-            description="Kelola iuran kas, catat pengeluaran posko secara transparan lengkap dengan bukti nota belanja digital, dan hindari selisih dana kelompok." 
-        />
+    <div class="flex flex-col gap-6 p-4 md:p-6 w-full max-w-7xl mx-auto">
+        <!-- Print Header (Hidden on screen) -->
+        <div class="hidden print:block border-b-2 border-slate-900 pb-4 mb-6">
+            <h1 class="text-2xl font-extrabold text-center uppercase tracking-wider text-slate-900">
+                Laporan Kas & Keuangan Posko KKN
+            </h1>
+            <p class="text-xs text-center text-slate-500 mt-1">
+                Dicetak pada: {{ new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) }}
+            </p>
+        </div>
+
+        <!-- Upper Banner Dashboard -->
+        <div class="no-print grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Saldo Kas Card -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 text-white shadow-lg transition-transform duration-300 hover:scale-[1.01]">
+                <div class="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-15">
+                    <Wallet class="size-36" />
+                </div>
+                <span class="text-xs font-bold uppercase tracking-widest text-indigo-100">Total Saldo Kas</span>
+                <h3 class="text-3xl font-black mt-2 tracking-tight">
+                    {{ formatRupiah(metrics.balance) }}
+                </h3>
+                <div class="flex items-center gap-1.5 mt-4 text-xs text-indigo-100 bg-white/10 w-fit px-2.5 py-1 rounded-full backdrop-blur-xs">
+                    <Info class="size-3.5" />
+                    <span>Selisih pemasukan & pengeluaran</span>
+                </div>
+            </div>
+
+            <!-- Pemasukan Card -->
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pemasukan</span>
+                        <div class="size-8 rounded-full bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600">
+                            <ArrowUpRight class="size-4" />
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mt-3 text-slate-900 dark:text-white">
+                        {{ formatRupiah(metrics.total_income) }}
+                    </h3>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-4">Dana iuran anggota, donasi, atau sponsor.</p>
+            </div>
+
+            <!-- Pengeluaran Card -->
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pengeluaran</span>
+                        <div class="size-8 rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center text-red-600">
+                            <ArrowDownLeft class="size-4" />
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mt-3 text-slate-900 dark:text-white">
+                        {{ formatRupiah(metrics.total_expense) }}
+                    </h3>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-4">Biaya operasional posko & belanja program kerja.</p>
+            </div>
+        </div>
+
+        <!-- Quick Tabs for Navigation (no-print) -->
+        <div class="no-print flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-px">
+            <div class="flex gap-4">
+                <button 
+                    @click="activeTab = 'ledger'" 
+                    class="pb-3 text-sm font-bold border-b-2 transition-colors relative"
+                    :class="[activeTab === 'ledger' ? 'border-indigo-500 text-slate-900 dark:text-white' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300']"
+                >
+                    Buku Ledger Keuangan
+                </button>
+                <button 
+                    @click="activeTab = 'summary'" 
+                    class="pb-3 text-sm font-bold border-b-2 transition-colors relative"
+                    :class="[activeTab === 'summary' ? 'border-indigo-500 text-slate-900 dark:text-white' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300']"
+                >
+                    Analisa Anggaran Proker
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    class="h-9 rounded-xl border-slate-200 dark:border-slate-800"
+                    @click="triggerPrint"
+                >
+                    <Printer class="size-4 mr-1.5" />
+                    <span>Cetak Laporan</span>
+                </Button>
+
+                <Button 
+                    v-if="canWrite"
+                    @click="openAddModal"
+                    size="sm"
+                    class="h-9 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold hover:from-indigo-700 hover:to-purple-700 shadow-md"
+                >
+                    <Plus class="size-4 mr-1.5" />
+                    <span>Catat Keuangan</span>
+                </Button>
+            </div>
+        </div>
+
+        <!-- Tab 1: Ledger Keuangan -->
+        <div v-if="activeTab === 'ledger'" class="flex flex-col gap-4">
+            <!-- Search & Filters (no-print) -->
+            <div class="no-print grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-xs">
+                <!-- Search input -->
+                <div class="relative">
+                    <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                    <input 
+                        v-model="searchQuery"
+                        type="text" 
+                        placeholder="Cari transaksi..."
+                        class="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 bg-transparent dark:text-white"
+                    />
+                </div>
+
+                <!-- Type filter -->
+                <div class="relative">
+                    <Filter class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                    <select 
+                        v-model="filterType"
+                        class="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 bg-transparent dark:text-white appearance-none"
+                    >
+                        <option value="all" class="dark:bg-slate-900">Semua Tipe Transaksi</option>
+                        <option value="income" class="dark:bg-slate-900">Pemasukan (+)</option>
+                        <option value="expense" class="dark:bg-slate-900">Pengeluaran (-)</option>
+                    </select>
+                </div>
+
+                <!-- Proker filter -->
+                <div class="relative">
+                    <FileText class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                    <select 
+                        v-model="filterProker"
+                        class="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 bg-transparent dark:text-white appearance-none"
+                    >
+                        <option value="all" class="dark:bg-slate-900">Semua Program Kerja</option>
+                        <option 
+                            v-for="proker in programKerjas" 
+                            :key="proker.id" 
+                            :value="proker.id"
+                            class="dark:bg-slate-900"
+                        >
+                            {{ proker.name }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Ledger Table -->
+            <div class="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">
+                                <th class="py-3.5 px-4">Tanggal</th>
+                                <th class="py-3.5 px-4">Keterangan Transaksi</th>
+                                <th class="py-3.5 px-4 text-center">Tipe</th>
+                                <th class="py-3.5 px-4 text-right">Nominal</th>
+                                <th class="py-3.5 px-4">Link Proker</th>
+                                <th class="py-3.5 px-4 no-print">Bukti</th>
+                                <th class="py-3.5 px-4 text-slate-400 font-semibold no-print">Petugas</th>
+                                <th class="py-3.5 px-4 text-right no-print" v-if="canWrite">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 text-xs md:text-sm">
+                            <tr 
+                                v-for="record in filteredFinances" 
+                                :key="record.id"
+                                class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors"
+                            >
+                                <!-- Date -->
+                                <td class="py-3.5 px-4 font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                    {{ new Date(record.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) }}
+                                </td>
+
+                                <!-- Title / Description -->
+                                <td class="py-3.5 px-4">
+                                    <div>
+                                        <p class="font-bold text-slate-800 dark:text-slate-200">{{ record.title }}</p>
+                                        <p v-if="record.description" class="text-[10px] md:text-xs text-slate-400 mt-0.5 line-clamp-1">
+                                            {{ record.description }}
+                                        </p>
+                                    </div>
+                                </td>
+
+                                <!-- Type -->
+                                <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                    <span 
+                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold"
+                                        :class="[record.type === 'income' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-450' : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400']"
+                                    >
+                                        {{ record.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
+                                    </span>
+                                </td>
+
+                                <!-- Amount -->
+                                <td 
+                                    class="py-3.5 px-4 text-right font-extrabold whitespace-nowrap"
+                                    :class="[record.type === 'income' ? 'text-emerald-600 dark:text-emerald-450' : 'text-slate-800 dark:text-slate-200']"
+                                >
+                                    {{ record.type === 'income' ? '+' : '-' }} {{ formatRupiah(record.amount) }}
+                                </td>
+
+                                <!-- Link Proker -->
+                                <td class="py-3.5 px-4">
+                                    <span 
+                                        v-if="record.program_kerja"
+                                        class="inline-flex items-center gap-1 text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/20 text-sky-700 dark:text-sky-400 px-2 py-0.5 rounded-md max-w-[150px] truncate"
+                                    >
+                                        <FileText class="size-3 shrink-0" />
+                                        <span class="truncate">{{ record.program_kerja.name }}</span>
+                                    </span>
+                                    <span v-else class="text-slate-400 text-[10px] italic">Bukan Proker</span>
+                                </td>
+
+                                <!-- Bukti Nota (no-print) -->
+                                <td class="py-3.5 px-4 no-print">
+                                    <button 
+                                        v-if="record.receipt_path" 
+                                        @click="previewImage = record.receipt_path"
+                                        class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-500 hover:text-indigo-600"
+                                    >
+                                        <ImageIcon class="size-3.5" />
+                                        <span>Lihat Nota</span>
+                                    </button>
+                                    <span v-else class="text-slate-300 dark:text-slate-700">-</span>
+                                </td>
+
+                                <!-- Petugas (no-print) -->
+                                <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 no-print max-w-[100px] truncate">
+                                    {{ record.creator.name }}
+                                </td>
+
+                                <!-- Actions (no-print) -->
+                                <td class="py-3.5 px-4 text-right no-print" v-if="canWrite">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button 
+                                            @click="openEditModal(record)"
+                                            class="p-1 rounded-md text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors"
+                                            title="Edit transaksi"
+                                        >
+                                            <Edit class="size-3.5" />
+                                        </button>
+                                        <button 
+                                            @click="deleteRecord(record)"
+                                            class="p-1 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                                            title="Hapus transaksi"
+                                        >
+                                            <Trash2 class="size-3.5" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Empty State -->
+                            <tr v-if="filteredFinances.length === 0">
+                                <td colspan="8" class="py-12 text-center text-slate-400 dark:text-slate-500">
+                                    Tidak ada catatan transaksi keuangan yang sesuai filter.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Proker Budget Breakdown -->
+        <div v-else-if="activeTab === 'summary'" class="flex flex-col gap-4">
+            <div class="bg-indigo-50/50 dark:bg-indigo-950/10 border border-indigo-100 dark:border-indigo-950/30 p-4 rounded-2xl flex items-start gap-3">
+                <Info class="size-5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
+                <div>
+                    <h4 class="text-sm font-bold text-indigo-900 dark:text-indigo-300">Hubungan Keuangan & Program Kerja</h4>
+                    <p class="text-xs text-indigo-700/80 dark:text-indigo-400/80 mt-0.5">
+                        Setiap transaksi pengeluaran yang ditautkan ke Program Kerja otomatis akan diakumulasikan sebagai realisasi belanja proker tersebut. Hal ini membantu posko mengontrol pengeluaran agar tidak over-budget.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div 
+                    v-for="breakdown in prokerSpentBreakdown" 
+                    :key="breakdown.id"
+                    class="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 p-5 shadow-xs flex flex-col justify-between"
+                >
+                    <div>
+                        <div class="flex items-start justify-between gap-4">
+                            <h4 class="font-bold text-sm md:text-base text-slate-900 dark:text-white line-clamp-1">{{ breakdown.name }}</h4>
+                            <span 
+                                class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0"
+                                :class="[breakdown.spent > breakdown.budget ? 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-450']"
+                            >
+                                {{ breakdown.percent }}% Terpakai
+                            </span>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden mt-3">
+                            <div 
+                                class="h-2 rounded-full transition-all" 
+                                :class="[breakdown.spent > breakdown.budget ? 'bg-red-500' : 'bg-emerald-500']"
+                                :style="`width: ${Math.min(breakdown.percent, 100)}%`"
+                            ></div>
+                        </div>
+
+                        <!-- Ledger breakdown list -->
+                        <div class="mt-4 grid grid-cols-3 gap-2 text-xs border-b border-slate-100 dark:border-slate-800 pb-3">
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Anggaran</span>
+                                <span class="font-bold text-slate-700 dark:text-slate-300">{{ formatRupiah(breakdown.budget) }}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Terpakai</span>
+                                <span class="font-extrabold text-slate-800 dark:text-slate-200">{{ formatRupiah(breakdown.spent) }}</span>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Sisa</span>
+                                <span 
+                                    class="font-bold"
+                                    :class="[breakdown.budget - breakdown.spent < 0 ? 'text-red-500 font-extrabold' : 'text-slate-500 dark:text-slate-400']"
+                                >
+                                    {{ formatRupiah(breakdown.budget - breakdown.spent) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter quickly actions -->
+                    <div class="mt-3.5 flex items-center justify-between">
+                        <span class="text-[10px] text-slate-400">Total rencana biaya proker posko</span>
+                        <button 
+                            @click="filterProker = breakdown.id; activeTab = 'ledger'"
+                            class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-500 hover:text-indigo-600 transition-colors"
+                        >
+                            <span>Lihat Rincian Ledger</span>
+                            <ExternalLink class="size-3" />
+                        </button>
+                    </div>
+                </div>
+
+                <div v-if="prokerSpentBreakdown.length === 0" class="col-span-2 py-12 text-center text-slate-400 dark:text-slate-500">
+                    Belum ada data program kerja untuk dianalisa.
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Modal (no-print) -->
+        <div 
+            v-if="isModalOpen" 
+            class="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+        >
+            <div class="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xl relative animate-in fade-in zoom-in-95 duration-200">
+                <button 
+                    @click="isModalOpen = false" 
+                    class="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                >
+                    <X class="size-4" />
+                </button>
+
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">
+                    {{ editingRecord ? 'Edit Catatan Keuangan' : 'Catat Transaksi Keuangan Baru' }}
+                </h3>
+
+                <form @submit.prevent="submitForm" class="flex flex-col gap-4">
+                    <!-- Type selector -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Tipe Transaksi</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button
+                                type="button"
+                                @click="form.type = 'expense'"
+                                class="py-2.5 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                :class="[form.type === 'expense' ? 'bg-red-500 border-red-500 text-white shadow-xs' : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white']"
+                            >
+                                <ArrowDownLeft class="size-4" />
+                                <span>Pengeluaran (Cash Out)</span>
+                            </button>
+                            <button
+                                type="button"
+                                @click="form.type = 'income'"
+                                class="py-2.5 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                :class="[form.type === 'income' ? 'bg-emerald-500 border-emerald-500 text-white shadow-xs' : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white']"
+                            >
+                                <ArrowUpRight class="size-4" />
+                                <span>Pemasukan (Cash In)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Title / Nama Transaksi -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Nama Transaksi</label>
+                        <input 
+                            v-model="form.title"
+                            type="text" 
+                            placeholder="Contoh: Beli Semen, Iuran Kas Minggu 2"
+                            required
+                            class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
+                        />
+                        <p v-if="form.errors.title" class="text-xs text-red-500 mt-1">{{ form.errors.title }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Nominal -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Nominal (Rp)</label>
+                            <input 
+                                v-model.number="form.amount"
+                                type="number" 
+                                placeholder="0"
+                                required
+                                min="0"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white font-extrabold"
+                            />
+                            <p v-if="form.errors.amount" class="text-xs text-red-500 mt-1">{{ form.errors.amount }}</p>
+                        </div>
+
+                        <!-- Date -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tanggal</label>
+                            <input 
+                                v-model="form.date"
+                                type="date" 
+                                required
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
+                            />
+                            <p v-if="form.errors.date" class="text-xs text-red-500 mt-1">{{ form.errors.date }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Program Kerja Linkage -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Link Program Kerja (Khusus Pengeluaran)</label>
+                        <select 
+                            v-model="form.program_kerja_id"
+                            class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                            :disabled="form.type === 'income'"
+                        >
+                            <option value="" class="dark:bg-slate-900">Bukan untuk Program Kerja / Umum</option>
+                            <option 
+                                v-for="proker in programKerjas" 
+                                :key="proker.id" 
+                                :value="proker.id"
+                                class="dark:bg-slate-900"
+                            >
+                                {{ proker.name }} (Anggaran: {{ formatRupiah(proker.budget) }})
+                            </option>
+                        </select>
+                        <p v-if="form.errors.program_kerja_id" class="text-xs text-red-500 mt-1">{{ form.errors.program_kerja_id }}</p>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Keterangan / Rincian</label>
+                        <textarea 
+                            v-model="form.description"
+                            rows="2"
+                            placeholder="Detail belanja barang, sisa kembalian, donatur, dll."
+                            class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
+                        ></textarea>
+                    </div>
+
+                    <!-- Receipt Image File Upload -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Foto Nota / Bukti Belanja (Digital Receipt)</label>
+                        
+                        <div class="flex items-center gap-4">
+                            <!-- Drag / Drop click upload area -->
+                            <div 
+                                @click="fileInput?.click()"
+                                class="flex-1 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-950 transition-colors"
+                            >
+                                <input 
+                                    ref="fileInput"
+                                    type="file" 
+                                    accept="image/*"
+                                    class="hidden" 
+                                    @change="handleFileChange"
+                                />
+                                <ImageIcon class="size-5 text-slate-400 mb-1" />
+                                <span class="text-[10px] font-bold text-slate-500">PILIH FOTO NOTA</span>
+                            </div>
+
+                            <!-- Preview receipt thumbnail -->
+                            <div v-if="filePreview" class="relative size-16 border rounded-xl overflow-hidden shrink-0">
+                                <img :src="filePreview" alt="Receipt preview" class="size-full object-cover" />
+                                <button 
+                                    type="button" 
+                                    @click="filePreview = null; form.receipt_file = null"
+                                    class="absolute top-0.5 right-0.5 bg-black/70 text-white rounded-full p-0.5 hover:bg-black"
+                                >
+                                    <X class="size-3" />
+                                </button>
+                            </div>
+                        </div>
+                        <p v-if="form.errors.receipt_file" class="text-xs text-red-500 mt-1">{{ form.errors.receipt_file }}</p>
+                    </div>
+
+                    <!-- Footer actions -->
+                    <div class="flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800 pt-4 mt-2">
+                        <Button 
+                            type="button" 
+                            variant="outline"
+                            class="rounded-xl"
+                            @click="isModalOpen = false"
+                        >
+                            Batal
+                        </Button>
+                        <Button 
+                            type="submit" 
+                            class="bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl"
+                            :disabled="form.processing"
+                        >
+                            <Spinner v-if="form.processing" class="size-4 mr-2" />
+                            <span>{{ editingRecord ? 'Simpan Perubahan' : 'Catat Transaksi' }}</span>
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lightbox Nota Bukti (no-print) -->
+        <div 
+            v-if="previewImage" 
+            @click="previewImage = null"
+            class="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+        >
+            <div class="relative max-w-3xl max-h-[85vh] overflow-hidden" @click.stop>
+                <img :src="previewImage" alt="Nota Belanja Digital" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl" />
+                <button 
+                    @click="previewImage = null"
+                    class="absolute top-4 right-4 bg-black/60 text-white hover:bg-black p-2 rounded-full transition-all"
+                >
+                    <X class="size-5" />
+                </button>
+            </div>
+        </div>
     </div>
 </template>
+
+<style scoped>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+</style>

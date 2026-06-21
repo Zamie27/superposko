@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\LogbookController::store
-* @see app/Http/Controllers/LogbookController.php:68
+* @see app/Http/Controllers/LogbookController.php:86
 * @route '/logbook/proker'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\LogbookController::store
-* @see app/Http/Controllers/LogbookController.php:68
+* @see app/Http/Controllers/LogbookController.php:86
 * @route '/logbook/proker'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\LogbookController::store
-* @see app/Http/Controllers/LogbookController.php:68
+* @see app/Http/Controllers/LogbookController.php:86
 * @route '/logbook/proker'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\LogbookController::store
-* @see app/Http/Controllers/LogbookController.php:68
+* @see app/Http/Controllers/LogbookController.php:86
 * @route '/logbook/proker'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\LogbookController::store
-* @see app/Http/Controllers/LogbookController.php:68
+* @see app/Http/Controllers/LogbookController.php:86
 * @route '/logbook/proker'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\LogbookController::update
-* @see app/Http/Controllers/LogbookController.php:115
+* @see app/Http/Controllers/LogbookController.php:133
 * @route '/logbook/proker/{proker}'
 */
 export const update = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -72,7 +72,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\LogbookController::update
-* @see app/Http/Controllers/LogbookController.php:115
+* @see app/Http/Controllers/LogbookController.php:133
 * @route '/logbook/proker/{proker}'
 */
 update.url = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -105,7 +105,7 @@ update.url = (args: { proker: number | { id: number } } | [proker: number | { id
 
 /**
 * @see \App\Http\Controllers\LogbookController::update
-* @see app/Http/Controllers/LogbookController.php:115
+* @see app/Http/Controllers/LogbookController.php:133
 * @route '/logbook/proker/{proker}'
 */
 update.put = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -115,7 +115,7 @@ update.put = (args: { proker: number | { id: number } } | [proker: number | { id
 
 /**
 * @see \App\Http\Controllers\LogbookController::update
-* @see app/Http/Controllers/LogbookController.php:115
+* @see app/Http/Controllers/LogbookController.php:133
 * @route '/logbook/proker/{proker}'
 */
 const updateForm = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -130,7 +130,7 @@ const updateForm = (args: { proker: number | { id: number } } | [proker: number 
 
 /**
 * @see \App\Http\Controllers\LogbookController::update
-* @see app/Http/Controllers/LogbookController.php:115
+* @see app/Http/Controllers/LogbookController.php:133
 * @route '/logbook/proker/{proker}'
 */
 updateForm.put = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +147,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\LogbookController::destroy
-* @see app/Http/Controllers/LogbookController.php:163
+* @see app/Http/Controllers/LogbookController.php:181
 * @route '/logbook/proker/{proker}'
 */
 export const destroy = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -162,7 +162,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\LogbookController::destroy
-* @see app/Http/Controllers/LogbookController.php:163
+* @see app/Http/Controllers/LogbookController.php:181
 * @route '/logbook/proker/{proker}'
 */
 destroy.url = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -195,7 +195,7 @@ destroy.url = (args: { proker: number | { id: number } } | [proker: number | { i
 
 /**
 * @see \App\Http\Controllers\LogbookController::destroy
-* @see app/Http/Controllers/LogbookController.php:163
+* @see app/Http/Controllers/LogbookController.php:181
 * @route '/logbook/proker/{proker}'
 */
 destroy.delete = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -205,7 +205,7 @@ destroy.delete = (args: { proker: number | { id: number } } | [proker: number | 
 
 /**
 * @see \App\Http\Controllers\LogbookController::destroy
-* @see app/Http/Controllers/LogbookController.php:163
+* @see app/Http/Controllers/LogbookController.php:181
 * @route '/logbook/proker/{proker}'
 */
 const destroyForm = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -220,7 +220,7 @@ const destroyForm = (args: { proker: number | { id: number } } | [proker: number
 
 /**
 * @see \App\Http\Controllers\LogbookController::destroy
-* @see app/Http/Controllers/LogbookController.php:163
+* @see app/Http/Controllers/LogbookController.php:181
 * @route '/logbook/proker/{proker}'
 */
 destroyForm.delete = (args: { proker: number | { id: number } } | [proker: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

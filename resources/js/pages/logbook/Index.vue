@@ -113,8 +113,9 @@ const prokerMetrics = computed(() => {
     
     const avgProgress = total > 0 ? Math.round(list.reduce((sum, p) => sum + p.progress, 0) / total) : 0;
     const totalBudget = list.reduce((sum, p) => sum + p.budget, 0);
+    const totalSpent = list.reduce((sum, p) => sum + (p.spent || 0), 0);
 
-    return { total, completed, inProgress, planned, avgProgress, totalBudget };
+    return { total, completed, inProgress, planned, avgProgress, totalBudget, totalSpent };
 });
 
 // Category labels and styles
@@ -425,12 +426,32 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                 </div>
 
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-xs col-span-2">
-                    <div class="flex items-center gap-2 text-slate-400 dark:text-slate-500 mb-1">
+                    <div class="flex items-center gap-2 text-slate-400 dark:text-slate-500 mb-2">
                         <FileText class="size-4" />
-                        <span class="text-xs font-bold uppercase tracking-wider">Estimasi Biaya Proker</span>
+                        <span class="text-xs font-bold uppercase tracking-wider">Anggaran Program Kerja</span>
                     </div>
-                    <p class="text-xl font-extrabold text-emerald-600 dark:text-emerald-450">{{ formatRupiah(prokerMetrics.totalBudget) }}</p>
-                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Total estimasi pengeluaran seluruh rencana program kerja posko.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-semibold uppercase block">Total Rencana</span>
+                            <p class="text-base font-extrabold text-slate-700 dark:text-slate-350">{{ formatRupiah(prokerMetrics.totalBudget) }}</p>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 font-semibold uppercase block">Total Belanja</span>
+                            <p 
+                                class="text-base font-extrabold"
+                                :class="[prokerMetrics.totalSpent > prokerMetrics.totalBudget ? 'text-red-500' : 'text-emerald-500']"
+                            >
+                                {{ formatRupiah(prokerMetrics.totalSpent) }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden mt-3" v-if="prokerMetrics.totalBudget > 0">
+                        <div 
+                            class="h-1 rounded-full transition-all" 
+                            :class="[prokerMetrics.totalSpent > prokerMetrics.totalBudget ? 'bg-red-500' : 'bg-emerald-500']"
+                            :style="`width: ${Math.min((prokerMetrics.totalSpent / prokerMetrics.totalBudget) * 100, 100)}%`"
+                        ></div>
+                    </div>
                 </div>
             </div>
 
@@ -517,9 +538,27 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="font-semibold text-slate-400">Estimasi Biaya</span>
-                                    <span class="font-extrabold text-emerald-600 dark:text-emerald-450">{{ formatRupiah(proker.budget) }}</span>
+                                <div class="flex flex-col gap-1 border-t border-slate-100 dark:border-slate-800 pt-2 mt-2">
+                                    <div class="flex items-center justify-between text-[11px] md:text-xs">
+                                        <span class="font-semibold text-slate-400">Estimasi Anggaran</span>
+                                        <span class="font-semibold text-slate-700 dark:text-slate-350">{{ formatRupiah(proker.budget) }}</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-[11px] md:text-xs">
+                                        <span class="font-semibold text-slate-400">Realisasi Belanja</span>
+                                        <span 
+                                            class="font-extrabold"
+                                            :class="[proker.spent > proker.budget ? 'text-red-500 dark:text-red-400' : proker.spent > 0 ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-450']"
+                                        >
+                                            {{ formatRupiah(proker.spent || 0) }}
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden mt-0.5" v-if="proker.budget > 0">
+                                        <div 
+                                            class="h-1 rounded-full transition-all" 
+                                            :class="[proker.spent > proker.budget ? 'bg-red-500' : 'bg-emerald-500']"
+                                            :style="`width: ${Math.min((proker.spent / proker.budget) * 100, 100)}%`"
+                                        ></div>
+                                    </div>
                                 </div>
 
                                 <!-- PIC Info -->

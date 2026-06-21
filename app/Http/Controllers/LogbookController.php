@@ -43,9 +43,27 @@ class LogbookController extends Controller
             });
 
         $programKerjas = ProgramKerja::with('pic:id,name,email')
+            ->withSum(['finances as spent' => function ($query) {
+                $query->where('type', 'expense');
+            }], 'amount')
             ->where('host_id', $hostId)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($proker) {
+                return [
+                    'id' => $proker->id,
+                    'host_id' => $proker->host_id,
+                    'pic_id' => $proker->pic_id,
+                    'name' => $proker->name,
+                    'category' => $proker->category,
+                    'description' => $proker->description,
+                    'progress' => $proker->progress,
+                    'budget' => (float) $proker->budget,
+                    'spent' => (float) ($proker->spent ?? 0),
+                    'status' => $proker->status,
+                    'pic' => $proker->pic,
+                ];
+            });
 
         $members = User::where('host_id', $hostId)
             ->orWhere('id', $hostId)
