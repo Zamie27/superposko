@@ -51,7 +51,7 @@ class AdminTest extends TestCase
             'preorderPromoActive' => true,
         ]);
 
-        $response->assertOk();
+        $response->assertRedirect();
         $this->assertEquals('Paket Premium KKN', Setting::get('package_name'));
         $this->assertEquals(120000, (int) Setting::get('package_price'));
     }

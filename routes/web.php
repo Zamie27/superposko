@@ -51,7 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return redirect()->route('admin.dashboard');
         }
 
-        return Inertia::render('Dashboard');
+        return redirect()->route('host.dashboard');
     })->name('dashboard');
 
     // User Group (restricted to role 'user' only via user.only middleware)
@@ -68,6 +68,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Host Group (under host.protect middleware to restrict user-role modifications)
     Route::middleware(['host.protect'])->group(function () {
+        // Host Dashboard
+        Route::get('host/dashboard', function () {
+            return Inertia::render('Dashboard');
+        })->name('host.dashboard');
+
         // Sidebar Menus
         Route::inertia('finance', 'finance/Index')->name('finance.index');
         Route::inertia('logbook', 'logbook/Index')->name('logbook.index');
@@ -98,11 +103,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('voting/aspiration/{aspiration}/like', [\App\Http\Controllers\VotingController::class, 'likeAspiration'])->name('voting.aspiration.like');
         Route::put('voting/aspiration/{aspiration}/respond', [\App\Http\Controllers\VotingController::class, 'respondAspiration'])->name('voting.aspiration.respond');
         Route::delete('voting/aspiration/{aspiration}', [\App\Http\Controllers\VotingController::class, 'destroyAspiration'])->name('voting.aspiration.destroy');
-        Route::get('documentation', [DocumentationController::class, 'index'])->name('documentation.index');
-        Route::post('documentation/upload', [DocumentationController::class, 'store'])->name('documentation.upload');
-        Route::post('documentation/upload-chunk', [DocumentationController::class, 'uploadChunk'])->name('documentation.upload_chunk');
-        Route::get('documentation/thumbnail/{id}', [DocumentationController::class, 'thumbnail'])->name('documentation.thumbnail');
-        Route::get('documentation/file/{id}', [DocumentationController::class, 'file'])->name('documentation.file');
+        Route::get('documentation', [DocumentationController::class, 'index'])->name('host.documentation.index');
+        Route::post('documentation/upload', [DocumentationController::class, 'store'])->name('host.documentation.upload');
+        Route::post('documentation/upload-chunk', [DocumentationController::class, 'uploadChunk'])->name('host.documentation.upload_chunk');
+        Route::get('documentation/thumbnail/{id}', [DocumentationController::class, 'thumbnail'])->name('host.documentation.thumbnail');
+        Route::get('documentation/file/{id}', [DocumentationController::class, 'file'])->name('host.documentation.file');
     });
 
     // Admin Group

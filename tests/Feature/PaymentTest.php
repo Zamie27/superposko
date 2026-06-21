@@ -120,7 +120,8 @@ class PaymentTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('admin.payment.test'));
 
-        $response->assertForbidden();
+        $response->assertRedirect(route('dashboard'));
+        $response->assertSessionHas('error', 'Anda tidak memiliki akses administrator.');
     }
 
     public function test_admin_can_access_admin_test_payment()

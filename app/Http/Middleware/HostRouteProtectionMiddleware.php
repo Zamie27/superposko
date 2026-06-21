@@ -30,14 +30,15 @@ class HostRouteProtectionMiddleware
         }
 
         // Host and Member can access all host routes
-        if (in_array($user->role, ['host', 'member'])) {
+        $isHostOrMember = $user->role === 'host' || !is_null($user->host_id);
+        if ($isHostOrMember) {
             return $next($request);
         }
 
-        // User role is restricted:
-        // Allow GET requests (to view locked/dummy views in frontend)
-        // Restrict POST/PUT/PATCH/DELETE requests
-        if ($request->isMethod('GET')) {
+        // For other users (unsubscribed):
+        // Allow GET requests for dashboard and documentation index/files
+        $allowedRoutes = ['host.dashboard', 'host.documentation.index', 'host.documentation.file', 'host.documentation.thumbnail'];
+        if ($request->isMethod('GET') && in_array($request->route()?->getName(), $allowedRoutes)) {
             return $next($request);
         }
 

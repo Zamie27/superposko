@@ -130,7 +130,9 @@ class ProkerDocumentController extends Controller
             abort(404, 'Berkas fisik tidak ditemukan di server.');
         }
 
-        return Storage::download($document->file_path, $document->file_name);
+        return Storage::download($document->file_path, $document->file_name, [
+            'Content-Disposition' => 'attachment; filename="' . $document->file_name . '"',
+        ]);
     }
 
     /**

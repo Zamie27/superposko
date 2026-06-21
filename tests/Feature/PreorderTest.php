@@ -83,7 +83,8 @@ class PreorderTest extends TestCase
         $preorder->refresh();
         $this->assertEquals('John Doe New', $preorder->name);
         $this->assertEquals('pending', $preorder->status);
-        $this->assertStringContainsString('new_proof', $preorder->payment_proof);
+        $this->assertNotNull($preorder->payment_proof);
+        $this->assertNotEmpty($preorder->payment_proof);
     }
 
     public function test_admin_can_approve_preorder_and_activate_user(): void

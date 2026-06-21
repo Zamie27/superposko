@@ -38,9 +38,9 @@ class DocumentationController extends Controller
         $host = User::find($hostId);
 
         if ($host) {
-            $this->apiKey = $host->immich_api_key ?? '';
-            $this->immichEmail = $host->immich_email ?? '';
-            $this->immichPassword = $host->immich_password ?? '';
+            $this->apiKey = $host->immich_api_key ?: config('services.immich.api_key', '');
+            $this->immichEmail = $host->immich_email ?: config('services.immich.email', '');
+            $this->immichPassword = $host->immich_password ?: config('services.immich.password', '');
         }
 
         return !empty($this->apiKey) && !empty($this->url);
@@ -89,8 +89,8 @@ class DocumentationController extends Controller
                     return [
                         'id' => $asset['id'],
                         'type' => $asset['type'], // IMAGE or VIDEO
-                        'thumbnail_url' => route('documentation.thumbnail', ['id' => $asset['id']], false),
-                        'file_url' => route('documentation.file', ['id' => $asset['id']], false),
+                        'thumbnail_url' => route('host.documentation.thumbnail', ['id' => $asset['id']], false),
+                        'file_url' => route('host.documentation.file', ['id' => $asset['id']], false),
                         'createdAt' => $asset['fileCreatedAt'] ?? $asset['createdAt'] ?? null,
                     ];
                 })->toArray();
@@ -106,6 +106,8 @@ class DocumentationController extends Controller
                     'success' => session('success'),
                 ]);
             }
+
+            dd('API call failed', $response->status(), $response->body(), $this->url, $this->apiKey);
 
             return Inertia::render('documentation/Index', [
                 'assets' => [],
