@@ -34,6 +34,10 @@ Route::get('auth/google/callback', [GoogleLoginController::class, 'handleGoogleC
 Route::get('auth/google/complete', [GoogleLoginController::class, 'showCompleteProfile'])->name('auth.google.complete');
 Route::post('auth/google/complete', [GoogleLoginController::class, 'completeProfile'])->name('auth.google.complete.store');
 
+// Public/Auth Report Routes
+Route::get('laporan/buat', [\App\Http\Controllers\ReportController::class, 'create'])->name('reports.create');
+Route::post('laporan/buat', [\App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // Redirection helper for main /dashboard entry path
     Route::get('dashboard', function (Request $request) {
@@ -110,6 +114,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // General Website Settings
         Route::get('settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::put('settings', [AdminSettingController::class, 'update'])->name('settings.update');
+
+        // Admin Report Panel Routes
+        Route::get('reports', [\App\Http\Controllers\Admin\AdminReportController::class, 'index'])->name('reports.index');
+        Route::put('reports/{report}/resolve', [\App\Http\Controllers\Admin\AdminReportController::class, 'resolve'])->name('reports.resolve');
     });
 });
 

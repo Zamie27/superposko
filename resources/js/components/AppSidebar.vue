@@ -58,6 +58,11 @@ const filteredNavItems = computed<NavItem[]>(() => {
                 icon: ShoppingBag,
             },
             {
+                title: 'Laporan Masalah',
+                href: '/admin/reports',
+                icon: Info,
+            },
+            {
                 title: 'Pengaturan Website',
                 href: '/admin/settings',
                 icon: Settings,

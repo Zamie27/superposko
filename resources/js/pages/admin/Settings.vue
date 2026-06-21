@@ -32,9 +32,6 @@ const form = useForm({
 const submitForm = () => {
     form.put('/admin/settings', {
         preserveScroll: true,
-        onSuccess: () => {
-            alert('Pengaturan website berhasil disimpan!');
-        },
     });
 };
 </script>

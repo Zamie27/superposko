@@ -38,9 +38,6 @@ const form = useForm({
 const submitForm = () => {
     form.put('/admin/prices', {
         preserveScroll: true,
-        onSuccess: () => {
-            alert('Konfigurasi harga berhasil diperbarui!');
-        },
     });
 };
 </script>

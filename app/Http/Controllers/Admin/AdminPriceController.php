@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,7 +32,7 @@ class AdminPriceController extends Controller
     /**
      * Update pricing settings.
      */
-    public function update(Request $request): JsonResponse
+    public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'packageName' => ['required', 'string', 'max:100'],
@@ -52,9 +52,9 @@ class AdminPriceController extends Controller
         Setting::set('preorder_strike_price', $validated['preorderStrikePrice']);
         Setting::set('preorder_promo_active', $validated['preorderPromoActive'] ? '1' : '0');
 
-        return response()->json([
-            'success' => true,
+        return Inertia::flash('toast', [
+            'type' => 'success',
             'message' => 'Konfigurasi harga berhasil diperbarui.',
-        ]);
+        ])->back();
     }
 }

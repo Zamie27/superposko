@@ -42,6 +42,8 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'preorder_promo_active' => filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN),
+            'otp_sent' => $request->session()->get('otp_sent', false),
+            'new_email_attempt' => $request->session()->get('new_email_attempt', ''),
             'auth' => [
                 'user' => $request->user() ? array_merge($request->user()->toArray(), [
                     'display_role' => $request->user()->role === 'admin' ? 'Admin' : ($request->user()->host_id ? ucfirst($request->user()->role) : ($request->user()->role === 'host' ? 'Host' : 'User')),

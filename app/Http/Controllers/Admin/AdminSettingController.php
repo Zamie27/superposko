@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,7 +29,7 @@ class AdminSettingController extends Controller
     /**
      * Update settings.
      */
-    public function update(Request $request): JsonResponse
+    public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'footerAbout' => ['required', 'string'],
@@ -43,9 +43,9 @@ class AdminSettingController extends Controller
         Setting::set('footer_phone', $validated['footerPhone']);
         Setting::set('footer_copyright', $validated['footerCopyright']);
 
-        return response()->json([
-            'success' => true,
+        return Inertia::flash('toast', [
+            'type' => 'success',
             'message' => 'Konfigurasi website berhasil disimpan.',
-        ]);
+        ])->back();
     }
 }

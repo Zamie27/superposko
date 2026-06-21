@@ -3,7 +3,8 @@ import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
-import { Toaster } from '@/components/ui/sonner';
+import ToastContainer from '@/components/ToastContainer.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import type { BreadcrumbItem } from '@/types';
 import { usePage, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -69,6 +70,7 @@ const isLocked = computed(() => {
                 </div>
             </div>
         </AppContent>
-        <Toaster />
+        <ToastContainer />
+        <ConfirmationModal />
     </AppShell>
 </template>
