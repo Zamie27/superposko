@@ -4,6 +4,7 @@ import { ArrowLeft, Search, Filter, AlertCircle, CheckCircle2, Shield, Info, Hel
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/composables/useConfirm';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const props = defineProps<{
     reports: {
@@ -46,6 +47,11 @@ defineOptions({
 const searchQuery = ref(props.filters.search || '');
 const statusQuery = ref(props.filters.status || '');
 const typeQuery = ref(props.filters.type || '');
+const previewImage = ref<string | null>(null);
+
+const openPreview = (url: string) => {
+    previewImage.value = url;
+};
 
 const updateFilters = () => {
     router.get('/admin/reports', {
@@ -213,12 +219,16 @@ const formatDate = (dateStr: string) => {
                     <!-- Screenshot Attachment -->
                     <div v-if="report.screenshot" class="mt-4 pt-4 border-t border-slate-200/50">
                         <span class="text-xs font-semibold text-slate-400 block mb-2">Lampiran Gambar:</span>
-                        <a :href="'/storage/' + report.screenshot" target="_blank" class="inline-block group relative rounded-lg overflow-hidden border border-slate-200 max-w-xs hover:shadow-md transition">
+                        <button
+                            @click="openPreview('/storage/' + report.screenshot)"
+                            type="button"
+                            class="inline-block group relative rounded-lg overflow-hidden border border-slate-200 max-w-xs hover:shadow-md transition cursor-pointer text-left focus:outline-none"
+                        >
                             <img :src="'/storage/' + report.screenshot" alt="Screenshot Laporan" class="max-h-40 object-cover" />
                             <div class="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition">
                                 Lihat Ukuran Penuh
                             </div>
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -250,4 +260,25 @@ const formatDate = (dateStr: string) => {
             </div>
         </div>
     </div>
+
+    <!-- Image Preview Modal -->
+    <Dialog :open="!!previewImage" @update:open="previewImage = null">
+        <DialogContent class="sm:max-w-4xl p-2 bg-slate-950 border-slate-800 text-white overflow-hidden flex flex-col items-center">
+            <DialogHeader class="sr-only">
+                <DialogTitle>Preview Gambar Lampiran</DialogTitle>
+                <DialogDescription>Menampilkan detail lampiran laporan</DialogDescription>
+            </DialogHeader>
+            <div class="relative w-full max-h-[75vh] flex items-center justify-center overflow-auto p-4">
+                <img :src="previewImage!" alt="Preview Lampiran Laporan" class="max-w-full max-h-[70vh] object-contain rounded-md" />
+            </div>
+            <div class="w-full flex justify-end p-2 bg-slate-900/50 border-t border-slate-800 gap-2">
+                <a :href="previewImage!" target="_blank" download class="inline-flex items-center gap-1 bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition">
+                    Unduh Gambar
+                </a>
+                <button @click="previewImage = null" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs px-3 py-1.5 rounded-lg transition cursor-pointer">
+                    Tutup
+                </button>
+            </div>
+        </DialogContent>
+    </Dialog>
 </template>
