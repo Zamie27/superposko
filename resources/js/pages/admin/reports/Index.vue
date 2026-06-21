@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Search, Filter, AlertCircle, CheckCircle2, Shield, Info, HelpCircle } from '@lucide/vue';
+import { ArrowLeft, Search, AlertCircle, CheckCircle2, Shield, Info, HelpCircle } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/composables/useConfirm';
@@ -244,18 +244,18 @@ const formatDate = (dateStr: string) => {
                 <span class="text-xs text-slate-400">Halaman {{ reports.current_page }} dari {{ reports.last_page }}</span>
                 <div class="flex items-center gap-2">
                     <Link
-                        v-slot="tag"
                         v-for="link in reports.links"
                         :key="link.label"
                         :href="link.url || '#'"
-                        v-html="link.label"
                         class="px-3 py-1.5 rounded-lg border text-xs font-medium transition"
                         :class="{
                             'bg-sky-500 text-white border-sky-500': link.active,
                             'hover:bg-slate-50 text-slate-600 border-slate-200': !link.active,
                             'text-slate-300 pointer-events-none': !link.url
                         }"
-                    />
+                    >
+                        <span v-html="link.label"></span>
+                    </Link>
                 </div>
             </div>
         </div>

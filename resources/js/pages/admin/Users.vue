@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Search, Mail, Key, Shield, User, ArrowLeft, Check, AlertCircle } from '@lucide/vue';
+import { Search, Key, Shield, ArrowLeft, Check, AlertCircle } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -111,7 +111,7 @@ const handleResetPassword = async () => {
         } else {
             errorMessage.value = data.message || 'Terjadi kesalahan.';
         }
-    } catch (e) {
+    } catch {
         errorMessage.value = 'Gagal menghubungi server.';
     } finally {
         isProcessing.value = false;
@@ -145,7 +145,7 @@ const handleSendResetEmail = async (user: any) => {
 
         const data = await response.json();
         toast.success(data.message || 'Email reset password berhasil dikirim.');
-    } catch (e) {
+    } catch {
         toast.error('Gagal mengirimkan email reset password.');
     }
 };
@@ -188,7 +188,7 @@ const handleUpdateRole = async () => {
         } else {
             errorMessage.value = data.message || 'Terjadi kesalahan.';
         }
-    } catch (e) {
+    } catch {
         errorMessage.value = 'Gagal menghubungi server.';
     } finally {
         isProcessing.value = false;
@@ -296,14 +296,15 @@ const getCookie = (name: string): string => {
                         v-for="link in users.links"
                         :key="link.label"
                         :href="link.url || '#'"
-                        v-html="link.label"
                         class="px-3 py-1.5 rounded-lg border text-xs font-medium transition"
                         :class="{
                             'bg-sky-500 text-white border-sky-500': link.active,
                             'hover:bg-slate-50 text-slate-600 border-slate-200': !link.active,
                             'text-slate-300 pointer-events-none': !link.url
                         }"
-                    />
+                    >
+                        <span v-html="link.label"></span>
+                    </Link>
                 </div>
             </div>
         </div>

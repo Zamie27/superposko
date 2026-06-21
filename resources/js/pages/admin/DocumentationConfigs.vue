@@ -109,7 +109,7 @@ const saveConfig = async () => {
         } else {
             toast.error(result.message || 'Gagal menyimpan konfigurasi.');
         }
-    } catch (error) {
+    } catch {
         toast.error('Terjadi kesalahan sistem saat menyimpan data.');
     } finally {
         isSubmitting.value = false;
@@ -236,7 +236,6 @@ const saveConfig = async () => {
                                 v-for="(link, idx) in hosts.links"
                                 :key="idx"
                                 :href="link.url"
-                                v-html="link.label"
                                 :disabled="!link.url"
                                 :class="[
                                     'relative inline-flex items-center px-3 py-1.5 text-xs font-semibold focus:z-20',
@@ -245,7 +244,9 @@ const saveConfig = async () => {
                                     idx === hosts.links.length - 1 ? 'rounded-r-md' : '',
                                     !link.url ? 'opacity-40 pointer-events-none' : ''
                                 ]"
-                            />
+                            >
+                                <span v-html="link.label"></span>
+                            </Link>
                         </nav>
                     </div>
                 </div>

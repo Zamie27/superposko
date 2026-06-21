@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { Users, CreditCard, ShoppingBag, Settings, LayoutGrid, CheckCircle2 } from '@lucide/vue';
-import { dashboard } from '@/routes';
+import { Users, CreditCard, ShoppingBag, Settings, CheckCircle2 } from '@lucide/vue';
 
 defineProps<{
     stats: {

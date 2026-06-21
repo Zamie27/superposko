@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
-import { Search, Clock, ArrowLeft } from '@lucide/vue';
+import { Search, ArrowLeft } from '@lucide/vue';
 import { Button } from '@/components/ui/button';
 
 interface Log {
@@ -236,7 +236,6 @@ const formatDate = (dateStr: string) => {
                                 v-for="(link, idx) in logs.links"
                                 :key="idx"
                                 :href="link.url"
-                                v-html="link.label"
                                 :disabled="!link.url"
                                 :class="[
                                     'relative inline-flex items-center px-3 py-1.5 text-xs font-semibold focus:z-20',
@@ -245,7 +244,9 @@ const formatDate = (dateStr: string) => {
                                     idx === logs.links.length - 1 ? 'rounded-r-md' : '',
                                     !link.url ? 'opacity-40 pointer-events-none' : ''
                                 ]"
-                            />
+                            >
+                                <span v-html="link.label"></span>
+                            </Link>
                         </nav>
                     </div>
                 </div>

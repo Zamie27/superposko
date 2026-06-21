@@ -36,11 +36,13 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Event::listen(
             \Illuminate\Auth\Events\Login::class,
             function (\Illuminate\Auth\Events\Login $event) {
+                /** @var \App\Models\User $user */
+                $user = $event->user;
                 \App\Helpers\ActivityLogHelper::log(
                     'auth',
                     'login',
-                    "User {$event->user->name} logged in.",
-                    $event->user
+                    "User {$user->name} logged in.",
+                    $user
                 );
             }
         );
@@ -48,12 +50,13 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Event::listen(
             \Illuminate\Auth\Events\Logout::class,
             function (\Illuminate\Auth\Events\Logout $event) {
-                if ($event->user) {
+                $user = $event->user;
+                if ($user instanceof \App\Models\User) {
                     \App\Helpers\ActivityLogHelper::log(
                         'auth',
                         'logout',
-                        "User {$event->user->name} logged out.",
-                        $event->user
+                        "User {$user->name} logged out.",
+                        $user
                     );
                 }
             }

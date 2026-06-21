@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Search, Calendar, Award, ShieldAlert, ArrowLeft, Check, AlertCircle } from '@lucide/vue';
+import { Search, Calendar, ArrowLeft, Check, AlertCircle } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -100,7 +100,7 @@ const handleUpdateDuration = async () => {
         } else {
             errorMessage.value = data.message || 'Terjadi kesalahan.';
         }
-    } catch (e) {
+    } catch {
         errorMessage.value = 'Gagal menghubungi server.';
     } finally {
         isProcessing.value = false;
@@ -132,7 +132,7 @@ const handleBypassPayment = async (user: any) => {
         const data = await response.json();
         toast.success(data.message || 'Bypass pembayaran berhasil.');
         router.reload({ only: ['subscriptions'] });
-    } catch (e) {
+    } catch {
         toast.error('Gagal memberikan bypass pembayaran.');
     }
 };
@@ -163,7 +163,7 @@ const handleRevokeSubscription = async (user: any) => {
         const data = await response.json();
         toast.success(data.message || 'Langganan berhasil dicabut.');
         router.reload({ only: ['subscriptions'] });
-    } catch (e) {
+    } catch {
         toast.error('Gagal mencabut langganan.');
     }
 };
@@ -298,14 +298,15 @@ const formatDate = (dateString: string | null) => {
                         v-for="link in subscriptions.links"
                         :key="link.label"
                         :href="link.url || '#'"
-                        v-html="link.label"
                         class="px-3 py-1.5 rounded-lg border text-xs font-medium transition"
                         :class="{
                             'bg-sky-500 text-white border-sky-500': link.active,
                             'hover:bg-slate-50 text-slate-600 border-slate-200': !link.active,
                             'text-slate-300 pointer-events-none': !link.url
                         }"
-                    />
+                    >
+                        <span v-html="link.label"></span>
+                    </Link>
                 </div>
             </div>
         </div>

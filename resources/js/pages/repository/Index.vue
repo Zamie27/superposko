@@ -3,7 +3,7 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { 
     FileText, FileSpreadsheet, FileArchive, FileImage, File, 
-    Download, Trash2, Plus, Search, X, Check, Folder, Info, Loader2, Eye
+    Download, Trash2, Plus, Search, X, Folder, Loader2, Eye
 } from '@lucide/vue';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/composables/useToast';

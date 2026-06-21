@@ -45,7 +45,7 @@ class AdminReportController extends Controller
     /**
      * Mark the report as resolved.
      */
-    public function resolve(Report $report): RedirectResponse
+    public function resolve(Report $report): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $report->update(['status' => 'resolved']);
 

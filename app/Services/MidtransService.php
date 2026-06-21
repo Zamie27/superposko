@@ -49,6 +49,8 @@ class MidtransService
 
     /**
      * Get transaction status from Midtrans.
+     *
+     * @return array<string, mixed>|null
      */
     public function getTransactionStatus(string $orderId): ?array
     {

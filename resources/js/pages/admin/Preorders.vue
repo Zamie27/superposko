@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Check, X, Eye, Phone, Mail, FileText, ArrowLeft } from '@lucide/vue';
+import { Check, X, Eye, Phone, Mail, ArrowLeft } from '@lucide/vue';
 import { ref } from 'vue';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 
-const props = defineProps<{
+defineProps<{
     preorders: Array<{
         id: number;
         name: string;
@@ -63,7 +63,7 @@ const handleApprove = async (id: number, name: string) => {
         const data = await response.json();
         toast.success(data.message || 'Preorder berhasil disetujui.');
         router.reload({ only: ['preorders'] });
-    } catch (e) {
+    } catch {
         toast.error('Gagal menyetujui preorder.');
     }
 };
@@ -94,7 +94,7 @@ const handleReject = async (id: number, name: string) => {
         const data = await response.json();
         toast.success(data.message || 'Preorder berhasil ditolak.');
         router.reload({ only: ['preorders'] });
-    } catch (e) {
+    } catch {
         toast.error('Gagal menolak preorder.');
     }
 };

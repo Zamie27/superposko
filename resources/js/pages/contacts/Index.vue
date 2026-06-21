@@ -3,7 +3,7 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { 
     Phone, Mail, Plus, Search, MessageSquare, Edit3, Trash2, 
-    Building, Shield, BookOpen, HeartPulse, Sparkles, X, Check, Eye
+    Building, Shield, BookOpen, HeartPulse, Sparkles, X
 } from '@lucide/vue';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/composables/useToast';
@@ -190,7 +190,7 @@ const getCategoryDetails = (cat: string) => {
     }
 };
 
-const getWhatsAppLink = (phone: string, name: string) => {
+const getWhatsAppLink = (phone: string) => {
     let cleanPhone = phone.replace(/[^0-9]/g, '');
     if (cleanPhone.startsWith('0')) {
         cleanPhone = '62' + cleanPhone.substring(1);
@@ -334,7 +334,7 @@ const getPhoneCallLink = (phone: string) => {
                 <div class="flex gap-2 pt-3 border-t border-slate-100">
                     <a 
                         v-if="contact.phone" 
-                        :href="getWhatsAppLink(contact.phone, contact.name)"
+                        :href="getWhatsAppLink(contact.phone)"
                         target="_blank"
                         class="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100/70 border border-emerald-100 rounded-xl transition duration-200"
                     >

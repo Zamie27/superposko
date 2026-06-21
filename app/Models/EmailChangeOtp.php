@@ -20,6 +20,8 @@ class EmailChangeOtp extends Model
 
     /**
      * Get the user that owns the OTP.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

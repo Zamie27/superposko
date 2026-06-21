@@ -163,7 +163,7 @@ const verifyPayment = async (orderId: string) => {
         } else {
             transactionStatus.value = 'error';
         }
-    } catch (error) {
+    } catch {
         transactionStatus.value = 'error';
     }
 };

@@ -35,7 +35,7 @@ class AdminSettingController extends Controller
     /**
      * Update settings.
      */
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $validated = $request->validate([
             'footerAbout' => ['required', 'string'],

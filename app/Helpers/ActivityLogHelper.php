@@ -10,17 +10,19 @@ class ActivityLogHelper
 {
     /**
      * Log a system or user activity.
+     *
+     * @param  \Illuminate\Contracts\Auth\Authenticatable|\App\Models\User|null  $user
      */
-    public static function log(string $category, string $action, string $description, ?User $user = null): void
+    public static function log(string $category, string $action, string $description, $user = null): void
     {
-        // Fallback to currently authenticated user if no user is passed
+        /** @var \App\Models\User|null $targetUser */
         $targetUser = $user ?? Auth::user();
 
         ActivityLog::create([
-            'user_id' => $targetUser?->id,
-            'user_name' => $targetUser?->name ?? 'System/Guest',
-            'user_email' => $targetUser?->email,
-            'role' => $targetUser?->role ?? 'guest',
+            'user_id' => $targetUser ? $targetUser->id : null,
+            'user_name' => $targetUser ? $targetUser->name : 'System/Guest',
+            'user_email' => $targetUser ? $targetUser->email : null,
+            'role' => $targetUser ? $targetUser->role : 'guest',
             'category' => $category,
             'action' => $action,
             'description' => $description,

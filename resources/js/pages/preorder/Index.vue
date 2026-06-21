@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm, Link } from '@inertiajs/vue3';
-import { CheckCircle, AlertCircle, Upload, Phone, Mail, User, ShieldCheck, Sparkles, Check, ArrowLeft } from '@lucide/vue';
+import { CheckCircle, AlertCircle, Upload, Phone, Mail, User, ShieldCheck, Sparkles, Check } from '@lucide/vue';
 import { ref, computed, onMounted } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';

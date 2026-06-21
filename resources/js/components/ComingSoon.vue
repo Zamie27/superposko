@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Sparkles, Calendar, ArrowLeft } from '@lucide/vue';
+import { Sparkles } from '@lucide/vue';
 import { Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 

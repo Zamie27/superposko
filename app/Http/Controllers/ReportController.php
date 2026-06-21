@@ -15,8 +15,9 @@ class ReportController extends Controller
      */
     public function create(Request $request): Response
     {
+        $user = $request->user();
         return Inertia::render('reports/Create', [
-            'defaultEmail' => $request->input('email', $request->user()?->email ?? ''),
+            'defaultEmail' => $user ? $user->email : '',
             'defaultType' => $request->input('type', 'complaint'),
             'defaultTitle' => $request->input('title', ''),
             'defaultDesc' => $request->input('desc', ''),
@@ -26,7 +27,7 @@ class ReportController extends Controller
     /**
      * Store a newly created report in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $validated = $request->validate([
             'email' => ['required', 'email', 'max:255'],

@@ -32,7 +32,7 @@ class AdminPriceController extends Controller
     /**
      * Update pricing settings.
      */
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $validated = $request->validate([
             'packageName' => ['required', 'string', 'max:100'],
