@@ -2,6 +2,8 @@ import Auth from './Auth'
 import ReportController from './ReportController'
 import PaymentController from './PaymentController'
 import Preorder from './Preorder'
+import InventoryController from './InventoryController'
+import LogisticController from './LogisticController'
 import ScheduleController from './ScheduleController'
 import MemberController from './MemberController'
 import ContactController from './ContactController'
@@ -16,6 +18,8 @@ const Controllers = {
     ReportController: Object.assign(ReportController, ReportController),
     PaymentController: Object.assign(PaymentController, PaymentController),
     Preorder: Object.assign(Preorder, Preorder),
+    InventoryController: Object.assign(InventoryController, InventoryController),
+    LogisticController: Object.assign(LogisticController, LogisticController),
     ScheduleController: Object.assign(ScheduleController, ScheduleController),
     MemberController: Object.assign(MemberController, MemberController),
     ContactController: Object.assign(ContactController, ContactController),

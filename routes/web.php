@@ -14,6 +14,8 @@ use App\Http\Controllers\Preorder\UserPreorderController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProkerDocumentController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\LogisticController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -77,8 +79,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Sidebar Menus
         Route::inertia('finance', 'finance/Index')->name('finance.index');
         Route::inertia('logbook', 'logbook/Index')->name('logbook.index');
-        Route::inertia('management/inventory', 'management/inventory/Index')->name('management.inventory.index');
-        Route::inertia('management/logistic', 'management/logistic/Index')->name('management.logistic.index');
+
+        // Inventory Management
+        Route::get('management/inventory', [InventoryController::class, 'index'])->name('management.inventory.index');
+        Route::post('management/inventory', [InventoryController::class, 'store'])->name('management.inventory.store');
+        Route::put('management/inventory/{inventory}', [InventoryController::class, 'update'])->name('management.inventory.update');
+        Route::delete('management/inventory/{inventory}', [InventoryController::class, 'destroy'])->name('management.inventory.destroy');
+
+        // Logistic Management
+        Route::get('management/logistic', [LogisticController::class, 'index'])->name('management.logistic.index');
+        Route::post('management/logistic', [LogisticController::class, 'store'])->name('management.logistic.store');
+        Route::put('management/logistic/{logistic}', [LogisticController::class, 'update'])->name('management.logistic.update');
+        Route::delete('management/logistic/{logistic}', [LogisticController::class, 'destroy'])->name('management.logistic.destroy');
+        Route::post('management/logistic/checkout', [LogisticController::class, 'checkout'])->name('management.logistic.checkout');
+
         Route::get('management/schedule', [ScheduleController::class, 'index'])->name('management.schedule.index');
         Route::post('management/schedule/roster', [ScheduleController::class, 'storeRoster'])->name('management.schedule.roster.store');
         Route::delete('management/schedule/roster/{roster}', [ScheduleController::class, 'destroyRoster'])->name('management.schedule.roster.destroy');

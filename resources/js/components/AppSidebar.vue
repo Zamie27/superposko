@@ -3,7 +3,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { 
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
-    ShoppingBag, Settings, Clock, Server 
+    ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar 
 } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -39,7 +39,12 @@ const formatBytes = (bytes: number, decimals = 1) => {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
-const filteredNavItems = computed<NavItem[]>(() => {
+interface NavGroup {
+    title: string;
+    items: NavItem[];
+}
+
+const navGroups = computed<NavGroup[]>(() => {
     const user = page.props.auth?.user as any;
     if (!user) {
         return [];
@@ -48,61 +53,77 @@ const filteredNavItems = computed<NavItem[]>(() => {
     if (user.role === 'admin') {
         return [
             {
-                title: 'Dashboard Admin',
-                href: '/admin/dashboard',
-                icon: LayoutGrid,
+                title: 'Utama',
+                items: [
+                    {
+                        title: 'Dashboard Admin',
+                        href: '/admin/dashboard',
+                        icon: LayoutGrid,
+                    },
+                    {
+                        title: 'Log Aktifitas',
+                        href: '/admin/activity-logs',
+                        icon: Clock,
+                    },
+                    {
+                        title: 'Pengaturan Website',
+                        href: '/admin/settings',
+                        icon: Settings,
+                    },
+                ],
             },
             {
-                title: 'Manajemen User',
-                href: '/admin/users',
-                icon: Users,
+                title: 'Manajemen Transaksi',
+                items: [
+                    {
+                        title: 'Manajemen Harga',
+                        href: '/admin/prices',
+                        icon: CreditCard,
+                    },
+                    {
+                        title: 'Manajemen Langganan',
+                        href: '/admin/subscriptions',
+                        icon: CheckCircle2,
+                    },
+                    {
+                        title: 'Manajemen Preorder',
+                        href: '/admin/preorders',
+                        icon: ShoppingBag,
+                    },
+                    {
+                        title: 'Test Payment',
+                        href: '/admin/payment/test',
+                        icon: CreditCard,
+                    },
+                ],
             },
             {
-                title: 'Manajemen Harga',
-                href: '/admin/prices',
-                icon: CreditCard,
-            },
-            {
-                title: 'Manajemen Langganan',
-                href: '/admin/subscriptions',
-                icon: CheckCircle2,
-            },
-            {
-                title: 'Manajemen Preorder',
-                href: '/admin/preorders',
-                icon: ShoppingBag,
-            },
-            {
-                title: 'Test Payment',
-                href: '/admin/payment/test',
-                icon: CreditCard,
-            },
-            {
-                title: 'Laporan Masalah',
-                href: '/admin/reports',
-                icon: Info,
-            },
-            {
-                title: 'Manajemen Dokumentasi',
-                href: '/admin/documentation-configs',
-                icon: Server,
-            },
-            {
-                title: 'Log Aktifitas',
-                href: '/admin/activity-logs',
-                icon: Clock,
-            },
-            {
-                title: 'Pengaturan Website',
-                href: '/admin/settings',
-                icon: Settings,
+                title: 'Manajemen Posko & Laporan',
+                items: [
+                    {
+                        title: 'Manajemen User',
+                        href: '/admin/users',
+                        icon: Users,
+                    },
+                    {
+                        title: 'Manajemen Dokumentasi',
+                        href: '/admin/documentation-configs',
+                        icon: Server,
+                    },
+                    {
+                        title: 'Laporan Masalah',
+                        href: '/admin/reports',
+                        icon: Info,
+                    },
+                ],
             },
         ];
     }
 
     const isSubscribed = user.is_subscribed;
+    const preorderPromoActive = page.props.preorder_promo_active;
 
-    const items: NavItem[] = [
+    const mainItems: NavItem[] = [
         {
             title: 'Dashboard',
             href: '/dashboard',
@@ -110,18 +131,15 @@ const filteredNavItems = computed<NavItem[]>(() => {
         },
     ];
 
-    const preorderPromoActive = page.props.preorder_promo_active;
-
-    // If not subscribed, always show the Preorder or Payment link
     if (!isSubscribed) {
         if (preorderPromoActive) {
-            items.push({
+            mainItems.push({
                 title: 'Preorder!',
                 href: '/preorder',
                 icon: ShoppingBag,
             });
         } else {
-            items.push({
+            mainItems.push({
                 title: 'Beli Langganan',
                 href: '/payment',
                 icon: CreditCard,
@@ -129,7 +147,7 @@ const filteredNavItems = computed<NavItem[]>(() => {
         }
     }
 
-    items.push(
+    mainItems.push(
         {
             title: 'Kas & Keuangan',
             href: '/finance',
@@ -141,58 +159,73 @@ const filteredNavItems = computed<NavItem[]>(() => {
             href: '/logbook',
             icon: BookOpen,
             locked: !isSubscribed,
+        }
+    );
+
+    return [
+        {
+            title: 'Menu Utama',
+            items: mainItems,
         },
         {
-            title: 'Manajemen',
-            href: '#',
-            icon: Box,
-            locked: !isSubscribed,
+            title: 'Manajemen Posko',
             items: [
                 {
                     title: 'Inventaris',
                     href: '/management/inventory',
+                    icon: Box,
+                    locked: !isSubscribed,
                 },
                 {
                     title: 'Logistik',
                     href: '/management/logistic',
+                    icon: ClipboardList,
+                    locked: !isSubscribed,
                 },
                 {
                     title: 'Piket & Agenda',
                     href: '/management/schedule',
+                    icon: Calendar,
+                    locked: !isSubscribed,
                 },
                 {
                     title: 'Anggota',
                     href: '/management/members',
+                    icon: Users,
+                    locked: !isSubscribed,
                 },
             ],
         },
         {
-            title: 'Buku Kontak',
-            href: '/contacts',
-            icon: Contact,
-            locked: !isSubscribed,
+            title: 'Hubungan Masyarakat & Media',
+            items: [
+                {
+                    title: 'Buku Kontak',
+                    href: '/contacts',
+                    icon: Contact,
+                    locked: !isSubscribed,
+                },
+                {
+                    title: 'Repository Proker',
+                    href: '/repository',
+                    icon: Archive,
+                    locked: !isSubscribed,
+                },
+                {
+                    title: 'Voting & Aspirasi',
+                    href: '/voting',
+                    icon: Vote,
+                    locked: !isSubscribed,
+                },
+                {
+                    title: 'Dokumentasi',
+                    href: '/documentation',
+                    icon: Image,
+                    locked: !isSubscribed,
+                },
+            ],
         },
-        {
-            title: 'Repository Proker',
-            href: '/repository',
-            icon: Archive,
-            locked: !isSubscribed,
-        },
-        {
-            title: 'Voting & Aspirasi',
-            href: '/voting',
-            icon: Vote,
-            locked: !isSubscribed,
-        },
-        {
-            title: 'Dokumentasi',
-            href: '/documentation',
-            icon: Image,
-            locked: !isSubscribed,
-        }
-    );
-
-    return items;
+    ];
 });
 
 const footerNavItems: NavItem[] = [
@@ -219,7 +252,12 @@ const footerNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="filteredNavItems" />
+            <NavMain 
+                v-for="group in navGroups" 
+                :key="group.title" 
+                :title="group.title" 
+                :items="group.items" 
+            />
         </SidebarContent>
 
         <SidebarFooter>

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\InventoryController::index
 * @see app/Http/Controllers/InventoryController.php:21
@@ -316,11 +316,6 @@ destroyForm.delete = (args: { inventory: number | { id: number } } | [inventory:
 
 destroy.form = destroyForm
 
-const inventory = {
-    index: Object.assign(index, index),
-    store: Object.assign(store, store),
-    update: Object.assign(update, update),
-    destroy: Object.assign(destroy, destroy),
-}
+const InventoryController = { index, store, update, destroy }
 
-export default inventory
+export default InventoryController

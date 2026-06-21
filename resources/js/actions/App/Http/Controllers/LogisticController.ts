@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\LogisticController::index
 * @see app/Http/Controllers/LogisticController.php:19
@@ -372,12 +372,6 @@ checkoutForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =
 
 checkout.form = checkoutForm
 
-const logistic = {
-    index: Object.assign(index, index),
-    store: Object.assign(store, store),
-    update: Object.assign(update, update),
-    destroy: Object.assign(destroy, destroy),
-    checkout: Object.assign(checkout, checkout),
-}
+const LogisticController = { index, store, update, destroy, checkout }
 
-export default logistic
+export default LogisticController
