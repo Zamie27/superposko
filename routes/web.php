@@ -39,7 +39,7 @@ Route::get('laporan/buat', [\App\Http\Controllers\ReportController::class, 'crea
 Route::post('laporan/buat', [\App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
 
 // Midtrans Payment Webhook Notification
-Route::post('payment/notification', [PaymentController::class, 'handleNotification'])->name('payment.notification');
+Route::match(['get', 'post'], 'payment/notification', [PaymentController::class, 'handleNotification'])->name('payment.notification');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Redirection/Rendering helper for main /dashboard entry path
