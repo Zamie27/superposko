@@ -158,7 +158,7 @@ class PaymentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Order ID tidak ditemukan.',
-            ], 400);
+            ], 200);
         }
 
         $statusData = $this->midtransService->getTransactionStatus($orderId);
@@ -167,7 +167,7 @@ class PaymentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal memverifikasi status pembayaran ke Midtrans.',
-            ], 400);
+            ], 200);
         }
 
         $transactionStatus = $statusData['transaction_status'] ?? '';
