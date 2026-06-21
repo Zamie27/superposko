@@ -41,7 +41,7 @@ defineOptions({
     },
 });
 
-const { toast } = useToast();
+const toast = useToast();
 const search = ref(props.filters.search || '');
 
 const handleSearch = () => {
@@ -101,25 +101,16 @@ const saveConfig = async () => {
         const result = await response.json();
 
         if (result.success) {
-            toast({
-                type: 'success',
-                message: result.message || 'Konfigurasi berhasil disimpan.',
-            });
+            toast.success(result.message || 'Konfigurasi berhasil disimpan.');
             
             // Reload page state
             router.reload({ preserveScroll: true });
             closeEditModal();
         } else {
-            toast({
-                type: 'error',
-                message: result.message || 'Gagal menyimpan konfigurasi.',
-            });
+            toast.error(result.message || 'Gagal menyimpan konfigurasi.');
         }
     } catch (error) {
-        toast({
-            type: 'error',
-            message: 'Terjadi kesalahan sistem saat menyimpan data.',
-        });
+        toast.error('Terjadi kesalahan sistem saat menyimpan data.');
     } finally {
         isSubmitting.value = false;
     }

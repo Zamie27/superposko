@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contact;
 use App\Helpers\ActivityLogHelper;
+use App\Helpers\HostRoleHelper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -49,6 +50,7 @@ class ContactController extends Controller
         return Inertia::render('contacts/Index', [
             'contacts' => $contacts,
             'filters' => $request->only(['search', 'category']),
+            'canWrite' => HostRoleHelper::canWritePublicRelations(auth()->user()),
         ]);
     }
 
@@ -57,6 +59,10 @@ class ContactController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+            abort(403, 'Anda tidak memiliki hak untuk menambah kontak.');
+        }
+
         $hostId = $this->getHostId();
 
         $validated = $request->validate([
@@ -96,6 +102,10 @@ class ContactController extends Controller
      */
     public function update(Request $request, Contact $contact): RedirectResponse
     {
+        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+            abort(403, 'Anda tidak memiliki hak untuk mengubah kontak.');
+        }
+
         $hostId = $this->getHostId();
 
         if ($contact->host_id !== $hostId) {
@@ -137,6 +147,10 @@ class ContactController extends Controller
      */
     public function destroy(Contact $contact): RedirectResponse
     {
+        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+            abort(403, 'Anda tidak memiliki hak untuk menghapus kontak.');
+        }
+
         $hostId = $this->getHostId();
 
         if ($contact->host_id !== $hostId) {

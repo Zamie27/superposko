@@ -122,7 +122,7 @@ defineOptions({
                         <th scope="col" class="px-6 py-4">Nama Lengkap</th>
                         <th scope="col" class="px-6 py-4">Email</th>
                         <th scope="col" class="px-6 py-4">Role</th>
-                        <th scope="col" class="px-6 py-4 text-right">Aksi</th>
+                        <th v-if="isHost" scope="col" class="px-6 py-4 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,13 +138,13 @@ defineOptions({
                                 {{ member.role }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-right space-x-3">
+                        <td v-if="isHost" class="px-6 py-4 text-right space-x-3">
                             <button @click="openEditModal(member)" class="font-medium text-[#38BDF8] hover:underline">Edit</button>
                             <button @click="deleteMember(member.id)" class="font-medium text-red-500 hover:underline">Hapus</button>
                         </td>
                     </tr>
                     <tr v-if="members.length === 0">
-                        <td colspan="4" class="px-6 py-8 text-center text-slate-500">
+                        <td :colspan="isHost ? 4 : 3" class="px-6 py-8 text-center text-slate-500">
                             Belum ada anggota yang ditambahkan.
                         </td>
                     </tr>
@@ -190,6 +190,7 @@ defineOptions({
                                 <SelectItem value="anggota">Anggota Biasa</SelectItem>
                                 <SelectItem value="bendahara">Bendahara</SelectItem>
                                 <SelectItem value="sekretaris">Sekretaris</SelectItem>
+                                <SelectItem value="pdd">PDD</SelectItem>
                             </SelectContent>
                         </Select>
                         <InputError :message="form.errors.role" />

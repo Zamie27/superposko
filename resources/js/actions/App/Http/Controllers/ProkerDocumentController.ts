@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::index
 * @see app/Http/Controllers/ProkerDocumentController.php:30
@@ -436,12 +436,6 @@ viewForm.head = (args: { document: number | { id: number } } | [document: number
 
 view.form = viewForm
 
-const repository = {
-    index: Object.assign(index, index),
-    store: Object.assign(store, store),
-    destroy: Object.assign(destroy, destroy),
-    download: Object.assign(download, download),
-    view: Object.assign(view, view),
-}
+const ProkerDocumentController = { index, store, destroy, download, view }
 
-export default repository
+export default ProkerDocumentController

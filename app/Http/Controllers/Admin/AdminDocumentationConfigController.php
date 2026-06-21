@@ -60,6 +60,8 @@ class AdminDocumentationConfigController extends Controller
             'immich_password' => $validated['immich_password'],
         ]);
 
+        \Illuminate\Support\Facades\Cache::forget('immich_storage_' . $host->id);
+
         ActivityLogHelper::log(
             'settings',
             'update_host_documentation_config',

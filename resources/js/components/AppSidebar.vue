@@ -18,11 +18,26 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
 const page = usePage();
+const { state } = useSidebar();
+
+const formatBytes = (bytes: number, decimals = 1) => {
+    if (!+bytes) {
+        return '0 B';
+    }
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+};
 
 const filteredNavItems = computed<NavItem[]>(() => {
     const user = page.props.auth?.user as any;
@@ -209,6 +224,18 @@ const footerNavItems: NavItem[] = [
 
         <SidebarFooter>
             <NavFooter :items="footerNavItems" />
+
+            <!-- Immich Storage Info -->
+            <div v-if="page.props.immich && state !== 'collapsed'" class="mx-3 mb-2 p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xs">
+                <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-0.5">Ruang penyimpanan</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-1.5">
+                    {{ formatBytes(page.props.immich.quotaUsageInBytes) }} dari {{ formatBytes(page.props.immich.quotaSizeInBytes) }} digunakan
+                </p>
+                <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-[#38BDF8] h-1.5 rounded-full transition-all duration-500" :style="`width: ${Math.min((page.props.immich.quotaUsageInBytes / page.props.immich.quotaSizeInBytes) * 100, 100)}%`"></div>
+                </div>
+            </div>
+
             <NavUser />
         </SidebarFooter>
     </Sidebar>

@@ -53,12 +53,18 @@ class HandleInertiaRequests extends Middleware
                         ($request->user()->host_id && $request->user()->host && ($request->user()->host->subscription_expires_at === null || $request->user()->host->subscription_expires_at->isFuture())),
                 ]) : null,
             ],
-            'immich' => Cache::remember('immich_storage', 300, function () {
-                $url = rtrim(config('services.immich.url', ''), '/');
-                $apiKey = config('services.immich.api_key', '');
-                if (! $apiKey) {
+            'immich' => $request->user() ? Cache::remember('immich_storage_'.($request->user()->host_id ?? $request->user()->id), 30, function () use ($request) {
+                $user = $request->user();
+                $hostId = $user->host_id ?? $user->id;
+                $host = \App\Models\User::find($hostId);
+                
+                if (! $host || ! $host->immich_api_key) {
                     return null;
                 }
+
+                $url = rtrim(Setting::get('immich_url', config('services.immich.url', '')), '/');
+                $apiKey = $host->immich_api_key;
+                
                 try {
                     $response = Http::withHeaders([
                         'x-api-key' => $apiKey,
@@ -76,7 +82,7 @@ class HandleInertiaRequests extends Middleware
                 }
 
                 return null;
-            }),
+            }) : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

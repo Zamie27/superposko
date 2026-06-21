@@ -22,6 +22,8 @@ const props = defineProps<{
     immichPassword?: string;
     error: string | null;
     success?: string | null;
+    canWrite?: boolean;
+    showCredentials?: boolean;
 }>();
 
 defineOptions({
@@ -133,8 +135,8 @@ const activeAsset = ref<Asset | null>(null);
 
 const activeAssetIndex = computed(() => {
     if (!activeAsset.value) {
-return -1;
-}
+        return -1;
+    }
 
     return props.assets.findIndex(a => a.id === activeAsset.value?.id);
 });
@@ -157,8 +159,8 @@ const showNext = () => {
 
 const handleKeyDown = (e: KeyboardEvent) => {
     if (!activeAsset.value) {
-return;
-}
+        return;
+    }
 
     if (e.key === 'ArrowLeft') {
         showPrev();
@@ -197,7 +199,7 @@ const closeLightbox = () => {
             
             <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
                 <!-- Credentials Info -->
-                <div v-if="immichEmail || immichPassword" class="flex flex-col sm:flex-row gap-4 p-3 bg-muted/40 border border-slate-100 dark:border-slate-800 rounded-lg text-xs text-muted-foreground flex-1 sm:flex-none">
+                <div v-if="showCredentials && (immichEmail || immichPassword)" class="flex flex-col sm:flex-row gap-4 p-3 bg-muted/40 border border-slate-100 dark:border-slate-800 rounded-lg text-xs text-muted-foreground flex-1 sm:flex-none">
                     <div v-if="immichEmail">
                         <span class="font-semibold block text-slate-700 dark:text-slate-300">Email Login Immich:</span>
                         <code class="bg-background px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 select-all font-mono">{{ immichEmail }}</code>
@@ -208,27 +210,30 @@ const closeLightbox = () => {
                     </div>
                 </div>
 
-                <!-- Local Upload Button -->
+                <!-- Action buttons -->
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <Label for="file-upload" class="cursor-pointer w-full sm:w-auto">
-                        <div class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 rounded-md font-semibold text-sm transition-colors shadow-xs justify-center">
-                            <Upload class="w-4 h-4" />
-                            <span>Unggah</span>
-                        </div>
-                    </Label>
-                    <input 
-                        id="file-upload" 
-                        type="file" 
-                        class="hidden" 
-                        ref="uploadInput"
-                        accept="image/*,video/*"
-                        multiple
-                        @change="handleFileChange"
-                    />
+                    <!-- Local Upload Button -->
+                    <template v-if="canWrite">
+                        <Label for="file-upload" class="cursor-pointer w-full sm:w-auto">
+                            <div class="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 rounded-md font-semibold text-sm transition-colors shadow-xs justify-center">
+                                <Upload class="w-4 h-4" />
+                                <span>Unggah</span>
+                            </div>
+                        </Label>
+                        <input 
+                            id="file-upload" 
+                            type="file" 
+                            class="hidden" 
+                            ref="uploadInput"
+                            accept="image/*,video/*"
+                            multiple
+                            @change="handleFileChange"
+                        />
+                    </template>
 
                     <!-- External Immich link -->
                     <a 
-                        v-if="immichUrl" 
+                        v-if="showCredentials && immichUrl" 
                         :href="immichUrl" 
                         target="_blank" 
                         rel="noopener noreferrer"

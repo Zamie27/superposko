@@ -27,6 +27,7 @@ const props = defineProps<{
         search?: string;
         category?: string;
     };
+    canWrite: boolean;
 }>();
 
 const toast = useToast();
@@ -220,6 +221,7 @@ const getPhoneCallLink = (phone: string) => {
             </div>
             
             <Button 
+                v-if="canWrite"
                 @click="openCreateModal" 
                 class="bg-sky-500 hover:bg-sky-600 text-white font-bold px-4 py-2.5 rounded-xl transition duration-200 flex items-center gap-2 cursor-pointer shadow-xs"
             >
@@ -284,7 +286,7 @@ const getPhoneCallLink = (phone: string) => {
                             {{ getCategoryDetails(contact.category).label }}
                         </span>
                         
-                        <div class="flex gap-1">
+                        <div v-if="canWrite" class="flex gap-1">
                             <button 
                                 @click="openEditModal(contact)" 
                                 class="p-1 text-slate-400 hover:text-sky-500 rounded-lg hover:bg-slate-50 transition cursor-pointer"

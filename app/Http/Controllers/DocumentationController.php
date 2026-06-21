@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\HostRoleHelper;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -48,9 +49,13 @@ class DocumentationController extends Controller
     public function index(): Response
     {
         $hasConfig = $this->resolveConfig();
-        $immichUrl = $this->url;
-        $immichEmail = $this->immichEmail;
-        $immichPassword = $this->immichPassword;
+        $user = auth()->user();
+        $canManageImmich = HostRoleHelper::canManageImmich($user);
+        $canWrite = HostRoleHelper::canWritePublicRelations($user);
+
+        $immichUrl = $canManageImmich ? $this->url : '';
+        $immichEmail = $canManageImmich ? $this->immichEmail : '';
+        $immichPassword = $canManageImmich ? $this->immichPassword : '';
 
         // Jika API key belum diset, return kosong
         if (!$hasConfig) {
@@ -59,6 +64,8 @@ class DocumentationController extends Controller
                 'immichUrl' => $immichUrl,
                 'immichEmail' => $immichEmail,
                 'immichPassword' => $immichPassword,
+                'canWrite' => $canWrite,
+                'showCredentials' => $canManageImmich,
                 'error' => 'API Key Immich belum dikonfigurasi oleh Admin untuk Posko Anda.',
             ]);
         }
@@ -93,6 +100,8 @@ class DocumentationController extends Controller
                     'immichUrl' => $immichUrl,
                     'immichEmail' => $immichEmail,
                     'immichPassword' => $immichPassword,
+                    'canWrite' => $canWrite,
+                    'showCredentials' => $canManageImmich,
                     'error' => session('error'),
                     'success' => session('success'),
                 ]);
@@ -103,6 +112,8 @@ class DocumentationController extends Controller
                 'immichUrl' => $immichUrl,
                 'immichEmail' => $immichEmail,
                 'immichPassword' => $immichPassword,
+                'canWrite' => $canWrite,
+                'showCredentials' => $canManageImmich,
                 'error' => session('error', 'Gagal mengambil data dari Immich: '.$response->status()),
                 'success' => session('success'),
             ]);
@@ -112,6 +123,8 @@ class DocumentationController extends Controller
                 'immichUrl' => $immichUrl,
                 'immichEmail' => $immichEmail,
                 'immichPassword' => $immichPassword,
+                'canWrite' => $canWrite,
+                'showCredentials' => $canManageImmich,
                 'error' => 'Terjadi kesalahan: '.$e->getMessage(),
             ]);
         }
@@ -178,6 +191,10 @@ class DocumentationController extends Controller
 
     public function store(Request $request): \Symfony\Component\HttpFoundation\Response
     {
+        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+            return back()->with('error', 'Anda tidak memiliki hak untuk mengunggah dokumentasi.');
+        }
+
         if (!$this->resolveConfig()) {
             return back()->with('error', 'API Key Immich belum dikonfigurasi.');
         }
@@ -214,6 +231,10 @@ class DocumentationController extends Controller
             ]);
 
             if ($response->successful()) {
+                $user = auth()->user();
+                $hostId = $user->host_id ?? $user->id;
+                \Illuminate\Support\Facades\Cache::forget('immich_storage_' . $hostId);
+
                 if ($request->wantsJson()) {
                     return response()->json(['message' => 'File berhasil diunggah ke Dokumentasi.']);
                 }
@@ -237,6 +258,10 @@ class DocumentationController extends Controller
 
     public function uploadChunk(Request $request): JsonResponse
     {
+        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+            return response()->json(['message' => 'Anda tidak memiliki hak untuk mengunggah dokumentasi.'], 403);
+        }
+
         if (!$this->resolveConfig()) {
             return response()->json(['message' => 'API Key Immich belum dikonfigurasi.'], 400);
         }
@@ -356,6 +381,10 @@ class DocumentationController extends Controller
                 @unlink($mergedFilePath);
 
                 if ($response->successful()) {
+                    $user = auth()->user();
+                    $hostId = $user->host_id ?? $user->id;
+                    \Illuminate\Support\Facades\Cache::forget('immich_storage_' . $hostId);
+
                     return response()->json([
                         'status' => 'success',
                         'message' => 'File berhasil diunggah secara chunk.',

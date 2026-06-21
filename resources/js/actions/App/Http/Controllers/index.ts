@@ -4,6 +4,7 @@ import PaymentController from './PaymentController'
 import Preorder from './Preorder'
 import MemberController from './MemberController'
 import ContactController from './ContactController'
+import ProkerDocumentController from './ProkerDocumentController'
 import DocumentationController from './DocumentationController'
 import Admin from './Admin'
 import Settings from './Settings'
@@ -15,6 +16,7 @@ const Controllers = {
     Preorder: Object.assign(Preorder, Preorder),
     MemberController: Object.assign(MemberController, MemberController),
     ContactController: Object.assign(ContactController, ContactController),
+    ProkerDocumentController: Object.assign(ProkerDocumentController, ProkerDocumentController),
     DocumentationController: Object.assign(DocumentationController, DocumentationController),
     Admin: Object.assign(Admin, Admin),
     Settings: Object.assign(Settings, Settings),
