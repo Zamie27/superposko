@@ -22,6 +22,7 @@ class VotingController extends Controller
      */
     public function index(Request $request): Response
     {
+        /** @var \App\Models\User $user */
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
@@ -33,11 +34,14 @@ class VotingController extends Controller
             ->withCount('votes')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($poll) use ($user) {
+            ->map(function (\App\Models\Poll $poll) use ($user) {
                 // Check if this user has voted in this poll
                 $userVote = PollVote::where('poll_id', $poll->id)
                     ->where('user_id', $user->id)
                     ->first();
+
+                /** @var \App\Models\User $creator */
+                $creator = $poll->creator;
 
                 return [
                     'id' => $poll->id,
@@ -45,19 +49,19 @@ class VotingController extends Controller
                     'description' => $poll->description,
                     'expires_at' => $poll->expires_at ? $poll->expires_at->toIso8601String() : null,
                     'is_expired' => $poll->isExpired(),
-                    'created_by' => $poll->creator->name,
-                    'total_votes' => $poll->votes_count,
+                    'created_by' => $creator->name,
+                    'total_votes' => $poll->votes_count ?? 0,
                     'has_voted' => !is_null($userVote),
                     'voted_option_id' => $userVote ? $userVote->poll_option_id : null,
-                    'options' => $poll->options->map(function ($opt) {
+                    'options' => $poll->options->map(function (\App\Models\PollOption $opt) {
                         return [
                             'id' => $opt->id,
                             'option_text' => $opt->option_text,
-                            'votes_count' => $opt->votes_count,
+                            'votes_count' => $opt->votes_count ?? 0,
                         ];
-                    }),
+                    })->all(),
                 ];
-            });
+            })->all();
 
         // Fetch aspirations scoped by host posko
         $aspirations = Aspiration::where('host_id', $hostId)
@@ -65,11 +69,14 @@ class VotingController extends Controller
             ->withCount('likes')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($asp) use ($user) {
+            ->map(function (\App\Models\Aspiration $asp) use ($user) {
                 // Check if user has liked this suggestion
                 $isLiked = AspirationLike::where('aspiration_id', $asp->id)
                     ->where('user_id', $user->id)
                     ->exists();
+
+                /** @var \App\Models\User|null $aspUser */
+                $aspUser = $asp->user;
 
                 return [
                     'id' => $asp->id,
@@ -78,12 +85,12 @@ class VotingController extends Controller
                     'status' => $asp->status,
                     'admin_response' => $asp->admin_response,
                     'is_anonymous' => $asp->is_anonymous,
-                    'creator_name' => $asp->is_anonymous ? 'Anonim' : ($asp->user ? $asp->user->name : 'Mantan Anggota'),
-                    'likes_count' => $asp->likes_count,
+                    'creator_name' => $asp->is_anonymous ? 'Anonim' : ($aspUser ? $aspUser->name : 'Mantan Anggota'),
+                    'likes_count' => $asp->likes_count ?? 0,
                     'is_liked' => $isLiked,
                     'created_at' => $asp->created_at->diffForHumans(),
                 ];
-            });
+            })->all();
 
         return Inertia::render('voting/Index', [
             'polls' => $polls,
@@ -166,7 +173,10 @@ class VotingController extends Controller
         ]);
 
         // Validate option belongs to this poll
-        $option = PollOption::where('poll_id', $poll->id)->find($validated['poll_option_id']);
+        /** @var \App\Models\PollOption|null $option */
+        $option = PollOption::where('poll_id', $poll->id)
+            ->where('id', $validated['poll_option_id'])
+            ->first();
         if (!$option) {
             abort(400, 'Pilihan tidak valid.');
         }

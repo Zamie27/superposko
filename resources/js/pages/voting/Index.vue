@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { 
     Plus, Vote, MessageSquare, ThumbsUp, Trash2, Calendar, 
-    User, HelpCircle, Check, Clock, Reply, CheckCircle2, AlertCircle 
+    User, Check, Clock, Reply, CheckCircle2
 } from '@lucide/vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -62,7 +62,7 @@ interface Aspiration {
     created_at: string;
 }
 
-const props = defineProps<{
+defineProps<{
     polls: Poll[];
     aspirations: Aspiration[];
     canManage: boolean;

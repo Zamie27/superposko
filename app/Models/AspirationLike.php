@@ -12,11 +12,17 @@ class AspirationLike extends Model
         'user_id',
     ];
 
+    /**
+     * @return BelongsTo<Aspiration, $this>
+     */
     public function aspiration(): BelongsTo
     {
         return $this->belongsTo(Aspiration::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

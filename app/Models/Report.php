@@ -19,6 +19,8 @@ class Report extends Model
 
     /**
      * Get the user that submitted the report.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

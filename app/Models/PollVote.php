@@ -13,16 +13,25 @@ class PollVote extends Model
         'user_id',
     ];
 
+    /**
+     * @return BelongsTo<Poll, $this>
+     */
     public function poll(): BelongsTo
     {
         return $this->belongsTo(Poll::class);
     }
 
+    /**
+     * @return BelongsTo<PollOption, $this>
+     */
     public function option(): BelongsTo
     {
         return $this->belongsTo(PollOption::class, 'poll_option_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

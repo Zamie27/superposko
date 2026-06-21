@@ -22,11 +22,17 @@ class Aspiration extends Model
         'is_anonymous' => 'boolean',
     ];
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return HasMany<AspirationLike, $this>
+     */
     public function likes(): HasMany
     {
         return $this->hasMany(AspirationLike::class);

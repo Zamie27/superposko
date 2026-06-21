@@ -13,11 +13,17 @@ class PollOption extends Model
         'option_text',
     ];
 
+    /**
+     * @return BelongsTo<Poll, $this>
+     */
     public function poll(): BelongsTo
     {
         return $this->belongsTo(Poll::class);
     }
 
+    /**
+     * @return HasMany<PollVote, $this>
+     */
     public function votes(): HasMany
     {
         return $this->hasMany(PollVote::class);
