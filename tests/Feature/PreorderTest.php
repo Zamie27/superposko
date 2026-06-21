@@ -15,7 +15,7 @@ class PreorderTest extends TestCase
 
     public function test_guests_cannot_access_preorder_page(): void
     {
-        $response = $this->get(route('user.preorder.index'));
+        $response = $this->get(route('preorder.index'));
         $response->assertRedirect(route('login'));
     }
 
@@ -24,7 +24,7 @@ class PreorderTest extends TestCase
         $user = User::factory()->create(['role' => 'user']);
         $this->actingAs($user);
 
-        $response = $this->get(route('user.preorder.index'));
+        $response = $this->get(route('preorder.index'));
         $response->assertOk();
     }
 
@@ -37,7 +37,7 @@ class PreorderTest extends TestCase
 
         $file = UploadedFile::fake()->create('proof.png', 100, 'image/png');
 
-        $response = $this->post(route('user.preorder.store'), [
+        $response = $this->post(route('preorder.store'), [
             'name' => 'John Doe',
             'email' => $user->email,
             'whatsapp' => '08123456789',
@@ -51,6 +51,39 @@ class PreorderTest extends TestCase
         $this->assertEquals('John Doe', $preorder->name);
         $this->assertEquals('pending', $preorder->status);
         Storage::disk('public')->assertExists($preorder->payment_proof);
+    }
+
+    public function test_user_can_resubmit_preorder_if_rejected(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create(['role' => 'user']);
+        $this->actingAs($user);
+
+        $preorder = Preorder::create([
+            'user_id' => $user->id,
+            'name' => 'John Doe Old',
+            'email' => $user->email,
+            'whatsapp' => '08123456789',
+            'payment_proof' => 'preorders/old.png',
+            'status' => 'rejected',
+        ]);
+
+        $file = UploadedFile::fake()->create('new_proof.png', 100, 'image/png');
+
+        $response = $this->post(route('preorder.store'), [
+            'name' => 'John Doe New',
+            'email' => $user->email,
+            'whatsapp' => '08123456789',
+            'payment_proof' => $file,
+        ]);
+
+        $response->assertRedirect();
+
+        $preorder->refresh();
+        $this->assertEquals('John Doe New', $preorder->name);
+        $this->assertEquals('pending', $preorder->status);
+        $this->assertStringContainsString('new_proof', $preorder->payment_proof);
     }
 
     public function test_admin_can_approve_preorder_and_activate_user(): void
@@ -86,13 +119,13 @@ class PreorderTest extends TestCase
         $host = User::factory()->create(['role' => 'host']);
         $this->actingAs($host);
 
-        $response = $this->get(route('user.preorder.index'));
-        $response->assertRedirect(route('host.dashboard'));
+        $response = $this->get(route('preorder.index'));
+        $response->assertRedirect(route('dashboard'));
 
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
 
-        $response = $this->get(route('user.preorder.index'));
+        $response = $this->get(route('preorder.index'));
         $response->assertRedirect(route('admin.dashboard'));
     }
 }

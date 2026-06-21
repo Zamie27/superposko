@@ -45,4 +45,34 @@ class MidtransService
 
         return null;
     }
+
+    /**
+     * Get transaction status from Midtrans.
+     */
+    public function getTransactionStatus(string $orderId): ?array
+    {
+        $serverKey = config('services.midtrans.server_key');
+
+        if (empty($serverKey)) {
+            return null;
+        }
+
+        $isProduction = filter_var(config('services.midtrans.is_production', false), FILTER_VALIDATE_BOOLEAN);
+        $url = $isProduction
+            ? "https://api.midtrans.com/v2/{$orderId}/status"
+            : "https://api.sandbox.midtrans.com/v2/{$orderId}/status";
+
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+        ])
+            ->withBasicAuth($serverKey, '')
+            ->get($url);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
 }
+

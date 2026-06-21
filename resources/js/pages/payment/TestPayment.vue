@@ -5,6 +5,7 @@ import { onMounted, ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { dashboard } from '@/routes';
+import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{
     midtransClientKey: string;
@@ -20,7 +21,7 @@ defineOptions({
             },
             {
                 title: 'Test Payment',
-                href: '/host/payment/test',
+                href: '/admin/payment/test',
             },
         ],
     },
@@ -29,6 +30,7 @@ defineOptions({
 const isLoading = ref(false);
 const transactionStatus = ref<'idle' | 'success' | 'pending' | 'error' | 'closed'>('idle');
 const resultData = ref<any>(null);
+const toast = useToast();
 
 // Load Midtrans Snap JS dynamically
 onMounted(() => {
@@ -62,7 +64,7 @@ const handlePayment = async () => {
     resultData.value = null;
 
     try {
-        const response = await fetch('/host/payment/test/token', {
+        const response = await fetch('/admin/payment/test/token', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -101,13 +103,13 @@ const handlePayment = async () => {
                     }
                 });
             } else {
-                alert('Midtrans Snap SDK gagal dimuat. Coba refresh halaman.');
+                toast.error('Midtrans Snap SDK gagal dimuat. Coba refresh halaman.');
             }
         } else {
-            alert(data.message || 'Gagal mendapatkan token transaksi.');
+            toast.error(data.message || 'Gagal mendapatkan token transaksi.');
         }
     } catch (error: any) {
-        alert(error.message || 'Terjadi kesalahan sistem.');
+        toast.error(error.message || 'Terjadi kesalahan sistem.');
     } finally {
         isLoading.value = false;
     }

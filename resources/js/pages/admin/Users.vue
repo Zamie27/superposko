@@ -5,6 +5,8 @@ import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useConfirm } from '@/composables/useConfirm';
+import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{
     users: {
@@ -47,6 +49,8 @@ const newPassword = ref('');
 const isProcessing = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
+const { confirm } = useConfirm();
+const toast = useToast();
 
 // Role Editing State
 const roleForm = ref({
@@ -70,6 +74,11 @@ const openResetModal = (user: any) => {
 };
 
 const handleResetPassword = async () => {
+    if (!newPassword.value) {
+        errorMessage.value = 'Silakan isi password baru.';
+        return;
+    }
+
     if (newPassword.value.length < 8) {
         errorMessage.value = 'Password minimal 8 karakter.';
         return;
@@ -110,7 +119,14 @@ const handleResetPassword = async () => {
 };
 
 const handleSendResetEmail = async (user: any) => {
-    if (!confirm(`Kirim link reset password ke email ${user.email}?`)) {
+    const isConfirmed = await confirm({
+        title: 'Reset Password?',
+        message: `Kirim link reset password ke email ${user.email}?`,
+        confirmText: 'Ya, Kirim',
+        cancelText: 'Batal',
+    });
+
+    if (!isConfirmed) {
         return;
     }
 
@@ -128,9 +144,9 @@ const handleSendResetEmail = async (user: any) => {
         });
 
         const data = await response.json();
-        alert(data.message);
+        toast.success(data.message || 'Email reset password berhasil dikirim.');
     } catch (e) {
-        alert('Gagal mengirimkan email reset password.');
+        toast.error('Gagal mengirimkan email reset password.');
     }
 };
 

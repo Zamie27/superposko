@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import ComingSoon from '@/components/ComingSoon.vue';
 
 defineOptions({
     layout: {
@@ -10,7 +11,7 @@ defineOptions({
             },
             {
                 title: 'Logistik',
-                href: '/host/management/logistic',
+                href: '/management/logistic',
             },
         ],
     },
@@ -21,8 +22,9 @@ defineOptions({
     <Head title="Logistik" />
 
     <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-        <div class="p-6 bg-card border rounded-lg">
-            Halaman Logistik (Kosong)
-        </div>
+        <ComingSoon 
+            title="Manajemen Logistik Kelompok" 
+            description="Kelola distribusi logistik, bantuan sosial, kebutuhan konsumsi, dan penyaluran perlengkapan posko KKN secara terstruktur." 
+        />
     </div>
 </template>

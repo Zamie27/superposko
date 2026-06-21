@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import ComingSoon from '@/components/ComingSoon.vue';
 
 defineOptions({
     layout: {
         breadcrumbs: [
             {
                 title: 'Repository Proker',
-                href: '/host/repository',
+                href: '/repository',
             },
         ],
     },
@@ -17,8 +18,9 @@ defineOptions({
     <Head title="Repository Proker" />
 
     <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-        <div class="p-6 bg-card border rounded-lg">
-            Halaman Repository Proker (Kosong)
-        </div>
+        <ComingSoon 
+            title="Repository Proposal & Dokumen" 
+            description="Wadah penyimpanan sentral untuk berkas proposal kegiatan, surat menyurat, berkas perizinan desa, dan notulensi rapat agar tidak tercecer." 
+        />
     </div>
 </template>

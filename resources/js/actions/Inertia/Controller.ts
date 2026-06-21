@@ -2,74 +2,74 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/dashboard'
+* @route '/finance'
 */
-const Controller518f53198343699ca0810f3ed7566e3f = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller518f53198343699ca0810f3ed7566e3f.url(options),
+const Controllerb048a0b5d791fb5ca2f61779e8b831e6 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerb048a0b5d791fb5ca2f61779e8b831e6.url(options),
     method: 'get',
 })
 
-Controller518f53198343699ca0810f3ed7566e3f.definition = {
+Controllerb048a0b5d791fb5ca2f61779e8b831e6.definition = {
     methods: ["get","head"],
-    url: '/host/dashboard',
+    url: '/finance',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/dashboard'
+* @route '/finance'
 */
-Controller518f53198343699ca0810f3ed7566e3f.url = (options?: RouteQueryOptions) => {
-    return Controller518f53198343699ca0810f3ed7566e3f.definition.url + queryParams(options)
+Controllerb048a0b5d791fb5ca2f61779e8b831e6.url = (options?: RouteQueryOptions) => {
+    return Controllerb048a0b5d791fb5ca2f61779e8b831e6.definition.url + queryParams(options)
 }
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/dashboard'
+* @route '/finance'
 */
-Controller518f53198343699ca0810f3ed7566e3f.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller518f53198343699ca0810f3ed7566e3f.url(options),
+Controllerb048a0b5d791fb5ca2f61779e8b831e6.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerb048a0b5d791fb5ca2f61779e8b831e6.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/dashboard'
+* @route '/finance'
 */
-Controller518f53198343699ca0810f3ed7566e3f.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controller518f53198343699ca0810f3ed7566e3f.url(options),
+Controllerb048a0b5d791fb5ca2f61779e8b831e6.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controllerb048a0b5d791fb5ca2f61779e8b831e6.url(options),
     method: 'head',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/dashboard'
+* @route '/finance'
 */
-const Controller518f53198343699ca0810f3ed7566e3fForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller518f53198343699ca0810f3ed7566e3f.url(options),
+const Controllerb048a0b5d791fb5ca2f61779e8b831e6Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerb048a0b5d791fb5ca2f61779e8b831e6.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/dashboard'
+* @route '/finance'
 */
-Controller518f53198343699ca0810f3ed7566e3fForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller518f53198343699ca0810f3ed7566e3f.url(options),
+Controllerb048a0b5d791fb5ca2f61779e8b831e6Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerb048a0b5d791fb5ca2f61779e8b831e6.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/dashboard'
+* @route '/finance'
 */
-Controller518f53198343699ca0810f3ed7566e3fForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller518f53198343699ca0810f3ed7566e3f.url({
+Controllerb048a0b5d791fb5ca2f61779e8b831e6Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerb048a0b5d791fb5ca2f61779e8b831e6.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -78,78 +78,78 @@ Controller518f53198343699ca0810f3ed7566e3fForm.head = (options?: RouteQueryOptio
     method: 'get',
 })
 
-Controller518f53198343699ca0810f3ed7566e3f.form = Controller518f53198343699ca0810f3ed7566e3fForm
+Controllerb048a0b5d791fb5ca2f61779e8b831e6.form = Controllerb048a0b5d791fb5ca2f61779e8b831e6Form
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/finance'
+* @route '/logbook'
 */
-const Controllerae6a23dab1f33d2b4933cdf047368094 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllerae6a23dab1f33d2b4933cdf047368094.url(options),
+const Controllerabb2216759cf014eb2e195195a98e6d3 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerabb2216759cf014eb2e195195a98e6d3.url(options),
     method: 'get',
 })
 
-Controllerae6a23dab1f33d2b4933cdf047368094.definition = {
+Controllerabb2216759cf014eb2e195195a98e6d3.definition = {
     methods: ["get","head"],
-    url: '/host/finance',
+    url: '/logbook',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/finance'
+* @route '/logbook'
 */
-Controllerae6a23dab1f33d2b4933cdf047368094.url = (options?: RouteQueryOptions) => {
-    return Controllerae6a23dab1f33d2b4933cdf047368094.definition.url + queryParams(options)
+Controllerabb2216759cf014eb2e195195a98e6d3.url = (options?: RouteQueryOptions) => {
+    return Controllerabb2216759cf014eb2e195195a98e6d3.definition.url + queryParams(options)
 }
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/finance'
+* @route '/logbook'
 */
-Controllerae6a23dab1f33d2b4933cdf047368094.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllerae6a23dab1f33d2b4933cdf047368094.url(options),
+Controllerabb2216759cf014eb2e195195a98e6d3.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerabb2216759cf014eb2e195195a98e6d3.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/finance'
+* @route '/logbook'
 */
-Controllerae6a23dab1f33d2b4933cdf047368094.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controllerae6a23dab1f33d2b4933cdf047368094.url(options),
+Controllerabb2216759cf014eb2e195195a98e6d3.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controllerabb2216759cf014eb2e195195a98e6d3.url(options),
     method: 'head',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/finance'
+* @route '/logbook'
 */
-const Controllerae6a23dab1f33d2b4933cdf047368094Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerae6a23dab1f33d2b4933cdf047368094.url(options),
+const Controllerabb2216759cf014eb2e195195a98e6d3Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerabb2216759cf014eb2e195195a98e6d3.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/finance'
+* @route '/logbook'
 */
-Controllerae6a23dab1f33d2b4933cdf047368094Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerae6a23dab1f33d2b4933cdf047368094.url(options),
+Controllerabb2216759cf014eb2e195195a98e6d3Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerabb2216759cf014eb2e195195a98e6d3.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/finance'
+* @route '/logbook'
 */
-Controllerae6a23dab1f33d2b4933cdf047368094Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerae6a23dab1f33d2b4933cdf047368094.url({
+Controllerabb2216759cf014eb2e195195a98e6d3Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerabb2216759cf014eb2e195195a98e6d3.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -158,78 +158,78 @@ Controllerae6a23dab1f33d2b4933cdf047368094Form.head = (options?: RouteQueryOptio
     method: 'get',
 })
 
-Controllerae6a23dab1f33d2b4933cdf047368094.form = Controllerae6a23dab1f33d2b4933cdf047368094Form
+Controllerabb2216759cf014eb2e195195a98e6d3.form = Controllerabb2216759cf014eb2e195195a98e6d3Form
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/logbook'
+* @route '/management/inventory'
 */
-const Controller2f87723b7b6d46b903ec42cbf539764f = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller2f87723b7b6d46b903ec42cbf539764f.url(options),
+const Controller2a5367f9244dbeae8d78e409e3429a3e = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller2a5367f9244dbeae8d78e409e3429a3e.url(options),
     method: 'get',
 })
 
-Controller2f87723b7b6d46b903ec42cbf539764f.definition = {
+Controller2a5367f9244dbeae8d78e409e3429a3e.definition = {
     methods: ["get","head"],
-    url: '/host/logbook',
+    url: '/management/inventory',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/logbook'
+* @route '/management/inventory'
 */
-Controller2f87723b7b6d46b903ec42cbf539764f.url = (options?: RouteQueryOptions) => {
-    return Controller2f87723b7b6d46b903ec42cbf539764f.definition.url + queryParams(options)
+Controller2a5367f9244dbeae8d78e409e3429a3e.url = (options?: RouteQueryOptions) => {
+    return Controller2a5367f9244dbeae8d78e409e3429a3e.definition.url + queryParams(options)
 }
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/logbook'
+* @route '/management/inventory'
 */
-Controller2f87723b7b6d46b903ec42cbf539764f.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller2f87723b7b6d46b903ec42cbf539764f.url(options),
+Controller2a5367f9244dbeae8d78e409e3429a3e.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller2a5367f9244dbeae8d78e409e3429a3e.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/logbook'
+* @route '/management/inventory'
 */
-Controller2f87723b7b6d46b903ec42cbf539764f.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controller2f87723b7b6d46b903ec42cbf539764f.url(options),
+Controller2a5367f9244dbeae8d78e409e3429a3e.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controller2a5367f9244dbeae8d78e409e3429a3e.url(options),
     method: 'head',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/logbook'
+* @route '/management/inventory'
 */
-const Controller2f87723b7b6d46b903ec42cbf539764fForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller2f87723b7b6d46b903ec42cbf539764f.url(options),
+const Controller2a5367f9244dbeae8d78e409e3429a3eForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller2a5367f9244dbeae8d78e409e3429a3e.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/logbook'
+* @route '/management/inventory'
 */
-Controller2f87723b7b6d46b903ec42cbf539764fForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller2f87723b7b6d46b903ec42cbf539764f.url(options),
+Controller2a5367f9244dbeae8d78e409e3429a3eForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller2a5367f9244dbeae8d78e409e3429a3e.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/logbook'
+* @route '/management/inventory'
 */
-Controller2f87723b7b6d46b903ec42cbf539764fForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller2f87723b7b6d46b903ec42cbf539764f.url({
+Controller2a5367f9244dbeae8d78e409e3429a3eForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller2a5367f9244dbeae8d78e409e3429a3e.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -238,78 +238,78 @@ Controller2f87723b7b6d46b903ec42cbf539764fForm.head = (options?: RouteQueryOptio
     method: 'get',
 })
 
-Controller2f87723b7b6d46b903ec42cbf539764f.form = Controller2f87723b7b6d46b903ec42cbf539764fForm
+Controller2a5367f9244dbeae8d78e409e3429a3e.form = Controller2a5367f9244dbeae8d78e409e3429a3eForm
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/inventory'
+* @route '/management/logistic'
 */
-const Controller717ff98c45c5e08937f5b1ff0a43c8bb = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller717ff98c45c5e08937f5b1ff0a43c8bb.url(options),
+const Controllerbc78e265ee946ca595d9bc944a4839f0 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerbc78e265ee946ca595d9bc944a4839f0.url(options),
     method: 'get',
 })
 
-Controller717ff98c45c5e08937f5b1ff0a43c8bb.definition = {
+Controllerbc78e265ee946ca595d9bc944a4839f0.definition = {
     methods: ["get","head"],
-    url: '/host/management/inventory',
+    url: '/management/logistic',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/inventory'
+* @route '/management/logistic'
 */
-Controller717ff98c45c5e08937f5b1ff0a43c8bb.url = (options?: RouteQueryOptions) => {
-    return Controller717ff98c45c5e08937f5b1ff0a43c8bb.definition.url + queryParams(options)
+Controllerbc78e265ee946ca595d9bc944a4839f0.url = (options?: RouteQueryOptions) => {
+    return Controllerbc78e265ee946ca595d9bc944a4839f0.definition.url + queryParams(options)
 }
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/inventory'
+* @route '/management/logistic'
 */
-Controller717ff98c45c5e08937f5b1ff0a43c8bb.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller717ff98c45c5e08937f5b1ff0a43c8bb.url(options),
+Controllerbc78e265ee946ca595d9bc944a4839f0.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerbc78e265ee946ca595d9bc944a4839f0.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/inventory'
+* @route '/management/logistic'
 */
-Controller717ff98c45c5e08937f5b1ff0a43c8bb.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controller717ff98c45c5e08937f5b1ff0a43c8bb.url(options),
+Controllerbc78e265ee946ca595d9bc944a4839f0.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controllerbc78e265ee946ca595d9bc944a4839f0.url(options),
     method: 'head',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/inventory'
+* @route '/management/logistic'
 */
-const Controller717ff98c45c5e08937f5b1ff0a43c8bbForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller717ff98c45c5e08937f5b1ff0a43c8bb.url(options),
+const Controllerbc78e265ee946ca595d9bc944a4839f0Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerbc78e265ee946ca595d9bc944a4839f0.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/inventory'
+* @route '/management/logistic'
 */
-Controller717ff98c45c5e08937f5b1ff0a43c8bbForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller717ff98c45c5e08937f5b1ff0a43c8bb.url(options),
+Controllerbc78e265ee946ca595d9bc944a4839f0Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerbc78e265ee946ca595d9bc944a4839f0.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/inventory'
+* @route '/management/logistic'
 */
-Controller717ff98c45c5e08937f5b1ff0a43c8bbForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller717ff98c45c5e08937f5b1ff0a43c8bb.url({
+Controllerbc78e265ee946ca595d9bc944a4839f0Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerbc78e265ee946ca595d9bc944a4839f0.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -318,78 +318,78 @@ Controller717ff98c45c5e08937f5b1ff0a43c8bbForm.head = (options?: RouteQueryOptio
     method: 'get',
 })
 
-Controller717ff98c45c5e08937f5b1ff0a43c8bb.form = Controller717ff98c45c5e08937f5b1ff0a43c8bbForm
+Controllerbc78e265ee946ca595d9bc944a4839f0.form = Controllerbc78e265ee946ca595d9bc944a4839f0Form
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/logistic'
+* @route '/management/schedule'
 */
-const Controller2d371f6f9e64454dee18253e3d599097 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller2d371f6f9e64454dee18253e3d599097.url(options),
+const Controller383de1a6870bc27bd361c37542f71c41 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller383de1a6870bc27bd361c37542f71c41.url(options),
     method: 'get',
 })
 
-Controller2d371f6f9e64454dee18253e3d599097.definition = {
+Controller383de1a6870bc27bd361c37542f71c41.definition = {
     methods: ["get","head"],
-    url: '/host/management/logistic',
+    url: '/management/schedule',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/logistic'
+* @route '/management/schedule'
 */
-Controller2d371f6f9e64454dee18253e3d599097.url = (options?: RouteQueryOptions) => {
-    return Controller2d371f6f9e64454dee18253e3d599097.definition.url + queryParams(options)
+Controller383de1a6870bc27bd361c37542f71c41.url = (options?: RouteQueryOptions) => {
+    return Controller383de1a6870bc27bd361c37542f71c41.definition.url + queryParams(options)
 }
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/logistic'
+* @route '/management/schedule'
 */
-Controller2d371f6f9e64454dee18253e3d599097.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller2d371f6f9e64454dee18253e3d599097.url(options),
+Controller383de1a6870bc27bd361c37542f71c41.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller383de1a6870bc27bd361c37542f71c41.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/logistic'
+* @route '/management/schedule'
 */
-Controller2d371f6f9e64454dee18253e3d599097.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controller2d371f6f9e64454dee18253e3d599097.url(options),
+Controller383de1a6870bc27bd361c37542f71c41.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controller383de1a6870bc27bd361c37542f71c41.url(options),
     method: 'head',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/logistic'
+* @route '/management/schedule'
 */
-const Controller2d371f6f9e64454dee18253e3d599097Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller2d371f6f9e64454dee18253e3d599097.url(options),
+const Controller383de1a6870bc27bd361c37542f71c41Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller383de1a6870bc27bd361c37542f71c41.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/logistic'
+* @route '/management/schedule'
 */
-Controller2d371f6f9e64454dee18253e3d599097Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller2d371f6f9e64454dee18253e3d599097.url(options),
+Controller383de1a6870bc27bd361c37542f71c41Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller383de1a6870bc27bd361c37542f71c41.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/logistic'
+* @route '/management/schedule'
 */
-Controller2d371f6f9e64454dee18253e3d599097Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller2d371f6f9e64454dee18253e3d599097.url({
+Controller383de1a6870bc27bd361c37542f71c41Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller383de1a6870bc27bd361c37542f71c41.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -398,78 +398,78 @@ Controller2d371f6f9e64454dee18253e3d599097Form.head = (options?: RouteQueryOptio
     method: 'get',
 })
 
-Controller2d371f6f9e64454dee18253e3d599097.form = Controller2d371f6f9e64454dee18253e3d599097Form
+Controller383de1a6870bc27bd361c37542f71c41.form = Controller383de1a6870bc27bd361c37542f71c41Form
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/schedule'
+* @route '/contacts'
 */
-const Controllerd831da3b6902bfc2cf40f5f6662bd0ad = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllerd831da3b6902bfc2cf40f5f6662bd0ad.url(options),
+const Controller992a2347bc1316e84b2c92be2972d319 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller992a2347bc1316e84b2c92be2972d319.url(options),
     method: 'get',
 })
 
-Controllerd831da3b6902bfc2cf40f5f6662bd0ad.definition = {
+Controller992a2347bc1316e84b2c92be2972d319.definition = {
     methods: ["get","head"],
-    url: '/host/management/schedule',
+    url: '/contacts',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/schedule'
+* @route '/contacts'
 */
-Controllerd831da3b6902bfc2cf40f5f6662bd0ad.url = (options?: RouteQueryOptions) => {
-    return Controllerd831da3b6902bfc2cf40f5f6662bd0ad.definition.url + queryParams(options)
+Controller992a2347bc1316e84b2c92be2972d319.url = (options?: RouteQueryOptions) => {
+    return Controller992a2347bc1316e84b2c92be2972d319.definition.url + queryParams(options)
 }
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/schedule'
+* @route '/contacts'
 */
-Controllerd831da3b6902bfc2cf40f5f6662bd0ad.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllerd831da3b6902bfc2cf40f5f6662bd0ad.url(options),
+Controller992a2347bc1316e84b2c92be2972d319.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller992a2347bc1316e84b2c92be2972d319.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/schedule'
+* @route '/contacts'
 */
-Controllerd831da3b6902bfc2cf40f5f6662bd0ad.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controllerd831da3b6902bfc2cf40f5f6662bd0ad.url(options),
+Controller992a2347bc1316e84b2c92be2972d319.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controller992a2347bc1316e84b2c92be2972d319.url(options),
     method: 'head',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/schedule'
+* @route '/contacts'
 */
-const Controllerd831da3b6902bfc2cf40f5f6662bd0adForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerd831da3b6902bfc2cf40f5f6662bd0ad.url(options),
+const Controller992a2347bc1316e84b2c92be2972d319Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller992a2347bc1316e84b2c92be2972d319.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/schedule'
+* @route '/contacts'
 */
-Controllerd831da3b6902bfc2cf40f5f6662bd0adForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerd831da3b6902bfc2cf40f5f6662bd0ad.url(options),
+Controller992a2347bc1316e84b2c92be2972d319Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller992a2347bc1316e84b2c92be2972d319.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/management/schedule'
+* @route '/contacts'
 */
-Controllerd831da3b6902bfc2cf40f5f6662bd0adForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerd831da3b6902bfc2cf40f5f6662bd0ad.url({
+Controller992a2347bc1316e84b2c92be2972d319Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller992a2347bc1316e84b2c92be2972d319.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -478,78 +478,78 @@ Controllerd831da3b6902bfc2cf40f5f6662bd0adForm.head = (options?: RouteQueryOptio
     method: 'get',
 })
 
-Controllerd831da3b6902bfc2cf40f5f6662bd0ad.form = Controllerd831da3b6902bfc2cf40f5f6662bd0adForm
+Controller992a2347bc1316e84b2c92be2972d319.form = Controller992a2347bc1316e84b2c92be2972d319Form
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/contacts'
+* @route '/repository'
 */
-const Controllera6c3ca41d272d09cce3cbe8966b34543 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllera6c3ca41d272d09cce3cbe8966b34543.url(options),
+const Controllerc077734b27c5875bc84c1e7371f6c452 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerc077734b27c5875bc84c1e7371f6c452.url(options),
     method: 'get',
 })
 
-Controllera6c3ca41d272d09cce3cbe8966b34543.definition = {
+Controllerc077734b27c5875bc84c1e7371f6c452.definition = {
     methods: ["get","head"],
-    url: '/host/contacts',
+    url: '/repository',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/contacts'
+* @route '/repository'
 */
-Controllera6c3ca41d272d09cce3cbe8966b34543.url = (options?: RouteQueryOptions) => {
-    return Controllera6c3ca41d272d09cce3cbe8966b34543.definition.url + queryParams(options)
+Controllerc077734b27c5875bc84c1e7371f6c452.url = (options?: RouteQueryOptions) => {
+    return Controllerc077734b27c5875bc84c1e7371f6c452.definition.url + queryParams(options)
 }
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/contacts'
+* @route '/repository'
 */
-Controllera6c3ca41d272d09cce3cbe8966b34543.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllera6c3ca41d272d09cce3cbe8966b34543.url(options),
+Controllerc077734b27c5875bc84c1e7371f6c452.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controllerc077734b27c5875bc84c1e7371f6c452.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/contacts'
+* @route '/repository'
 */
-Controllera6c3ca41d272d09cce3cbe8966b34543.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controllera6c3ca41d272d09cce3cbe8966b34543.url(options),
+Controllerc077734b27c5875bc84c1e7371f6c452.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controllerc077734b27c5875bc84c1e7371f6c452.url(options),
     method: 'head',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/contacts'
+* @route '/repository'
 */
-const Controllera6c3ca41d272d09cce3cbe8966b34543Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllera6c3ca41d272d09cce3cbe8966b34543.url(options),
+const Controllerc077734b27c5875bc84c1e7371f6c452Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerc077734b27c5875bc84c1e7371f6c452.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/contacts'
+* @route '/repository'
 */
-Controllera6c3ca41d272d09cce3cbe8966b34543Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllera6c3ca41d272d09cce3cbe8966b34543.url(options),
+Controllerc077734b27c5875bc84c1e7371f6c452Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerc077734b27c5875bc84c1e7371f6c452.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/contacts'
+* @route '/repository'
 */
-Controllera6c3ca41d272d09cce3cbe8966b34543Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllera6c3ca41d272d09cce3cbe8966b34543.url({
+Controllerc077734b27c5875bc84c1e7371f6c452Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controllerc077734b27c5875bc84c1e7371f6c452.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -558,78 +558,78 @@ Controllera6c3ca41d272d09cce3cbe8966b34543Form.head = (options?: RouteQueryOptio
     method: 'get',
 })
 
-Controllera6c3ca41d272d09cce3cbe8966b34543.form = Controllera6c3ca41d272d09cce3cbe8966b34543Form
+Controllerc077734b27c5875bc84c1e7371f6c452.form = Controllerc077734b27c5875bc84c1e7371f6c452Form
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/repository'
+* @route '/voting'
 */
-const Controllerba1909dfdafda6f1e6b784abcba7e183 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllerba1909dfdafda6f1e6b784abcba7e183.url(options),
+const Controller4f39f405039961f7fb66175445447eec = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller4f39f405039961f7fb66175445447eec.url(options),
     method: 'get',
 })
 
-Controllerba1909dfdafda6f1e6b784abcba7e183.definition = {
+Controller4f39f405039961f7fb66175445447eec.definition = {
     methods: ["get","head"],
-    url: '/host/repository',
+    url: '/voting',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/repository'
+* @route '/voting'
 */
-Controllerba1909dfdafda6f1e6b784abcba7e183.url = (options?: RouteQueryOptions) => {
-    return Controllerba1909dfdafda6f1e6b784abcba7e183.definition.url + queryParams(options)
+Controller4f39f405039961f7fb66175445447eec.url = (options?: RouteQueryOptions) => {
+    return Controller4f39f405039961f7fb66175445447eec.definition.url + queryParams(options)
 }
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/repository'
+* @route '/voting'
 */
-Controllerba1909dfdafda6f1e6b784abcba7e183.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllerba1909dfdafda6f1e6b784abcba7e183.url(options),
+Controller4f39f405039961f7fb66175445447eec.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: Controller4f39f405039961f7fb66175445447eec.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/repository'
+* @route '/voting'
 */
-Controllerba1909dfdafda6f1e6b784abcba7e183.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controllerba1909dfdafda6f1e6b784abcba7e183.url(options),
+Controller4f39f405039961f7fb66175445447eec.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: Controller4f39f405039961f7fb66175445447eec.url(options),
     method: 'head',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/repository'
+* @route '/voting'
 */
-const Controllerba1909dfdafda6f1e6b784abcba7e183Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerba1909dfdafda6f1e6b784abcba7e183.url(options),
+const Controller4f39f405039961f7fb66175445447eecForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller4f39f405039961f7fb66175445447eec.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/repository'
+* @route '/voting'
 */
-Controllerba1909dfdafda6f1e6b784abcba7e183Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerba1909dfdafda6f1e6b784abcba7e183.url(options),
+Controller4f39f405039961f7fb66175445447eecForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller4f39f405039961f7fb66175445447eec.url(options),
     method: 'get',
 })
 
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/repository'
+* @route '/voting'
 */
-Controllerba1909dfdafda6f1e6b784abcba7e183Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerba1909dfdafda6f1e6b784abcba7e183.url({
+Controller4f39f405039961f7fb66175445447eecForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: Controller4f39f405039961f7fb66175445447eec.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -638,87 +638,7 @@ Controllerba1909dfdafda6f1e6b784abcba7e183Form.head = (options?: RouteQueryOptio
     method: 'get',
 })
 
-Controllerba1909dfdafda6f1e6b784abcba7e183.form = Controllerba1909dfdafda6f1e6b784abcba7e183Form
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/voting'
-*/
-const Controllerbecb95338421b9ab60c21204580b36b5 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllerbecb95338421b9ab60c21204580b36b5.url(options),
-    method: 'get',
-})
-
-Controllerbecb95338421b9ab60c21204580b36b5.definition = {
-    methods: ["get","head"],
-    url: '/host/voting',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/voting'
-*/
-Controllerbecb95338421b9ab60c21204580b36b5.url = (options?: RouteQueryOptions) => {
-    return Controllerbecb95338421b9ab60c21204580b36b5.definition.url + queryParams(options)
-}
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/voting'
-*/
-Controllerbecb95338421b9ab60c21204580b36b5.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controllerbecb95338421b9ab60c21204580b36b5.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/voting'
-*/
-Controllerbecb95338421b9ab60c21204580b36b5.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controllerbecb95338421b9ab60c21204580b36b5.url(options),
-    method: 'head',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/voting'
-*/
-const Controllerbecb95338421b9ab60c21204580b36b5Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerbecb95338421b9ab60c21204580b36b5.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/voting'
-*/
-Controllerbecb95338421b9ab60c21204580b36b5Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerbecb95338421b9ab60c21204580b36b5.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/host/voting'
-*/
-Controllerbecb95338421b9ab60c21204580b36b5Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controllerbecb95338421b9ab60c21204580b36b5.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-Controllerbecb95338421b9ab60c21204580b36b5.form = Controllerbecb95338421b9ab60c21204580b36b5Form
+Controller4f39f405039961f7fb66175445447eec.form = Controller4f39f405039961f7fb66175445447eecForm
 
 /**
 * Multiple routes resolve to \Inertia\Controller::Controller, so this export is a
@@ -726,15 +646,14 @@ Controllerbecb95338421b9ab60c21204580b36b5.form = Controllerbecb95338421b9ab60c2
 * or import the route by name from your generated `routes/` directory.
 */
 const Controller = {
-    '/host/dashboard': Controller518f53198343699ca0810f3ed7566e3f,
-    '/host/finance': Controllerae6a23dab1f33d2b4933cdf047368094,
-    '/host/logbook': Controller2f87723b7b6d46b903ec42cbf539764f,
-    '/host/management/inventory': Controller717ff98c45c5e08937f5b1ff0a43c8bb,
-    '/host/management/logistic': Controller2d371f6f9e64454dee18253e3d599097,
-    '/host/management/schedule': Controllerd831da3b6902bfc2cf40f5f6662bd0ad,
-    '/host/contacts': Controllera6c3ca41d272d09cce3cbe8966b34543,
-    '/host/repository': Controllerba1909dfdafda6f1e6b784abcba7e183,
-    '/host/voting': Controllerbecb95338421b9ab60c21204580b36b5,
+    '/finance': Controllerb048a0b5d791fb5ca2f61779e8b831e6,
+    '/logbook': Controllerabb2216759cf014eb2e195195a98e6d3,
+    '/management/inventory': Controller2a5367f9244dbeae8d78e409e3429a3e,
+    '/management/logistic': Controllerbc78e265ee946ca595d9bc944a4839f0,
+    '/management/schedule': Controller383de1a6870bc27bd361c37542f71c41,
+    '/contacts': Controller992a2347bc1316e84b2c92be2972d319,
+    '/repository': Controllerc077734b27c5875bc84c1e7371f6c452,
+    '/voting': Controller4f39f405039961f7fb66175445447eec,
 }
 
 export default Controller

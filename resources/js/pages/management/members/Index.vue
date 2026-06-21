@@ -20,6 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useConfirm } from '@/composables/useConfirm';
 
 defineProps<{
     members: any[];
@@ -28,6 +29,7 @@ defineProps<{
 
 const isModalOpen = ref(false);
 const editingMember = ref<any>(null);
+const { confirm } = useConfirm();
 
 const form = useForm({
     name: '',
@@ -55,13 +57,13 @@ const openEditModal = (member: any) => {
 
 const submitForm = () => {
     if (editingMember.value) {
-        form.put(`/host/management/members/${editingMember.value.id}`, {
+        form.put(`/management/members/${editingMember.value.id}`, {
             onSuccess: () => {
                 isModalOpen.value = false;
             },
         });
     } else {
-        form.post('/host/management/members', {
+        form.post('/management/members', {
             onSuccess: () => {
                 isModalOpen.value = false;
             },
@@ -69,9 +71,17 @@ const submitForm = () => {
     }
 };
 
-const deleteMember = (id: number) => {
-    if (confirm('Apakah Anda yakin ingin menghapus anggota ini?')) {
-        router.delete(`/host/management/members/${id}`);
+const deleteMember = async (id: number) => {
+    const isConfirmed = await confirm({
+        title: 'Hapus Anggota?',
+        message: 'Apakah Anda yakin ingin menghapus anggota ini? Tindakan ini tidak dapat dibatalkan.',
+        confirmText: 'Ya, Hapus',
+        cancelText: 'Batal',
+        variant: 'destructive',
+    });
+
+    if (isConfirmed) {
+        router.delete(`/management/members/${id}`);
     }
 };
 
@@ -84,7 +94,7 @@ defineOptions({
             },
             {
                 title: 'Anggota',
-                href: '/host/management/members',
+                href: '/management/members',
             },
         ],
     },

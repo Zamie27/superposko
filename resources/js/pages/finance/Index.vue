@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import ComingSoon from '@/components/ComingSoon.vue';
 
 defineOptions({
     layout: {
         breadcrumbs: [
             {
                 title: 'Kas & Keuangan',
-                href: '/host/finance',
+                href: '/finance',
             },
         ],
     },
@@ -17,8 +18,9 @@ defineOptions({
     <Head title="Kas & Keuangan" />
 
     <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-        <div class="p-6 bg-card border rounded-lg">
-            Halaman Kas & Keuangan (Kosong)
-        </div>
+        <ComingSoon 
+            title="E-Bendahara (Kas & Keuangan)" 
+            description="Kelola iuran kas, catat pengeluaran posko secara transparan lengkap dengan bukti nota belanja digital, dan hindari selisih dana kelompok." 
+        />
     </div>
 </template>

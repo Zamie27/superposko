@@ -19,7 +19,7 @@ class UserPreorderController extends Controller
     public function index(Request $request): Response|RedirectResponse
     {
         if (! filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN)) {
-            return redirect()->route('host.payment.test');
+            return redirect()->route('dashboard');
         }
 
         $user = $request->user();
@@ -44,8 +44,8 @@ class UserPreorderController extends Controller
     {
         $user = $request->user();
 
-        // Check if already has preorder
-        if (Preorder::where('user_id', $user->id)->exists()) {
+        // Check if already has active preorder (pending or approved)
+        if (Preorder::where('user_id', $user->id)->whereIn('status', ['pending', 'approved'])->exists()) {
             return redirect()->back()->with('error', 'Anda sudah mengajukan preorder sebelumnya.');
         }
 
@@ -59,14 +59,16 @@ class UserPreorderController extends Controller
         if ($request->hasFile('payment_proof')) {
             $path = $request->file('payment_proof')->store('preorders', 'public');
 
-            Preorder::create([
-                'user_id' => $user->id,
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'whatsapp' => $validated['whatsapp'],
-                'payment_proof' => $path,
-                'status' => 'pending',
-            ]);
+            Preorder::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'whatsapp' => $validated['whatsapp'],
+                    'payment_proof' => $path,
+                    'status' => 'pending',
+                ]
+            );
 
             return redirect()->back()->with('success', 'Form Preorder berhasil dikirim! Silakan tunggu konfirmasi Admin.');
         }

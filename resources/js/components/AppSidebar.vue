@@ -58,6 +58,11 @@ const filteredNavItems = computed<NavItem[]>(() => {
                 icon: ShoppingBag,
             },
             {
+                title: 'Test Payment',
+                href: '/admin/payment/test',
+                icon: CreditCard,
+            },
+            {
                 title: 'Laporan Masalah',
                 href: '/admin/reports',
                 icon: Info,
@@ -75,7 +80,7 @@ const filteredNavItems = computed<NavItem[]>(() => {
     const items: NavItem[] = [
         {
             title: 'Dashboard',
-            href: '/host/dashboard',
+            href: '/dashboard',
             icon: LayoutGrid,
         },
     ];
@@ -87,38 +92,28 @@ const filteredNavItems = computed<NavItem[]>(() => {
         if (preorderPromoActive) {
             items.push({
                 title: 'Preorder!',
-                href: '/user/preorder',
+                href: '/preorder',
                 icon: ShoppingBag,
             });
         } else {
             items.push({
-                title: 'Bayar Langganan',
-                href: '/host/payment/test',
+                title: 'Beli Langganan',
+                href: '/payment',
                 icon: CreditCard,
             });
         }
     }
 
-    // Host menu items (marked as locked if the user is not subscribed)
-    if (isSubscribed || preorderPromoActive) {
-        items.push({
-            title: 'Test Payment',
-            href: '/host/payment/test',
-            icon: CreditCard,
-            locked: !isSubscribed,
-        });
-    }
-
     items.push(
         {
             title: 'Kas & Keuangan',
-            href: '/host/finance',
+            href: '/finance',
             icon: Wallet,
             locked: !isSubscribed,
         },
         {
             title: 'Logbook & Proker',
-            href: '/host/logbook',
+            href: '/logbook',
             icon: BookOpen,
             locked: !isSubscribed,
         },
@@ -130,43 +125,43 @@ const filteredNavItems = computed<NavItem[]>(() => {
             items: [
                 {
                     title: 'Inventaris',
-                    href: '/host/management/inventory',
+                    href: '/management/inventory',
                 },
                 {
                     title: 'Logistik',
-                    href: '/host/management/logistic',
+                    href: '/management/logistic',
                 },
                 {
                     title: 'Piket & Agenda',
-                    href: '/host/management/schedule',
+                    href: '/management/schedule',
                 },
                 {
                     title: 'Anggota',
-                    href: '/host/management/members',
+                    href: '/management/members',
                 },
             ],
         },
         {
             title: 'Buku Kontak',
-            href: '/host/contacts',
+            href: '/contacts',
             icon: Contact,
             locked: !isSubscribed,
         },
         {
             title: 'Repository Proker',
-            href: '/host/repository',
+            href: '/repository',
             icon: Archive,
             locked: !isSubscribed,
         },
         {
             title: 'Voting & Aspirasi',
-            href: '/host/voting',
+            href: '/voting',
             icon: Vote,
             locked: !isSubscribed,
         },
         {
             title: 'Dokumentasi',
-            href: '/host/documentation',
+            href: '/documentation',
             icon: Image,
             locked: !isSubscribed,
         }

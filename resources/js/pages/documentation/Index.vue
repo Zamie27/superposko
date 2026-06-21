@@ -29,7 +29,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Dokumentasi',
-                href: '/host/documentation',
+                href: '/documentation',
             },
         ],
     },
@@ -94,7 +94,7 @@ const uploadFileInChunks = async (item: UploadItem) => {
         formData.append('filename', file.name);
 
         try {
-            const response = await axios.post('/host/documentation/upload-chunk', formData, {
+            const response = await axios.post('/documentation/upload-chunk', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Accept': 'application/json'

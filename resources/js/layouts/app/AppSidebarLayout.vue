@@ -34,12 +34,20 @@ const isLocked = computed(() => {
     if (isSubscribed) return false;
 
     const urlPath = page.url;
-    const preorderPromoActive = page.props.preorder_promo_active;
-    if (!preorderPromoActive && urlPath.startsWith('/host/payment/test')) {
-        return false;
-    }
+    if (urlPath.startsWith('/preorder')) return false;
 
-    return urlPath.startsWith('/host');
+    const hostPaths = [
+        '/dashboard',
+        '/finance',
+        '/logbook',
+        '/management',
+        '/contacts',
+        '/repository',
+        '/voting',
+        '/documentation'
+    ];
+
+    return hostPaths.some(path => urlPath.startsWith(path));
 });
 </script>
 

@@ -39,31 +39,30 @@ Route::get('laporan/buat', [\App\Http\Controllers\ReportController::class, 'crea
 Route::post('laporan/buat', [\App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Redirection helper for main /dashboard entry path
+    // Redirection/Rendering helper for main /dashboard entry path
     Route::get('dashboard', function (Request $request) {
         $user = $request->user();
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
-        return redirect()->route('host.dashboard');
+        return Inertia::render('Dashboard');
     })->name('dashboard');
 
     // User Group (restricted to role 'user' only via user.only middleware)
-    Route::middleware(['user.only'])->prefix('user')->name('user.')->group(function () {
+    Route::middleware(['user.only'])->group(function () {
         // Preorder
         Route::get('preorder', [UserPreorderController::class, 'index'])->name('preorder.index');
         Route::post('preorder', [UserPreorderController::class, 'store'])->name('preorder.store');
+
+        // Beli Langganan (Subscription Checkout)
+        Route::get('payment', [PaymentController::class, 'showCheckoutPage'])->name('payment.index');
+        Route::post('payment/token', [PaymentController::class, 'createSnapToken'])->name('payment.token_user');
+        Route::post('payment/success', [PaymentController::class, 'handlePaymentSuccess'])->name('payment.success');
     });
 
     // Host Group (under host.protect middleware to restrict user-role modifications)
-    Route::middleware(['host.protect'])->prefix('host')->name('host.')->group(function () {
-        Route::inertia('dashboard', 'Dashboard')->name('dashboard');
-
-        // Test Payment
-        Route::get('payment/test', [PaymentController::class, 'showTestPage'])->name('payment.test');
-        Route::post('payment/test/token', [PaymentController::class, 'createSnapToken'])->name('payment.token');
-
+    Route::middleware(['host.protect'])->group(function () {
         // Sidebar Menus
         Route::inertia('finance', 'finance/Index')->name('finance.index');
         Route::inertia('logbook', 'logbook/Index')->name('logbook.index');
@@ -118,6 +117,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Admin Report Panel Routes
         Route::get('reports', [\App\Http\Controllers\Admin\AdminReportController::class, 'index'])->name('reports.index');
         Route::put('reports/{report}/resolve', [\App\Http\Controllers\Admin\AdminReportController::class, 'resolve'])->name('reports.resolve');
+
+        // Test Payment
+        Route::get('payment/test', [\App\Http\Controllers\PaymentController::class, 'showTestPage'])->name('payment.test');
+        Route::post('payment/test/token', [\App\Http\Controllers\PaymentController::class, 'createSnapToken'])->name('payment.token');
     });
 });
 

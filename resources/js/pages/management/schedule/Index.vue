@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import ComingSoon from '@/components/ComingSoon.vue';
 
 defineOptions({
     layout: {
@@ -10,7 +11,7 @@ defineOptions({
             },
             {
                 title: 'Piket & Agenda',
-                href: '/host/management/schedule',
+                href: '/management/schedule',
             },
         ],
     },
@@ -21,8 +22,9 @@ defineOptions({
     <Head title="Piket & Agenda" />
 
     <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-        <div class="p-6 bg-card border rounded-lg">
-            Halaman Piket & Agenda (Kosong)
-        </div>
+        <ComingSoon 
+            title="Jadwal Piket & Agenda Kegiatan" 
+            description="Atur kalender piket harian posko, agenda rapat kelompok, kunjungan DPL, serta jadwal sosialisasi program kerja desa." 
+        />
     </div>
 </template>

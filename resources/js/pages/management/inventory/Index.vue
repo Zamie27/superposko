@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import ComingSoon from '@/components/ComingSoon.vue';
 
 defineOptions({
     layout: {
@@ -10,7 +11,7 @@ defineOptions({
             },
             {
                 title: 'Inventaris',
-                href: '/host/management/inventory',
+                href: '/management/inventory',
             },
         ],
     },
@@ -21,8 +22,9 @@ defineOptions({
     <Head title="Inventaris" />
 
     <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-        <div class="p-6 bg-card border rounded-lg">
-            Halaman Inventaris (Kosong)
-        </div>
+        <ComingSoon 
+            title="Katalog Inventaris Posko" 
+            description="Catat barang inventaris posko, perlengkapan KKN yang dipinjam dari warga/desa, dan kelola checklist pengembalian otomatis." 
+        />
     </div>
 </template>

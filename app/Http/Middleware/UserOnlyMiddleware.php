@@ -22,7 +22,7 @@ class UserOnlyMiddleware
                 return redirect()->route('admin.dashboard');
             }
 
-            return redirect()->route('host.dashboard');
+            return redirect()->route('dashboard');
         }
 
         return $next($request);

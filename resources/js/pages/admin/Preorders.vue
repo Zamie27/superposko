@@ -3,6 +3,8 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { Check, X, Eye, Phone, Mail, FileText, ArrowLeft } from '@lucide/vue';
 import { ref } from 'vue';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useConfirm } from '@/composables/useConfirm';
+import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{
     preorders: Array<{
@@ -28,6 +30,8 @@ defineOptions({
 
 const isProofOpen = ref(false);
 const activeProofUrl = ref<string | null>(null);
+const { confirm } = useConfirm();
+const toast = useToast();
 
 const viewProof = (url: string) => {
     activeProofUrl.value = url;
@@ -35,7 +39,14 @@ const viewProof = (url: string) => {
 };
 
 const handleApprove = async (id: number, name: string) => {
-    if (!confirm(`Setujui preorder dari ${name}? Pengguna ini akan langsung aktif sebagai Host.`)) {
+    const isConfirmed = await confirm({
+        title: 'Setujui Preorder?',
+        message: `Setujui preorder dari ${name}? Pengguna ini akan langsung aktif sebagai Host.`,
+        confirmText: 'Ya, Setujui',
+        cancelText: 'Batal',
+    });
+
+    if (!isConfirmed) {
         return;
     }
 
@@ -50,15 +61,23 @@ const handleApprove = async (id: number, name: string) => {
         });
 
         const data = await response.json();
-        alert(data.message);
+        toast.success(data.message || 'Preorder berhasil disetujui.');
         router.reload({ only: ['preorders'] });
     } catch (e) {
-        alert('Gagal menyetujui preorder.');
+        toast.error('Gagal menyetujui preorder.');
     }
 };
 
 const handleReject = async (id: number, name: string) => {
-    if (!confirm(`Tolak pengajuan preorder dari ${name}?`)) {
+    const isConfirmed = await confirm({
+        title: 'Tolak Preorder?',
+        message: `Tolak pengajuan preorder dari ${name}?`,
+        confirmText: 'Ya, Tolak',
+        cancelText: 'Batal',
+        variant: 'destructive',
+    });
+
+    if (!isConfirmed) {
         return;
     }
 
@@ -73,10 +92,10 @@ const handleReject = async (id: number, name: string) => {
         });
 
         const data = await response.json();
-        alert(data.message);
+        toast.success(data.message || 'Preorder berhasil ditolak.');
         router.reload({ only: ['preorders'] });
     } catch (e) {
-        alert('Gagal menolak preorder.');
+        toast.error('Gagal menolak preorder.');
     }
 };
 

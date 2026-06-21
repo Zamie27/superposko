@@ -5,6 +5,8 @@ import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useConfirm } from '@/composables/useConfirm';
+import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{
     subscriptions: {
@@ -41,6 +43,8 @@ const expiresAtInput = ref('');
 const isProcessing = ref(false);
 const successMessage = ref('');
 const errorMessage = ref('');
+const { confirm } = useConfirm();
+const toast = useToast();
 
 watch(searchQuery, (value) => {
     router.get('/admin/subscriptions', { search: value }, {
@@ -104,7 +108,14 @@ const handleUpdateDuration = async () => {
 };
 
 const handleBypassPayment = async (user: any) => {
-    if (!confirm(`Berikan hak akses bypass pembayaran (aktif 40 hari) ke user ${user.name}?`)) {
+    const isConfirmed = await confirm({
+        title: 'Bypass Pembayaran?',
+        message: `Berikan hak akses bypass pembayaran (aktif 40 hari) ke user ${user.name}?`,
+        confirmText: 'Ya, Bypass',
+        cancelText: 'Batal',
+    });
+
+    if (!isConfirmed) {
         return;
     }
 
@@ -119,15 +130,23 @@ const handleBypassPayment = async (user: any) => {
         });
 
         const data = await response.json();
-        alert(data.message);
+        toast.success(data.message || 'Bypass pembayaran berhasil.');
         router.reload({ only: ['subscriptions'] });
     } catch (e) {
-        alert('Gagal memberikan bypass pembayaran.');
+        toast.error('Gagal memberikan bypass pembayaran.');
     }
 };
 
 const handleRevokeSubscription = async (user: any) => {
-    if (!confirm(`Cabut hak akses langganan posko user ${user.name}? User akan di-set expired.`)) {
+    const isConfirmed = await confirm({
+        title: 'Cabut Langganan?',
+        message: `Cabut hak akses langganan posko user ${user.name}? User akan di-set expired.`,
+        confirmText: 'Ya, Cabut',
+        cancelText: 'Batal',
+        variant: 'destructive',
+    });
+
+    if (!isConfirmed) {
         return;
     }
 
@@ -142,10 +161,10 @@ const handleRevokeSubscription = async (user: any) => {
         });
 
         const data = await response.json();
-        alert(data.message);
+        toast.success(data.message || 'Langganan berhasil dicabut.');
         router.reload({ only: ['subscriptions'] });
     } catch (e) {
-        alert('Gagal mencabut langganan.');
+        toast.error('Gagal mencabut langganan.');
     }
 };
 
