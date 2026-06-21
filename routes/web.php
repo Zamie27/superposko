@@ -13,6 +13,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Preorder\UserPreorderController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProkerDocumentController;
+use App\Http\Controllers\ScheduleController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -78,7 +79,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::inertia('logbook', 'logbook/Index')->name('logbook.index');
         Route::inertia('management/inventory', 'management/inventory/Index')->name('management.inventory.index');
         Route::inertia('management/logistic', 'management/logistic/Index')->name('management.logistic.index');
-        Route::inertia('management/schedule', 'management/schedule/Index')->name('management.schedule.index');
+        Route::get('management/schedule', [ScheduleController::class, 'index'])->name('management.schedule.index');
+        Route::post('management/schedule/roster', [ScheduleController::class, 'storeRoster'])->name('management.schedule.roster.store');
+        Route::delete('management/schedule/roster/{roster}', [ScheduleController::class, 'destroyRoster'])->name('management.schedule.roster.destroy');
+        Route::post('management/schedule/event', [ScheduleController::class, 'storeEvent'])->name('management.schedule.event.store');
+        Route::put('management/schedule/event/{event}', [ScheduleController::class, 'updateEvent'])->name('management.schedule.event.update');
+        Route::delete('management/schedule/event/{event}', [ScheduleController::class, 'destroyEvent'])->name('management.schedule.event.destroy');
 
         Route::get('management/members', [MemberController::class, 'index'])->name('management.members.index');
         Route::post('management/members', [MemberController::class, 'store'])->name('management.members.store');

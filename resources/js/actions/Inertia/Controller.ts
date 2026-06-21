@@ -319,86 +319,6 @@ Controllerbc78e265ee946ca595d9bc944a4839f0Form.head = (options?: RouteQueryOptio
 })
 
 Controllerbc78e265ee946ca595d9bc944a4839f0.form = Controllerbc78e265ee946ca595d9bc944a4839f0Form
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/management/schedule'
-*/
-const Controller383de1a6870bc27bd361c37542f71c41 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller383de1a6870bc27bd361c37542f71c41.url(options),
-    method: 'get',
-})
-
-Controller383de1a6870bc27bd361c37542f71c41.definition = {
-    methods: ["get","head"],
-    url: '/management/schedule',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/management/schedule'
-*/
-Controller383de1a6870bc27bd361c37542f71c41.url = (options?: RouteQueryOptions) => {
-    return Controller383de1a6870bc27bd361c37542f71c41.definition.url + queryParams(options)
-}
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/management/schedule'
-*/
-Controller383de1a6870bc27bd361c37542f71c41.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller383de1a6870bc27bd361c37542f71c41.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/management/schedule'
-*/
-Controller383de1a6870bc27bd361c37542f71c41.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controller383de1a6870bc27bd361c37542f71c41.url(options),
-    method: 'head',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/management/schedule'
-*/
-const Controller383de1a6870bc27bd361c37542f71c41Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller383de1a6870bc27bd361c37542f71c41.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/management/schedule'
-*/
-Controller383de1a6870bc27bd361c37542f71c41Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller383de1a6870bc27bd361c37542f71c41.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/management/schedule'
-*/
-Controller383de1a6870bc27bd361c37542f71c41Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller383de1a6870bc27bd361c37542f71c41.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-Controller383de1a6870bc27bd361c37542f71c41.form = Controller383de1a6870bc27bd361c37542f71c41Form
 
 /**
 * Multiple routes resolve to \Inertia\Controller::Controller, so this export is a
@@ -410,7 +330,6 @@ const Controller = {
     '/logbook': Controllerabb2216759cf014eb2e195195a98e6d3,
     '/management/inventory': Controller2a5367f9244dbeae8d78e409e3429a3e,
     '/management/logistic': Controllerbc78e265ee946ca595d9bc944a4839f0,
-    '/management/schedule': Controller383de1a6870bc27bd361c37542f71c41,
 }
 
 export default Controller
