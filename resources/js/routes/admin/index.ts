@@ -4,6 +4,7 @@ import prices from './prices'
 import subscriptions from './subscriptions'
 import preorders from './preorders'
 import settings from './settings'
+import reports from './reports'
 /**
 * @see \App\Http\Controllers\Admin\AdminController::dashboard
 * @see app/Http/Controllers/Admin/AdminController.php:16
@@ -92,6 +93,7 @@ const admin = {
     subscriptions: Object.assign(subscriptions, subscriptions),
     preorders: Object.assign(preorders, preorders),
     settings: Object.assign(settings, settings),
+    reports: Object.assign(reports, reports),
 }
 
 export default admin

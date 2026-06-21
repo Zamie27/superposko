@@ -1,4 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import email from './email'
 /**
 * @see \App\Http\Controllers\Settings\ProfileController::edit
 * @see app/Http/Controllers/Settings/ProfileController.php:20
@@ -215,6 +216,7 @@ destroy.form = destroyForm
 const profile = {
     edit: Object.assign(edit, edit),
     update: Object.assign(update, update),
+    email: Object.assign(email, email),
     destroy: Object.assign(destroy, destroy),
 }
 

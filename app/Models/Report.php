@@ -13,6 +13,7 @@ class Report extends Model
         'type',
         'title',
         'description',
+        'screenshot',
         'status',
     ];
 

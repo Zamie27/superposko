@@ -33,7 +33,13 @@ class ReportController extends Controller
             'type' => ['required', 'string', 'in:security,bug,complaint'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:5000'],
+            'screenshot' => ['nullable', 'image', 'max:5120'], // Max 5MB
         ]);
+
+        $screenshotPath = null;
+        if ($request->hasFile('screenshot')) {
+            $screenshotPath = $request->file('screenshot')->store('reports', 'public');
+        }
 
         Report::create([
             'user_id' => $request->user()?->id,
@@ -41,6 +47,7 @@ class ReportController extends Controller
             'type' => $validated['type'],
             'title' => $validated['title'],
             'description' => $validated['description'],
+            'screenshot' => $screenshotPath,
             'status' => 'pending',
         ]);
 

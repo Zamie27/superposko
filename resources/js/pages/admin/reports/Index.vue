@@ -14,6 +14,7 @@ const props = defineProps<{
             type: 'security' | 'bug' | 'complaint';
             title: string;
             description: string;
+            screenshot: string | null;
             status: 'pending' | 'resolved';
             created_at: string;
             user?: {
@@ -207,7 +208,18 @@ const formatDate = (dateStr: string) => {
 
                 <!-- Details Description -->
                 <div class="bg-slate-50 p-4 rounded-xl text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                    {{ report.description }}
+                    <div>{{ report.description }}</div>
+
+                    <!-- Screenshot Attachment -->
+                    <div v-if="report.screenshot" class="mt-4 pt-4 border-t border-slate-200/50">
+                        <span class="text-xs font-semibold text-slate-400 block mb-2">Lampiran Gambar:</span>
+                        <a :href="'/storage/' + report.screenshot" target="_blank" class="inline-block group relative rounded-lg overflow-hidden border border-slate-200 max-w-xs hover:shadow-md transition">
+                            <img :src="'/storage/' + report.screenshot" alt="Screenshot Laporan" class="max-h-40 object-cover" />
+                            <div class="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition">
+                                Lihat Ukuran Penuh
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
 
