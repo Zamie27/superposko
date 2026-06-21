@@ -18,7 +18,7 @@ const { isOpen, title, message, confirmText, cancelText, variant, handleConfirm,
                         'bg-sky-50 text-sky-500': variant === 'default',
                     }"
                 >
-                    <AlertTriangle v-slot="icon" v-if="variant === 'destructive'" class="size-5 shrink-0" />
+                    <AlertTriangle v-if="variant === 'destructive'" class="size-5 shrink-0" />
                     <HelpCircle v-else class="size-5 shrink-0" />
                 </div>
                 <div class="flex flex-col gap-1">

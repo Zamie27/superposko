@@ -1,4 +1,4 @@
-script setup lang="ts">
+<script setup lang="ts">
 import { useToast } from '@/composables/useToast';
 import { CheckCircle2, AlertTriangle, AlertCircle, Info, X } from '@lucide/vue';
 
@@ -25,7 +25,7 @@ const { toasts, removeToast } = useToast();
             >
                 <!-- Icon -->
                 <div class="shrink-0 mt-0.5">
-                    <CheckCircle2 v-slot="icon" v-if="toast.type === 'success'" class="size-5 text-green-500" />
+                    <CheckCircle2 v-if="toast.type === 'success'" class="size-5 text-green-500" />
                     <AlertCircle v-else-if="toast.type === 'error'" class="size-5 text-red-500" />
                     <AlertTriangle v-else-if="toast.type === 'warning'" class="size-5 text-amber-500" />
                     <Info v-else class="size-5 text-sky-500" />
