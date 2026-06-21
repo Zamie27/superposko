@@ -22,8 +22,6 @@ onMounted(() => {
     reloadInterval = setInterval(() => {
         router.reload({
             only: ['polls', 'aspirations'],
-            preserveScroll: true,
-            preserveState: true,
         });
     }, 4000); // refresh every 4 seconds
 });
