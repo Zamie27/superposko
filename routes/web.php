@@ -16,6 +16,7 @@ use App\Http\Controllers\ProkerDocumentController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LogisticController;
+use App\Http\Controllers\LogbookController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -78,7 +79,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Sidebar Menus
         Route::inertia('finance', 'finance/Index')->name('finance.index');
-        Route::inertia('logbook', 'logbook/Index')->name('logbook.index');
+        
+        // Logbook & Proker
+        Route::get('logbook', [LogbookController::class, 'index'])->name('logbook.index');
+        Route::post('logbook/proker', [LogbookController::class, 'storeProker'])->name('logbook.proker.store');
+        Route::put('logbook/proker/{proker}', [LogbookController::class, 'updateProker'])->name('logbook.proker.update');
+        Route::delete('logbook/proker/{proker}', [LogbookController::class, 'destroyProker'])->name('logbook.proker.destroy');
+        Route::post('logbook/daily', [LogbookController::class, 'storeLogbook'])->name('logbook.daily.store');
+        Route::put('logbook/daily/{logbook}', [LogbookController::class, 'updateLogbook'])->name('logbook.daily.update');
+        Route::delete('logbook/daily/{logbook}', [LogbookController::class, 'destroyLogbook'])->name('logbook.daily.destroy');
 
         // Inventory Management
         Route::get('management/inventory', [InventoryController::class, 'index'])->name('management.inventory.index');
