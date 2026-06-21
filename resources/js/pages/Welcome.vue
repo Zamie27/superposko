@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { dashboard, login, register } from '@/routes';
 
 const isMenuOpen = ref(false);
@@ -90,6 +90,27 @@ const props = defineProps<{
     footerPhone: string;
     footerCopyright: string;
 }>();
+
+const formattedPhone = computed(() => {
+    if (!props.footerPhone) return '';
+    let clean = props.footerPhone.replace(/[^0-9]/g, '');
+    if (clean.startsWith('62')) {
+        clean = clean.substring(2);
+    } else if (clean.startsWith('0')) {
+        clean = clean.substring(1);
+    }
+    
+    let part1 = clean.substring(0, 3);
+    let part2 = clean.substring(3, 7);
+    let part3 = clean.substring(7);
+    
+    let result = '+62';
+    if (part1) result += ' ' + part1;
+    if (part2) result += '-' + part2;
+    if (part3) result += '-' + part3;
+    
+    return result;
+});
 
 const faqs = [
     {
@@ -437,7 +458,7 @@ const faqs = [
                         <h4 class="text-xs font-bold uppercase tracking-wider text-white">Hubungi Kami</h4>
                         <ul class="mt-4 space-y-2.5 text-sm">
                             <li>Email: {{ footerEmail }}</li>
-                            <li>Telepon: {{ footerPhone }}</li>
+                            <li>Telepon: {{ formattedPhone }}</li>
                         </ul>
                     </div>
                 </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { usePage, useForm } from '@inertiajs/vue3';
-import { Headphones, X, Image as ImageIcon, Send } from '@lucide/vue';
+import { Headphones, X, Image as ImageIcon, Send, AlertCircle, MessageCircle } from '@lucide/vue';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,8 +14,16 @@ const user = computed(() => page.props.auth?.user as any);
 const isLoggedIn = computed(() => !!user.value);
 
 const isOpen = ref(false);
+const showOptions = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const imagePreview = ref<string | null>(null);
+
+const footerPhone = computed(() => (page.props.footer_phone as string) || '6285171739232');
+
+const whatsappUrl = computed(() => {
+    const cleanPhone = footerPhone.value.replace(/[^0-9]/g, '');
+    return `https://wa.me/${cleanPhone}`;
+});
 
 const form = useForm({
     email: '',
@@ -77,13 +85,56 @@ const submitReport = () => {
 <template>
     <!-- Only show for logged in users -->
     <div v-if="isLoggedIn" class="fixed bottom-6 right-6 z-[999] font-sans">
+        <!-- Backdrop to close options -->
+        <div v-if="showOptions" @click="showOptions = false" class="fixed inset-0 z-[997] bg-transparent"></div>
+
+        <!-- Options Menu -->
+        <Transition
+            enter-active-class="transition ease-out duration-200"
+            enter-from-class="opacity-0 translate-y-4 scale-95"
+            enter-to-class="opacity-100 translate-y-0 scale-100"
+            leave-active-class="transition ease-in duration-150"
+            leave-from-class="opacity-100 translate-y-0 scale-100"
+            leave-to-class="opacity-0 translate-y-4 scale-95"
+        >
+            <div v-if="showOptions" class="absolute bottom-18 right-0 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl p-2.5 z-[998] flex flex-col gap-1">
+                <button
+                    @click="() => { showOptions = false; openModal(); }"
+                    class="w-full text-left px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center gap-3 transition cursor-pointer border-0 bg-transparent"
+                >
+                    <span class="p-2 rounded-lg bg-sky-50 dark:bg-sky-950/50 text-sky-500 dark:text-sky-400">
+                        <AlertCircle class="size-4.5" />
+                    </span>
+                    <div>
+                        <div class="font-bold text-slate-800 dark:text-slate-200">Laporkan Masalah</div>
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Kirim keluhan/bug aplikasi</div>
+                    </div>
+                </button>
+                <a
+                    :href="whatsappUrl"
+                    target="_blank"
+                    @click="showOptions = false"
+                    class="w-full text-left px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center gap-3 transition cursor-pointer no-underline bg-transparent"
+                >
+                    <span class="p-2 rounded-lg bg-green-50 dark:bg-green-950/50 text-green-500 dark:text-green-400">
+                        <MessageCircle class="size-4.5" />
+                    </span>
+                    <div>
+                        <div class="font-bold text-slate-800 dark:text-slate-200">Pusat Bantuan</div>
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Hubungi via WhatsApp</div>
+                    </div>
+                </a>
+            </div>
+        </Transition>
+
         <!-- Floating Button -->
         <button
-            @click="openModal"
-            class="flex items-center justify-center size-14 rounded-full bg-sky-500 hover:bg-sky-600 text-white shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-0"
-            title="Laporkan Masalah"
+            @click="showOptions = !showOptions"
+            class="flex items-center justify-center size-14 rounded-full bg-sky-500 hover:bg-sky-600 text-white shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-0 relative z-[999]"
+            title="Layanan Bantuan"
         >
-            <Headphones class="size-6" />
+            <X v-if="showOptions" class="size-6" />
+            <Headphones v-else class="size-6" />
         </button>
 
         <!-- Report Modal -->

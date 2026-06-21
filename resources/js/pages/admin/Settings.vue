@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Settings, ArrowLeft, CheckCircle2 } from '@lucide/vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { ref } from 'vue';
 
 const props = defineProps<{
     settings: {
@@ -22,12 +23,40 @@ defineOptions({
     },
 });
 
+const cleanInitialPhone = (phone: string) => {
+    if (!phone) return '';
+    let clean = phone.replace(/[^0-9]/g, '');
+    if (clean.startsWith('62')) {
+        clean = clean.substring(2);
+    } else if (clean.startsWith('0')) {
+        clean = clean.substring(1);
+    }
+    return clean;
+};
+
+const displayPhone = ref(cleanInitialPhone(props.settings.footerPhone));
+
 const form = useForm({
     footerAbout: props.settings.footerAbout,
     footerEmail: props.settings.footerEmail,
-    footerPhone: props.settings.footerPhone,
+    footerPhone: '62' + displayPhone.value,
     footerCopyright: props.settings.footerCopyright,
 });
+
+const updatePhoneValue = () => {
+    // Keep only digits
+    let cleaned = displayPhone.value.replace(/[^0-9]/g, '');
+    
+    // If they typed leading 62 or 0, strip it
+    if (cleaned.startsWith('62')) {
+        cleaned = cleaned.substring(2);
+    } else if (cleaned.startsWith('0')) {
+        cleaned = cleaned.substring(1);
+    }
+    
+    displayPhone.value = cleaned;
+    form.footerPhone = '62' + cleaned;
+};
 
 const submitForm = () => {
     form.put('/admin/settings', {
@@ -81,13 +110,18 @@ const submitForm = () => {
                         </div>
 
                         <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-700">Telepon Hubungi Kami</label>
-                            <input
-                                v-model="form.footerPhone"
-                                type="text"
-                                class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
-                                required
-                            />
+                            <label class="text-xs font-semibold text-slate-700">Telepon Hubungi Kami (WhatsApp)</label>
+                            <div class="relative flex items-center">
+                                <span class="absolute left-3.5 text-sm font-semibold text-slate-500">+62</span>
+                                <input
+                                    v-model="displayPhone"
+                                    @input="updatePhoneValue"
+                                    type="text"
+                                    placeholder="851XXXXXXXXX"
+                                    class="w-full rounded-xl border border-slate-200 pl-12 pr-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
+                                    required
+                                />
+                            </div>
                             <p v-if="form.errors.footerPhone" class="text-xs text-red-500">{{ form.errors.footerPhone }}</p>
                         </div>
                     </div>
