@@ -107,8 +107,6 @@ class DocumentationController extends Controller
                 ]);
             }
 
-            dd('API call failed', $response->status(), $response->body(), $this->url, $this->apiKey);
-
             return Inertia::render('documentation/Index', [
                 'assets' => [],
                 'immichUrl' => $immichUrl,
