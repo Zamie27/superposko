@@ -57,6 +57,12 @@ class MemberController extends Controller
             'kkn_address' => $user->kkn_address,
         ]);
 
+        \App\Helpers\ActivityLogHelper::log(
+            'member',
+            'add_member',
+            "Host added member {$validated['name']} ({$validated['email']}) with role {$validated['role']}."
+        );
+
         return back()->with('success', 'Anggota berhasil ditambahkan.');
     }
 
@@ -87,6 +93,12 @@ class MemberController extends Controller
 
         $member->save();
 
+        \App\Helpers\ActivityLogHelper::log(
+            'member',
+            'update_member',
+            "Host updated member {$member->name} ({$member->email}) details."
+        );
+
         return back()->with('success', 'Anggota berhasil diperbarui.');
     }
 
@@ -101,6 +113,12 @@ class MemberController extends Controller
         }
 
         $member->delete();
+
+        \App\Helpers\ActivityLogHelper::log(
+            'member',
+            'delete_member',
+            "Host deleted member {$member->name} ({$member->email})."
+        );
 
         return back()->with('success', 'Anggota berhasil dihapus.');
     }

@@ -172,7 +172,7 @@ bypass.form = bypassForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::duration
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:60
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:66
 * @route '/admin/subscriptions/{user}/duration'
 */
 export const duration = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -187,7 +187,7 @@ duration.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::duration
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:60
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:66
 * @route '/admin/subscriptions/{user}/duration'
 */
 duration.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -220,7 +220,7 @@ duration.url = (args: { user: number | { id: number } } | [user: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::duration
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:60
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:66
 * @route '/admin/subscriptions/{user}/duration'
 */
 duration.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -230,7 +230,7 @@ duration.put = (args: { user: number | { id: number } } | [user: number | { id: 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::duration
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:60
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:66
 * @route '/admin/subscriptions/{user}/duration'
 */
 const durationForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -245,7 +245,7 @@ const durationForm = (args: { user: number | { id: number } } | [user: number | 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::duration
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:60
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:66
 * @route '/admin/subscriptions/{user}/duration'
 */
 durationForm.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -262,7 +262,7 @@ duration.form = durationForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::revoke
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:80
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:92
 * @route '/admin/subscriptions/{user}/revoke'
 */
 export const revoke = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -277,7 +277,7 @@ revoke.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::revoke
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:80
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:92
 * @route '/admin/subscriptions/{user}/revoke'
 */
 revoke.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -310,7 +310,7 @@ revoke.url = (args: { user: number | { id: number } } | [user: number | { id: nu
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::revoke
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:80
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:92
 * @route '/admin/subscriptions/{user}/revoke'
 */
 revoke.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -320,7 +320,7 @@ revoke.delete = (args: { user: number | { id: number } } | [user: number | { id:
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::revoke
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:80
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:92
 * @route '/admin/subscriptions/{user}/revoke'
 */
 const revokeForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -335,7 +335,7 @@ const revokeForm = (args: { user: number | { id: number } } | [user: number | { 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminSubscriptionController::revoke
-* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:80
+* @see app/Http/Controllers/Admin/AdminSubscriptionController.php:92
 * @route '/admin/subscriptions/{user}/revoke'
 */
 revokeForm.delete = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

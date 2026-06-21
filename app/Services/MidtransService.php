@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 
 class MidtransService
@@ -11,7 +12,7 @@ class MidtransService
      */
     protected function getBaseUrl(): string
     {
-        $isProduction = filter_var(config('services.midtrans.is_production', false), FILTER_VALIDATE_BOOLEAN);
+        $isProduction = filter_var(Setting::get('midtrans_is_production', config('services.midtrans.is_production', false)), FILTER_VALIDATE_BOOLEAN);
 
         return $isProduction
             ? 'https://app.midtrans.com/snap/v1/transactions'
@@ -26,7 +27,7 @@ class MidtransService
      */
     public function createSnapTransaction(array $params): ?array
     {
-        $serverKey = config('services.midtrans.server_key');
+        $serverKey = Setting::get('midtrans_server_key', config('services.midtrans.server_key', ''));
 
         if (empty($serverKey)) {
             return null;
@@ -51,13 +52,13 @@ class MidtransService
      */
     public function getTransactionStatus(string $orderId): ?array
     {
-        $serverKey = config('services.midtrans.server_key');
+        $serverKey = Setting::get('midtrans_server_key', config('services.midtrans.server_key', ''));
 
         if (empty($serverKey)) {
             return null;
         }
 
-        $isProduction = filter_var(config('services.midtrans.is_production', false), FILTER_VALIDATE_BOOLEAN);
+        $isProduction = filter_var(Setting::get('midtrans_is_production', config('services.midtrans.is_production', false)), FILTER_VALIDATE_BOOLEAN);
         $url = $isProduction
             ? "https://api.midtrans.com/v2/{$orderId}/status"
             : "https://api.sandbox.midtrans.com/v2/{$orderId}/status";
@@ -75,4 +76,3 @@ class MidtransService
         return null;
     }
 }
-

@@ -162,7 +162,7 @@ approve.form = approveForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:64
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
 * @route '/admin/preorders/{preorder}/reject'
 */
 export const reject = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -177,7 +177,7 @@ reject.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:64
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
 * @route '/admin/preorders/{preorder}/reject'
 */
 reject.url = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -210,7 +210,7 @@ reject.url = (args: { preorder: number | { id: number } } | [preorder: number | 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:64
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
 * @route '/admin/preorders/{preorder}/reject'
 */
 reject.post = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -220,7 +220,7 @@ reject.post = (args: { preorder: number | { id: number } } | [preorder: number |
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:64
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
 * @route '/admin/preorders/{preorder}/reject'
 */
 const rejectForm = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -230,7 +230,7 @@ const rejectForm = (args: { preorder: number | { id: number } } | [preorder: num
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:64
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
 * @route '/admin/preorders/{preorder}/reject'
 */
 rejectForm.post = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

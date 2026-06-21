@@ -52,6 +52,12 @@ class AdminPreorderController extends Controller
 
         $preorder->update(['status' => 'approved']);
 
+        \App\Helpers\ActivityLogHelper::log(
+            'preorder',
+            'approve_preorder',
+            "Admin approved preorder request #{$preorder->id} from user {$preorder->name} ({$preorder->email}). User role upgraded to host."
+        );
+
         return response()->json([
             'success' => true,
             'message' => "Preorder dari {$preorder->name} disetujui. Akun telah aktif sebagai Host.",
@@ -64,6 +70,12 @@ class AdminPreorderController extends Controller
     public function reject(Preorder $preorder): JsonResponse
     {
         $preorder->update(['status' => 'rejected']);
+
+        \App\Helpers\ActivityLogHelper::log(
+            'preorder',
+            'reject_preorder',
+            "Admin rejected preorder request #{$preorder->id} from user {$preorder->name} ({$preorder->email})."
+        );
 
         return response()->json([
             'success' => true,

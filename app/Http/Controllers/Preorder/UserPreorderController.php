@@ -70,6 +70,12 @@ class UserPreorderController extends Controller
                 ]
             );
 
+            \App\Helpers\ActivityLogHelper::log(
+                'preorder',
+                'submit_preorder',
+                "User submitted preorder request with name {$validated['name']} and email {$validated['email']}."
+            );
+
             return redirect()->back()->with('success', 'Form Preorder berhasil dikirim! Silakan tunggu konfirmasi Admin.');
         }
 

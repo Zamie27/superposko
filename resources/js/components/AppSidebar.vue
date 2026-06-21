@@ -3,7 +3,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { 
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
-    ShoppingBag, Settings 
+    ShoppingBag, Settings, Clock, Server 
 } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -66,6 +66,16 @@ const filteredNavItems = computed<NavItem[]>(() => {
                 title: 'Laporan Masalah',
                 href: '/admin/reports',
                 icon: Info,
+            },
+            {
+                title: 'Manajemen Dokumentasi',
+                href: '/admin/documentation-configs',
+                icon: Server,
+            },
+            {
+                title: 'Log Aktifitas',
+                href: '/admin/activity-logs',
+                icon: Clock,
             },
             {
                 title: 'Pengaturan Website',

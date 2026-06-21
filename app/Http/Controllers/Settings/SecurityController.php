@@ -42,6 +42,12 @@ class SecurityController extends Controller
             'password' => $request->password,
         ]);
 
+        \App\Helpers\ActivityLogHelper::log(
+            'auth',
+            'change_password',
+            'User updated their account password.'
+        );
+
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
 
         return back();

@@ -24,9 +24,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('settings/password', [SecurityController::class, 'update'])
         ->middleware('throttle:6,1')
         ->name('user-password.update');
-
-    Route::get('settings/api', [\App\Http\Controllers\Settings\ApiController::class, 'edit'])->name('api.edit');
-    Route::put('settings/api', [\App\Http\Controllers\Settings\ApiController::class, 'update'])->name('api.update');
-
-
 });

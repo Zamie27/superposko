@@ -24,6 +24,40 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        $this->registerActivityListeners();
+    }
+
+    /**
+     * Register listeners for auditing auth actions.
+     */
+    protected function registerActivityListeners(): void
+    {
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Login::class,
+            function (\Illuminate\Auth\Events\Login $event) {
+                \App\Helpers\ActivityLogHelper::log(
+                    'auth',
+                    'login',
+                    "User {$event->user->name} logged in.",
+                    $event->user
+                );
+            }
+        );
+
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Logout::class,
+            function (\Illuminate\Auth\Events\Logout $event) {
+                if ($event->user) {
+                    \App\Helpers\ActivityLogHelper::log(
+                        'auth',
+                        'logout',
+                        "User {$event->user->name} logged out.",
+                        $event->user
+                    );
+                }
+            }
+        );
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -12,30 +14,52 @@ use Inertia\Response;
 
 class DocumentationController extends Controller
 {
-    protected string $url;
+    protected string $url = '';
+    protected string $apiKey = '';
+    protected string $immichEmail = '';
+    protected string $immichPassword = '';
 
-    protected string $apiKey;
-
-    public function __construct()
+    /**
+     * Resolve the Immich server URL and credentials for the current host context.
+     */
+    protected function resolveConfig(): bool
     {
-        $this->url = rtrim(config('services.immich.url', ''), '/');
-        $this->apiKey = config('services.immich.api_key', '');
+        $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+
+        // Get global Immich Server URL
+        $this->url = rtrim(Setting::get('immich_url', config('services.immich.url', '')), '/');
+
+        // Resolve host user
+        $hostId = $user->host_id ?? $user->id;
+        $host = User::find($hostId);
+
+        if ($host) {
+            $this->apiKey = $host->immich_api_key ?? '';
+            $this->immichEmail = $host->immich_email ?? '';
+            $this->immichPassword = $host->immich_password ?? '';
+        }
+
+        return !empty($this->apiKey) && !empty($this->url);
     }
 
     public function index(): Response
     {
+        $hasConfig = $this->resolveConfig();
         $immichUrl = $this->url;
-        $immichEmail = config('services.immich.email', '');
-        $immichPassword = config('services.immich.password', '');
+        $immichEmail = $this->immichEmail;
+        $immichPassword = $this->immichPassword;
 
         // Jika API key belum diset, return kosong
-        if (empty($this->apiKey)) {
+        if (!$hasConfig) {
             return Inertia::render('documentation/Index', [
                 'assets' => [],
                 'immichUrl' => $immichUrl,
                 'immichEmail' => $immichEmail,
                 'immichPassword' => $immichPassword,
-                'error' => 'API Key Immich belum dikonfigurasi di .env',
+                'error' => 'API Key Immich belum dikonfigurasi oleh Admin untuk Posko Anda.',
             ]);
         }
 
@@ -95,7 +119,7 @@ class DocumentationController extends Controller
 
     public function thumbnail(string $id): \Symfony\Component\HttpFoundation\Response
     {
-        if (empty($this->apiKey)) {
+        if (!$this->resolveConfig()) {
             abort(404);
         }
 
@@ -115,7 +139,7 @@ class DocumentationController extends Controller
 
     public function file(Request $request, string $id): \Symfony\Component\HttpFoundation\Response
     {
-        if (empty($this->apiKey)) {
+        if (!$this->resolveConfig()) {
             abort(404);
         }
 
@@ -154,7 +178,7 @@ class DocumentationController extends Controller
 
     public function store(Request $request): \Symfony\Component\HttpFoundation\Response
     {
-        if (empty($this->apiKey)) {
+        if (!$this->resolveConfig()) {
             return back()->with('error', 'API Key Immich belum dikonfigurasi.');
         }
 
@@ -213,7 +237,7 @@ class DocumentationController extends Controller
 
     public function uploadChunk(Request $request): JsonResponse
     {
-        if (empty($this->apiKey)) {
+        if (!$this->resolveConfig()) {
             return response()->json(['message' => 'API Key Immich belum dikonfigurasi.'], 400);
         }
 

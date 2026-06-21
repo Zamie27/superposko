@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Models\User;
+use App\Helpers\ActivityLogHelper;
 use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,8 +21,8 @@ class PaymentController extends Controller
     public function showTestPage(): Response
     {
         return Inertia::render('payment/TestPayment', [
-            'midtransClientKey' => config('services.midtrans.client_key') ?? '',
-            'isProduction' => filter_var(config('services.midtrans.is_production', false), FILTER_VALIDATE_BOOLEAN),
+            'midtransClientKey' => Setting::get('midtrans_client_key', config('services.midtrans.client_key', '')),
+            'isProduction' => filter_var(Setting::get('midtrans_is_production', config('services.midtrans.is_production', false)), FILTER_VALIDATE_BOOLEAN),
         ]);
     }
 
@@ -34,8 +36,8 @@ class PaymentController extends Controller
         }
 
         return Inertia::render('payment/Checkout', [
-            'midtransClientKey' => config('services.midtrans.client_key') ?? '',
-            'isProduction' => filter_var(config('services.midtrans.is_production', false), FILTER_VALIDATE_BOOLEAN),
+            'midtransClientKey' => Setting::get('midtrans_client_key', config('services.midtrans.client_key', '')),
+            'isProduction' => filter_var(Setting::get('midtrans_is_production', config('services.midtrans.is_production', false)), FILTER_VALIDATE_BOOLEAN),
             'packagePrice' => (int) Setting::get('package_price', 100000),
             'packageStrikePrice' => (int) Setting::get('package_strike_price', 150000),
         ]);
@@ -56,7 +58,8 @@ class PaymentController extends Controller
         $user = $request->user();
 
         $prefix = $user->role === 'admin' ? 'TEST-' : 'SUB-';
-        $orderId = $prefix.time().'-'.rand(1000, 9999);
+        // Embed the User ID in order ID to support webhook lookups: PREFIX-USERID-TIMESTAMP-RANDOM
+        $orderId = $prefix.$user->id.'-'.time().'-'.rand(1000, 9999);
         $amount = (int) Setting::get('package_price', 100000);
 
         $params = [
@@ -90,7 +93,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Verify payment status and activate subscription.
+     * Verify payment status and activate subscription (Synchronous Callback).
      */
     public function handlePaymentSuccess(Request $request): JsonResponse
     {
@@ -116,6 +119,7 @@ class PaymentController extends Controller
         }
 
         $transactionStatus = $statusData['transaction_status'] ?? '';
+        $grossAmount = $statusData['gross_amount'] ?? 0;
 
         if (in_array($transactionStatus, ['settlement', 'capture'])) {
             $user = $request->user();
@@ -123,6 +127,13 @@ class PaymentController extends Controller
                 'role' => 'host',
                 'subscription_expires_at' => now()->addDays(40),
             ]);
+
+            ActivityLogHelper::log(
+                'payment',
+                'payment_success',
+                "User successfully purchased subscription for Rp " . number_format($grossAmount) . ". Order ID: {$orderId}. Upgraded to host.",
+                $user
+            );
 
             return response()->json([
                 'success' => true,
@@ -135,5 +146,63 @@ class PaymentController extends Controller
             'message' => 'Status pembayaran tidak valid: '.$transactionStatus,
         ], 400);
     }
-}
 
+    /**
+     * Handle Midtrans Payment Notification Webhook (Asynchronous Callback).
+     */
+    public function handleNotification(Request $request): JsonResponse
+    {
+        $orderId = $request->input('order_id');
+        
+        if (empty($orderId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order ID tidak ditemukan.',
+            ], 400);
+        }
+
+        $statusData = $this->midtransService->getTransactionStatus($orderId);
+
+        if (! $statusData) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memverifikasi status pembayaran ke Midtrans.',
+            ], 400);
+        }
+
+        $transactionStatus = $statusData['transaction_status'] ?? '';
+        $grossAmount = $statusData['gross_amount'] ?? 0;
+
+        if (in_array($transactionStatus, ['settlement', 'capture'])) {
+            $parts = explode('-', $orderId);
+            if (count($parts) >= 2 && ($parts[0] === 'SUB' || $parts[0] === 'TEST')) {
+                $userId = $parts[1];
+                $user = User::find($userId);
+
+                if ($user) {
+                    $user->update([
+                        'role' => 'host',
+                        'subscription_expires_at' => now()->addDays(40),
+                    ]);
+
+                    ActivityLogHelper::log(
+                        'payment',
+                        'payment_webhook_success',
+                        "Webhook confirmed payment of Rp " . number_format($grossAmount) . " for order {$orderId}. User {$user->name} role upgraded to host.",
+                        $user
+                    );
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Notifikasi pembayaran berhasil diproses.',
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notifikasi diterima namun tidak memicu perubahan status.',
+        ]);
+    }
+}

@@ -38,6 +38,9 @@ Route::post('auth/google/complete', [GoogleLoginController::class, 'completeProf
 Route::get('laporan/buat', [\App\Http\Controllers\ReportController::class, 'create'])->name('reports.create');
 Route::post('laporan/buat', [\App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
 
+// Midtrans Payment Webhook Notification
+Route::post('payment/notification', [PaymentController::class, 'handleNotification'])->name('payment.notification');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // Redirection/Rendering helper for main /dashboard entry path
     Route::get('dashboard', function (Request $request) {
@@ -113,6 +116,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // General Website Settings
         Route::get('settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::put('settings', [AdminSettingController::class, 'update'])->name('settings.update');
+
+        // Admin Documentation Configurations
+        Route::get('documentation-configs', [\App\Http\Controllers\Admin\AdminDocumentationConfigController::class, 'index'])->name('documentation-configs.index');
+        Route::put('documentation-configs/{host}', [\App\Http\Controllers\Admin\AdminDocumentationConfigController::class, 'update'])->name('documentation-configs.update');
+
+        // Admin Activity Logs Panel
+        Route::get('activity-logs', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'index'])->name('activity-logs.index');
 
         // Admin Report Panel Routes
         Route::get('reports', [\App\Http\Controllers\Admin\AdminReportController::class, 'index'])->name('reports.index');

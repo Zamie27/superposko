@@ -109,6 +109,13 @@ class EmailChangeController extends Controller
             'email_verified_at' => now(),
         ])->save();
 
+        \App\Helpers\ActivityLogHelper::log(
+            'auth',
+            'change_email',
+            "User changed their email address from {$oldEmail} to {$newEmail}.",
+            $user
+        );
+
         // Delete the verified OTP record
         $otpRecord->delete();
 

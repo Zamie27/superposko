@@ -48,6 +48,12 @@ class AdminSubscriptionController extends Controller
             'subscription_expires_at' => now()->addDays(40),
         ]);
 
+        \App\Helpers\ActivityLogHelper::log(
+            'payment',
+            'bypass_payment',
+            "Admin bypassed payment for user {$user->name} ({$user->email}), granting 40 days host access."
+        );
+
         return response()->json([
             'success' => true,
             'message' => "Hak akses langganan posko berhasil diberikan (Bypass Payment) ke user {$user->name} untuk 40 hari.",
@@ -68,6 +74,12 @@ class AdminSubscriptionController extends Controller
             'subscription_expires_at' => $validated['expires_at'],
         ]);
 
+        \App\Helpers\ActivityLogHelper::log(
+            'payment',
+            'update_subscription_duration',
+            "Admin updated subscription duration for user {$user->name} ({$user->email}) to {$validated['expires_at']}."
+        );
+
         return response()->json([
             'success' => true,
             'message' => "Masa aktif langganan user {$user->name} berhasil diperbarui hingga {$validated['expires_at']}.",
@@ -83,6 +95,12 @@ class AdminSubscriptionController extends Controller
             'role' => 'user',
             'subscription_expires_at' => null, // set to null
         ]);
+
+        \App\Helpers\ActivityLogHelper::log(
+            'payment',
+            'revoke_subscription',
+            "Admin revoked subscription access from user {$user->name} ({$user->email})."
+        );
 
         return response()->json([
             'success' => true,
