@@ -4,15 +4,15 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 * @see app/Http/Controllers/PaymentController.php:153
 * @route '/payment/notification'
 */
-export const handleNotification = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const handleNotification = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: handleNotification.url(options),
-    method: 'post',
+    method: 'get',
 })
 
 handleNotification.definition = {
-    methods: ["post"],
+    methods: ["get","post","head"],
     url: '/payment/notification',
-} satisfies RouteDefinition<["post"]>
+} satisfies RouteDefinition<["get","post","head"]>
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
@@ -22,6 +22,16 @@ handleNotification.definition = {
 handleNotification.url = (options?: RouteQueryOptions) => {
     return handleNotification.definition.url + queryParams(options)
 }
+
+/**
+* @see \App\Http\Controllers\PaymentController::handleNotification
+* @see app/Http/Controllers/PaymentController.php:153
+* @route '/payment/notification'
+*/
+handleNotification.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: handleNotification.url(options),
+    method: 'get',
+})
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
@@ -38,9 +48,29 @@ handleNotification.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
 * @see app/Http/Controllers/PaymentController.php:153
 * @route '/payment/notification'
 */
-const handleNotificationForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+handleNotification.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: handleNotification.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\PaymentController::handleNotification
+* @see app/Http/Controllers/PaymentController.php:153
+* @route '/payment/notification'
+*/
+const handleNotificationForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: handleNotification.url(options),
-    method: 'post',
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\PaymentController::handleNotification
+* @see app/Http/Controllers/PaymentController.php:153
+* @route '/payment/notification'
+*/
+handleNotificationForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: handleNotification.url(options),
+    method: 'get',
 })
 
 /**
@@ -51,6 +81,21 @@ const handleNotificationForm = (options?: RouteQueryOptions): RouteFormDefinitio
 handleNotificationForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
     action: handleNotification.url(options),
     method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\PaymentController::handleNotification
+* @see app/Http/Controllers/PaymentController.php:153
+* @route '/payment/notification'
+*/
+handleNotificationForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: handleNotification.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
 })
 
 handleNotification.form = handleNotificationForm

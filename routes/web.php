@@ -11,6 +11,7 @@ use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Preorder\UserPreorderController;
+use App\Http\Controllers\ContactController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -78,7 +79,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('management/members/{member}', [MemberController::class, 'update'])->name('management.members.update');
         Route::delete('management/members/{member}', [MemberController::class, 'destroy'])->name('management.members.destroy');
 
-        Route::inertia('contacts', 'contacts/Index')->name('contacts.index');
+        Route::get('contacts', [ContactController::class, 'index'])->name('contacts.index');
+        Route::post('contacts', [ContactController::class, 'store'])->name('contacts.store');
+        Route::put('contacts/{contact}', [ContactController::class, 'update'])->name('contacts.update');
+        Route::delete('contacts/{contact}', [ContactController::class, 'destroy'])->name('contacts.destroy');
         Route::inertia('repository', 'repository/Index')->name('repository.index');
         Route::inertia('voting', 'voting/Index')->name('voting.index');
         Route::get('documentation', [DocumentationController::class, 'index'])->name('documentation.index');

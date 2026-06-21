@@ -26,9 +26,7 @@ const { isOpen, title, message, confirmText, cancelText, variant, handleConfirm,
                 </div>
             </DialogHeader>
             <div class="py-3">
-                <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    {{ message }}
-                </p>
+                <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed" v-html="message"></p>
             </div>
             <DialogFooter class="flex gap-2 sm:justify-end">
                 <Button

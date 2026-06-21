@@ -402,86 +402,6 @@ Controller383de1a6870bc27bd361c37542f71c41.form = Controller383de1a6870bc27bd361
 /**
 * @see \Inertia\Controller::__invoke
 * @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/contacts'
-*/
-const Controller992a2347bc1316e84b2c92be2972d319 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller992a2347bc1316e84b2c92be2972d319.url(options),
-    method: 'get',
-})
-
-Controller992a2347bc1316e84b2c92be2972d319.definition = {
-    methods: ["get","head"],
-    url: '/contacts',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/contacts'
-*/
-Controller992a2347bc1316e84b2c92be2972d319.url = (options?: RouteQueryOptions) => {
-    return Controller992a2347bc1316e84b2c92be2972d319.definition.url + queryParams(options)
-}
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/contacts'
-*/
-Controller992a2347bc1316e84b2c92be2972d319.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller992a2347bc1316e84b2c92be2972d319.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/contacts'
-*/
-Controller992a2347bc1316e84b2c92be2972d319.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controller992a2347bc1316e84b2c92be2972d319.url(options),
-    method: 'head',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/contacts'
-*/
-const Controller992a2347bc1316e84b2c92be2972d319Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller992a2347bc1316e84b2c92be2972d319.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/contacts'
-*/
-Controller992a2347bc1316e84b2c92be2972d319Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller992a2347bc1316e84b2c92be2972d319.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/contacts'
-*/
-Controller992a2347bc1316e84b2c92be2972d319Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller992a2347bc1316e84b2c92be2972d319.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-Controller992a2347bc1316e84b2c92be2972d319.form = Controller992a2347bc1316e84b2c92be2972d319Form
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
 * @route '/repository'
 */
 const Controllerc077734b27c5875bc84c1e7371f6c452 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -651,7 +571,6 @@ const Controller = {
     '/management/inventory': Controller2a5367f9244dbeae8d78e409e3429a3e,
     '/management/logistic': Controllerbc78e265ee946ca595d9bc944a4839f0,
     '/management/schedule': Controller383de1a6870bc27bd361c37542f71c41,
-    '/contacts': Controller992a2347bc1316e84b2c92be2972d319,
     '/repository': Controllerc077734b27c5875bc84c1e7371f6c452,
     '/voting': Controller4f39f405039961f7fb66175445447eec,
 }

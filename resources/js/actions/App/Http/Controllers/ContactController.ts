@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\ContactController::index
 * @see app/Http/Controllers/ContactController.php:27
@@ -316,11 +316,6 @@ destroyForm.delete = (args: { contact: number | { id: number } } | [contact: num
 
 destroy.form = destroyForm
 
-const contacts = {
-    index: Object.assign(index, index),
-    store: Object.assign(store, store),
-    update: Object.assign(update, update),
-    destroy: Object.assign(destroy, destroy),
-}
+const ContactController = { index, store, update, destroy }
 
-export default contacts
+export default ContactController

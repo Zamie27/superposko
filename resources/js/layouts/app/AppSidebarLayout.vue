@@ -54,7 +54,7 @@ const isLocked = computed(() => {
 <template>
     <AppShell variant="sidebar">
         <AppSidebar />
-        <AppContent variant="sidebar" class="overflow-x-hidden">
+        <AppContent variant="sidebar" class="h-svh overflow-y-auto">
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
             <div class="relative flex-1 flex flex-col">
                 <slot />
