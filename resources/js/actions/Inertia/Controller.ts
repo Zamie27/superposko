@@ -399,86 +399,6 @@ Controller383de1a6870bc27bd361c37542f71c41Form.head = (options?: RouteQueryOptio
 })
 
 Controller383de1a6870bc27bd361c37542f71c41.form = Controller383de1a6870bc27bd361c37542f71c41Form
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/voting'
-*/
-const Controller4f39f405039961f7fb66175445447eec = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller4f39f405039961f7fb66175445447eec.url(options),
-    method: 'get',
-})
-
-Controller4f39f405039961f7fb66175445447eec.definition = {
-    methods: ["get","head"],
-    url: '/voting',
-} satisfies RouteDefinition<["get","head"]>
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/voting'
-*/
-Controller4f39f405039961f7fb66175445447eec.url = (options?: RouteQueryOptions) => {
-    return Controller4f39f405039961f7fb66175445447eec.definition.url + queryParams(options)
-}
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/voting'
-*/
-Controller4f39f405039961f7fb66175445447eec.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: Controller4f39f405039961f7fb66175445447eec.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/voting'
-*/
-Controller4f39f405039961f7fb66175445447eec.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: Controller4f39f405039961f7fb66175445447eec.url(options),
-    method: 'head',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/voting'
-*/
-const Controller4f39f405039961f7fb66175445447eecForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller4f39f405039961f7fb66175445447eec.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/voting'
-*/
-Controller4f39f405039961f7fb66175445447eecForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller4f39f405039961f7fb66175445447eec.url(options),
-    method: 'get',
-})
-
-/**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
-* @route '/voting'
-*/
-Controller4f39f405039961f7fb66175445447eecForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: Controller4f39f405039961f7fb66175445447eec.url({
-        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-            _method: 'HEAD',
-            ...(options?.query ?? options?.mergeQuery ?? {}),
-        }
-    }),
-    method: 'get',
-})
-
-Controller4f39f405039961f7fb66175445447eec.form = Controller4f39f405039961f7fb66175445447eecForm
 
 /**
 * Multiple routes resolve to \Inertia\Controller::Controller, so this export is a
@@ -491,7 +411,6 @@ const Controller = {
     '/management/inventory': Controller2a5367f9244dbeae8d78e409e3429a3e,
     '/management/logistic': Controllerbc78e265ee946ca595d9bc944a4839f0,
     '/management/schedule': Controller383de1a6870bc27bd361c37542f71c41,
-    '/voting': Controller4f39f405039961f7fb66175445447eec,
 }
 
 export default Controller

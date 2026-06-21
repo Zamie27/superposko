@@ -89,7 +89,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('repository/{document}', [ProkerDocumentController::class, 'destroy'])->name('repository.destroy');
         Route::get('repository/{document}/download', [ProkerDocumentController::class, 'download'])->name('repository.download');
         Route::get('repository/{document}/view', [ProkerDocumentController::class, 'view'])->name('repository.view');
-        Route::inertia('voting', 'voting/Index')->name('voting.index');
+        Route::get('voting', [\App\Http\Controllers\VotingController::class, 'index'])->name('voting.index');
+        Route::post('voting/poll', [\App\Http\Controllers\VotingController::class, 'storePoll'])->name('voting.poll.store');
+        Route::post('voting/poll/{poll}/vote', [\App\Http\Controllers\VotingController::class, 'vote'])->name('voting.poll.vote');
+        Route::delete('voting/poll/{poll}/vote', [\App\Http\Controllers\VotingController::class, 'cancelVote'])->name('voting.poll.vote.destroy');
+        Route::delete('voting/poll/{poll}', [\App\Http\Controllers\VotingController::class, 'destroyPoll'])->name('voting.poll.destroy');
+        Route::post('voting/aspiration', [\App\Http\Controllers\VotingController::class, 'storeAspiration'])->name('voting.aspiration.store');
+        Route::post('voting/aspiration/{aspiration}/like', [\App\Http\Controllers\VotingController::class, 'likeAspiration'])->name('voting.aspiration.like');
+        Route::put('voting/aspiration/{aspiration}/respond', [\App\Http\Controllers\VotingController::class, 'respondAspiration'])->name('voting.aspiration.respond');
+        Route::delete('voting/aspiration/{aspiration}', [\App\Http\Controllers\VotingController::class, 'destroyAspiration'])->name('voting.aspiration.destroy');
         Route::get('documentation', [DocumentationController::class, 'index'])->name('documentation.index');
         Route::post('documentation/upload', [DocumentationController::class, 'store'])->name('documentation.upload');
         Route::post('documentation/upload-chunk', [DocumentationController::class, 'uploadChunk'])->name('documentation.upload_chunk');
