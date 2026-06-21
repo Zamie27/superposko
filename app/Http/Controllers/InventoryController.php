@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Finance;
 use App\Models\Inventory;
 use App\Models\User;
 use App\Helpers\HostRoleHelper;
@@ -42,6 +43,7 @@ class InventoryController extends Controller
 
     /**
      * Store a newly created inventory item.
+     * If source is 'purchase', automatically create a Finance expense record.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -55,7 +57,9 @@ class InventoryController extends Controller
             'quantity' => ['required', 'integer', 'min:1'],
             'condition' => ['required', 'string', Rule::in(['good', 'damaged', 'lost'])],
             'notes' => ['nullable', 'string', 'max:255'],
+            'source' => ['required', 'string', Rule::in(['member', 'purchase'])],
             'owner_id' => ['nullable', 'integer', 'exists:users,id'],
+            'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'max:5120'], // Max 5MB
         ]);
 
@@ -71,9 +75,31 @@ class InventoryController extends Controller
             $ownerId = null;
         }
 
+        $source = $validated['source'] ?? 'member';
+        $purchasePrice = $validated['purchase_price'] ?? null;
+        $financeId = null;
+
+        // If purchased from kas, auto-create Finance expense record
+        if ($source === 'purchase' && $purchasePrice > 0) {
+            $finance = Finance::create([
+                'host_id' => $hostId,
+                'program_kerja_id' => null,
+                'created_by' => $user->id,
+                'type' => 'expense',
+                'amount' => $purchasePrice,
+                'title' => 'Pembelian Inventaris: ' . $validated['name'],
+                'description' => 'Pembelian otomatis dari penambahan inventaris.',
+                'date' => now()->toDateString(),
+            ]);
+            $financeId = $finance->id;
+        }
+
         $inventory = Inventory::create([
             'host_id' => $hostId,
-            'owner_id' => $ownerId,
+            'owner_id' => $source === 'member' ? $ownerId : null,
+            'source' => $source,
+            'purchase_price' => $source === 'purchase' ? $purchasePrice : null,
+            'finance_id' => $financeId,
             'name' => $validated['name'],
             'quantity' => $validated['quantity'],
             'condition' => $validated['condition'],
@@ -84,7 +110,7 @@ class InventoryController extends Controller
         ActivityLogHelper::log(
             'member',
             'create_inventory',
-            "User added inventory item '{$inventory->name}' (Qty: {$inventory->quantity})."
+            "User added inventory item '{$inventory->name}' (Qty: {$inventory->quantity}, Sumber: {$source})."
         );
 
         return back()->with('success', 'Barang inventaris berhasil ditambahkan.');
@@ -107,7 +133,9 @@ class InventoryController extends Controller
             'quantity' => ['required', 'integer', 'min:1'],
             'condition' => ['required', 'string', Rule::in(['good', 'damaged', 'lost'])],
             'notes' => ['nullable', 'string', 'max:255'],
+            'source' => ['required', 'string', Rule::in(['member', 'purchase'])],
             'owner_id' => ['nullable', 'integer', 'exists:users,id'],
+            'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'max:5120'], // Max 5MB
         ]);
 
@@ -124,8 +152,43 @@ class InventoryController extends Controller
             $ownerId = null;
         }
 
+        $source = $validated['source'] ?? 'member';
+        $purchasePrice = $validated['purchase_price'] ?? null;
+        $financeId = $inventory->finance_id;
+
+        // Handle finance record updates
+        if ($source === 'purchase' && $purchasePrice > 0) {
+            if ($financeId) {
+                // Update existing finance record
+                Finance::where('id', $financeId)->update([
+                    'title' => 'Pembelian Inventaris: ' . $validated['name'],
+                    'amount' => $purchasePrice,
+                ]);
+            } else {
+                // Create new finance record (source changed from member to purchase)
+                $finance = Finance::create([
+                    'host_id' => $hostId,
+                    'program_kerja_id' => null,
+                    'created_by' => $user->id,
+                    'type' => 'expense',
+                    'amount' => $purchasePrice,
+                    'title' => 'Pembelian Inventaris: ' . $validated['name'],
+                    'description' => 'Pembelian otomatis dari penambahan inventaris.',
+                    'date' => now()->toDateString(),
+                ]);
+                $financeId = $finance->id;
+            }
+        } elseif ($source === 'member' && $financeId) {
+            // Source changed from purchase to member – delete linked finance record
+            Finance::find($financeId)?->delete();
+            $financeId = null;
+        }
+
         $inventory->update([
-            'owner_id' => $ownerId,
+            'owner_id' => $source === 'member' ? $ownerId : null,
+            'source' => $source,
+            'purchase_price' => $source === 'purchase' ? $purchasePrice : null,
+            'finance_id' => $financeId,
             'name' => $validated['name'],
             'quantity' => $validated['quantity'],
             'condition' => $validated['condition'],
@@ -144,6 +207,7 @@ class InventoryController extends Controller
 
     /**
      * Remove the specified inventory item.
+     * Also deletes the linked Finance record if purchased from kas.
      */
     public function destroy(Request $request, Inventory $inventory): RedirectResponse
     {
@@ -156,6 +220,11 @@ class InventoryController extends Controller
 
         if ($inventory->image_path) {
             Storage::disk('public')->delete($inventory->image_path);
+        }
+
+        // If linked to a finance record (purchased from kas), delete it too
+        if ($inventory->finance_id) {
+            Finance::find($inventory->finance_id)?->delete();
         }
 
         $name = $inventory->name;

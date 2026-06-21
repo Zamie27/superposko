@@ -9,6 +9,10 @@ class Logistic extends Model
 {
     protected $fillable = [
         'host_id',
+        'source',
+        'owner_id',
+        'purchase_price',
+        'finance_id',
         'name',
         'quantity',
         'unit',
@@ -25,6 +29,7 @@ class Logistic extends Model
     {
         return [
             'quantity' => 'float',
+            'purchase_price' => 'float',
         ];
     }
 
@@ -36,5 +41,25 @@ class Logistic extends Model
     public function host(): BelongsTo
     {
         return $this->belongsTo(User::class, 'host_id');
+    }
+
+    /**
+     * Get the member who owns this logistic item.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    /**
+     * Get the finance record created when this item was purchased from kas.
+     *
+     * @return BelongsTo<Finance, $this>
+     */
+    public function finance(): BelongsTo
+    {
+        return $this->belongsTo(Finance::class, 'finance_id');
     }
 }

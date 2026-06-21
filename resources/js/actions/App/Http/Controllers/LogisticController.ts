@@ -317,61 +317,61 @@ destroyForm.delete = (args: { logistic: number | { id: number } } | [logistic: n
 destroy.form = destroyForm
 
 /**
-* @see \App\Http\Controllers\LogisticController::checkout
+* @see \App\Http\Controllers\LogisticController::barangKeluar
 * @see app/Http/Controllers/LogisticController.php:136
-* @route '/management/logistic/checkout'
+* @route '/management/logistic/barang-keluar'
 */
-export const checkout = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: checkout.url(options),
+export const barangKeluar = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: barangKeluar.url(options),
     method: 'post',
 })
 
-checkout.definition = {
+barangKeluar.definition = {
     methods: ["post"],
-    url: '/management/logistic/checkout',
+    url: '/management/logistic/barang-keluar',
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see \App\Http\Controllers\LogisticController::checkout
+* @see \App\Http\Controllers\LogisticController::barangKeluar
 * @see app/Http/Controllers/LogisticController.php:136
-* @route '/management/logistic/checkout'
+* @route '/management/logistic/barang-keluar'
 */
-checkout.url = (options?: RouteQueryOptions) => {
-    return checkout.definition.url + queryParams(options)
+barangKeluar.url = (options?: RouteQueryOptions) => {
+    return barangKeluar.definition.url + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\LogisticController::checkout
+* @see \App\Http\Controllers\LogisticController::barangKeluar
 * @see app/Http/Controllers/LogisticController.php:136
-* @route '/management/logistic/checkout'
+* @route '/management/logistic/barang-keluar'
 */
-checkout.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: checkout.url(options),
+barangKeluar.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: barangKeluar.url(options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\LogisticController::checkout
+* @see \App\Http\Controllers\LogisticController::barangKeluar
 * @see app/Http/Controllers/LogisticController.php:136
-* @route '/management/logistic/checkout'
+* @route '/management/logistic/barang-keluar'
 */
-const checkoutForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: checkout.url(options),
+const barangKeluarForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: barangKeluar.url(options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\LogisticController::checkout
+* @see \App\Http\Controllers\LogisticController::barangKeluar
 * @see app/Http/Controllers/LogisticController.php:136
-* @route '/management/logistic/checkout'
+* @route '/management/logistic/barang-keluar'
 */
-checkoutForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: checkout.url(options),
+barangKeluarForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: barangKeluar.url(options),
     method: 'post',
 })
 
-checkout.form = checkoutForm
+barangKeluar.form = barangKeluarForm
 
-const LogisticController = { index, store, update, destroy, checkout }
+const LogisticController = { index, store, update, destroy, barangKeluar }
 
 export default LogisticController

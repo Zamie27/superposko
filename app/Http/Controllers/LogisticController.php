@@ -131,32 +131,31 @@ class LogisticController extends Controller
     }
 
     /**
-     * Batch checkout logistics items.
+     * Catat barang keluar / pengambilan logistik.
      */
-    public function checkout(Request $request): RedirectResponse
+    public function barangKeluar(Request $request): RedirectResponse
     {
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        // Any member of the posko can checkout/use logistics (not restricted to finance roles, as normal members use supplies daily).
-        // Let's verify they belong to this host.
+        // Any member of the posko can record barang keluar.
         $validated = $request->validate([
             'items' => ['required', 'array'],
             'items.*.id' => ['required', 'integer', 'exists:logistics,id'],
             'items.*.amount' => ['required', 'numeric', 'min:0.01'],
         ]);
 
-        $checkoutDetails = [];
+        $keluarDetails = [];
 
-        foreach ($validated['items'] as $checkoutItem) {
-            $logistic = Logistic::findOrFail($checkoutItem['id']);
+        foreach ($validated['items'] as $item) {
+            $logistic = Logistic::findOrFail($item['id']);
 
             // Posko isolation check
             if ($logistic->host_id !== $hostId) {
                 abort(403, 'Anda tidak memiliki akses ke logistik ini.');
             }
 
-            $amount = (float) $checkoutItem['amount'];
+            $amount = (float) $item['amount'];
 
             if ($logistic->quantity < $amount) {
                 return back()->withErrors([
@@ -177,16 +176,16 @@ class LogisticController extends Controller
                 'status' => $status,
             ]);
 
-            $checkoutDetails[] = "{$amount} {$logistic->unit} dari {$logistic->name}";
+            $keluarDetails[] = "{$amount} {$logistic->unit} dari {$logistic->name}";
         }
 
-        $summary = implode(', ', $checkoutDetails);
+        $summary = implode(', ', $keluarDetails);
         ActivityLogHelper::log(
             'member',
-            'checkout_logistic',
-            "User checked out: {$summary}."
+            'barang_keluar_logistic',
+            "User mencatat barang keluar: {$summary}."
         );
 
-        return back()->with('success', 'Pengambilan logistik berhasil dicatat.');
+        return back()->with('success', 'Barang keluar berhasil dicatat.');
     }
 }

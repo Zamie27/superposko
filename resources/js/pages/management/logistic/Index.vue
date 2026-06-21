@@ -2,7 +2,7 @@
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { 
-    Plus, Search, Edit3, Trash2, X, ClipboardList, CheckCircle, AlertTriangle, AlertCircle, ShoppingCart, Minus
+    Plus, Search, Edit3, Trash2, X, ClipboardList, CheckCircle, AlertTriangle, AlertCircle, ArrowUpFromLine, Minus
 } from '@lucide/vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -140,16 +140,16 @@ const confirmDelete = async (item: Logistic) => {
     }
 };
 
-// Checkout modal state
-const isCheckoutModalOpen = ref(false);
-const checkoutItems = ref<Array<{ id: number; name: string; maxQuantity: number; unit: string; amount: number }>>([]);
+// Barang Keluar modal state
+const isBarangKeluarModalOpen = ref(false);
+const barangKeluarItems = ref<Array<{ id: number; name: string; maxQuantity: number; unit: string; amount: number }>>([]);
 
-const checkoutForm = useForm({
+const barangKeluarForm = useForm({
     items: [] as Array<{ id: number; amount: number }>,
 });
 
-const openCheckoutModal = () => {
-    checkoutItems.value = props.logistics
+const openBarangKeluarModal = () => {
+    barangKeluarItems.value = props.logistics
         .filter(item => item.quantity > 0)
         .map(item => ({
             id: item.id,
@@ -158,36 +158,36 @@ const openCheckoutModal = () => {
             unit: item.unit,
             amount: 0,
         }));
-    isCheckoutModalOpen.value = true;
+    isBarangKeluarModalOpen.value = true;
 };
 
-const closeCheckoutModal = () => {
-    isCheckoutModalOpen.value = false;
-    checkoutItems.value = [];
-    checkoutForm.reset();
+const closeBarangKeluarModal = () => {
+    isBarangKeluarModalOpen.value = false;
+    barangKeluarItems.value = [];
+    barangKeluarForm.reset();
 };
 
-const submitCheckout = () => {
-    const itemsToCheckout = checkoutItems.value
+const submitBarangKeluar = () => {
+    const itemsKeluar = barangKeluarItems.value
         .filter(item => item.amount > 0)
         .map(item => ({
             id: item.id,
             amount: item.amount,
         }));
 
-    if (itemsToCheckout.length === 0) {
-        toast.error('Silakan isi jumlah pengambilan minimal untuk satu barang.');
+    if (itemsKeluar.length === 0) {
+        toast.error('Silakan isi jumlah barang keluar minimal untuk satu item.');
         return;
     }
 
-    checkoutForm.items = itemsToCheckout;
-    checkoutForm.post('/management/logistic/checkout', {
+    barangKeluarForm.items = itemsKeluar;
+    barangKeluarForm.post('/management/logistic/barang-keluar', {
         onSuccess: () => {
-            toast.success('Pengambilan logistik berhasil dicatat.');
-            closeCheckoutModal();
+            toast.success('Barang keluar berhasil dicatat.');
+            closeBarangKeluarModal();
         },
         onError: (errors) => {
-            toast.error(errors.items || 'Gagal mencatat pengambilan logistik.');
+            toast.error(errors.items || 'Gagal mencatat barang keluar.');
         }
     });
 };
@@ -233,13 +233,13 @@ const getStatusDetails = (status: string) => {
             </div>
             
             <div class="flex items-center gap-2">
-                <!-- Checkout Button -->
+                <!-- Barang Keluar Button -->
                 <Button 
                     v-if="logistics.some(item => item.quantity > 0)"
-                    @click="openCheckoutModal"
+                    @click="openBarangKeluarModal"
                     class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl transition duration-200 flex items-center gap-2 cursor-pointer shadow-xs"
                 >
-                    <ShoppingCart class="size-4" /> Ambil / Checkout
+                    <ArrowUpFromLine class="size-4" /> Barang Keluar
                 </Button>
 
                 <!-- Add Button -->
@@ -449,25 +449,25 @@ const getStatusDetails = (status: string) => {
             </div>
         </div>
 
-        <!-- Checkout / Ambil Barang Modal -->
-        <div v-if="isCheckoutModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-300">
+        <!-- Barang Keluar Modal -->
+        <div v-if="isBarangKeluarModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-300">
             <div class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
                 <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
                     <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <ShoppingCart class="size-5 text-emerald-500" />
-                        Catat Pengambilan / Checkout Logistik
+                        <ArrowUpFromLine class="size-5 text-emerald-500" />
+                        Catat Barang Keluar
                     </h3>
-                    <button @click="closeCheckoutModal" class="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 transition cursor-pointer">
+                    <button @click="closeBarangKeluarModal" class="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 transition cursor-pointer">
                         <X class="size-5" />
                     </button>
                 </div>
 
-                <form @submit.prevent="submitCheckout" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan jumlah logistik yang ingin diambil atau digunakan oleh posko saat ini.</p>
+                <form @submit.prevent="submitBarangKeluar" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan jumlah logistik yang keluar atau digunakan oleh posko. Stok akan otomatis dikurangi.</p>
                     
                     <div class="space-y-3 divide-y divide-slate-100 dark:divide-slate-850">
                         <div 
-                            v-for="item in checkoutItems" 
+                            v-for="item in barangKeluarItems" 
                             :key="item.id" 
                             class="pt-3 first:pt-0 flex items-center justify-between gap-4"
                         >
@@ -507,16 +507,16 @@ const getStatusDetails = (status: string) => {
 
                     <!-- Actions -->
                     <div class="pt-4 border-t border-slate-100 dark:border-slate-850 flex justify-end gap-2">
-                        <Button type="button" variant="outline" @click="closeCheckoutModal" class="rounded-xl px-4 cursor-pointer">
+                        <Button type="button" variant="outline" @click="closeBarangKeluarModal" class="rounded-xl px-4 cursor-pointer">
                             Batal
                         </Button>
                         <Button
                             type="submit"
-                            :disabled="checkoutForm.processing"
+                            :disabled="barangKeluarForm.processing"
                             class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl flex items-center gap-2 cursor-pointer"
                         >
-                            <Spinner v-if="checkoutForm.processing" />
-                            Catat Pengambilan
+                            <Spinner v-if="barangKeluarForm.processing" />
+                            Catat Barang Keluar
                         </Button>
                     </div>
                 </form>

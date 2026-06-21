@@ -105,7 +105,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('management/logistic', [LogisticController::class, 'store'])->name('management.logistic.store');
         Route::put('management/logistic/{logistic}', [LogisticController::class, 'update'])->name('management.logistic.update');
         Route::delete('management/logistic/{logistic}', [LogisticController::class, 'destroy'])->name('management.logistic.destroy');
-        Route::post('management/logistic/checkout', [LogisticController::class, 'checkout'])->name('management.logistic.checkout');
+        Route::post('management/logistic/barang-keluar', [LogisticController::class, 'barangKeluar'])->name('management.logistic.barang-keluar');
 
         Route::get('management/schedule', [ScheduleController::class, 'index'])->name('management.schedule.index');
         Route::post('management/schedule/roster', [ScheduleController::class, 'storeRoster'])->name('management.schedule.roster.store');

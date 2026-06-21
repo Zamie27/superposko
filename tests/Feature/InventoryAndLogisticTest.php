@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Finance;
 use App\Models\Inventory;
 use App\Models\Logistic;
 use App\Models\User;
@@ -59,6 +60,7 @@ class InventoryAndLogisticTest extends TestCase
             'quantity' => 2,
             'condition' => 'good',
             'notes' => 'Milik warga RT 01',
+            'source' => 'member',
             'owner_id' => $member->id,
             'image' => $image,
         ];
@@ -74,6 +76,7 @@ class InventoryAndLogisticTest extends TestCase
         $this->assertDatabaseHas('inventories', [
             'host_id' => $host->id,
             'owner_id' => $member->id,
+            'source' => 'member',
             'name' => 'Wajan Goreng',
             'quantity' => 2,
             'condition' => 'good',
@@ -94,6 +97,7 @@ class InventoryAndLogisticTest extends TestCase
             'name' => 'Tikar',
             'quantity' => 5,
             'condition' => 'good',
+            'source' => 'member',
         ];
 
         $response = $this->post(route('management.inventory.store'), $payload);
@@ -116,6 +120,7 @@ class InventoryAndLogisticTest extends TestCase
                 'name' => "Tikar {$role}",
                 'quantity' => 1,
                 'condition' => 'good',
+                'source' => 'member',
             ];
 
             $response = $this->post(route('management.inventory.store'), $payload);
@@ -143,6 +148,7 @@ class InventoryAndLogisticTest extends TestCase
             'name' => 'Lama',
             'quantity' => 1,
             'condition' => 'good',
+            'source' => 'member',
             'image_path' => $oldImagePath,
         ]);
 
@@ -153,6 +159,7 @@ class InventoryAndLogisticTest extends TestCase
             'quantity' => 3,
             'condition' => 'damaged',
             'notes' => 'Gagang patah',
+            'source' => 'member',
             'image' => $newImage,
         ];
 
@@ -183,6 +190,7 @@ class InventoryAndLogisticTest extends TestCase
             'name' => 'Barang Host 1',
             'quantity' => 1,
             'condition' => 'good',
+            'source' => 'member',
         ]);
 
         $this->actingAs($host2);
@@ -191,6 +199,7 @@ class InventoryAndLogisticTest extends TestCase
             'name' => 'Hack',
             'quantity' => 10,
             'condition' => 'lost',
+            'source' => 'member',
         ];
 
         $response = $this->put(route('management.inventory.update', $inventory), $payload);
@@ -212,6 +221,7 @@ class InventoryAndLogisticTest extends TestCase
             'name' => 'Hapus Saya',
             'quantity' => 1,
             'condition' => 'good',
+            'source' => 'member',
             'image_path' => $imagePath,
         ]);
 
@@ -412,7 +422,7 @@ class InventoryAndLogisticTest extends TestCase
             ]
         ];
 
-        $response = $this->post(route('management.logistic.checkout'), $payload);
+        $response = $this->post(route('management.logistic.barang-keluar'), $payload);
         $response->assertRedirect();
         $response->assertSessionHasNoErrors();
 
@@ -429,7 +439,7 @@ class InventoryAndLogisticTest extends TestCase
         ]);
     }
 
-    public function test_user_cannot_checkout_more_than_available_stock()
+    public function test_user_cannot_record_barang_keluar_more_than_available_stock()
     {
         $host = User::factory()->create(['role' => 'host']);
         $this->actingAs($host);
@@ -451,8 +461,83 @@ class InventoryAndLogisticTest extends TestCase
             ]
         ];
 
-        $response = $this->post(route('management.logistic.checkout'), $payload);
+        $response = $this->post(route('management.logistic.barang-keluar'), $payload);
         $response->assertRedirect();
         $response->assertSessionHasErrors(['items']);
+    }
+
+    public function test_host_can_create_inventory_purchased_from_kas()
+    {
+        $host = User::factory()->create(['role' => 'host']);
+        $this->actingAs($host);
+
+        $payload = [
+            'name' => 'Kipas Angin',
+            'quantity' => 1,
+            'condition' => 'good',
+            'source' => 'purchase',
+            'purchase_price' => 250000,
+        ];
+
+        $response = $this->post(route('management.inventory.store'), $payload);
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        // Inventory record created with correct source
+        $this->assertDatabaseHas('inventories', [
+            'host_id' => $host->id,
+            'source' => 'purchase',
+            'purchase_price' => 250000,
+            'name' => 'Kipas Angin',
+        ]);
+
+        // Finance expense record auto-created in E-Bendahara
+        $this->assertDatabaseHas('finances', [
+            'host_id' => $host->id,
+            'type' => 'expense',
+            'amount' => 250000,
+        ]);
+
+        // Inventory finance_id links to the created Finance record
+        $inventory = Inventory::where('name', 'Kipas Angin')->first();
+        $this->assertNotNull($inventory->finance_id);
+        $this->assertDatabaseHas('finances', ['id' => $inventory->finance_id]);
+    }
+
+    public function test_deleting_purchased_inventory_also_deletes_finance_record()
+    {
+        $host = User::factory()->create(['role' => 'host']);
+        $this->actingAs($host);
+
+        // Create a finance record and link it to inventory
+        $finance = Finance::create([
+            'host_id' => $host->id,
+            'program_kerja_id' => null,
+            'created_by' => $host->id,
+            'type' => 'expense',
+            'amount' => 150000,
+            'title' => 'Pembelian Inventaris: Dispenser',
+            'description' => 'Test',
+            'date' => now()->toDateString(),
+        ]);
+
+        $inventory = Inventory::create([
+            'host_id' => $host->id,
+            'owner_id' => null,
+            'source' => 'purchase',
+            'purchase_price' => 150000,
+            'finance_id' => $finance->id,
+            'name' => 'Dispenser',
+            'quantity' => 1,
+            'condition' => 'good',
+        ]);
+
+        $response = $this->delete(route('management.inventory.destroy', $inventory->id));
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        // Both inventory and finance record should be deleted
+        $this->assertDatabaseMissing('inventories', ['id' => $inventory->id]);
+        $this->assertDatabaseMissing('finances', ['id' => $finance->id]);
     }
 }

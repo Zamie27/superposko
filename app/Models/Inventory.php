@@ -10,12 +10,27 @@ class Inventory extends Model
     protected $fillable = [
         'host_id',
         'owner_id',
+        'source',
+        'purchase_price',
+        'finance_id',
         'name',
         'quantity',
         'condition',
         'notes',
         'image_path',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'purchase_price' => 'float',
+        ];
+    }
 
     /**
      * Get the user who owns this inventory item.
@@ -35,5 +50,15 @@ class Inventory extends Model
     public function host(): BelongsTo
     {
         return $this->belongsTo(User::class, 'host_id');
+    }
+
+    /**
+     * Get the finance record created when this item was purchased from kas.
+     *
+     * @return BelongsTo<Finance, $this>
+     */
+    public function finance(): BelongsTo
+    {
+        return $this->belongsTo(Finance::class, 'finance_id');
     }
 }
