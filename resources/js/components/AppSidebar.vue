@@ -131,7 +131,7 @@ const navGroups = computed<NavGroup[]>(() => {
         },
     ];
 
-    if (!isSubscribed) {
+    if (!isSubscribed || user.role === 'trial') {
         if (preorderPromoActive) {
             mainItems.push({
                 title: 'Preorder!',

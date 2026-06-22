@@ -35,9 +35,11 @@ class HostRouteProtectionMiddleware
                 str_starts_with($routeName, 'host.documentation') ||
                 str_starts_with($routeName, 'management.members')
             )) {
-                return $request->expectsJson()
-                    ? response()->json(['message' => 'Fitur ini tidak tersedia selama masa trial.'], 403)
-                    : abort(403, 'Fitur ini tidak tersedia selama masa trial.');
+                if (! $request->isMethod('GET')) {
+                    return $request->expectsJson()
+                        ? response()->json(['message' => 'Fitur ini tidak tersedia selama masa trial.'], 403)
+                        : abort(403, 'Fitur ini tidak tersedia selama masa trial.');
+                }
             }
         }
 
@@ -48,9 +50,8 @@ class HostRouteProtectionMiddleware
         }
 
         // For other users (unsubscribed):
-        // Allow GET requests for dashboard and documentation index/files
-        $allowedRoutes = ['host.dashboard', 'host.documentation.index', 'host.documentation.file', 'host.documentation.thumbnail'];
-        if ($request->isMethod('GET') && in_array($request->route()?->getName(), $allowedRoutes)) {
+        // Allow GET requests for all host routes so they can see the layout-level premium lock overlay on the frontend
+        if ($request->isMethod('GET')) {
             return $next($request);
         }
 

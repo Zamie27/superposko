@@ -17,7 +17,7 @@ class UserOnlyMiddleware
     {
         $user = $request->user();
 
-        if ($user && $user->role !== 'user') {
+        if ($user && $user->role !== 'user' && $user->role !== 'trial') {
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }

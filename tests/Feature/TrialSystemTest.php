@@ -55,7 +55,7 @@ class TrialSystemTest extends TestCase
     }
 
     /**
-     * Test that an active trial user is blocked from Documentation and Member Management.
+     * Test that an active trial user can view (GET) locked pages with blurred UI but is blocked from write actions.
      */
     public function test_active_trial_user_is_blocked_from_locked_features()
     {
@@ -66,13 +66,26 @@ class TrialSystemTest extends TestCase
 
         $this->actingAs($user);
 
-        // Access documentation index (GET)
+        // Access documentation index (GET) should succeed (to show blurred overlay)
         $response = $this->get(route('host.documentation.index'));
-        $response->assertStatus(403);
+        $response->assertOk();
 
-        // Access members index (GET)
-        $response = $this->get(route('management.members.index'));
-        $response->assertStatus(403);
+        // Write to documentation (POST) should be blocked (403)
+        $responsePostDoc = $this->post(route('host.documentation.upload'), []);
+        $responsePostDoc->assertStatus(403);
+
+        // Access members index (GET) should succeed
+        $responseMembers = $this->get(route('management.members.index'));
+        $responseMembers->assertOk();
+
+        // Add member (POST) should be blocked (403)
+        $responsePostMember = $this->post(route('management.members.store'), [
+            'name' => 'Failed Member',
+            'email' => 'failed@example.com',
+            'password' => 'Password123!',
+            'role' => 'anggota',
+        ]);
+        $responsePostMember->assertStatus(403);
     }
 
     /**
@@ -96,5 +109,26 @@ class TrialSystemTest extends TestCase
         // Assert database role has updated to 'user'
         $user->refresh();
         $this->assertEquals('user', $user->role);
+    }
+
+    /**
+     * Test that a trial user can access preorder and payment checkout pages.
+     */
+    public function test_trial_user_can_access_preorder_and_payment_checkout()
+    {
+        $user = User::factory()->create([
+            'role' => 'trial',
+            'created_at' => now(),
+        ]);
+
+        $this->actingAs($user);
+
+        // Access preorder index
+        $response = $this->get(route('preorder.index'));
+        $response->assertOk();
+
+        // Access payment index
+        $response = $this->get(route('payment.index'));
+        $response->assertOk();
     }
 }

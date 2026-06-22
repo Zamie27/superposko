@@ -98,6 +98,7 @@ const features = [
     'Schedule Management (Piket & Agenda)',
     'Repository Proker (Lost & Found)',
     'Voting & Aspirasi',
+    'Manajemen Barang Bawaan Pribadi',
     'Galeri Dokumentasi (Penyimpanan 20 GB)',
     'Menambahkan Anggota Sampai 20 Akun',
     'Support 24/7'

@@ -56,26 +56,36 @@ const isLocked = computed(() => {
         <AppSidebar />
         <AppContent variant="sidebar" class="h-svh overflow-y-auto">
             <AppSidebarHeader :breadcrumbs="breadcrumbs" />
-            <div class="relative flex-1 flex flex-col">
-                <slot />
+            <div class="relative flex-1 flex flex-col min-h-[400px]">
+                <!-- Secure Slot Wrapper: Only render content if NOT locked -->
+                <template v-if="!isLocked">
+                    <slot />
+                </template>
                 <!-- Locked blur overlay for non-subscribed users viewing host pages -->
-                <div v-if="isLocked" class="absolute inset-0 bg-slate-900/10 backdrop-blur-[6px] flex flex-col items-center justify-center z-50 pointer-events-auto cursor-not-allowed">
-                     <div class="bg-white/95 border border-slate-200/80 shadow-2xl rounded-3xl p-8 max-w-sm text-center flex flex-col items-center gap-5 animate-in fade-in zoom-in duration-200">
-                          <div class="p-4 bg-sky-50 text-sky-500 rounded-full border border-sky-100 shadow-inner">
-                               <Lock class="size-9" />
-                          </div>
-                          <div>
-                               <h3 class="text-xl font-extrabold text-slate-900">Layanan ini tersedia di Langganan</h3>
-                               <p class="text-sm text-slate-500 mt-2 leading-relaxed">
-                                    Silakan lakukan Preorder terlebih dahulu untuk mengaktifkan akses Host Posko KKN Anda.
-                                </p>
-                          </div>
-                          <Link href="/user/preorder" class="w-full">
-                               <Button class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-6 rounded-xl text-sm transition shadow-md shadow-sky-100">
-                                    Preorder Sekarang
-                               </Button>
-                          </Link>
-                     </div>
+                <div v-else class="absolute inset-0 bg-slate-50/60 dark:bg-slate-900/60 backdrop-blur-md flex flex-col items-center justify-center z-50 pointer-events-auto cursor-not-allowed p-6">
+                    <div class="max-w-md p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 shadow-xl flex flex-col items-center text-center">
+                        <div class="h-16 w-16 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-500 mb-6 animate-pulse">
+                            <Lock class="w-8 h-8" />
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Fitur Premium Terkunci</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 leading-relaxed">
+                            Layanan ini hanya tersedia setelah berlangganan. Silakan aktifkan paket posko untuk mengakses fitur ini tanpa batas.
+                        </p>
+                        <div class="mt-6 flex flex-col gap-3 w-full">
+                            <Link 
+                                :href="page.props.preorder_promo_active ? '/preorder' : '/payment'" 
+                                class="flex-1 rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-white transition duration-200 text-center"
+                            >
+                                {{ page.props.preorder_promo_active ? 'Preorder Sekarang' : 'Beli Langganan' }}
+                            </Link>
+                            <Link 
+                                href="/dashboard" 
+                                class="flex-1 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition duration-200 text-center"
+                            >
+                                Kembali ke Dashboard
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </AppContent>
