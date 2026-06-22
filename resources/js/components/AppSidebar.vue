@@ -3,9 +3,9 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { 
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
-    ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase
+    ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase, Download
 } from '@lucide/vue';
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -247,6 +247,45 @@ const footerNavItems: NavItem[] = [
         icon: Info,
     },
 ];
+
+// PWA Installation prompt logic
+const deferredPrompt = ref<any>(null);
+const showInstallBtn = ref(false);
+
+const handleBeforeInstallPrompt = (e: Event) => {
+    e.preventDefault();
+    deferredPrompt.value = e;
+    showInstallBtn.value = true;
+};
+
+const handleAppInstalled = () => {
+    deferredPrompt.value = null;
+    showInstallBtn.value = false;
+};
+
+onMounted(() => {
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        showInstallBtn.value = false;
+    }
+});
+
+onUnmounted(() => {
+    window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.removeEventListener('appinstalled', handleAppInstalled);
+});
+
+const installPwa = () => {
+    if (!deferredPrompt.value) return;
+    deferredPrompt.value.prompt();
+    deferredPrompt.value.userChoice.then((choiceResult: { outcome: string }) => {
+        if (choiceResult.outcome === 'accepted') {
+            showInstallBtn.value = false;
+        }
+        deferredPrompt.value = null;
+    });
+};
 </script>
 
 <template>
@@ -273,7 +312,19 @@ const footerNavItems: NavItem[] = [
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
+            <SidebarMenu v-if="showInstallBtn" class="px-2">
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        @click="installPwa"
+                        class="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100 cursor-pointer"
+                    >
+                        <Download class="size-4" />
+                        <span>Instal Aplikasi</span>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+
+            <NavFooter :items="footerNavItems" class="pt-0" />
 
             <!-- Immich Storage Info -->
             <div v-if="page.props.immich && state !== 'collapsed'" class="mx-3 mb-2 p-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xs">
