@@ -2,6 +2,7 @@ import Auth from './Auth'
 import ReportController from './ReportController'
 import PaymentController from './PaymentController'
 import Preorder from './Preorder'
+import DashboardController from './DashboardController'
 import FinanceController from './FinanceController'
 import LogbookController from './LogbookController'
 import InventoryController from './InventoryController'
@@ -9,6 +10,7 @@ import LogisticController from './LogisticController'
 import PersonalBelongingController from './PersonalBelongingController'
 import ScheduleController from './ScheduleController'
 import MemberController from './MemberController'
+import MemberActivityLogController from './MemberActivityLogController'
 import ContactController from './ContactController'
 import ProkerDocumentController from './ProkerDocumentController'
 import VotingController from './VotingController'
@@ -21,6 +23,7 @@ const Controllers = {
     ReportController: Object.assign(ReportController, ReportController),
     PaymentController: Object.assign(PaymentController, PaymentController),
     Preorder: Object.assign(Preorder, Preorder),
+    DashboardController: Object.assign(DashboardController, DashboardController),
     FinanceController: Object.assign(FinanceController, FinanceController),
     LogbookController: Object.assign(LogbookController, LogbookController),
     InventoryController: Object.assign(InventoryController, InventoryController),
@@ -28,6 +31,7 @@ const Controllers = {
     PersonalBelongingController: Object.assign(PersonalBelongingController, PersonalBelongingController),
     ScheduleController: Object.assign(ScheduleController, ScheduleController),
     MemberController: Object.assign(MemberController, MemberController),
+    MemberActivityLogController: Object.assign(MemberActivityLogController, MemberActivityLogController),
     ContactController: Object.assign(ContactController, ContactController),
     ProkerDocumentController: Object.assign(ProkerDocumentController, ProkerDocumentController),
     VotingController: Object.assign(VotingController, VotingController),

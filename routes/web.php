@@ -19,6 +19,8 @@ use App\Http\Controllers\LogisticController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\PersonalBelongingController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MemberActivityLogController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -75,9 +77,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Host Group (under host.protect middleware to restrict user-role modifications)
     Route::middleware(['host.protect'])->group(function () {
         // Host Dashboard
-        Route::get('host/dashboard', function () {
-            return Inertia::render('Dashboard');
-        })->name('host.dashboard');
+        Route::get('host/dashboard', [DashboardController::class, 'index'])->name('host.dashboard');
 
         // Sidebar Menus
         // E-Bendahara (Kas & Keuangan)
@@ -126,6 +126,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('management/members', [MemberController::class, 'store'])->name('management.members.store');
         Route::put('management/members/{member}', [MemberController::class, 'update'])->name('management.members.update');
         Route::delete('management/members/{member}', [MemberController::class, 'destroy'])->name('management.members.destroy');
+
+        // Tracking Log Aktifitas Anggota
+        Route::get('management/activity-logs', [MemberActivityLogController::class, 'index'])->name('management.activity-logs.index');
 
         Route::get('contacts', [ContactController::class, 'index'])->name('contacts.index');
         Route::post('contacts', [ContactController::class, 'store'])->name('contacts.store');

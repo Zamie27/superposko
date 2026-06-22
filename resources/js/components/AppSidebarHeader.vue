@@ -23,5 +23,10 @@ withDefaults(
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
         </div>
+        <img
+            src="/logo_superposko.png"
+            alt="SuperPosko"
+            class="h-8 w-auto object-contain block md:hidden ml-auto"
+        />
     </header>
 </template>

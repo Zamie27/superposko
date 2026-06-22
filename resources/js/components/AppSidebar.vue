@@ -200,6 +200,12 @@ const navGroups = computed<NavGroup[]>(() => {
                     icon: Users,
                     locked: !isSubscribed,
                 },
+                {
+                    title: 'Log Aktifitas',
+                    href: '/management/activity-logs',
+                    icon: Clock,
+                    locked: !isSubscribed,
+                },
             ],
         },
         {

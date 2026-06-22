@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { 
     Calendar, Clock, MapPin, Trash2, Plus, Edit3, X, User as UserIcon, Check, CalendarDays, ClipboardList
 } from '@lucide/vue';
@@ -58,6 +58,23 @@ defineOptions({
 });
 
 const activeTab = ref<'piket' | 'agenda'>('piket');
+const highlightedEventId = ref<number | null>(null);
+
+onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+    const eventIdParam = params.get('event_id');
+    if (eventIdParam) {
+        activeTab.value = 'agenda';
+        highlightedEventId.value = parseInt(eventIdParam);
+        
+        setTimeout(() => {
+            const element = document.getElementById(`event-card-${eventIdParam}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 200);
+    }
+});
 
 // Roster Form Modal States
 const isRosterModalOpen = ref(false);
@@ -340,10 +357,16 @@ const formatDateTime = (isoString: string) => {
                 <div 
                     v-for="event in events" 
                     :key="event.id" 
-                    class="bg-white rounded-2xl border border-slate-100 shadow-xs hover:shadow-md transition p-5 flex flex-col gap-4 relative overflow-hidden"
+                    :id="`event-card-${event.id}`"
+                    :class="[
+                        'bg-white rounded-2xl border transition p-5 flex flex-col gap-4 relative overflow-hidden',
+                        highlightedEventId === event.id 
+                            ? 'border-sky-500 shadow-md ring-2 ring-sky-500/20 dark:ring-sky-500/40 bg-sky-50/10 dark:bg-sky-500/5 scale-[1.02] duration-300' 
+                            : 'border-slate-100 shadow-xs hover:shadow-md'
+                    ]"
                 >
                     <!-- Event Accent Border -->
-                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-sky-500"></div>
+                    <div :class="['absolute left-0 top-0 bottom-0 w-1', highlightedEventId === event.id ? 'bg-sky-600' : 'bg-sky-500']"></div>
 
                     <!-- Event Content Header -->
                     <div class="flex justify-between items-start gap-4 pl-1">
