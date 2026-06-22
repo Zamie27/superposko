@@ -26,17 +26,17 @@ class EmailVerificationOtpController extends Controller
 
         $otpInput = $request->input('otp');
 
+        $expiresAt = $user->verification_otp_expires_at;
         if ($user->verification_otp !== $otpInput || 
-            !$user->verification_otp_expires_at || 
-            $user->verification_otp_expires_at->isPast()) {
+            !$expiresAt || 
+            \Illuminate\Support\Carbon::parse($expiresAt)->isPast()) {
             
-            /** @var RedirectResponse $response */
-            $response = Inertia::flash('toast', [
+            Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'Kode OTP tidak valid atau telah kedaluwarsa.',
-            ])->back()->withErrors(['otp' => 'Kode OTP tidak valid atau telah kedaluwarsa.']);
+            ]);
 
-            return $response;
+            return back()->withErrors(['otp' => 'Kode OTP tidak valid atau telah kedaluwarsa.']);
         }
 
         // Mark user as verified

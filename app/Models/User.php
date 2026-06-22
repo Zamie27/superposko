@@ -25,6 +25,10 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
  * @property Carbon|null $subscription_expires_at
+ * @property Carbon|null $trial_ends_at
+ * @property Carbon|null $banned_at
+ * @property string|null $verification_otp
+ * @property Carbon|null $verification_otp_expires_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */

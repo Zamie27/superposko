@@ -19,7 +19,7 @@ class CheckTrialExpiration
 
         if ($user && $user->role === 'trial') {
             $endsAt = $user->trial_ends_at ?? $user->created_at->addDays(5);
-            if ($endsAt->isPast()) {
+            if (\Illuminate\Support\Carbon::parse($endsAt)->isPast()) {
                 $user->update(['role' => 'user']);
             }
         }
