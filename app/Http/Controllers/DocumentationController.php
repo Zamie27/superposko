@@ -42,9 +42,9 @@ class DocumentationController extends Controller
         $host = User::find($hostId);
 
         if ($host) {
-            $this->apiKey = $host->immich_api_key ?: config('services.immich.api_key', '');
-            $this->immichEmail = $host->immich_email ?: config('services.immich.email', '');
-            $this->immichPassword = $host->immich_password ?: config('services.immich.password', '');
+            $this->apiKey = ($host->immich_api_key ?: config('services.immich.api_key')) ?? '';
+            $this->immichEmail = ($host->immich_email ?: config('services.immich.email')) ?? '';
+            $this->immichPassword = ($host->immich_password ?: config('services.immich.password')) ?? '';
         }
 
         return ! empty($this->apiKey) && ! empty($this->url);
@@ -70,7 +70,7 @@ class DocumentationController extends Controller
                 'immichPassword' => $immichPassword,
                 'canWrite' => $canWrite,
                 'showCredentials' => $canManageImmich,
-                'error' => 'API Key Immich belum dikonfigurasi oleh Admin untuk Posko Anda.',
+                'error' => 'mohon tunggu storage dokumentasi sedang disiapkan oleh admin. tunggu paling lama 1x24 jam.',
             ]);
         }
 

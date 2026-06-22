@@ -164,6 +164,8 @@ const submitForm = () => {
         form.post(`/finance/${editingRecord.value.id}`, {
             onSuccess: () => {
                 isModalOpen.value = false;
+                form.reset();
+                filePreview.value = null;
                 toast.success('Transaksi berhasil diperbarui');
             },
             onError: (err) => {
@@ -174,6 +176,8 @@ const submitForm = () => {
         form.post('/finance', {
             onSuccess: () => {
                 isModalOpen.value = false;
+                form.reset();
+                filePreview.value = null;
                 toast.success('Transaksi berhasil dicatat');
             },
             onError: (err) => {

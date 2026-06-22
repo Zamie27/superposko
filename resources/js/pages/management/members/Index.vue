@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { Eye, EyeOff } from '@lucide/vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,10 +39,24 @@ const form = useForm({
     role: 'anggota',
 });
 
+const showPassword = ref(false);
+
+const passwordRules = computed(() => {
+    const pwd = form.password || '';
+    return {
+        minLength: pwd.length >= 8,
+        hasUppercase: /[A-Z]/.test(pwd),
+        hasLowercase: /[a-z]/.test(pwd),
+        hasNumber: /[0-9]/.test(pwd),
+        hasSpecial: /[^A-Za-z0-9]/.test(pwd),
+    };
+});
+
 const openCreateModal = () => {
     editingMember.value = null;
     form.reset();
     form.clearErrors();
+    showPassword.value = false;
     isModalOpen.value = true;
 };
 
@@ -52,6 +67,7 @@ const openEditModal = (member: any) => {
     form.password = '';
     form.role = member.role;
     form.clearErrors();
+    showPassword.value = false;
     isModalOpen.value = true;
 };
 
@@ -207,8 +223,49 @@ defineOptions({
 
                         <div class="grid gap-2">
                             <Label for="password">Password {{ editingMember ? '(Kosongkan jika tidak ingin diubah)' : '' }}</Label>
-                            <Input id="password" type="password" v-model="form.password" />
+                            <div class="relative">
+                                <Input 
+                                    id="password" 
+                                    :type="showPassword ? 'text' : 'password'" 
+                                    v-model="form.password" 
+                                    class="pr-10" 
+                                    placeholder="Masukkan password"
+                                />
+                                <button 
+                                    type="button" 
+                                    @click="showPassword = !showPassword" 
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none"
+                                >
+                                    <Eye v-if="!showPassword" class="size-4" />
+                                    <EyeOff v-else class="size-4" />
+                                </button>
+                            </div>
                             <InputError :message="form.errors.password" />
+
+                            <!-- Password Strength Indicator -->
+                            <div v-if="form.password" class="mt-2 space-y-1.5 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border text-xs leading-normal">
+                                <div class="font-semibold text-slate-500 mb-1">Persyaratan Password:</div>
+                                <div class="flex items-center gap-2" :class="passwordRules.minLength ? 'text-green-600 dark:text-green-400' : 'text-slate-400'">
+                                    <span class="size-1.5 rounded-full shrink-0" :class="passwordRules.minLength ? 'bg-green-600 dark:bg-green-400' : 'bg-slate-300 dark:bg-slate-700'"></span>
+                                    <span>Minimal 8 karakter</span>
+                                </div>
+                                <div class="flex items-center gap-2" :class="passwordRules.hasUppercase ? 'text-green-600 dark:text-green-400' : 'text-slate-400'">
+                                    <span class="size-1.5 rounded-full shrink-0" :class="passwordRules.hasUppercase ? 'bg-green-600 dark:bg-green-400' : 'bg-slate-300 dark:bg-slate-700'"></span>
+                                    <span>Mengandung huruf besar (A-Z)</span>
+                                </div>
+                                <div class="flex items-center gap-2" :class="passwordRules.hasLowercase ? 'text-green-600 dark:text-green-400' : 'text-slate-400'">
+                                    <span class="size-1.5 rounded-full shrink-0" :class="passwordRules.hasLowercase ? 'bg-green-600 dark:bg-green-400' : 'bg-slate-300 dark:bg-slate-700'"></span>
+                                    <span>Mengandung huruf kecil (a-z)</span>
+                                </div>
+                                <div class="flex items-center gap-2" :class="passwordRules.hasNumber ? 'text-green-600 dark:text-green-400' : 'text-slate-400'">
+                                    <span class="size-1.5 rounded-full shrink-0" :class="passwordRules.hasNumber ? 'bg-green-600 dark:bg-green-400' : 'bg-slate-300 dark:bg-slate-700'"></span>
+                                    <span>Mengandung angka (0-9)</span>
+                                </div>
+                                <div class="flex items-center gap-2" :class="passwordRules.hasSpecial ? 'text-green-600 dark:text-green-400' : 'text-slate-400'">
+                                    <span class="size-1.5 rounded-full shrink-0" :class="passwordRules.hasSpecial ? 'bg-green-600 dark:bg-green-400' : 'bg-slate-300 dark:bg-slate-700'"></span>
+                                    <span>Mengandung simbol atau karakter khusus</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="grid gap-2">

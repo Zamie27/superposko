@@ -94,6 +94,16 @@ class ScheduleController extends Controller
             abort(403, 'Akses ditolak.');
         }
 
+        // Validate that user is not already assigned to another task on the same day
+        $exists = DutyRoster::where('host_id', $hostId)
+            ->where('day_of_week', $validated['day_of_week'])
+            ->where('user_id', $validated['user_id'])
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['user_id' => 'Anggota ini sudah memiliki tugas piket di hari yang sama.']);
+        }
+
         $roster = DutyRoster::create([
             'host_id' => $hostId,
             'day_of_week' => $validated['day_of_week'],

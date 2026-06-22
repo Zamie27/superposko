@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\ScheduleController::store
-* @see app/Http/Controllers/ScheduleController.php:141
+* @see app/Http/Controllers/ScheduleController.php:151
 * @route '/management/schedule/event'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\ScheduleController::store
-* @see app/Http/Controllers/ScheduleController.php:141
+* @see app/Http/Controllers/ScheduleController.php:151
 * @route '/management/schedule/event'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ScheduleController::store
-* @see app/Http/Controllers/ScheduleController.php:141
+* @see app/Http/Controllers/ScheduleController.php:151
 * @route '/management/schedule/event'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\ScheduleController::store
-* @see app/Http/Controllers/ScheduleController.php:141
+* @see app/Http/Controllers/ScheduleController.php:151
 * @route '/management/schedule/event'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\ScheduleController::store
-* @see app/Http/Controllers/ScheduleController.php:141
+* @see app/Http/Controllers/ScheduleController.php:151
 * @route '/management/schedule/event'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\ScheduleController::update
-* @see app/Http/Controllers/ScheduleController.php:180
+* @see app/Http/Controllers/ScheduleController.php:190
 * @route '/management/schedule/event/{event}'
 */
 export const update = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -72,7 +72,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\ScheduleController::update
-* @see app/Http/Controllers/ScheduleController.php:180
+* @see app/Http/Controllers/ScheduleController.php:190
 * @route '/management/schedule/event/{event}'
 */
 update.url = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -105,7 +105,7 @@ update.url = (args: { event: number | { id: number } } | [event: number | { id: 
 
 /**
 * @see \App\Http\Controllers\ScheduleController::update
-* @see app/Http/Controllers/ScheduleController.php:180
+* @see app/Http/Controllers/ScheduleController.php:190
 * @route '/management/schedule/event/{event}'
 */
 update.put = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -115,7 +115,7 @@ update.put = (args: { event: number | { id: number } } | [event: number | { id: 
 
 /**
 * @see \App\Http\Controllers\ScheduleController::update
-* @see app/Http/Controllers/ScheduleController.php:180
+* @see app/Http/Controllers/ScheduleController.php:190
 * @route '/management/schedule/event/{event}'
 */
 const updateForm = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -130,7 +130,7 @@ const updateForm = (args: { event: number | { id: number } } | [event: number | 
 
 /**
 * @see \App\Http\Controllers\ScheduleController::update
-* @see app/Http/Controllers/ScheduleController.php:180
+* @see app/Http/Controllers/ScheduleController.php:190
 * @route '/management/schedule/event/{event}'
 */
 updateForm.put = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +147,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:217
+* @see app/Http/Controllers/ScheduleController.php:227
 * @route '/management/schedule/event/{event}'
 */
 export const destroy = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -162,7 +162,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:217
+* @see app/Http/Controllers/ScheduleController.php:227
 * @route '/management/schedule/event/{event}'
 */
 destroy.url = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -195,7 +195,7 @@ destroy.url = (args: { event: number | { id: number } } | [event: number | { id:
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:217
+* @see app/Http/Controllers/ScheduleController.php:227
 * @route '/management/schedule/event/{event}'
 */
 destroy.delete = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -205,7 +205,7 @@ destroy.delete = (args: { event: number | { id: number } } | [event: number | { 
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:217
+* @see app/Http/Controllers/ScheduleController.php:227
 * @route '/management/schedule/event/{event}'
 */
 const destroyForm = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -220,7 +220,7 @@ const destroyForm = (args: { event: number | { id: number } } | [event: number |
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:217
+* @see app/Http/Controllers/ScheduleController.php:227
 * @route '/management/schedule/event/{event}'
 */
 destroyForm.delete = (args: { event: number | { id: number } } | [event: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

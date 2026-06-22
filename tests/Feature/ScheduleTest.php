@@ -81,6 +81,31 @@ class ScheduleTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_host_cannot_assign_same_member_multiple_times_on_same_day(): void
+    {
+        // First assignment
+        DutyRoster::create([
+            'host_id' => $this->host->id,
+            'day_of_week' => 'monday',
+            'task_name' => 'Masak & Belanja',
+            'user_id' => $this->member->id,
+        ]);
+
+        // Try second assignment for the same member on Monday
+        $response = $this->actingAs($this->host)->post(route('management.schedule.roster.store'), [
+            'day_of_week' => 'monday',
+            'task_name' => 'Bebersih Posko',
+            'user_id' => $this->member->id,
+        ]);
+
+        $response->assertSessionHasErrors(['user_id']);
+        
+        $this->assertDatabaseMissing('duty_rosters', [
+            'task_name' => 'Bebersih Posko',
+            'user_id' => $this->member->id,
+        ]);
+    }
+
     public function test_host_can_delete_piket(): void
     {
         $roster = DutyRoster::create([

@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:116
+* @see app/Http/Controllers/ScheduleController.php:126
 * @route '/management/schedule/roster/{roster}'
 */
 export const destroy = (args: { roster: number | { id: number } } | [roster: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -72,7 +72,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:116
+* @see app/Http/Controllers/ScheduleController.php:126
 * @route '/management/schedule/roster/{roster}'
 */
 destroy.url = (args: { roster: number | { id: number } } | [roster: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -105,7 +105,7 @@ destroy.url = (args: { roster: number | { id: number } } | [roster: number | { i
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:116
+* @see app/Http/Controllers/ScheduleController.php:126
 * @route '/management/schedule/roster/{roster}'
 */
 destroy.delete = (args: { roster: number | { id: number } } | [roster: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -115,7 +115,7 @@ destroy.delete = (args: { roster: number | { id: number } } | [roster: number | 
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:116
+* @see app/Http/Controllers/ScheduleController.php:126
 * @route '/management/schedule/roster/{roster}'
 */
 const destroyForm = (args: { roster: number | { id: number } } | [roster: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -130,7 +130,7 @@ const destroyForm = (args: { roster: number | { id: number } } | [roster: number
 
 /**
 * @see \App\Http\Controllers\ScheduleController::destroy
-* @see app/Http/Controllers/ScheduleController.php:116
+* @see app/Http/Controllers/ScheduleController.php:126
 * @route '/management/schedule/roster/{roster}'
 */
 destroyForm.delete = (args: { roster: number | { id: number } } | [roster: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

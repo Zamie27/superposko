@@ -31,9 +31,9 @@ const user = computed(() => page.props.auth.user as any);
 const nameForm = useForm({
     name: user.value.name,
     email: user.value.email, // backend requires email in validation rules
-    university: user.value.university || '-',
-    group_number: user.value.group_number || '-',
-    kkn_address: user.value.kkn_address || '-',
+    university: user.value.university || '',
+    group_number: user.value.group_number || '',
+    kkn_address: user.value.kkn_address || '',
 });
 
 const submitName = () => {
@@ -206,7 +206,7 @@ const togglePushSubscription = async () => {
             <Heading
                 variant="small"
                 title="Profil Umum"
-                description="Perbarui nama akun Anda"
+                description="Perbarui informasi profil dan detail KKN Anda"
             />
 
             <form @submit.prevent="submitName" class="space-y-6 max-w-xl">
@@ -223,10 +223,46 @@ const togglePushSubscription = async () => {
                     <InputError class="mt-2" :message="nameForm.errors.name" />
                 </div>
 
+                <div class="grid gap-2">
+                    <Label for="university">Asal Universitas</Label>
+                    <Input
+                        id="university"
+                        class="mt-1 block w-full"
+                        v-model="nameForm.university"
+                        required
+                        placeholder="Asal Universitas"
+                    />
+                    <InputError class="mt-2" :message="nameForm.errors.university" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="group_number">Nomor / Kelompok KKN</Label>
+                    <Input
+                        id="group_number"
+                        class="mt-1 block w-full"
+                        v-model="nameForm.group_number"
+                        required
+                        placeholder="Nomor / Kelompok KKN"
+                    />
+                    <InputError class="mt-2" :message="nameForm.errors.group_number" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="kkn_address">Alamat Posko KKN</Label>
+                    <Input
+                        id="kkn_address"
+                        class="mt-1 block w-full"
+                        v-model="nameForm.kkn_address"
+                        required
+                        placeholder="Alamat Posko KKN"
+                    />
+                    <InputError class="mt-2" :message="nameForm.errors.kkn_address" />
+                </div>
+
                 <div class="flex items-center gap-4">
                     <Button :disabled="nameForm.processing" class="bg-sky-500 hover:bg-sky-600 text-white font-bold cursor-pointer">
                         <Spinner v-if="nameForm.processing" />
-                        Simpan Nama
+                        Simpan Perubahan
                     </Button>
                 </div>
             </form>
