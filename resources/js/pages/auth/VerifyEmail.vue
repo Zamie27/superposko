@@ -3,12 +3,12 @@ import { Head, useForm, router, Link, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
 import {
     InputOTP,
     InputOTPGroup,
     InputOTPSlot,
 } from '@/components/ui/input-otp';
+import { Spinner } from '@/components/ui/spinner';
 import { logout } from '@/routes';
 
 defineOptions({

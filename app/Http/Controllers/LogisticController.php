@@ -237,7 +237,7 @@ class LogisticController extends Controller
         $keluarDetails = [];
 
         foreach ($validated['items'] as $item) {
-            $logistic = Logistic::findOrFail($item['id']);
+            $logistic = Logistic::where('id', $item['id'])->firstOrFail();
 
             // Posko isolation check
             if ($logistic->host_id !== $hostId) {

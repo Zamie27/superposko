@@ -29,7 +29,7 @@ class FinanceController extends Controller
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($fin) {
+            ->map(function (Finance $fin) {
                 return [
                     'id' => $fin->id,
                     'type' => $fin->type,

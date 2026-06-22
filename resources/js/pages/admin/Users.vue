@@ -3,8 +3,8 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { Search, Key, Shield, ArrowLeft, Check, AlertCircle } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 
@@ -78,11 +78,13 @@ const openResetModal = (user: any) => {
 const handleResetPassword = async () => {
     if (!newPassword.value) {
         errorMessage.value = 'Silakan isi password baru.';
+
         return;
     }
 
     if (newPassword.value.length < 8) {
         errorMessage.value = 'Password minimal 8 karakter.';
+
         return;
     }
     
@@ -105,6 +107,7 @@ const handleResetPassword = async () => {
         });
 
         const data = await response.json();
+
         if (data.success) {
             successMessage.value = data.message;
             setTimeout(() => {
@@ -181,6 +184,7 @@ const handleUpdateRole = async () => {
         });
 
         const data = await response.json();
+
         if (data.success) {
             successMessage.value = data.message;
             router.reload({ only: ['users'] });
@@ -202,11 +206,15 @@ const isTrialModalOpen = ref(false);
 const trialDays = ref(5);
 
 const getTrialDaysLeft = (endsAtStr: string | null) => {
-    if (!endsAtStr) return 0;
+    if (!endsAtStr) {
+return 0;
+}
+
     const endsAt = new Date(endsAtStr);
     const now = new Date();
     const diffTime = endsAt.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
     return Math.max(0, diffDays);
 };
 
@@ -237,6 +245,7 @@ const handleUpdateTrial = async () => {
         });
 
         const data = await response.json();
+
         if (data.success) {
             successMessage.value = data.message;
             router.reload({ only: ['users'] });
@@ -261,7 +270,9 @@ const handleBanUser = async (user: any) => {
         cancelText: 'Batal',
     });
 
-    if (!isConfirmed) return;
+    if (!isConfirmed) {
+return;
+}
 
     try {
         const response = await fetch(`/admin/users/${user.id}/ban`, {
@@ -274,6 +285,7 @@ const handleBanUser = async (user: any) => {
         });
 
         const data = await response.json();
+
         if (data.success) {
             toast.success(data.message);
             router.reload({ only: ['users'] });
@@ -293,7 +305,9 @@ const handleUnbanUser = async (user: any) => {
         cancelText: 'Batal',
     });
 
-    if (!isConfirmed) return;
+    if (!isConfirmed) {
+return;
+}
 
     try {
         const response = await fetch(`/admin/users/${user.id}/unban`, {
@@ -306,6 +320,7 @@ const handleUnbanUser = async (user: any) => {
         });
 
         const data = await response.json();
+
         if (data.success) {
             toast.success(data.message);
             router.reload({ only: ['users'] });
@@ -320,9 +335,11 @@ const handleUnbanUser = async (user: any) => {
 const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
+
     if (parts.length === 2) {
         return decodeURIComponent(parts.pop()?.split(';').shift() || '');
     }
+
     return '';
 };
 </script>

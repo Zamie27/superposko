@@ -4,8 +4,8 @@ import { CreditCard, CheckCircle as CheckCircle2, AlertTriangle, XCircle, Info }
 import { onMounted, ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { dashboard } from '@/routes';
 import { useToast } from '@/composables/useToast';
+import { dashboard } from '@/routes';
 
 const props = defineProps<{
     midtransClientKey: string;

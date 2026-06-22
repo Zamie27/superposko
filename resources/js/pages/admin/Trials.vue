@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Search, Calendar, ArrowLeft, Check, AlertCircle, Clock } from '@lucide/vue';
+import { Search, ArrowLeft, Check, AlertCircle, Clock } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 
@@ -66,6 +66,7 @@ const openTrialModal = (user: any) => {
 const handleUpdateTrial = async () => {
     if (!trialDaysInput.value || trialDaysInput.value < 1) {
         errorMessage.value = 'Silakan masukkan jumlah hari yang valid (minimal 1 hari).';
+
         return;
     }
 
@@ -87,6 +88,7 @@ const handleUpdateTrial = async () => {
         });
 
         const data = await response.json();
+
         if (data.success) {
             successMessage.value = data.message;
             toast.success(data.message || 'Trial berhasil diperbarui.');
@@ -138,34 +140,51 @@ const handleRevokeTrial = async (user: any) => {
 const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
+
     if (parts.length === 2) {
         return decodeURIComponent(parts.pop()?.split(';').shift() || '');
     }
+
     return '';
 };
 
 const getRemainingDays = (user: any): number => {
-    if (user.role !== 'trial') return 0;
+    if (user.role !== 'trial') {
+return 0;
+}
+
     const endsAt = user.trial_ends_at 
         ? new Date(user.trial_ends_at.replace(' ', 'T')) 
         : new Date(new Date(user.created_at).getTime() + 5 * 24 * 60 * 60 * 1000);
     const diffTime = endsAt.getTime() - new Date().getTime();
+
     return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 };
 
 const isExpired = (user: any): boolean => {
-    if (user.role !== 'trial') return true;
+    if (user.role !== 'trial') {
+return true;
+}
+
     const endsAt = user.trial_ends_at 
         ? new Date(user.trial_ends_at.replace(' ', 'T')) 
         : new Date(new Date(user.created_at).getTime() + 5 * 24 * 60 * 60 * 1000);
+
     return endsAt < new Date();
 };
 
 const formatDate = (dateString: string | null) => {
-    if (!dateString) return '-';
+    if (!dateString) {
+return '-';
+}
+
     const safeString = String(dateString).replace(' ', 'T');
     const date = new Date(safeString);
-    if (isNaN(date.getTime())) return dateString;
+
+    if (isNaN(date.getTime())) {
+return dateString;
+}
+
     return date.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 };
 </script>

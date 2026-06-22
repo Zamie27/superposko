@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted } from 'vue';
 import { 
     Plus, Vote, MessageSquare, ThumbsUp, Trash2, Calendar, 
     User, Check, Clock, Reply, CheckCircle2
 } from '@lucide/vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import InputError from '@/components/InputError.vue';
+import { Label } from '@/components/ui/label';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 
@@ -213,7 +213,9 @@ const openRespondModal = (aspiration: Aspiration) => {
 };
 
 const submitResponse = () => {
-    if (!respondingAspiration.value) return;
+    if (!respondingAspiration.value) {
+return;
+}
 
     respondForm.put(`/voting/aspiration/${respondingAspiration.value.id}/respond`, {
         onSuccess: () => {
@@ -243,7 +245,10 @@ const deleteAspiration = async (id: number) => {
 };
 
 const calculatePercent = (votesCount: number, totalVotes: number) => {
-    if (totalVotes === 0) return 0;
+    if (totalVotes === 0) {
+return 0;
+}
+
     return Math.round((votesCount / totalVotes) * 100);
 };
 

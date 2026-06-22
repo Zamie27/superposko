@@ -5,6 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $host_id
+ * @property string $source
+ * @property int|null $owner_id
+ * @property float|null $purchase_price
+ * @property int|null $finance_id
+ * @property string $name
+ * @property float $quantity
+ * @property string $unit
+ * @property string $status
+ * @property string|null $notes
+ * @property User $host
+ * @property User|null $owner
+ * @property Finance|null $finance
+ */
 class Logistic extends Model
 {
     protected $fillable = [

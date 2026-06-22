@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import { 
-    Plus, Edit, Trash2, Calendar, FileText, ArrowUpRight, ArrowDownLeft, Wallet, 
+    Plus, Edit, Trash2, FileText, ArrowUpRight, ArrowDownLeft, Wallet, 
     X, ImageIcon, Search, Filter, Printer, ExternalLink, Info
 } from '@lucide/vue';
+import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { useToast } from '@/composables/useToast';
 import { useConfirm } from '@/composables/useConfirm';
+import { useToast } from '@/composables/useToast';
 
 interface ProgramKerja {
     id: number;
@@ -113,6 +113,7 @@ const prokerSpentBreakdown = computed(() => {
         const spent = props.finances
             .filter(f => f.program_kerja_id === proker.id && f.type === 'expense')
             .reduce((sum, f) => sum + f.amount, 0);
+
         return {
             ...proker,
             spent,
@@ -146,6 +147,7 @@ const openEditModal = (record: FinanceRecord) => {
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files[0]) {
         const file = target.files[0];
         form.receipt_file = file;
@@ -168,7 +170,7 @@ const submitForm = () => {
                 filePreview.value = null;
                 toast.success('Transaksi berhasil diperbarui');
             },
-            onError: (err) => {
+            onError: () => {
                 toast.error('Gagal memperbarui transaksi. Cek isian Anda.');
             }
         });
@@ -180,7 +182,7 @@ const submitForm = () => {
                 filePreview.value = null;
                 toast.success('Transaksi berhasil dicatat');
             },
-            onError: (err) => {
+            onError: () => {
                 toast.error('Gagal menyimpan transaksi. Cek isian Anda.');
             }
         });

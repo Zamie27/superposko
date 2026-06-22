@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Settings, ArrowLeft, CheckCircle2, Server, Globe } from '@lucide/vue';
+import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { ref } from 'vue';
 
 const props = defineProps<{
     settings: {
@@ -39,13 +39,18 @@ defineOptions({
 const activeTab = ref<'general' | 'api' | 'event'>('general');
 
 const cleanInitialPhone = (phone: string) => {
-    if (!phone) return '';
+    if (!phone) {
+return '';
+}
+
     let clean = phone.replace(/[^0-9]/g, '');
+
     if (clean.startsWith('62')) {
         clean = clean.substring(2);
     } else if (clean.startsWith('0')) {
         clean = clean.substring(1);
     }
+
     return clean;
 };
 
@@ -74,11 +79,13 @@ const form = useForm({
 
 const updatePhoneValue = () => {
     let cleaned = displayPhone.value.replace(/[^0-9]/g, '');
+
     if (cleaned.startsWith('62')) {
         cleaned = cleaned.substring(2);
     } else if (cleaned.startsWith('0')) {
         cleaned = cleaned.substring(1);
     }
+
     displayPhone.value = cleaned;
     form.footerPhone = '62' + cleaned;
 };

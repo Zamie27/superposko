@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useConfirm } from '@/composables/useConfirm';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { AlertTriangle, HelpCircle } from '@lucide/vue';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useConfirm } from '@/composables/useConfirm';
 
 const { isOpen, title, message, confirmText, cancelText, variant, handleConfirm, handleCancel } = useConfirm();
 </script>

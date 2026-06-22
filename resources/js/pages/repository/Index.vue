@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import { 
     FileText, FileSpreadsheet, FileArchive, FileImage, File, 
     Download, Trash2, Plus, Search, X, Folder, Loader2, Eye
 } from '@lucide/vue';
+import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/composables/useToast';
 import { useConfirm } from '@/composables/useConfirm';
+import { useToast } from '@/composables/useToast';
 
 // Preview state
 const isPreviewModalOpen = ref(false);
@@ -33,6 +33,7 @@ const isPdfFile = (mimeType: string) => {
 
 const canPreviewInline = (mimeType: string) => {
     const mime = mimeType.toLowerCase();
+
     return mime.startsWith('image/') || mime.includes('pdf');
 };
 
@@ -114,9 +115,11 @@ const closeModal = () => {
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files.length > 0) {
         selectedFile.value = target.files[0];
         form.file = target.files[0];
+
         if (!form.title) {
             // Auto-fill title with file name minus extension
             const nameWithoutExt = target.files[0].name.replace(/\.[^/.]+$/, "");
@@ -128,6 +131,7 @@ const handleFileChange = (e: Event) => {
 const submitForm = () => {
     if (!form.file) {
         toast.error('Silakan pilih berkas dokumen terlebih dahulu.');
+
         return;
     }
 
@@ -218,18 +222,23 @@ const getFileIconAndColor = (fileName: string, mime: string) => {
     if (ext === 'pdf' || mime.includes('pdf')) {
         return { icon: FileText, color: 'text-red-500 bg-red-50 border-red-100' };
     }
+
     if (['doc', 'docx'].includes(ext || '') || mime.includes('word') || mime.includes('officedocument.wordprocessingml')) {
         return { icon: FileText, color: 'text-blue-500 bg-blue-50 border-blue-100' };
     }
+
     if (['xls', 'xlsx'].includes(ext || '') || mime.includes('excel') || mime.includes('sheet') || mime.includes('officedocument.spreadsheetml')) {
         return { icon: FileSpreadsheet, color: 'text-emerald-500 bg-emerald-50 border-emerald-100' };
     }
+
     if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext || '') || mime.includes('zip') || mime.includes('compressed')) {
         return { icon: FileArchive, color: 'text-purple-500 bg-purple-50 border-purple-100' };
     }
+
     if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(ext || '') || mime.includes('image')) {
         return { icon: FileImage, color: 'text-pink-500 bg-pink-50 border-pink-100' };
     }
+
     return { icon: File, color: 'text-slate-500 bg-slate-50 border-slate-100' };
 };
 </script>

@@ -87,19 +87,21 @@ class AdminNotificationController extends Controller
         $webPush = new WebPush($auth);
 
         foreach ($subscriptions as $sub) {
+            $payload = json_encode([
+                'title' => $validated['title'],
+                'body' => $validated['body'],
+                'data' => [
+                    'url' => $validated['url'] ?? '/',
+                ],
+            ]);
+
             $webPush->queueNotification(
                 Subscription::create([
                     'endpoint' => $sub->endpoint,
                     'publicKey' => $sub->public_key,
                     'authToken' => $sub->auth_token,
                 ]),
-                json_encode([
-                    'title' => $validated['title'],
-                    'body' => $validated['body'],
-                    'data' => [
-                        'url' => $validated['url'] ?? '/',
-                    ],
-                ])
+                $payload !== false ? $payload : null
             );
         }
 

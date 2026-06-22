@@ -50,7 +50,7 @@ class ScheduleController extends Controller
             ->with('creator:id,name')
             ->orderBy('start_time', 'asc')
             ->get()
-            ->map(function ($event) {
+            ->map(function (Event $event) {
                 return [
                     'id' => $event->id,
                     'title' => $event->title,
@@ -89,7 +89,7 @@ class ScheduleController extends Controller
         $hostId = $user->host_id ?? $user->id;
 
         // Verify target user belongs to same posko
-        $targetUser = User::find($validated['user_id']);
+        $targetUser = User::where('id', $validated['user_id'])->first();
         if (! $targetUser || ($targetUser->host_id !== $hostId && $targetUser->id !== $hostId)) {
             abort(403, 'Akses ditolak.');
         }

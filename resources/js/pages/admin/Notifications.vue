@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Bell, Mail, Send, ShieldCheck, HelpCircle, AlertCircle } from '@lucide/vue';
+import { ArrowLeft, Bell, Mail, Send, ShieldCheck } from '@lucide/vue';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useToast } from '@/composables/useToast';
 
-const props = defineProps<{
+defineProps<{
     stats: {
         totalUsers: number;
         totalHosts: number;
@@ -49,9 +49,11 @@ const isEmailProcessing = ref(false);
 const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
+
     if (parts.length === 2) {
         return decodeURIComponent(parts.pop()?.split(';').shift() || '');
     }
+
     return '';
 };
 
@@ -59,6 +61,7 @@ const getCookie = (name: string): string => {
 const handleSendPush = async () => {
     if (!pushForm.value.title || !pushForm.value.body) {
         toast.error('Judul dan isi pesan push wajib diisi!');
+
         return;
     }
 
@@ -76,6 +79,7 @@ const handleSendPush = async () => {
         });
 
         const data = await response.json();
+
         if (response.ok && data.success) {
             toast.success(data.message || 'Push Notification berhasil dikirim.');
             pushForm.value.title = '';
@@ -95,6 +99,7 @@ const handleSendPush = async () => {
 const handleSendEmail = async () => {
     if (!emailForm.value.subject || !emailForm.value.body) {
         toast.error('Subjek dan isi email wajib diisi!');
+
         return;
     }
 
@@ -112,6 +117,7 @@ const handleSendEmail = async () => {
         });
 
         const data = await response.json();
+
         if (response.ok && data.success) {
             toast.success(data.message || 'Email broadcast berhasil dikirim ke antrean.');
             emailForm.value.subject = '';

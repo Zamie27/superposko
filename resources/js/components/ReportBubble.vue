@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import { usePage, useForm } from '@inertiajs/vue3';
 import { Headphones, X, Image as ImageIcon, Send, AlertCircle, MessageCircle } from '@lucide/vue';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -22,6 +22,7 @@ const footerPhone = computed(() => (page.props.footer_phone as string) || '62851
 
 const whatsappUrl = computed(() => {
     const cleanPhone = footerPhone.value.replace(/[^0-9]/g, '');
+
     return `https://wa.me/${cleanPhone}`;
 });
 
@@ -34,7 +35,9 @@ const form = useForm({
 });
 
 const openModal = () => {
-    if (!isLoggedIn.value) return;
+    if (!isLoggedIn.value) {
+return;
+}
 
     form.email = user.value.email;
     form.type = 'bug';
@@ -47,6 +50,7 @@ const openModal = () => {
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files[0]) {
         const file = target.files[0];
         form.screenshot = file;
@@ -67,7 +71,10 @@ const triggerFileInput = () => {
 const removeImage = () => {
     form.screenshot = null;
     imagePreview.value = null;
-    if (fileInput.value) fileInput.value.value = '';
+
+    if (fileInput.value) {
+fileInput.value.value = '';
+}
 };
 
 const submitReport = () => {

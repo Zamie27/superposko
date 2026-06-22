@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import { Eye, EyeOff } from '@lucide/vue';
+import { ref, computed } from 'vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import {
@@ -43,6 +43,7 @@ const showPassword = ref(false);
 
 const passwordRules = computed(() => {
     const pwd = form.password || '';
+
     return {
         minLength: pwd.length >= 8,
         hasUppercase: /[A-Z]/.test(pwd),

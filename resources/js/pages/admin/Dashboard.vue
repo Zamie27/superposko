@@ -39,9 +39,18 @@ defineOptions({
 });
 
 const getRankStyle = (index: number) => {
-    if (index === 0) return 'bg-amber-400 text-white';
-    if (index === 1) return 'bg-slate-400 text-white';
-    if (index === 2) return 'bg-amber-600 text-white';
+    if (index === 0) {
+return 'bg-amber-400 text-white';
+}
+
+    if (index === 1) {
+return 'bg-slate-400 text-white';
+}
+
+    if (index === 2) {
+return 'bg-amber-600 text-white';
+}
+
     return 'bg-slate-100 text-slate-500';
 };
 </script>

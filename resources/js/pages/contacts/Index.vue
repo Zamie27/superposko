@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import { 
     Phone, Mail, Plus, Search, MessageSquare, Edit3, Trash2, 
     Building, Shield, BookOpen, HeartPulse, Sparkles, X
 } from '@lucide/vue';
+import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/composables/useToast';
 import { useConfirm } from '@/composables/useConfirm';
+import { useToast } from '@/composables/useToast';
 
 const { confirm } = useConfirm();
 
@@ -192,20 +192,25 @@ const getCategoryDetails = (cat: string) => {
 
 const getWhatsAppLink = (phone: string) => {
     let cleanPhone = phone.replace(/[^0-9]/g, '');
+
     if (cleanPhone.startsWith('0')) {
         cleanPhone = '62' + cleanPhone.substring(1);
     }
+
     const message = encodeURIComponent(`Halo, saya dari Posko KKN. Ingin berkoordinasi terkait program kerja posko.`);
+
     return `https://wa.me/${cleanPhone}?text=${message}`;
 };
 
 const getPhoneCallLink = (phone: string) => {
     let cleanPhone = phone.replace(/[^0-9]/g, '');
+
     if (cleanPhone.startsWith('0')) {
         cleanPhone = '+62' + cleanPhone.substring(1);
     } else if (cleanPhone.startsWith('62')) {
         cleanPhone = '+' + cleanPhone;
     }
+
     return `tel:${cleanPhone}`;
 };
 </script>

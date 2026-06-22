@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import { 
     Plus, Search, Edit3, Trash2, X, ClipboardList, CheckCircle, AlertTriangle, AlertCircle, ArrowUpFromLine, Minus, Wallet, Users, User as UserIcon
 } from '@lucide/vue';
+import { ref, computed } from 'vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useInitials } from '@/composables/useInitials';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { useToast } from '@/composables/useToast';
 import { useConfirm } from '@/composables/useConfirm';
+import { useInitials } from '@/composables/useInitials';
+import { useToast } from '@/composables/useToast';
 
 const { getInitials } = useInitials();
 
@@ -203,6 +203,7 @@ const submitBarangKeluar = () => {
 
     if (itemsKeluar.length === 0) {
         toast.error('Silakan isi jumlah barang keluar minimal untuk satu item.');
+
         return;
     }
 

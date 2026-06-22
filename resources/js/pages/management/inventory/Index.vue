@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import { 
     Plus, Search, Edit3, Trash2, X, Box, CheckCircle, AlertTriangle, AlertCircle, Image as ImageIcon, User as UserIcon, Wallet, Users
 } from '@lucide/vue';
+import { ref, computed } from 'vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { useToast } from '@/composables/useToast';
 import { useConfirm } from '@/composables/useConfirm';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/composables/useInitials';
+import { useToast } from '@/composables/useToast';
 
 const { confirm } = useConfirm();
 const toast = useToast();
@@ -130,14 +130,17 @@ const openEditModal = (item: Inventory) => {
 const closeModal = () => {
     isModalOpen.value = false;
     imagePreview.value = null;
+
     if (fileInput.value) {
         fileInput.value.value = '';
     }
+
     form.reset();
 };
 
 const handleImageChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files[0]) {
         const file = target.files[0];
         form.image = file;

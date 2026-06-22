@@ -1,17 +1,16 @@
 <script setup lang="ts">
+import { usePage, Link } from '@inertiajs/vue3';
+import { Lock } from '@lucide/vue';
+import { computed } from 'vue';
 import AppContent from '@/components/AppContent.vue';
 import AppShell from '@/components/AppShell.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import AppSidebarHeader from '@/components/AppSidebarHeader.vue';
-import ToastContainer from '@/components/ToastContainer.vue';
+import BugReportBubble from '@/components/BugReportBubble.vue';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import ReportBubble from '@/components/ReportBubble.vue';
-import BugReportBubble from '@/components/BugReportBubble.vue';
+import ToastContainer from '@/components/ToastContainer.vue';
 import type { BreadcrumbItem } from '@/types';
-import { usePage, Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
-import { Lock } from '@lucide/vue';
-import { Button } from '@/components/ui/button';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -25,17 +24,28 @@ const page = usePage();
 
 const isLocked = computed(() => {
     const user = page.props.auth?.user as any;
-    if (!user) return false;
+
+    if (!user) {
+return false;
+}
 
     // Admin is never locked
-    if (user.role === 'admin') return false;
+    if (user.role === 'admin') {
+return false;
+}
 
     // Non-subscribed users get locked out of host pages
     const isSubscribed = user.is_subscribed;
-    if (isSubscribed) return false;
+
+    if (isSubscribed) {
+return false;
+}
 
     const urlPath = page.url;
-    if (urlPath.startsWith('/preorder')) return false;
+
+    if (urlPath.startsWith('/preorder')) {
+return false;
+}
 
     const hostPaths = [
         '/dashboard',

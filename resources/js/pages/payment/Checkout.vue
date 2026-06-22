@@ -4,8 +4,8 @@ import { CreditCard, CheckCircle2, AlertTriangle, XCircle, ShieldCheck, Sparkles
 import { onMounted, ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { dashboard } from '@/routes';
 import { useToast } from '@/composables/useToast';
+import { dashboard } from '@/routes';
 
 const props = defineProps<{
     midtransClientKey: string;
@@ -95,6 +95,7 @@ const handlePayment = async () => {
 
         if (!response.ok) {
             const errData = await response.json();
+
             throw new Error(errData.message || 'Gagal menghubungi server.');
         }
 
@@ -148,6 +149,7 @@ const verifyPayment = async (orderId: string) => {
         });
 
         const data = await response.json();
+
         if (response.ok && data.success) {
             transactionStatus.value = 'success';
             successMessage.value = data.message;
@@ -155,6 +157,7 @@ const verifyPayment = async (orderId: string) => {
             // Start countdown to redirect
             const interval = setInterval(() => {
                 countdown.value--;
+
                 if (countdown.value <= 0) {
                     clearInterval(interval);
                     router.visit('/dashboard');

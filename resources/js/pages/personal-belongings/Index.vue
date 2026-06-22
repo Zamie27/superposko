@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import { 
-    Plus, Search, Edit3, Trash2, X, Briefcase, CheckSquare, Square, CheckCircle, AlertTriangle, Info, ShieldAlert
+    Plus, Search, Edit3, Trash2, X, Briefcase, CheckSquare, Square, CheckCircle, AlertTriangle
 } from '@lucide/vue';
+import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { useToast } from '@/composables/useToast';
 import { useConfirm } from '@/composables/useConfirm';
+import { useToast } from '@/composables/useToast';
 
 const { confirm } = useConfirm();
 const toast = useToast();
@@ -53,6 +53,7 @@ const filteredBelongings = computed(() => {
             (item.notes && item.notes.toLowerCase().includes(searchQuery.value.toLowerCase()));
 
         let matchesFilter = true;
+
         if (selectedFilter.value === 'pending_departure') {
             matchesFilter = !item.is_packed_departure;
         } else if (selectedFilter.value === 'pending_return') {
@@ -70,14 +71,22 @@ const filteredBelongings = computed(() => {
 const totalItems = computed(() => props.belongings.length);
 
 const departureProgress = computed(() => {
-    if (totalItems.value === 0) return 0;
+    if (totalItems.value === 0) {
+return 0;
+}
+
     const packedCount = props.belongings.filter(item => item.is_packed_departure).length;
+
     return Math.round((packedCount / totalItems.value) * 100);
 });
 
 const returnProgress = computed(() => {
-    if (totalItems.value === 0) return 0;
+    if (totalItems.value === 0) {
+return 0;
+}
+
     const packedCount = props.belongings.filter(item => item.is_packed_return).length;
+
     return Math.round((packedCount / totalItems.value) * 100);
 });
 

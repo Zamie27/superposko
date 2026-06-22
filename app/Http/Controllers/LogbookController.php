@@ -29,7 +29,7 @@ class LogbookController extends Controller
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($log) {
+            ->map(function (Logbook $log) {
                 return [
                     'id' => $log->id,
                     'user_id' => $log->user_id,

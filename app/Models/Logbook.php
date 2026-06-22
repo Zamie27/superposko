@@ -4,7 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $host_id
+ * @property int $user_id
+ * @property Carbon $date
+ * @property string $title
+ * @property string $description
+ * @property string $activity_type
+ * @property string|null $image_path
+ * @property User $host
+ * @property User $user
+ */
 class Logbook extends Model
 {
     protected $fillable = [

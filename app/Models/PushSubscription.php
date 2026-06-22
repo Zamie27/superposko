@@ -16,6 +16,8 @@ class PushSubscription extends Model
 
     /**
      * Get the user that owns the push subscription.
+     *
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {

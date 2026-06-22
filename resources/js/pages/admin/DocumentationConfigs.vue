@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import { Search, Server, Edit3, ArrowLeft, Check, X, ShieldAlert } from '@lucide/vue';
+import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useToast } from '@/composables/useToast';
@@ -83,7 +83,9 @@ const closeEditModal = () => {
 };
 
 const saveConfig = async () => {
-    if (!editingHost.value) return;
+    if (!editingHost.value) {
+return;
+}
 
     isSubmitting.value = true;
 

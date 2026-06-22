@@ -57,7 +57,7 @@ const formattedStrikePrice = computed(() => {
 });
 
 const initForm = () => {
-    // eslint-disable-next-line
+     
     const user = (window as any).Inertia?.page?.props?.auth?.user || {};
     form.name = user.name || '';
     form.email = user.email || '';
@@ -69,6 +69,7 @@ onMounted(() => {
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files.length > 0) {
         const file = target.files[0];
         form.payment_proof = file;

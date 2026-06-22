@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useToast } from '@/composables/useToast';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
-import { useToast } from '@/composables/useToast';
 
 defineOptions({
     layout: {
@@ -88,9 +88,11 @@ const isPushLoading = ref(false);
 const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
+
     if (parts.length === 2) {
         return decodeURIComponent(parts.pop()?.split(';').shift() || '');
     }
+
     return '';
 };
 
@@ -106,12 +108,15 @@ const urlBase64ToUint8Array = (base64String: string) => {
     for (let i = 0; i < rawData.length; ++i) {
         outputArray[i] = rawData.charCodeAt(i);
     }
+
     return outputArray;
 };
 
 // Check initial push subscription status
 onMounted(async () => {
-    if (!isNotificationSupported.value) return;
+    if (!isNotificationSupported.value) {
+return;
+}
 
     try {
         const registration = await navigator.serviceWorker.ready;
@@ -123,9 +128,12 @@ onMounted(async () => {
 });
 
 const togglePushSubscription = async () => {
-    if (!isNotificationSupported.value) return;
+    if (!isNotificationSupported.value) {
+return;
+}
 
     isPushLoading.value = true;
+
     try {
         const registration = await navigator.serviceWorker.ready;
         const currentSubscription = await registration.pushManager.getSubscription();
@@ -151,15 +159,19 @@ const togglePushSubscription = async () => {
         } else {
             // Request permissions
             const permission = await Notification.requestPermission();
+
             if (permission !== 'granted') {
                 toast.error('Izin notifikasi ditolak oleh pengguna.');
+
                 return;
             }
 
             // Retrieve VAPID public key shared globally via Inertia
             const vapidKey = page.props.vapid_public_key as string;
+
             if (!vapidKey) {
                 toast.error('Kunci VAPID belum terkonfigurasi di server.');
+
                 return;
             }
 

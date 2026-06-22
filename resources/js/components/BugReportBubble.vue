@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import { usePage, useForm } from '@inertiajs/vue3';
 import { Bug, X, Camera, Send } from '@lucide/vue';
+import { ref, computed } from 'vue';
 import { Spinner } from '@/components/ui/spinner';
 
 const page = usePage();
@@ -23,6 +23,7 @@ const form = useForm({
 const toggleBubble = () => {
     if (isOpen.value) {
         isOpen.value = false;
+
         return;
     }
 
@@ -40,7 +41,10 @@ const toggleBubble = () => {
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
-    if (!target.files) return;
+
+    if (!target.files) {
+return;
+}
 
     const newFiles = Array.from(target.files);
     const totalAllowed = 5 - form.screenshots.length;
@@ -56,7 +60,9 @@ const handleFileChange = (e: Event) => {
     }
 
     // Reset file input so same file can be re-selected
-    if (fileInput.value) fileInput.value.value = '';
+    if (fileInput.value) {
+fileInput.value.value = '';
+}
 };
 
 const removeImage = (index: number) => {
@@ -65,7 +71,10 @@ const removeImage = (index: number) => {
 };
 
 const triggerFileInput = () => {
-    if (form.screenshots.length >= 5) return;
+    if (form.screenshots.length >= 5) {
+return;
+}
+
     fileInput.value?.click();
 };
 

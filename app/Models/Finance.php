@@ -4,7 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $host_id
+ * @property int|null $program_kerja_id
+ * @property int $created_by
+ * @property string $type
+ * @property float $amount
+ * @property string $title
+ * @property string|null $description
+ * @property Carbon $date
+ * @property string|null $receipt_path
+ * @property User $host
+ * @property ProgramKerja|null $programKerja
+ * @property User $creator
+ */
 class Finance extends Model
 {
     protected $table = 'finances';

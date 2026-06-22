@@ -4,7 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $host_id
+ * @property string $title
+ * @property string|null $description
+ * @property Carbon $start_time
+ * @property Carbon|null $end_time
+ * @property string|null $location
+ * @property int $created_by
+ * @property User $host
+ * @property User $creator
+ */
 class Event extends Model
 {
     protected $fillable = [

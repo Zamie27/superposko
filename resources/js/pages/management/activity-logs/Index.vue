@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
 import { 
-    Clock, Search, User as UserIcon, Calendar, Info, HardDrive, Smartphone, Monitor
+    Clock, Search, Calendar, HardDrive, Smartphone, Monitor
 } from '@lucide/vue';
-import { Button } from '@/components/ui/button';
+import { ref, watch } from 'vue';
 
 interface User {
     id: number;
@@ -90,6 +89,7 @@ watch([search, memberId, category], () => {
 
 const formatTime = (timeStr: string) => {
     const d = new Date(timeStr);
+
     return d.toLocaleString('id-ID', {
         year: 'numeric',
         month: 'short',
@@ -115,9 +115,16 @@ const getCategoryBadgeClass = (cat: string) => {
 };
 
 const getDeviceIcon = (userAgent: string | null) => {
-    if (!userAgent) return HardDrive;
+    if (!userAgent) {
+return HardDrive;
+}
+
     const ua = userAgent.toLowerCase();
-    if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) return Smartphone;
+
+    if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
+return Smartphone;
+}
+
     return Monitor;
 };
 </script>

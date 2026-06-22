@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import { 
-    Plus, Edit3, Trash2, Calendar, CheckCircle, Clock, BookOpen, User, Image as ImageIcon, X, AlertCircle, FileText, CheckSquare, Target
+    Plus, Edit3, Trash2, Calendar, CheckCircle, Clock, BookOpen, User, Image as ImageIcon, X, FileText, CheckSquare, Target
 } from '@lucide/vue';
+import { ref, computed } from 'vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { useToast } from '@/composables/useToast';
 import { useConfirm } from '@/composables/useConfirm';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/composables/useInitials';
+import { useToast } from '@/composables/useToast';
 
 const { confirm } = useConfirm();
 const toast = useToast();
@@ -88,6 +88,7 @@ const filteredProkers = computed(() => {
             proker.name.toLowerCase().includes(prokerSearch.value.toLowerCase()) ||
             (proker.description && proker.description.toLowerCase().includes(prokerSearch.value.toLowerCase())) ||
             (proker.pic && proker.pic.name.toLowerCase().includes(prokerSearch.value.toLowerCase()));
+
         return matchesSearch;
     });
 });
@@ -99,6 +100,7 @@ const filteredLogbooks = computed(() => {
             log.title.toLowerCase().includes(logbookSearch.value.toLowerCase()) ||
             log.description.toLowerCase().includes(logbookSearch.value.toLowerCase()) ||
             (log.user && log.user.name.toLowerCase().includes(logbookSearch.value.toLowerCase()));
+
         return matchesSearch;
     });
 });
@@ -279,14 +281,17 @@ const openEditLogbookModal = (log: Logbook) => {
 const closeLogbookModal = () => {
     isLogbookModalOpen.value = false;
     imagePreview.value = null;
+
     if (fileInput.value) {
         fileInput.value.value = '';
     }
+
     logbookForm.reset();
 };
 
 const handleImageChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
+
     if (target.files && target.files[0]) {
         const file = target.files[0];
         logbookForm.image = file;

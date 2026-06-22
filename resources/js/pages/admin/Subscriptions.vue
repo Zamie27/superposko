@@ -3,8 +3,8 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { Search, Calendar, ArrowLeft, Check, AlertCircle } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 
@@ -55,6 +55,7 @@ watch(searchQuery, (value) => {
 
 const openDurationModal = (user: any) => {
     selectedUser.value = user;
+
     if (user.subscription_expires_at) {
         expiresAtInput.value = user.subscription_expires_at.substring(0, 10);
     } else {
@@ -62,6 +63,7 @@ const openDurationModal = (user: any) => {
         defaultDate.setDate(defaultDate.getDate() + 40);
         expiresAtInput.value = defaultDate.toISOString().substring(0, 10);
     }
+
     successMessage.value = '';
     errorMessage.value = '';
     isDurationModalOpen.value = true;
@@ -70,6 +72,7 @@ const openDurationModal = (user: any) => {
 const handleUpdateDuration = async () => {
     if (!expiresAtInput.value) {
         errorMessage.value = 'Silakan pilih tanggal kadaluarsa.';
+
         return;
     }
 
@@ -91,6 +94,7 @@ const handleUpdateDuration = async () => {
         });
 
         const data = await response.json();
+
         if (data.success) {
             successMessage.value = data.message;
             router.reload({ only: ['subscriptions'] });
@@ -171,23 +175,36 @@ const handleRevokeSubscription = async (user: any) => {
 const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
+
     if (parts.length === 2) {
         return decodeURIComponent(parts.pop()?.split(';').shift() || '');
     }
+
     return '';
 };
 
 const isExpired = (dateString: string | null) => {
-    if (!dateString) return false;
+    if (!dateString) {
+return false;
+}
+
     const safeString = String(dateString).replace(' ', 'T');
+
     return new Date(safeString) < new Date();
 };
 
 const formatDate = (dateString: string | null) => {
-    if (!dateString) return '-';
+    if (!dateString) {
+return '-';
+}
+
     const safeString = String(dateString).replace(' ', 'T');
     const date = new Date(safeString);
-    if (isNaN(date.getTime())) return dateString;
+
+    if (isNaN(date.getTime())) {
+return dateString;
+}
+
     return date.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 };
 </script>

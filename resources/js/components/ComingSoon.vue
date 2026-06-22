@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Sparkles } from '@lucide/vue';
 import { Link } from '@inertiajs/vue3';
+import { Sparkles } from '@lucide/vue';
 import { Button } from '@/components/ui/button';
 
 defineProps<{

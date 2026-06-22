@@ -32,6 +32,7 @@ export function useConfirm() {
 
     const handleConfirm = () => {
         isOpen.value = false;
+
         if (resolvePromise.value) {
             resolvePromise.value(true);
         }
@@ -39,6 +40,7 @@ export function useConfirm() {
 
     const handleCancel = () => {
         isOpen.value = false;
+
         if (resolvePromise.value) {
             resolvePromise.value(false);
         }

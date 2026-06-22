@@ -3,8 +3,8 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowLeft, Search, AlertCircle, CheckCircle2, Shield, Info, HelpCircle } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
-import { useConfirm } from '@/composables/useConfirm';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useConfirm } from '@/composables/useConfirm';
 
 const props = defineProps<{
     reports: {

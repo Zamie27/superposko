@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
 import { Search, ArrowLeft } from '@lucide/vue';
+import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 
 interface Log {

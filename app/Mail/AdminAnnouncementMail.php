@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -42,6 +43,8 @@ class AdminAnnouncementMail extends Mailable
 
     /**
      * Get the attachments for the message.
+     *
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useToast } from '@/composables/useToast';
 import { CheckCircle2, AlertTriangle, AlertCircle, Info, X } from '@lucide/vue';
+import { useToast } from '@/composables/useToast';
 
 const { toasts, removeToast } = useToast();
 </script>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
 import { 
-    Calendar, Clock, MapPin, Trash2, Plus, Edit3, X, User as UserIcon, Check, CalendarDays, ClipboardList
+    Calendar, Clock, MapPin, Trash2, Plus, Edit3, X, User as UserIcon, CalendarDays, ClipboardList
 } from '@lucide/vue';
+import { ref, onMounted } from 'vue';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/composables/useToast';
 import { useConfirm } from '@/composables/useConfirm';
+import { useToast } from '@/composables/useToast';
 
 interface Member {
     id: number;
@@ -63,12 +63,14 @@ const highlightedEventId = ref<number | null>(null);
 onMounted(() => {
     const params = new URLSearchParams(window.location.search);
     const eventIdParam = params.get('event_id');
+
     if (eventIdParam) {
         activeTab.value = 'agenda';
         highlightedEventId.value = parseInt(eventIdParam);
         
         setTimeout(() => {
             const element = document.getElementById(`event-card-${eventIdParam}`);
+
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
@@ -117,12 +119,15 @@ const preDefinedTasks = [
 // Open Roster Modal
 const openRosterModal = (dayKey?: string) => {
     rosterForm.reset();
+
     if (dayKey) {
         rosterForm.day_of_week = dayKey;
     }
+
     if (props.members.length > 0) {
         rosterForm.user_id = props.members[0].id;
     }
+
     isRosterModalOpen.value = true;
 };
 
@@ -162,6 +167,7 @@ const deleteRoster = async (rosterId: number) => {
 // Open Event Modal
 const openEventModal = (event?: EventItem) => {
     eventForm.reset();
+
     if (event) {
         isEditEventMode.value = true;
         selectedEventId.value = event.id;
@@ -174,6 +180,7 @@ const openEventModal = (event?: EventItem) => {
         isEditEventMode.value = false;
         selectedEventId.value = null;
     }
+
     isEventModalOpen.value = true;
 };
 
@@ -222,6 +229,7 @@ const deleteEvent = async (eventId: number) => {
 // Format Datetime to Human Readable ID format
 const formatDateTime = (isoString: string) => {
     const date = new Date(isoString);
+
     return date.toLocaleDateString('id-ID', {
         weekday: 'long',
         day: 'numeric',

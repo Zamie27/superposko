@@ -47,6 +47,7 @@ interface NavGroup {
 
 const navGroups = computed<NavGroup[]>(() => {
     const user = page.props.auth?.user as any;
+
     if (!user) {
         return [];
     }
@@ -282,6 +283,7 @@ const handleAppInstalled = () => {
 onMounted(() => {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
+
     if (window.matchMedia('(display-mode: standalone)').matches) {
         showInstallBtn.value = false;
     }
@@ -293,12 +295,16 @@ onUnmounted(() => {
 });
 
 const installPwa = () => {
-    if (!deferredPrompt.value) return;
+    if (!deferredPrompt.value) {
+return;
+}
+
     deferredPrompt.value.prompt();
     deferredPrompt.value.userChoice.then((choiceResult: { outcome: string }) => {
         if (choiceResult.outcome === 'accepted') {
             showInstallBtn.value = false;
         }
+
         deferredPrompt.value = null;
     });
 };

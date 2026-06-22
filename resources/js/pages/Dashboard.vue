@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
 import { 
     Wallet, BookOpen, Box, ClipboardList, Users, Vote, 
     ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle, Info
 } from '@lucide/vue';
+import { ref, computed } from 'vue';
 
 interface RosterMember {
     id: number;
@@ -144,6 +144,7 @@ const calendarDays = computed(() => {
     
     // Next month padding days to fill 42 cells (6 rows)
     const remainingCells = 42 - days.length;
+
     for (let i = 1; i <= remainingCells; i++) {
         const nextDate = new Date(year, month + 1, i);
         days.push({
@@ -173,6 +174,7 @@ const calendarWeeks = computed(() => {
         const weekEvents = props.events.filter(e => {
             const eStart = new Date(e.start_time);
             const eEnd = e.end_time ? new Date(e.end_time) : eStart;
+
             return eStart <= weekEnd && eEnd >= weekStart;
         });
 
@@ -184,7 +186,11 @@ const calendarWeeks = computed(() => {
             const bEnd = b.end_time ? new Date(b.end_time) : bStart;
             const aDur = aEnd.getTime() - aStart.getTime();
             const bDur = bEnd.getTime() - bStart.getTime();
-            if (aDur !== bDur) return bDur - aDur;
+
+            if (aDur !== bDur) {
+return bDur - aDur;
+}
+
             return aStart.getTime() - bStart.getTime();
         });
 
@@ -203,6 +209,7 @@ const calendarWeeks = computed(() => {
             
             // Find start column index in this week (0-6)
             let startIdx = 0;
+
             if (eStart >= weekStart) {
                 startIdx = Math.floor((eStart.getTime() - weekStart.getTime()) / (24 * 60 * 60 * 1000));
                 startIdx = Math.max(0, Math.min(6, startIdx));
@@ -210,6 +217,7 @@ const calendarWeeks = computed(() => {
 
             // Find end column index in this week (0-6)
             let endIdx = 6;
+
             if (eEnd <= weekEnd) {
                 endIdx = Math.floor((eEnd.getTime() - weekStart.getTime()) / (24 * 60 * 60 * 1000));
                 endIdx = Math.max(0, Math.min(6, endIdx));
@@ -217,23 +225,29 @@ const calendarWeeks = computed(() => {
 
             // Find first free track/level for these columns
             let levelIdx = 0;
+
             while (true) {
                 if (!levels[levelIdx]) {
                     levels[levelIdx] = Array(7).fill(null);
                 }
+
                 let isFree = true;
+
                 for (let d = startIdx; d <= endIdx; d++) {
                     if (levels[levelIdx][d] !== null) {
                         isFree = false;
                         break;
                     }
                 }
+
                 if (isFree) {
                     for (let d = startIdx; d <= endIdx; d++) {
                         levels[levelIdx][d] = event;
                     }
+
                     break;
                 }
+
                 levelIdx++;
             }
 
@@ -251,6 +265,7 @@ const calendarWeeks = computed(() => {
             maxLevel: levels.length
         });
     }
+
     return result;
 });
 
@@ -262,6 +277,7 @@ const formatEventTime = (timeStr: string) => {
     hours = hours % 12;
     hours = hours ? hours : 12;
     const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+
     return `${hours}:${minutesStr} ${ampm}`;
 };
 
@@ -274,6 +290,7 @@ const getEventColorClass = (eventId: number) => {
         'bg-rose-500/90 text-white border-rose-400 dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/30',
         'bg-indigo-500/90 text-white border-indigo-400 dark:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-500/30'
     ];
+
     return colors[eventId % colors.length];
 };
 
