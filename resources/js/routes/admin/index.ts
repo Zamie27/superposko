@@ -2,6 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 import users from './users'
 import prices from './prices'
 import subscriptions from './subscriptions'
+import trials from './trials'
 import preorders from './preorders'
 import settings from './settings'
 import documentationConfigs from './documentation-configs'
@@ -94,6 +95,7 @@ const admin = {
     users: Object.assign(users, users),
     prices: Object.assign(prices, prices),
     subscriptions: Object.assign(subscriptions, subscriptions),
+    trials: Object.assign(trials, trials),
     preorders: Object.assign(preorders, preorders),
     settings: Object.assign(settings, settings),
     documentationConfigs: Object.assign(documentationConfigs, documentationConfigs),

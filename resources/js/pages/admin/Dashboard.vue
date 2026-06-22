@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { Users, CreditCard, ShoppingBag, Settings, CheckCircle2 } from '@lucide/vue';
+import { Users, CreditCard, ShoppingBag, Settings, CheckCircle2, Shield, Clock } from '@lucide/vue';
 
 defineProps<{
     stats: {
@@ -10,6 +10,7 @@ defineProps<{
         totalPreorders: number;
         pendingPreorders: number;
         approvedPreorders: number;
+        totalTrials: number;
     };
 }>();
 
@@ -35,40 +36,52 @@ defineOptions({
         </div>
 
         <!-- Statistics Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             <!-- Total Users Card -->
             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex items-center justify-between">
                 <div class="space-y-1">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Akun Terdaftar</span>
-                    <h3 class="text-3xl font-extrabold text-slate-900">{{ stats.totalUsers }}</h3>
-                    <p class="text-xs text-slate-400">Pengguna terdaftar di database</p>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Akun</span>
+                    <h3 class="text-2xl font-extrabold text-slate-900">{{ stats.totalUsers }}</h3>
+                    <p class="text-[10px] text-slate-400">Pengguna terdaftar</p>
                 </div>
                 <div class="p-3 bg-sky-50 text-sky-500 rounded-2xl">
-                    <Users class="size-6" />
+                    <Users class="size-5" />
                 </div>
             </div>
 
             <!-- Total Active Hosts Card -->
             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex items-center justify-between">
                 <div class="space-y-1">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Langganan Aktif (Host)</span>
-                    <h3 class="text-3xl font-extrabold text-slate-900">{{ stats.activeSubscriptions }}</h3>
-                    <p class="text-xs text-slate-400">Total Host posko aktif</p>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Host Aktif</span>
+                    <h3 class="text-2xl font-extrabold text-slate-900">{{ stats.activeSubscriptions }}</h3>
+                    <p class="text-[10px] text-slate-400">Langganan aktif</p>
                 </div>
                 <div class="p-3 bg-emerald-50 text-emerald-500 rounded-2xl">
-                    <CheckCircle2 class="size-6" />
+                    <CheckCircle2 class="size-5" />
+                </div>
+            </div>
+
+            <!-- Active Trials Card -->
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex items-center justify-between">
+                <div class="space-y-1">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Akun Trial</span>
+                    <h3 class="text-2xl font-extrabold text-slate-900">{{ stats.totalTrials }}</h3>
+                    <p class="text-[10px] text-slate-400">Trial sedang berjalan</p>
+                </div>
+                <div class="p-3 bg-amber-50 text-amber-500 rounded-2xl">
+                    <Shield class="size-5" />
                 </div>
             </div>
 
             <!-- Total Preorders Card -->
             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex items-center justify-between">
                 <div class="space-y-1">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Preorder Menunggu</span>
-                    <h3 class="text-3xl font-extrabold text-slate-900">{{ stats.pendingPreorders }}</h3>
-                    <p class="text-xs text-slate-400">Total preorder status pending</p>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Preorder Pending</span>
+                    <h3 class="text-2xl font-extrabold text-slate-900">{{ stats.pendingPreorders }}</h3>
+                    <p class="text-[10px] text-slate-400">Menunggu verifikasi</p>
                 </div>
-                <div class="p-3 bg-amber-50 text-amber-500 rounded-2xl">
-                    <ShoppingBag class="size-6" />
+                <div class="p-3 bg-indigo-50 text-indigo-500 rounded-2xl">
+                    <ShoppingBag class="size-5" />
                 </div>
             </div>
         </div>
@@ -107,6 +120,17 @@ defineOptions({
                         </div>
                         <h4 class="font-bold text-slate-900 group-hover:text-amber-600 transition">Manajemen Preorder</h4>
                         <p class="text-xs text-slate-500">Cek berkas preorder, unduh bukti bayar, dan aktivasi akun promosi.</p>
+                    </div>
+                </Link>
+
+                <!-- Trial Management -->
+                <Link href="/admin/trials" class="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-sky-500 hover:shadow-sm transition duration-200 flex flex-col justify-between h-40">
+                    <div class="space-y-2">
+                        <div class="p-2 bg-amber-50 text-amber-500 rounded-xl w-10 h-10 flex items-center justify-center">
+                            <Clock class="size-5" />
+                        </div>
+                        <h4 class="font-bold text-slate-900 group-hover:text-amber-600 transition">Manajemen Trial</h4>
+                        <p class="text-xs text-slate-500">Cek sisa durasi trial, beri masa aktif trial tambahan, atau cabut akses trial user.</p>
                     </div>
                 </Link>
 

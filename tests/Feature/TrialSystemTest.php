@@ -131,4 +131,100 @@ class TrialSystemTest extends TestCase
         $response = $this->get(route('payment.index'));
         $response->assertOk();
     }
+
+    /**
+     * Test that an admin can view trials page.
+     */
+    public function test_admin_can_view_trials_page()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $this->actingAs($admin);
+
+        $response = $this->get(route('admin.trials.index'));
+        $response->assertOk();
+    }
+
+    /**
+     * Test that an admin can update/grant trial duration for a user.
+     */
+    public function test_admin_can_update_trial_duration()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $user = User::factory()->create([
+            'role' => 'user',
+        ]);
+
+        $this->actingAs($admin);
+
+        $response = $this->put(route('admin.trials.update', $user), [
+            'trial_days' => 10,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        $user->refresh();
+        $this->assertEquals('trial', $user->role);
+        $this->assertNotNull($user->trial_ends_at);
+        $this->assertEquals(Carbon::now()->addDays(10)->toDateString(), $user->trial_ends_at->toDateString());
+    }
+
+    /**
+     * Test that a non-admin user cannot update trial duration.
+     */
+    public function test_non_admin_cannot_update_trial_duration()
+    {
+        $user = User::factory()->create([
+            'role' => 'user',
+        ]);
+
+        $otherUser = User::factory()->create([
+            'role' => 'user',
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->put(route('admin.trials.update', $otherUser), [
+            'trial_days' => 10,
+        ]);
+
+        $response->assertRedirect(route('dashboard'));
+    }
+
+    /**
+     * Test that admin can revoke trial duration.
+     */
+    public function test_admin_can_revoke_trial()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $user = User::factory()->create([
+            'role' => 'trial',
+            'trial_ends_at' => Carbon::now()->addDays(5),
+        ]);
+
+        $this->actingAs($admin);
+
+        $response = $this->delete(route('admin.trials.revoke', $user));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        $user->refresh();
+        $this->assertEquals('user', $user->role);
+        $this->assertNull($user->trial_ends_at);
+    }
 }
+

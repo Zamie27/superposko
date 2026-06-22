@@ -27,6 +27,12 @@ class AdminController extends Controller
         $pendingPreorders = Preorder::where('status', 'pending')->count();
         $approvedPreorders = Preorder::where('status', 'approved')->count();
 
+        $totalTrials = User::where('role', 'trial')
+            ->where(function ($query) {
+                $query->whereNull('trial_ends_at')
+                    ->orWhere('trial_ends_at', '>', now());
+            })->count();
+
         return Inertia::render('admin/Dashboard', [
             'stats' => [
                 'totalUsers' => $totalUsers,
@@ -35,6 +41,7 @@ class AdminController extends Controller
                 'totalPreorders' => $totalPreorders,
                 'pendingPreorders' => $pendingPreorders,
                 'approvedPreorders' => $approvedPreorders,
+                'totalTrials' => $totalTrials,
             ],
         ]);
     }

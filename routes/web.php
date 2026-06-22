@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminPriceController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminSubscriptionController;
+use App\Http\Controllers\Admin\AdminTrialController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\ContactController;
@@ -180,6 +181,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('subscriptions/{user}/bypass', [AdminSubscriptionController::class, 'bypass'])->name('subscriptions.bypass');
         Route::put('subscriptions/{user}/duration', [AdminSubscriptionController::class, 'updateDuration'])->name('subscriptions.duration');
         Route::delete('subscriptions/{user}/revoke', [AdminSubscriptionController::class, 'revoke'])->name('subscriptions.revoke');
+
+        // Trial Management
+        Route::get('trials', [AdminTrialController::class, 'index'])->name('trials.index');
+        Route::put('trials/{user}', [AdminTrialController::class, 'update'])->name('trials.update');
+        Route::delete('trials/{user}/revoke', [AdminTrialController::class, 'revoke'])->name('trials.revoke');
 
         // Preorder Management
         Route::get('preorders', [AdminPreorderController::class, 'index'])->name('preorders.index');

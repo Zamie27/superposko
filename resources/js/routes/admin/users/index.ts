@@ -282,11 +282,102 @@ update_roleForm.put = (args: { user: number | { id: number } } | [user: number |
 
 update_role.form = update_roleForm
 
+/**
+* @see \App\Http\Controllers\Admin\AdminUserController::update_trial
+* @see app/Http/Controllers/Admin/AdminUserController.php:117
+* @route '/admin/users/{user}/trial'
+*/
+export const update_trial = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: update_trial.url(args, options),
+    method: 'put',
+})
+
+update_trial.definition = {
+    methods: ["put"],
+    url: '/admin/users/{user}/trial',
+} satisfies RouteDefinition<["put"]>
+
+/**
+* @see \App\Http\Controllers\Admin\AdminUserController::update_trial
+* @see app/Http/Controllers/Admin/AdminUserController.php:117
+* @route '/admin/users/{user}/trial'
+*/
+update_trial.url = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { user: args }
+    }
+
+    if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+        args = { user: args.id }
+    }
+
+    if (Array.isArray(args)) {
+        args = {
+            user: args[0],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        user: typeof args.user === 'object'
+        ? args.user.id
+        : args.user,
+    }
+
+    return update_trial.definition.url
+            .replace('{user}', parsedArgs.user.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Admin\AdminUserController::update_trial
+* @see app/Http/Controllers/Admin/AdminUserController.php:117
+* @route '/admin/users/{user}/trial'
+*/
+update_trial.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
+    url: update_trial.url(args, options),
+    method: 'put',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminUserController::update_trial
+* @see app/Http/Controllers/Admin/AdminUserController.php:117
+* @route '/admin/users/{user}/trial'
+*/
+const update_trialForm = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update_trial.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminUserController::update_trial
+* @see app/Http/Controllers/Admin/AdminUserController.php:117
+* @route '/admin/users/{user}/trial'
+*/
+update_trialForm.put = (args: { user: number | { id: number } } | [user: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: update_trial.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'PUT',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+update_trial.form = update_trialForm
+
 const users = {
     index: Object.assign(index, index),
     reset_password: Object.assign(reset_password, reset_password),
     send_reset_email: Object.assign(send_reset_email, send_reset_email),
     update_role: Object.assign(update_role, update_role),
+    update_trial: Object.assign(update_trial, update_trial),
 }
 
 export default users
