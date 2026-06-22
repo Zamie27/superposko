@@ -50,9 +50,12 @@ class HostRouteProtectionMiddleware
         }
 
         // For other users (unsubscribed):
-        // Allow GET requests for all host routes so they can see the layout-level premium lock overlay on the frontend
+        // Allow GET requests only for dashboard and documentation to show lock screens/notices
         if ($request->isMethod('GET')) {
-            return $next($request);
+            $routeName = $request->route()?->getName();
+            if ($routeName === 'host.dashboard' || ($routeName && str_starts_with($routeName, 'host.documentation'))) {
+                return $next($request);
+            }
         }
 
         return $request->expectsJson()

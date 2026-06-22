@@ -26,7 +26,7 @@ class AdminNotificationTest extends TestCase
             ],
         ]);
 
-        $response->assertStatus(401);
+        $response->assertRedirect(route('login'));
     }
 
     /**
@@ -34,7 +34,7 @@ class AdminNotificationTest extends TestCase
      */
     public function test_user_can_store_push_subscription()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'host']);
         $this->actingAs($user);
 
         $response = $this->postJson(route('push_subscriptions.store'), [
@@ -59,7 +59,7 @@ class AdminNotificationTest extends TestCase
      */
     public function test_user_can_delete_push_subscription()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => 'host']);
         $this->actingAs($user);
 
         PushSubscription::create([

@@ -53,8 +53,8 @@ class BugReportTest extends TestCase
             'reporter_name' => 'Jane Doe',
             'contact_info' => '081234567890',
             'screenshots' => [
-                UploadedFile::fake()->image('bug1.png', 640, 480),
-                UploadedFile::fake()->image('bug2.jpg', 800, 600),
+                UploadedFile::fake()->create('bug1.png', 100),
+                UploadedFile::fake()->create('bug2.jpg', 100),
             ],
         ]);
 
@@ -99,12 +99,12 @@ class BugReportTest extends TestCase
             'description' => 'Testing max 5 screenshots.',
             'reporter_name' => 'Tester',
             'screenshots' => [
-                UploadedFile::fake()->image('s1.png'),
-                UploadedFile::fake()->image('s2.png'),
-                UploadedFile::fake()->image('s3.png'),
-                UploadedFile::fake()->image('s4.png'),
-                UploadedFile::fake()->image('s5.png'),
-                UploadedFile::fake()->image('s6.png'),
+                UploadedFile::fake()->create('s1.png', 10),
+                UploadedFile::fake()->create('s2.png', 10),
+                UploadedFile::fake()->create('s3.png', 10),
+                UploadedFile::fake()->create('s4.png', 10),
+                UploadedFile::fake()->create('s5.png', 10),
+                UploadedFile::fake()->create('s6.png', 10),
             ],
         ]);
 
@@ -155,6 +155,6 @@ class BugReportTest extends TestCase
 
         $response = $this->actingAs($user)->get('/admin/bug-reports');
 
-        $response->assertStatus(403);
+        $response->assertRedirect(route('dashboard'));
     }
 }

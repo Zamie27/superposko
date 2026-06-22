@@ -71,12 +71,11 @@ class EmailVerificationOtpController extends Controller
         // Regenerate and send OTP
         $user->sendEmailVerificationNotification();
 
-        /** @var RedirectResponse $response */
-        $response = Inertia::flash('toast', [
+        Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Kode OTP baru berhasil dikirim ke email Anda.',
-        ])->back();
+        ]);
 
-        return $response;
+        return back();
     }
 }

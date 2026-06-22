@@ -20,6 +20,7 @@ class TrialSystemTest extends TestCase
             'name' => 'Trial User',
             'email' => 'trial@example.com',
             'university' => 'Universitas Indonesia',
+            'npm' => 'D1A230000',
             'group_number' => 'Group 42',
             'kkn_address' => 'Subang, Jabar',
             'password' => 'Password123!',
@@ -126,6 +127,9 @@ class TrialSystemTest extends TestCase
         // Access preorder index
         $response = $this->get(route('preorder.index'));
         $response->assertOk();
+
+        // Turn off preorder promo to access payment checkout
+        \App\Models\Setting::set('preorder_promo_active', '0');
 
         // Access payment index
         $response = $this->get(route('payment.index'));

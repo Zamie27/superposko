@@ -56,22 +56,20 @@ class EmailChangeController extends Controller
         try {
             Mail::to($newEmail)->send(new SendEmailChangeOtpMail($otpCode));
         } catch (\Exception $e) {
-            /** @var RedirectResponse $response */
-            $response = Inertia::flash('toast', [
+            Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'Gagal mengirim email OTP. Silakan periksa kembali email Anda.',
-            ])->back();
+            ]);
 
-            return $response;
+            return back();
         }
 
-        /** @var RedirectResponse $response */
-        $response = Inertia::flash('toast', [
+        Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Kode OTP berhasil dikirim ke '.$newEmail,
-        ])->back();
+        ]);
 
-        return $response->with('otp_sent', true)->with('new_email_attempt', $newEmail);
+        return back()->with('otp_sent', true)->with('new_email_attempt', $newEmail);
     }
 
     /**
@@ -102,13 +100,12 @@ class EmailChangeController extends Controller
             ->first();
 
         if (! $otpRecord) {
-            /** @var RedirectResponse $response */
-            $response = Inertia::flash('toast', [
+            Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'Kode OTP tidak valid atau telah kedaluwarsa.',
-            ])->back();
+            ]);
 
-            return $response;
+            return back();
         }
 
         $oldEmail = $user->email;
@@ -143,12 +140,11 @@ class EmailChangeController extends Controller
             // Log or ignore mail sending errors to old email so user still successfully updates
         }
 
-        /** @var RedirectResponse $response */
-        $response = Inertia::flash('toast', [
+        Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Alamat email akun Anda berhasil diganti.',
-        ])->back();
+        ]);
 
-        return $response;
+        return back();
     }
 }
