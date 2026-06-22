@@ -15,6 +15,7 @@ import ContactController from './ContactController'
 import ProkerDocumentController from './ProkerDocumentController'
 import VotingController from './VotingController'
 import DocumentationController from './DocumentationController'
+import PushSubscriptionController from './PushSubscriptionController'
 import Admin from './Admin'
 import Settings from './Settings'
 
@@ -36,6 +37,7 @@ const Controllers = {
     ProkerDocumentController: Object.assign(ProkerDocumentController, ProkerDocumentController),
     VotingController: Object.assign(VotingController, VotingController),
     DocumentationController: Object.assign(DocumentationController, DocumentationController),
+    PushSubscriptionController: Object.assign(PushSubscriptionController, PushSubscriptionController),
     Admin: Object.assign(Admin, Admin),
     Settings: Object.assign(Settings, Settings),
 }

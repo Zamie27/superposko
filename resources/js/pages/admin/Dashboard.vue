@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { Users, CreditCard, ShoppingBag, Settings, CheckCircle2, Shield, Clock } from '@lucide/vue';
+import { Users, CreditCard, ShoppingBag, Settings, CheckCircle2, Shield, Clock, Bell } from '@lucide/vue';
 
 defineProps<{
     stats: {
@@ -142,6 +142,17 @@ defineOptions({
                         </div>
                         <h4 class="font-bold text-slate-900 group-hover:text-purple-600 transition">Manajemen Harga</h4>
                         <p class="text-xs text-slate-500">Ubah harga normal & diskon langganan coret, diskon preorder, dan deskripsi.</p>
+                    </div>
+                </Link>
+
+                <!-- Notifications Config -->
+                <Link href="/admin/notifications" class="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-sky-500 hover:shadow-sm transition duration-200 flex flex-col justify-between h-40">
+                    <div class="space-y-2">
+                        <div class="p-2 bg-amber-50 text-amber-500 rounded-xl w-10 h-10 flex items-center justify-center">
+                            <Bell class="size-5" />
+                        </div>
+                        <h4 class="font-bold text-slate-900 group-hover:text-amber-600 transition">Pusat Notifikasi</h4>
+                        <p class="text-xs text-slate-500">Kirim web push notification instan atau email pengumuman massal.</p>
                     </div>
                 </Link>
 

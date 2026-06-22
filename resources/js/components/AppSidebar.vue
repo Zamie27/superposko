@@ -3,7 +3,8 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { 
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
-    ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase, Download
+    ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase, Download,
+    Bell
 } from '@lucide/vue';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -109,6 +110,11 @@ const navGroups = computed<NavGroup[]>(() => {
                         title: 'Manajemen User',
                         href: '/admin/users',
                         icon: Users,
+                    },
+                    {
+                        title: 'Pusat Notifikasi',
+                        href: '/admin/notifications',
+                        icon: Bell,
                     },
                     {
                         title: 'Manajemen Dokumentasi',

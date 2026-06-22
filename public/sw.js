@@ -55,3 +55,57 @@ self.addEventListener('fetch', (event) => {
             })
     );
 });
+
+// Push notification event listener
+self.addEventListener('push', (event) => {
+    if (!event.data) return;
+
+    let payload;
+    try {
+        payload = event.data.json();
+    } catch (e) {
+        payload = {
+            title: 'SuperPosko',
+            body: event.data.text()
+        };
+    }
+
+    const title = payload.title || 'SuperPosko';
+    const options = {
+        body: payload.body || '',
+        icon: payload.icon || '/pwa_icon.svg',
+        badge: payload.badge || '/pwa_icon.svg',
+        data: payload.data || {},
+        vibrate: [100, 50, 100],
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
+});
+
+// Push notification click event listener
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    let urlToOpen = '/';
+    if (event.notification.data && event.notification.data.url) {
+        urlToOpen = event.notification.data.url;
+    }
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+            // Check if there is already a window tab open with the target URL
+            for (let i = 0; i < windowClients.length; i++) {
+                const client = windowClients[i];
+                if (client.url === urlToOpen && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // If not, open a new window/tab
+            if (clients.openWindow) {
+                return clients.openWindow(urlToOpen);
+            }
+        })
+    );
+});

@@ -7,10 +7,12 @@ use App\Http\Controllers\Admin\AdminPreorderController;
 use App\Http\Controllers\Admin\AdminPriceController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminSubscriptionController;
 use App\Http\Controllers\Admin\AdminTrialController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\GoogleLoginController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentationController;
@@ -159,6 +161,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('documentation/upload-chunk', [DocumentationController::class, 'uploadChunk'])->name('host.documentation.upload_chunk');
         Route::get('documentation/thumbnail/{id}', [DocumentationController::class, 'thumbnail'])->name('host.documentation.thumbnail');
         Route::get('documentation/file/{id}', [DocumentationController::class, 'file'])->name('host.documentation.file');
+
+        // Web Push Subscriptions
+        Route::post('push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push_subscriptions.store');
+        Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push_subscriptions.destroy');
     });
 
     // Admin Group
@@ -191,6 +197,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('preorders', [AdminPreorderController::class, 'index'])->name('preorders.index');
         Route::post('preorders/{preorder}/approve', [AdminPreorderController::class, 'approve'])->name('preorders.approve');
         Route::post('preorders/{preorder}/reject', [AdminPreorderController::class, 'reject'])->name('preorders.reject');
+
+        // Notification & Announcement Management
+        Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/send-push', [AdminNotificationController::class, 'sendPush'])->name('notifications.send_push');
+        Route::post('notifications/send-email', [AdminNotificationController::class, 'sendEmail'])->name('notifications.send_email');
 
         // General Website Settings
         Route::get('settings', [AdminSettingController::class, 'index'])->name('settings.index');

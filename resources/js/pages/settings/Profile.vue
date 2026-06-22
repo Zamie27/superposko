@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, usePage, useForm } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import { computed, watch } from 'vue';
+import { computed, watch, onMounted, ref } from 'vue';
 import DeleteUser from '@/components/DeleteUser.vue';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
+import { useToast } from '@/composables/useToast';
 
 defineOptions({
     layout: {
@@ -76,6 +77,121 @@ const verifyOtp = () => {
             otpForm.reset();
         },
     });
+};
+
+const toast = useToast();
+const isNotificationSupported = ref('serviceWorker' in navigator && 'PushManager' in window);
+const isSubscribed = ref(false);
+const isPushLoading = ref(false);
+
+const getCookie = (name: string): string => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+        return decodeURIComponent(parts.pop()?.split(';').shift() || '');
+    }
+    return '';
+};
+
+const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+};
+
+// Check initial push subscription status
+onMounted(async () => {
+    if (!isNotificationSupported.value) return;
+
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        isSubscribed.value = !!subscription;
+    } catch (e) {
+        console.error('Gagal memuat status push subscription:', e);
+    }
+});
+
+const togglePushSubscription = async () => {
+    if (!isNotificationSupported.value) return;
+
+    isPushLoading.value = true;
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const currentSubscription = await registration.pushManager.getSubscription();
+
+        if (currentSubscription) {
+            // Unsubscribe from browser push manager
+            await currentSubscription.unsubscribe();
+            
+            // Delete from database
+            await fetch('/push-subscriptions', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    endpoint: currentSubscription.endpoint
+                })
+            });
+            isSubscribed.value = false;
+            toast.success('Notifikasi push browser berhasil dinonaktifkan.');
+        } else {
+            // Request permissions
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                toast.error('Izin notifikasi ditolak oleh pengguna.');
+                return;
+            }
+
+            // Retrieve VAPID public key shared globally via Inertia
+            const vapidKey = page.props.vapid_public_key as string;
+            if (!vapidKey) {
+                toast.error('Kunci VAPID belum terkonfigurasi di server.');
+                return;
+            }
+
+            const convertedVapidKey = urlBase64ToUint8Array(vapidKey);
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedVapidKey
+            });
+
+            // Store in database
+            const response = await fetch('/push-subscriptions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(subscription)
+            });
+
+            if (response.ok) {
+                isSubscribed.value = true;
+                toast.success('Notifikasi push browser berhasil diaktifkan!');
+            } else {
+                toast.error('Gagal mendaftarkan notifikasi ke server.');
+            }
+        }
+    } catch (e) {
+        console.error('Gagal mengelola push subscription:', e);
+        toast.error('Terjadi kesalahan saat mengaktifkan notifikasi.');
+    } finally {
+        isPushLoading.value = false;
+    }
 };
 </script>
 
@@ -214,6 +330,38 @@ const verifyOtp = () => {
                     >
                         Link verifikasi baru telah dikirim ke alamat email Anda.
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-slate-100" />
+
+        <!-- 3. Push Notification Settings -->
+        <div class="space-y-4" v-if="isNotificationSupported">
+            <Heading
+                variant="small"
+                title="Notifikasi Push Browser (PWA)"
+                description="Terima pemberitahuan instan saat server bermasalah atau pengumuman penting langsung di perangkat ini."
+            />
+
+            <div class="max-w-xl space-y-4">
+                <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl text-sm">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status Notifikasi Browser Ini</span>
+                        <span class="font-bold" :class="isSubscribed ? 'text-green-600' : 'text-amber-600'">
+                            {{ isSubscribed ? 'Aktif (Menerima Notifikasi)' : 'Nonaktif (Belum Terdaftar)' }}
+                        </span>
+                    </div>
+                    <Button
+                        type="button"
+                        @click="togglePushSubscription"
+                        :disabled="isPushLoading"
+                        :class="isSubscribed ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-sky-500 hover:bg-sky-600 text-white'"
+                        class="font-bold cursor-pointer"
+                    >
+                        <Spinner v-if="isPushLoading" />
+                        {{ isSubscribed ? 'Nonaktifkan' : 'Aktifkan' }}
+                    </Button>
                 </div>
             </div>
         </div>
