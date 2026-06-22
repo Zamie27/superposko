@@ -2,9 +2,14 @@
 
 namespace App\Providers;
 
+use App\Helpers\ActivityLogHelper;
+use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -33,12 +38,12 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function registerActivityListeners(): void
     {
-        \Illuminate\Support\Facades\Event::listen(
-            \Illuminate\Auth\Events\Login::class,
-            function (\Illuminate\Auth\Events\Login $event) {
-                /** @var \App\Models\User $user */
+        Event::listen(
+            Login::class,
+            function (Login $event) {
+                /** @var User $user */
                 $user = $event->user;
-                \App\Helpers\ActivityLogHelper::log(
+                ActivityLogHelper::log(
                     'auth',
                     'login',
                     "User {$user->name} logged in.",
@@ -47,12 +52,12 @@ class AppServiceProvider extends ServiceProvider
             }
         );
 
-        \Illuminate\Support\Facades\Event::listen(
-            \Illuminate\Auth\Events\Logout::class,
-            function (\Illuminate\Auth\Events\Logout $event) {
+        Event::listen(
+            Logout::class,
+            function (Logout $event) {
                 $user = $event->user;
-                if ($user instanceof \App\Models\User) {
-                    \App\Helpers\ActivityLogHelper::log(
+                if ($user instanceof User) {
+                    ActivityLogHelper::log(
                         'auth',
                         'logout',
                         "User {$user->name} logged out.",

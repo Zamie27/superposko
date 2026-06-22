@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\ActivityLog;
 use App\Models\User;
-use App\Models\Event;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -27,7 +26,7 @@ class MemberActivityLogTest extends TestCase
 
         $response = $this->get(route('host.dashboard'));
         $response->assertOk();
-        
+
         $response->assertInertia(fn ($page) => $page
             ->component('Dashboard')
             ->has('metrics')

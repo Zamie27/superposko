@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogHelper;
+use App\Helpers\HostRoleHelper;
 use App\Models\Finance;
 use App\Models\Inventory;
 use App\Models\User;
-use App\Helpers\HostRoleHelper;
-use App\Helpers\ActivityLogHelper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -48,7 +48,7 @@ class InventoryController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!HostRoleHelper::canWriteFinance($user)) {
+        if (! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola inventaris.');
         }
 
@@ -88,7 +88,7 @@ class InventoryController extends Controller
                 'created_by' => $user->id,
                 'type' => 'expense',
                 'amount' => $purchasePrice * $validated['quantity'],
-                'title' => 'Pembelian Inventaris: ' . $validated['name'],
+                'title' => 'Pembelian Inventaris: '.$validated['name'],
                 'description' => 'Pembelian otomatis dari penambahan inventaris.',
                 'date' => now()->toDateString(),
             ]);
@@ -126,7 +126,7 @@ class InventoryController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($inventory->host_id !== $hostId || !HostRoleHelper::canWriteFinance($user)) {
+        if ($inventory->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola inventaris.');
         }
 
@@ -164,7 +164,7 @@ class InventoryController extends Controller
             if ($financeId) {
                 // Update existing finance record
                 Finance::where('id', $financeId)->update([
-                    'title' => 'Pembelian Inventaris: ' . $validated['name'],
+                    'title' => 'Pembelian Inventaris: '.$validated['name'],
                     'amount' => $purchasePrice * $validated['quantity'],
                 ]);
             } else {
@@ -175,7 +175,7 @@ class InventoryController extends Controller
                     'created_by' => $user->id,
                     'type' => 'expense',
                     'amount' => $purchasePrice * $validated['quantity'],
-                    'title' => 'Pembelian Inventaris: ' . $validated['name'],
+                    'title' => 'Pembelian Inventaris: '.$validated['name'],
                     'description' => 'Pembelian otomatis dari penambahan inventaris.',
                     'date' => now()->toDateString(),
                 ]);
@@ -218,7 +218,7 @@ class InventoryController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($inventory->host_id !== $hostId || !HostRoleHelper::canWriteFinance($user)) {
+        if ($inventory->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola inventaris.');
         }
 

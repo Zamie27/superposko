@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Models\ActivityLog;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 
 class ActivityLogHelper
@@ -11,11 +12,11 @@ class ActivityLogHelper
     /**
      * Log a system or user activity.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|\App\Models\User|null  $user
+     * @param  Authenticatable|User|null  $user
      */
     public static function log(string $category, string $action, string $description, $user = null): void
     {
-        /** @var \App\Models\User|null $targetUser */
+        /** @var User|null $targetUser */
         $targetUser = $user ?? Auth::user();
 
         ActivityLog::create([

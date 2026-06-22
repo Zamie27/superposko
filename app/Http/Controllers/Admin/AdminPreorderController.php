@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ActivityLogHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Preorder;
 use Illuminate\Http\JsonResponse;
@@ -52,7 +53,7 @@ class AdminPreorderController extends Controller
 
         $preorder->update(['status' => 'approved']);
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'preorder',
             'approve_preorder',
             "Admin approved preorder request #{$preorder->id} from user {$preorder->name} ({$preorder->email}). User role upgraded to host."
@@ -71,7 +72,7 @@ class AdminPreorderController extends Controller
     {
         $preorder->update(['status' => 'rejected']);
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'preorder',
             'reject_preorder',
             "Admin rejected preorder request #{$preorder->id} from user {$preorder->name} ({$preorder->email})."

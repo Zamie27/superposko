@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogHelper;
+use App\Helpers\HostRoleHelper;
+use App\Models\Aspiration;
+use App\Models\AspirationLike;
 use App\Models\Poll;
 use App\Models\PollOption;
 use App\Models\PollVote;
-use App\Models\Aspiration;
-use App\Models\AspirationLike;
-use App\Helpers\HostRoleHelper;
-use App\Helpers\ActivityLogHelper;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -22,7 +23,7 @@ class VotingController extends Controller
      */
     public function index(Request $request): Response
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
@@ -34,13 +35,13 @@ class VotingController extends Controller
             ->withCount('votes')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function (\App\Models\Poll $poll) use ($user) {
+            ->map(function (Poll $poll) use ($user) {
                 // Check if this user has voted in this poll
                 $userVote = PollVote::where('poll_id', $poll->id)
                     ->where('user_id', $user->id)
                     ->first();
 
-                /** @var \App\Models\User $creator */
+                /** @var User $creator */
                 $creator = $poll->creator;
 
                 return [
@@ -51,9 +52,9 @@ class VotingController extends Controller
                     'is_expired' => $poll->isExpired(),
                     'created_by' => $creator->name,
                     'total_votes' => $poll->votes_count ?? 0,
-                    'has_voted' => !is_null($userVote),
+                    'has_voted' => ! is_null($userVote),
                     'voted_option_id' => $userVote ? $userVote->poll_option_id : null,
-                    'options' => $poll->options->map(function (\App\Models\PollOption $opt) {
+                    'options' => $poll->options->map(function (PollOption $opt) {
                         return [
                             'id' => $opt->id,
                             'option_text' => $opt->option_text,
@@ -69,13 +70,13 @@ class VotingController extends Controller
             ->withCount('likes')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function (\App\Models\Aspiration $asp) use ($user) {
+            ->map(function (Aspiration $asp) use ($user) {
                 // Check if user has liked this suggestion
                 $isLiked = AspirationLike::where('aspiration_id', $asp->id)
                     ->where('user_id', $user->id)
                     ->exists();
 
-                /** @var \App\Models\User|null $aspUser */
+                /** @var User|null $aspUser */
                 $aspUser = $asp->user;
 
                 return [
@@ -105,7 +106,7 @@ class VotingController extends Controller
     public function storePoll(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!HostRoleHelper::isHostOrSekretaris($user)) {
+        if (! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat membuat voting.');
         }
 
@@ -173,11 +174,11 @@ class VotingController extends Controller
         ]);
 
         // Validate option belongs to this poll
-        /** @var \App\Models\PollOption|null $option */
+        /** @var PollOption|null $option */
         $option = PollOption::where('poll_id', $poll->id)
             ->where('id', $validated['poll_option_id'])
             ->first();
-        if (!$option) {
+        if (! $option) {
             abort(400, 'Pilihan tidak valid.');
         }
 
@@ -233,7 +234,7 @@ class VotingController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($poll->host_id !== $hostId || !HostRoleHelper::isHostOrSekretaris($user)) {
+        if ($poll->host_id !== $hostId || ! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat menghapus voting.');
         }
 
@@ -316,7 +317,7 @@ class VotingController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($aspiration->host_id !== $hostId || !HostRoleHelper::isHostOrSekretaris($user)) {
+        if ($aspiration->host_id !== $hostId || ! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat merespon aspirasi.');
         }
 
@@ -347,7 +348,7 @@ class VotingController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($aspiration->host_id !== $hostId || !HostRoleHelper::isHostOrSekretaris($user)) {
+        if ($aspiration->host_id !== $hostId || ! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat menghapus aspirasi.');
         }
 

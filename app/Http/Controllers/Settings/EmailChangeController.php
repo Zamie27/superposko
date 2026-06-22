@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Helpers\ActivityLogHelper;
 use App\Http\Controllers\Controller;
 use App\Mail\EmailChangedNotificationMail;
 use App\Mail\SendEmailChangeOtpMail;
@@ -55,18 +56,19 @@ class EmailChangeController extends Controller
         try {
             Mail::to($newEmail)->send(new SendEmailChangeOtpMail($otpCode));
         } catch (\Exception $e) {
-            /** @var \Illuminate\Http\RedirectResponse $response */
+            /** @var RedirectResponse $response */
             $response = Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'Gagal mengirim email OTP. Silakan periksa kembali email Anda.',
             ])->back();
+
             return $response;
         }
 
-        /** @var \Illuminate\Http\RedirectResponse $response */
+        /** @var RedirectResponse $response */
         $response = Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Kode OTP berhasil dikirim ke ' . $newEmail,
+            'message' => 'Kode OTP berhasil dikirim ke '.$newEmail,
         ])->back();
 
         return $response->with('otp_sent', true)->with('new_email_attempt', $newEmail);
@@ -99,12 +101,13 @@ class EmailChangeController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$otpRecord) {
-            /** @var \Illuminate\Http\RedirectResponse $response */
+        if (! $otpRecord) {
+            /** @var RedirectResponse $response */
             $response = Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'Kode OTP tidak valid atau telah kedaluwarsa.',
             ])->back();
+
             return $response;
         }
 
@@ -116,7 +119,7 @@ class EmailChangeController extends Controller
             'email_verified_at' => now(),
         ])->save();
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'auth',
             'change_email',
             "User changed their email address from {$oldEmail} to {$newEmail}.",
@@ -140,7 +143,7 @@ class EmailChangeController extends Controller
             // Log or ignore mail sending errors to old email so user still successfully updates
         }
 
-        /** @var \Illuminate\Http\RedirectResponse $response */
+        /** @var RedirectResponse $response */
         $response = Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Alamat email akun Anda berhasil diganti.',

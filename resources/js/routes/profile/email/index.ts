@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::otp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 export const otp = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ otp.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::otp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 otp.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ otp.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::otp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 otp.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ otp.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::otp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 const otpForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const otpForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::otp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 otpForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ otp.form = otpForm
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::change
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 export const change = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -72,7 +72,7 @@ change.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::change
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 change.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ change.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::change
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 change.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -91,7 +91,7 @@ change.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::change
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 const changeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -106,7 +106,7 @@ const changeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::change
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 changeForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

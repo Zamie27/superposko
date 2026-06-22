@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::sendOtp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 export const sendOtp = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ sendOtp.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::sendOtp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 sendOtp.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ sendOtp.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::sendOtp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 sendOtp.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ sendOtp.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::sendOtp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 const sendOtpForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const sendOtpForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::sendOtp
-* @see app/Http/Controllers/Settings/EmailChangeController.php:20
+* @see app/Http/Controllers/Settings/EmailChangeController.php:21
 * @route '/settings/profile/email-otp'
 */
 sendOtpForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ sendOtp.form = sendOtpForm
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 export const verifyAndChange = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -72,7 +72,7 @@ verifyAndChange.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 verifyAndChange.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ verifyAndChange.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 verifyAndChange.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -91,7 +91,7 @@ verifyAndChange.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => (
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 const verifyAndChangeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -106,7 +106,7 @@ const verifyAndChangeForm = (options?: RouteQueryOptions): RouteFormDefinition<'
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:78
+* @see app/Http/Controllers/Settings/EmailChangeController.php:80
 * @route '/settings/profile/email-change'
 */
 verifyAndChangeForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

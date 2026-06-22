@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\MidtransService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +22,7 @@ class PaymentTest extends TestCase
 
     public function test_authenticated_user_can_access_payment_checkout_page()
     {
-        \App\Models\Setting::set('preorder_promo_active', '0');
+        Setting::set('preorder_promo_active', '0');
         $user = User::factory()->create(['role' => 'user']);
 
         $response = $this->actingAs($user)->get(route('payment.index'));
@@ -31,7 +32,7 @@ class PaymentTest extends TestCase
 
     public function test_authenticated_user_cannot_access_payment_checkout_page_when_preorder_active()
     {
-        \App\Models\Setting::set('preorder_promo_active', '1');
+        Setting::set('preorder_promo_active', '1');
         $user = User::factory()->create(['role' => 'user']);
 
         $response = $this->actingAs($user)->get(route('payment.index'));
@@ -41,7 +42,7 @@ class PaymentTest extends TestCase
 
     public function test_authenticated_user_can_create_snap_token()
     {
-        \App\Models\Setting::set('preorder_promo_active', '0');
+        Setting::set('preorder_promo_active', '0');
         $user = User::factory()->create(['role' => 'user']);
 
         $mockMidtrans = Mockery::mock(MidtransService::class);
@@ -67,7 +68,7 @@ class PaymentTest extends TestCase
 
     public function test_authenticated_user_cannot_create_snap_token_when_preorder_active()
     {
-        \App\Models\Setting::set('preorder_promo_active', '1');
+        Setting::set('preorder_promo_active', '1');
         $user = User::factory()->create(['role' => 'user']);
 
         $response = $this->actingAs($user)
@@ -78,7 +79,7 @@ class PaymentTest extends TestCase
 
     public function test_authenticated_user_can_verify_successful_payment()
     {
-        \App\Models\Setting::set('preorder_promo_active', '0');
+        Setting::set('preorder_promo_active', '0');
         $user = User::factory()->create(['role' => 'user']);
 
         $mockMidtrans = Mockery::mock(MidtransService::class);

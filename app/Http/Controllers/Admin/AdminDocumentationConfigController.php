@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ActivityLogHelper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Helpers\ActivityLogHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -60,7 +61,7 @@ class AdminDocumentationConfigController extends Controller
             'immich_password' => $validated['immich_password'],
         ]);
 
-        \Illuminate\Support\Facades\Cache::forget('immich_storage_' . $host->id);
+        Cache::forget('immich_storage_'.$host->id);
 
         ActivityLogHelper::log(
             'settings',

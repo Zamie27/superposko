@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\DutyRoster;
 use App\Models\Event;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,7 +13,9 @@ class ScheduleTest extends TestCase
     use RefreshDatabase;
 
     protected User $host;
+
     protected User $member;
+
     protected User $otherHost;
 
     protected function setUp(): void

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Report;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,6 +15,7 @@ class ReportController extends Controller
     public function create(Request $request): Response
     {
         $user = $request->user();
+
         return Inertia::render('reports/Create', [
             'defaultEmail' => $user ? $user->email : '',
             'defaultType' => $request->input('type', 'complaint'),

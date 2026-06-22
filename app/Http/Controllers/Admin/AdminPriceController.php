@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ActivityLogHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -52,10 +52,10 @@ class AdminPriceController extends Controller
         Setting::set('preorder_strike_price', $validated['preorderStrikePrice']);
         Setting::set('preorder_promo_active', $validated['preorderPromoActive'] ? '1' : '0');
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'settings',
             'update_pricing',
-            "Admin updated pricing configuration: Package {$validated['packageName']} = Rp " . number_format($validated['packagePrice']) . ", Preorder = Rp " . number_format($validated['preorderPrice']) . " (Preorder promo: " . ($validated['preorderPromoActive'] ? 'Active' : 'Inactive') . ")"
+            "Admin updated pricing configuration: Package {$validated['packageName']} = Rp ".number_format($validated['packagePrice']).', Preorder = Rp '.number_format($validated['preorderPrice']).' (Preorder promo: '.($validated['preorderPromoActive'] ? 'Active' : 'Inactive').')'
         );
 
         return Inertia::flash('toast', [

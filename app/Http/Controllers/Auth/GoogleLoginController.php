@@ -114,6 +114,7 @@ class GoogleLoginController extends Controller
         if (! $user) {
             $user = new User;
             $user->email = $googleUser['email'];
+            $user->role = 'trial';
         }
 
         $user->name = $googleUser['name'];

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::index
-* @see app/Http/Controllers/ProkerDocumentController.php:30
+* @see app/Http/Controllers/ProkerDocumentController.php:31
 * @route '/repository'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::index
-* @see app/Http/Controllers/ProkerDocumentController.php:30
+* @see app/Http/Controllers/ProkerDocumentController.php:31
 * @route '/repository'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::index
-* @see app/Http/Controllers/ProkerDocumentController.php:30
+* @see app/Http/Controllers/ProkerDocumentController.php:31
 * @route '/repository'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::index
-* @see app/Http/Controllers/ProkerDocumentController.php:30
+* @see app/Http/Controllers/ProkerDocumentController.php:31
 * @route '/repository'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::index
-* @see app/Http/Controllers/ProkerDocumentController.php:30
+* @see app/Http/Controllers/ProkerDocumentController.php:31
 * @route '/repository'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::index
-* @see app/Http/Controllers/ProkerDocumentController.php:30
+* @see app/Http/Controllers/ProkerDocumentController.php:31
 * @route '/repository'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::index
-* @see app/Http/Controllers/ProkerDocumentController.php:30
+* @see app/Http/Controllers/ProkerDocumentController.php:31
 * @route '/repository'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::store
-* @see app/Http/Controllers/ProkerDocumentController.php:74
+* @see app/Http/Controllers/ProkerDocumentController.php:75
 * @route '/repository'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::store
-* @see app/Http/Controllers/ProkerDocumentController.php:74
+* @see app/Http/Controllers/ProkerDocumentController.php:75
 * @route '/repository'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::store
-* @see app/Http/Controllers/ProkerDocumentController.php:74
+* @see app/Http/Controllers/ProkerDocumentController.php:75
 * @route '/repository'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::store
-* @see app/Http/Controllers/ProkerDocumentController.php:74
+* @see app/Http/Controllers/ProkerDocumentController.php:75
 * @route '/repository'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::store
-* @see app/Http/Controllers/ProkerDocumentController.php:74
+* @see app/Http/Controllers/ProkerDocumentController.php:75
 * @route '/repository'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::destroy
-* @see app/Http/Controllers/ProkerDocumentController.php:161
+* @see app/Http/Controllers/ProkerDocumentController.php:162
 * @route '/repository/{document}'
 */
 export const destroy = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -153,7 +153,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::destroy
-* @see app/Http/Controllers/ProkerDocumentController.php:161
+* @see app/Http/Controllers/ProkerDocumentController.php:162
 * @route '/repository/{document}'
 */
 destroy.url = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -186,7 +186,7 @@ destroy.url = (args: { document: number | { id: number } } | [document: number |
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::destroy
-* @see app/Http/Controllers/ProkerDocumentController.php:161
+* @see app/Http/Controllers/ProkerDocumentController.php:162
 * @route '/repository/{document}'
 */
 destroy.delete = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -196,7 +196,7 @@ destroy.delete = (args: { document: number | { id: number } } | [document: numbe
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::destroy
-* @see app/Http/Controllers/ProkerDocumentController.php:161
+* @see app/Http/Controllers/ProkerDocumentController.php:162
 * @route '/repository/{document}'
 */
 const destroyForm = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -211,7 +211,7 @@ const destroyForm = (args: { document: number | { id: number } } | [document: nu
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::destroy
-* @see app/Http/Controllers/ProkerDocumentController.php:161
+* @see app/Http/Controllers/ProkerDocumentController.php:162
 * @route '/repository/{document}'
 */
 destroyForm.delete = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -228,7 +228,7 @@ destroy.form = destroyForm
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::download
-* @see app/Http/Controllers/ProkerDocumentController.php:121
+* @see app/Http/Controllers/ProkerDocumentController.php:122
 * @route '/repository/{document}/download'
 */
 export const download = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -243,7 +243,7 @@ download.definition = {
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::download
-* @see app/Http/Controllers/ProkerDocumentController.php:121
+* @see app/Http/Controllers/ProkerDocumentController.php:122
 * @route '/repository/{document}/download'
 */
 download.url = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -276,7 +276,7 @@ download.url = (args: { document: number | { id: number } } | [document: number 
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::download
-* @see app/Http/Controllers/ProkerDocumentController.php:121
+* @see app/Http/Controllers/ProkerDocumentController.php:122
 * @route '/repository/{document}/download'
 */
 download.get = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -286,7 +286,7 @@ download.get = (args: { document: number | { id: number } } | [document: number 
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::download
-* @see app/Http/Controllers/ProkerDocumentController.php:121
+* @see app/Http/Controllers/ProkerDocumentController.php:122
 * @route '/repository/{document}/download'
 */
 download.head = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -296,7 +296,7 @@ download.head = (args: { document: number | { id: number } } | [document: number
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::download
-* @see app/Http/Controllers/ProkerDocumentController.php:121
+* @see app/Http/Controllers/ProkerDocumentController.php:122
 * @route '/repository/{document}/download'
 */
 const downloadForm = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -306,7 +306,7 @@ const downloadForm = (args: { document: number | { id: number } } | [document: n
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::download
-* @see app/Http/Controllers/ProkerDocumentController.php:121
+* @see app/Http/Controllers/ProkerDocumentController.php:122
 * @route '/repository/{document}/download'
 */
 downloadForm.get = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -316,7 +316,7 @@ downloadForm.get = (args: { document: number | { id: number } } | [document: num
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::download
-* @see app/Http/Controllers/ProkerDocumentController.php:121
+* @see app/Http/Controllers/ProkerDocumentController.php:122
 * @route '/repository/{document}/download'
 */
 downloadForm.head = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -333,7 +333,7 @@ download.form = downloadForm
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::view
-* @see app/Http/Controllers/ProkerDocumentController.php:141
+* @see app/Http/Controllers/ProkerDocumentController.php:142
 * @route '/repository/{document}/view'
 */
 export const view = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -348,7 +348,7 @@ view.definition = {
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::view
-* @see app/Http/Controllers/ProkerDocumentController.php:141
+* @see app/Http/Controllers/ProkerDocumentController.php:142
 * @route '/repository/{document}/view'
 */
 view.url = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -381,7 +381,7 @@ view.url = (args: { document: number | { id: number } } | [document: number | { 
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::view
-* @see app/Http/Controllers/ProkerDocumentController.php:141
+* @see app/Http/Controllers/ProkerDocumentController.php:142
 * @route '/repository/{document}/view'
 */
 view.get = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -391,7 +391,7 @@ view.get = (args: { document: number | { id: number } } | [document: number | { 
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::view
-* @see app/Http/Controllers/ProkerDocumentController.php:141
+* @see app/Http/Controllers/ProkerDocumentController.php:142
 * @route '/repository/{document}/view'
 */
 view.head = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -401,7 +401,7 @@ view.head = (args: { document: number | { id: number } } | [document: number | {
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::view
-* @see app/Http/Controllers/ProkerDocumentController.php:141
+* @see app/Http/Controllers/ProkerDocumentController.php:142
 * @route '/repository/{document}/view'
 */
 const viewForm = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -411,7 +411,7 @@ const viewForm = (args: { document: number | { id: number } } | [document: numbe
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::view
-* @see app/Http/Controllers/ProkerDocumentController.php:141
+* @see app/Http/Controllers/ProkerDocumentController.php:142
 * @route '/repository/{document}/view'
 */
 viewForm.get = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -421,7 +421,7 @@ viewForm.get = (args: { document: number | { id: number } } | [document: number 
 
 /**
 * @see \App\Http\Controllers\ProkerDocumentController::view
-* @see app/Http/Controllers/ProkerDocumentController.php:141
+* @see app/Http/Controllers/ProkerDocumentController.php:142
 * @route '/repository/{document}/view'
 */
 viewForm.head = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

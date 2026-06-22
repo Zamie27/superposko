@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Setting;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,8 +28,21 @@ class HostRouteProtectionMiddleware
             return $next($request);
         }
 
-        // Host and Member can access all host routes
-        $isHostOrMember = $user->role === 'host' || !is_null($user->host_id);
+        // Check if user is trial and trying to access locked features (Documentation & Members)
+        if ($user->role === 'trial') {
+            $routeName = $request->route()?->getName();
+            if ($routeName && (
+                str_starts_with($routeName, 'host.documentation') ||
+                str_starts_with($routeName, 'management.members')
+            )) {
+                return $request->expectsJson()
+                    ? response()->json(['message' => 'Fitur ini tidak tersedia selama masa trial.'], 403)
+                    : abort(403, 'Fitur ini tidak tersedia selama masa trial.');
+            }
+        }
+
+        // Host, trial, and Member can access all host routes
+        $isHostOrMember = $user->role === 'host' || $user->role === 'trial' || ! is_null($user->host_id);
         if ($isHostOrMember) {
             return $next($request);
         }

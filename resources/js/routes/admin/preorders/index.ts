@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::index
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:17
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:18
 * @route '/admin/preorders'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::index
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:17
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:18
 * @route '/admin/preorders'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::index
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:17
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:18
 * @route '/admin/preorders'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::index
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:17
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:18
 * @route '/admin/preorders'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::index
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:17
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:18
 * @route '/admin/preorders'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::index
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:17
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:18
 * @route '/admin/preorders'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::index
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:17
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:18
 * @route '/admin/preorders'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::approve
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:43
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:44
 * @route '/admin/preorders/{preorder}/approve'
 */
 export const approve = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::approve
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:43
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:44
 * @route '/admin/preorders/{preorder}/approve'
 */
 approve.url = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -130,7 +130,7 @@ approve.url = (args: { preorder: number | { id: number } } | [preorder: number |
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::approve
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:43
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:44
 * @route '/admin/preorders/{preorder}/approve'
 */
 approve.post = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -140,7 +140,7 @@ approve.post = (args: { preorder: number | { id: number } } | [preorder: number 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::approve
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:43
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:44
 * @route '/admin/preorders/{preorder}/approve'
 */
 const approveForm = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -150,7 +150,7 @@ const approveForm = (args: { preorder: number | { id: number } } | [preorder: nu
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::approve
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:43
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:44
 * @route '/admin/preorders/{preorder}/approve'
 */
 approveForm.post = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -162,7 +162,7 @@ approve.form = approveForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:71
 * @route '/admin/preorders/{preorder}/reject'
 */
 export const reject = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -177,7 +177,7 @@ reject.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:71
 * @route '/admin/preorders/{preorder}/reject'
 */
 reject.url = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -210,7 +210,7 @@ reject.url = (args: { preorder: number | { id: number } } | [preorder: number | 
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:71
 * @route '/admin/preorders/{preorder}/reject'
 */
 reject.post = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -220,7 +220,7 @@ reject.post = (args: { preorder: number | { id: number } } | [preorder: number |
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:71
 * @route '/admin/preorders/{preorder}/reject'
 */
 const rejectForm = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -230,7 +230,7 @@ const rejectForm = (args: { preorder: number | { id: number } } | [preorder: num
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPreorderController::reject
-* @see app/Http/Controllers/Admin/AdminPreorderController.php:70
+* @see app/Http/Controllers/Admin/AdminPreorderController.php:71
 * @route '/admin/preorders/{preorder}/reject'
 */
 rejectForm.post = (args: { preorder: number | { id: number } } | [preorder: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

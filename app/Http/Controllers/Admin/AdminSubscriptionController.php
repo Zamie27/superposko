@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ActivityLogHelper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -48,7 +49,7 @@ class AdminSubscriptionController extends Controller
             'subscription_expires_at' => now()->addDays(40),
         ]);
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'payment',
             'bypass_payment',
             "Admin bypassed payment for user {$user->name} ({$user->email}), granting 40 days host access."
@@ -74,7 +75,7 @@ class AdminSubscriptionController extends Controller
             'subscription_expires_at' => $validated['expires_at'],
         ]);
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'payment',
             'update_subscription_duration',
             "Admin updated subscription duration for user {$user->name} ({$user->email}) to {$validated['expires_at']}."
@@ -96,7 +97,7 @@ class AdminSubscriptionController extends Controller
             'subscription_expires_at' => null, // set to null
         ]);
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'payment',
             'revoke_subscription',
             "Admin revoked subscription access from user {$user->name} ({$user->email})."

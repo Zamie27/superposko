@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogHelper;
+use App\Helpers\HostRoleHelper;
 use App\Models\Logbook;
 use App\Models\ProgramKerja;
 use App\Models\User;
-use App\Helpers\HostRoleHelper;
-use App\Helpers\ActivityLogHelper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -86,7 +86,7 @@ class LogbookController extends Controller
     public function storeProker(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!HostRoleHelper::canWriteFinance($user)) {
+        if (! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola Program Kerja.');
         }
 
@@ -137,7 +137,7 @@ class LogbookController extends Controller
 
         // Allowed to edit: finance role (Host/Sekretaris/Bendahara) OR the assigned PIC of the proker
         $isPic = $proker->pic_id === $user->id;
-        if ($proker->host_id !== $hostId || (!HostRoleHelper::canWriteFinance($user) && !$isPic)) {
+        if ($proker->host_id !== $hostId || (! HostRoleHelper::canWriteFinance($user) && ! $isPic)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola Program Kerja ini.');
         }
 
@@ -183,7 +183,7 @@ class LogbookController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($proker->host_id !== $hostId || !HostRoleHelper::canWriteFinance($user)) {
+        if ($proker->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola Program Kerja ini.');
         }
 
@@ -250,7 +250,7 @@ class LogbookController extends Controller
         $isAuthor = $logbook->user_id === $user->id;
         $isHostOrSekretaris = HostRoleHelper::isHostOrSekretaris($user);
 
-        if ($logbook->host_id !== $hostId || (!$isAuthor && !$isHostOrSekretaris)) {
+        if ($logbook->host_id !== $hostId || (! $isAuthor && ! $isHostOrSekretaris)) {
             abort(403, 'Anda tidak memiliki hak untuk memperbarui catatan logbook ini.');
         }
 
@@ -298,7 +298,7 @@ class LogbookController extends Controller
         $isAuthor = $logbook->user_id === $user->id;
         $isHostOrSekretaris = HostRoleHelper::isHostOrSekretaris($user);
 
-        if ($logbook->host_id !== $hostId || (!$isAuthor && !$isHostOrSekretaris)) {
+        if ($logbook->host_id !== $hostId || (! $isAuthor && ! $isHostOrSekretaris)) {
             abort(403, 'Anda tidak memiliki hak untuk menghapus catatan logbook ini.');
         }
 

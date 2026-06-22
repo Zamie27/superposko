@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -29,17 +29,17 @@ return new class extends Migration
             $oldVal = trim($logistic->old_quantity);
             // Regex to match numbers (including floats) and the unit
             preg_match('/^([\d\.]+)\s*(.*)$/', $oldVal, $matches);
-            
+
             $quantity = 0;
             $unit = 'pcs';
-            
+
             if (isset($matches[1]) && is_numeric($matches[1])) {
                 $quantity = (float) $matches[1];
             }
-            if (isset($matches[2]) && !empty(trim($matches[2]))) {
+            if (isset($matches[2]) && ! empty(trim($matches[2]))) {
                 $unit = trim($matches[2]);
             }
-            
+
             DB::table('logistics')
                 ->where('id', $logistic->id)
                 ->update([
@@ -71,7 +71,7 @@ return new class extends Migration
         foreach ($logistics as $logistic) {
             $qty = (float) $logistic->old_quantity;
             $unit = $logistic->unit;
-            $combined = trim($qty . ' ' . $unit);
+            $combined = trim($qty.' '.$unit);
 
             DB::table('logistics')
                 ->where('id', $logistic->id)

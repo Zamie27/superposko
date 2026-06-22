@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Finance;
-use App\Models\User;
-use App\Models\Logistic;
-use App\Helpers\HostRoleHelper;
 use App\Helpers\ActivityLogHelper;
+use App\Helpers\HostRoleHelper;
+use App\Models\Finance;
+use App\Models\Logistic;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -46,7 +46,7 @@ class LogisticController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!HostRoleHelper::canWriteFinance($user)) {
+        if (! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola logistik.');
         }
 
@@ -80,7 +80,7 @@ class LogisticController extends Controller
                 'created_by' => $user->id,
                 'type' => 'expense',
                 'amount' => $purchasePrice * $validated['quantity'],
-                'title' => 'Pembelian Logistik: ' . $validated['name'],
+                'title' => 'Pembelian Logistik: '.$validated['name'],
                 'description' => 'Pembelian otomatis dari penambahan logistik.',
                 'date' => now()->toDateString(),
             ]);
@@ -117,7 +117,7 @@ class LogisticController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($logistic->host_id !== $hostId || !HostRoleHelper::canWriteFinance($user)) {
+        if ($logistic->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola logistik.');
         }
 
@@ -146,7 +146,7 @@ class LogisticController extends Controller
             if ($financeId) {
                 // Update existing finance record
                 Finance::where('id', $financeId)->update([
-                    'title' => 'Pembelian Logistik: ' . $validated['name'],
+                    'title' => 'Pembelian Logistik: '.$validated['name'],
                     'amount' => $purchasePrice * $validated['quantity'],
                 ]);
             } else {
@@ -157,7 +157,7 @@ class LogisticController extends Controller
                     'created_by' => $user->id,
                     'type' => 'expense',
                     'amount' => $purchasePrice * $validated['quantity'],
-                    'title' => 'Pembelian Logistik: ' . $validated['name'],
+                    'title' => 'Pembelian Logistik: '.$validated['name'],
                     'description' => 'Pembelian otomatis dari penambahan logistik.',
                     'date' => now()->toDateString(),
                 ]);
@@ -198,7 +198,7 @@ class LogisticController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($logistic->host_id !== $hostId || !HostRoleHelper::canWriteFinance($user)) {
+        if ($logistic->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola logistik.');
         }
 
@@ -248,7 +248,7 @@ class LogisticController extends Controller
 
             if ($logistic->quantity < $amount) {
                 return back()->withErrors([
-                    'items' => "Stok untuk {$logistic->name} tidak mencukupi (Tersedia: {$logistic->quantity} {$logistic->unit}, Diminta: {$amount} {$logistic->unit})."
+                    'items' => "Stok untuk {$logistic->name} tidak mencukupi (Tersedia: {$logistic->quantity} {$logistic->unit}, Diminta: {$amount} {$logistic->unit}).",
                 ]);
             }
 

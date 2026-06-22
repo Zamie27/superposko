@@ -3,7 +3,7 @@ import poll from './poll'
 import aspiration from './aspiration'
 /**
 * @see \App\Http\Controllers\VotingController::index
-* @see app/Http/Controllers/VotingController.php:23
+* @see app/Http/Controllers/VotingController.php:24
 * @route '/voting'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -18,7 +18,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\VotingController::index
-* @see app/Http/Controllers/VotingController.php:23
+* @see app/Http/Controllers/VotingController.php:24
 * @route '/voting'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -27,7 +27,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\VotingController::index
-* @see app/Http/Controllers/VotingController.php:23
+* @see app/Http/Controllers/VotingController.php:24
 * @route '/voting'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -37,7 +37,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\VotingController::index
-* @see app/Http/Controllers/VotingController.php:23
+* @see app/Http/Controllers/VotingController.php:24
 * @route '/voting'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -47,7 +47,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\VotingController::index
-* @see app/Http/Controllers/VotingController.php:23
+* @see app/Http/Controllers/VotingController.php:24
 * @route '/voting'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -57,7 +57,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\VotingController::index
-* @see app/Http/Controllers/VotingController.php:23
+* @see app/Http/Controllers/VotingController.php:24
 * @route '/voting'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -67,7 +67,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\VotingController::index
-* @see app/Http/Controllers/VotingController.php:23
+* @see app/Http/Controllers/VotingController.php:24
 * @route '/voting'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

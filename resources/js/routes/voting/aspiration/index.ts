@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\VotingController::store
-* @see app/Http/Controllers/VotingController.php:254
+* @see app/Http/Controllers/VotingController.php:255
 * @route '/voting/aspiration'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\VotingController::store
-* @see app/Http/Controllers/VotingController.php:254
+* @see app/Http/Controllers/VotingController.php:255
 * @route '/voting/aspiration'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\VotingController::store
-* @see app/Http/Controllers/VotingController.php:254
+* @see app/Http/Controllers/VotingController.php:255
 * @route '/voting/aspiration'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\VotingController::store
-* @see app/Http/Controllers/VotingController.php:254
+* @see app/Http/Controllers/VotingController.php:255
 * @route '/voting/aspiration'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\VotingController::store
-* @see app/Http/Controllers/VotingController.php:254
+* @see app/Http/Controllers/VotingController.php:255
 * @route '/voting/aspiration'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\VotingController::like
-* @see app/Http/Controllers/VotingController.php:286
+* @see app/Http/Controllers/VotingController.php:287
 * @route '/voting/aspiration/{aspiration}/like'
 */
 export const like = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -72,7 +72,7 @@ like.definition = {
 
 /**
 * @see \App\Http\Controllers\VotingController::like
-* @see app/Http/Controllers/VotingController.php:286
+* @see app/Http/Controllers/VotingController.php:287
 * @route '/voting/aspiration/{aspiration}/like'
 */
 like.url = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -105,7 +105,7 @@ like.url = (args: { aspiration: number | { id: number } } | [aspiration: number 
 
 /**
 * @see \App\Http\Controllers\VotingController::like
-* @see app/Http/Controllers/VotingController.php:286
+* @see app/Http/Controllers/VotingController.php:287
 * @route '/voting/aspiration/{aspiration}/like'
 */
 like.post = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -115,7 +115,7 @@ like.post = (args: { aspiration: number | { id: number } } | [aspiration: number
 
 /**
 * @see \App\Http\Controllers\VotingController::like
-* @see app/Http/Controllers/VotingController.php:286
+* @see app/Http/Controllers/VotingController.php:287
 * @route '/voting/aspiration/{aspiration}/like'
 */
 const likeForm = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -125,7 +125,7 @@ const likeForm = (args: { aspiration: number | { id: number } } | [aspiration: n
 
 /**
 * @see \App\Http\Controllers\VotingController::like
-* @see app/Http/Controllers/VotingController.php:286
+* @see app/Http/Controllers/VotingController.php:287
 * @route '/voting/aspiration/{aspiration}/like'
 */
 likeForm.post = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -137,7 +137,7 @@ like.form = likeForm
 
 /**
 * @see \App\Http\Controllers\VotingController::respond
-* @see app/Http/Controllers/VotingController.php:314
+* @see app/Http/Controllers/VotingController.php:315
 * @route '/voting/aspiration/{aspiration}/respond'
 */
 export const respond = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -152,7 +152,7 @@ respond.definition = {
 
 /**
 * @see \App\Http\Controllers\VotingController::respond
-* @see app/Http/Controllers/VotingController.php:314
+* @see app/Http/Controllers/VotingController.php:315
 * @route '/voting/aspiration/{aspiration}/respond'
 */
 respond.url = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -185,7 +185,7 @@ respond.url = (args: { aspiration: number | { id: number } } | [aspiration: numb
 
 /**
 * @see \App\Http\Controllers\VotingController::respond
-* @see app/Http/Controllers/VotingController.php:314
+* @see app/Http/Controllers/VotingController.php:315
 * @route '/voting/aspiration/{aspiration}/respond'
 */
 respond.put = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -195,7 +195,7 @@ respond.put = (args: { aspiration: number | { id: number } } | [aspiration: numb
 
 /**
 * @see \App\Http\Controllers\VotingController::respond
-* @see app/Http/Controllers/VotingController.php:314
+* @see app/Http/Controllers/VotingController.php:315
 * @route '/voting/aspiration/{aspiration}/respond'
 */
 const respondForm = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -210,7 +210,7 @@ const respondForm = (args: { aspiration: number | { id: number } } | [aspiration
 
 /**
 * @see \App\Http\Controllers\VotingController::respond
-* @see app/Http/Controllers/VotingController.php:314
+* @see app/Http/Controllers/VotingController.php:315
 * @route '/voting/aspiration/{aspiration}/respond'
 */
 respondForm.put = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -227,7 +227,7 @@ respond.form = respondForm
 
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:345
+* @see app/Http/Controllers/VotingController.php:346
 * @route '/voting/aspiration/{aspiration}'
 */
 export const destroy = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -242,7 +242,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:345
+* @see app/Http/Controllers/VotingController.php:346
 * @route '/voting/aspiration/{aspiration}'
 */
 destroy.url = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -275,7 +275,7 @@ destroy.url = (args: { aspiration: number | { id: number } } | [aspiration: numb
 
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:345
+* @see app/Http/Controllers/VotingController.php:346
 * @route '/voting/aspiration/{aspiration}'
 */
 destroy.delete = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -285,7 +285,7 @@ destroy.delete = (args: { aspiration: number | { id: number } } | [aspiration: n
 
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:345
+* @see app/Http/Controllers/VotingController.php:346
 * @route '/voting/aspiration/{aspiration}'
 */
 const destroyForm = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -300,7 +300,7 @@ const destroyForm = (args: { aspiration: number | { id: number } } | [aspiration
 
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:345
+* @see app/Http/Controllers/VotingController.php:346
 * @route '/voting/aspiration/{aspiration}'
 */
 destroyForm.delete = (args: { aspiration: number | { id: number } } | [aspiration: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

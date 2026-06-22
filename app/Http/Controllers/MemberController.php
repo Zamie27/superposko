@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Helpers\ActivityLogHelper;
 use App\Helpers\HostRoleHelper;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -60,7 +61,7 @@ class MemberController extends Controller
             'kkn_address' => $host->kkn_address,
         ]);
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'member',
             'add_member',
             "User added member {$validated['name']} ({$validated['email']}) with role {$validated['role']}."
@@ -98,7 +99,7 @@ class MemberController extends Controller
 
         $member->save();
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'member',
             'update_member',
             "User updated member {$member->name} ({$member->email}) details to role {$member->role}."
@@ -121,7 +122,7 @@ class MemberController extends Controller
 
         $member->delete();
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'member',
             'delete_member',
             "User deleted member {$member->name} ({$member->email})."

@@ -31,6 +31,7 @@ class CreateNewUser implements CreatesNewUsers
             'group_number' => $input['group_number'],
             'kkn_address' => $input['kkn_address'],
             'password' => $input['password'],
+            'role' => 'trial',
         ]);
     }
 }

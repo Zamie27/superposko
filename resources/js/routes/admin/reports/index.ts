@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::index
-* @see app/Http/Controllers/Admin/AdminReportController.php:17
+* @see app/Http/Controllers/Admin/AdminReportController.php:16
 * @route '/admin/reports'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::index
-* @see app/Http/Controllers/Admin/AdminReportController.php:17
+* @see app/Http/Controllers/Admin/AdminReportController.php:16
 * @route '/admin/reports'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::index
-* @see app/Http/Controllers/Admin/AdminReportController.php:17
+* @see app/Http/Controllers/Admin/AdminReportController.php:16
 * @route '/admin/reports'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::index
-* @see app/Http/Controllers/Admin/AdminReportController.php:17
+* @see app/Http/Controllers/Admin/AdminReportController.php:16
 * @route '/admin/reports'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::index
-* @see app/Http/Controllers/Admin/AdminReportController.php:17
+* @see app/Http/Controllers/Admin/AdminReportController.php:16
 * @route '/admin/reports'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::index
-* @see app/Http/Controllers/Admin/AdminReportController.php:17
+* @see app/Http/Controllers/Admin/AdminReportController.php:16
 * @route '/admin/reports'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::index
-* @see app/Http/Controllers/Admin/AdminReportController.php:17
+* @see app/Http/Controllers/Admin/AdminReportController.php:16
 * @route '/admin/reports'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::resolve
-* @see app/Http/Controllers/Admin/AdminReportController.php:48
+* @see app/Http/Controllers/Admin/AdminReportController.php:47
 * @route '/admin/reports/{report}/resolve'
 */
 export const resolve = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -97,7 +97,7 @@ resolve.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::resolve
-* @see app/Http/Controllers/Admin/AdminReportController.php:48
+* @see app/Http/Controllers/Admin/AdminReportController.php:47
 * @route '/admin/reports/{report}/resolve'
 */
 resolve.url = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -130,7 +130,7 @@ resolve.url = (args: { report: number | { id: number } } | [report: number | { i
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::resolve
-* @see app/Http/Controllers/Admin/AdminReportController.php:48
+* @see app/Http/Controllers/Admin/AdminReportController.php:47
 * @route '/admin/reports/{report}/resolve'
 */
 resolve.put = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -140,7 +140,7 @@ resolve.put = (args: { report: number | { id: number } } | [report: number | { i
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::resolve
-* @see app/Http/Controllers/Admin/AdminReportController.php:48
+* @see app/Http/Controllers/Admin/AdminReportController.php:47
 * @route '/admin/reports/{report}/resolve'
 */
 const resolveForm = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -155,7 +155,7 @@ const resolveForm = (args: { report: number | { id: number } } | [report: number
 
 /**
 * @see \App\Http\Controllers\Admin\AdminReportController::resolve
-* @see app/Http/Controllers/Admin/AdminReportController.php:48
+* @see app/Http/Controllers/Admin/AdminReportController.php:47
 * @route '/admin/reports/{report}/resolve'
 */
 resolveForm.put = (args: { report: number | { id: number } } | [report: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

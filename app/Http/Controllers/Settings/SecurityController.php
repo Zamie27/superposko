@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Helpers\ActivityLogHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
@@ -42,7 +43,7 @@ class SecurityController extends Controller
             'password' => $request->password,
         ]);
 
-        \App\Helpers\ActivityLogHelper::log(
+        ActivityLogHelper::log(
             'auth',
             'change_password',
             'User updated their account password.'

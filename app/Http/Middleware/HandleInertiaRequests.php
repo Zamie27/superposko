@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -47,8 +48,9 @@ class HandleInertiaRequests extends Middleware
             'new_email_attempt' => $request->session()->get('new_email_attempt', ''),
             'auth' => [
                 'user' => $request->user() ? array_merge($request->user()->toArray(), [
-                    'display_role' => $request->user()->role === 'admin' ? 'Admin' : ($request->user()->host_id ? ucfirst($request->user()->role) : ($request->user()->role === 'host' ? 'Host' : 'User')),
+                    'display_role' => $request->user()->role === 'admin' ? 'Admin' : ($request->user()->host_id ? ucfirst($request->user()->role) : ($request->user()->role === 'host' ? 'Host' : ($request->user()->role === 'trial' ? 'Trial' : 'User'))),
                     'is_subscribed' => $request->user()->role === 'admin' ||
+                        $request->user()->role === 'trial' ||
                         ($request->user()->role === 'host' && ($request->user()->subscription_expires_at === null || $request->user()->subscription_expires_at->isFuture())) ||
                         ($request->user()->host_id && $request->user()->host && ($request->user()->host->subscription_expires_at === null || $request->user()->host->subscription_expires_at->isFuture())),
                 ]) : null,
@@ -56,15 +58,15 @@ class HandleInertiaRequests extends Middleware
             'immich' => $request->user() ? Cache::remember('immich_storage_'.($request->user()->host_id ?? $request->user()->id), 30, function () use ($request) {
                 $user = $request->user();
                 $hostId = $user->host_id ?? $user->id;
-                $host = \App\Models\User::find($hostId);
-                
+                $host = User::find($hostId);
+
                 if (! $host || ! $host->immich_api_key) {
                     return null;
                 }
 
                 $url = rtrim(Setting::get('immich_url', config('services.immich.url', '')), '/');
                 $apiKey = $host->immich_api_key;
-                
+
                 try {
                     $response = Http::withHeaders([
                         'x-api-key' => $apiKey,

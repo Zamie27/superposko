@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Contact;
 use App\Helpers\ActivityLogHelper;
 use App\Helpers\HostRoleHelper;
+use App\Models\Contact;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -19,6 +19,7 @@ class ContactController extends Controller
     protected function getHostId(): int
     {
         $user = auth()->user();
+
         return $user->host_id ?? $user->id;
     }
 
@@ -59,7 +60,7 @@ class ContactController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+        if (! HostRoleHelper::canWritePublicRelations(auth()->user())) {
             abort(403, 'Anda tidak memiliki hak untuk menambah kontak.');
         }
 
@@ -77,9 +78,9 @@ class ContactController extends Controller
         if ($validated['phone']) {
             $phone = preg_replace('/[^0-9]/', '', $validated['phone']);
             if (str_starts_with($phone, '0')) {
-                $phone = '62' . substr($phone, 1);
-            } elseif (!str_starts_with($phone, '62')) {
-                $phone = '62' . $phone;
+                $phone = '62'.substr($phone, 1);
+            } elseif (! str_starts_with($phone, '62')) {
+                $phone = '62'.$phone;
             }
             $validated['phone'] = $phone;
         }
@@ -102,7 +103,7 @@ class ContactController extends Controller
      */
     public function update(Request $request, Contact $contact): RedirectResponse
     {
-        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+        if (! HostRoleHelper::canWritePublicRelations(auth()->user())) {
             abort(403, 'Anda tidak memiliki hak untuk mengubah kontak.');
         }
 
@@ -124,9 +125,9 @@ class ContactController extends Controller
         if ($validated['phone']) {
             $phone = preg_replace('/[^0-9]/', '', $validated['phone']);
             if (str_starts_with($phone, '0')) {
-                $phone = '62' . substr($phone, 1);
-            } elseif (!str_starts_with($phone, '62')) {
-                $phone = '62' . $phone;
+                $phone = '62'.substr($phone, 1);
+            } elseif (! str_starts_with($phone, '62')) {
+                $phone = '62'.$phone;
             }
             $validated['phone'] = $phone;
         }
@@ -147,7 +148,7 @@ class ContactController extends Controller
      */
     public function destroy(Contact $contact): RedirectResponse
     {
-        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+        if (! HostRoleHelper::canWritePublicRelations(auth()->user())) {
             abort(403, 'Anda tidak memiliki hak untuk menghapus kontak.');
         }
 

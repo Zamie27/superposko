@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogHelper;
 use App\Models\Setting;
 use App\Models\User;
-use App\Helpers\ActivityLogHelper;
 use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,7 +30,7 @@ class PaymentController extends Controller
     /**
      * Show the subscription checkout page for normal users.
      */
-    public function showCheckoutPage(): Response|\Illuminate\Http\RedirectResponse
+    public function showCheckoutPage(): Response|RedirectResponse
     {
         if (filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN)) {
             return redirect()->route('dashboard');
@@ -131,7 +132,7 @@ class PaymentController extends Controller
             ActivityLogHelper::log(
                 'payment',
                 'payment_success',
-                "User successfully purchased subscription for Rp " . number_format($grossAmount) . ". Order ID: {$orderId}. Upgraded to host.",
+                'User successfully purchased subscription for Rp '.number_format($grossAmount).". Order ID: {$orderId}. Upgraded to host.",
                 $user
             );
 
@@ -153,7 +154,7 @@ class PaymentController extends Controller
     public function handleNotification(Request $request): JsonResponse
     {
         $orderId = $request->input('order_id');
-        
+
         if (empty($orderId)) {
             return response()->json([
                 'success' => false,
@@ -188,7 +189,7 @@ class PaymentController extends Controller
                     ActivityLogHelper::log(
                         'payment',
                         'payment_webhook_success',
-                        "Webhook confirmed payment of Rp " . number_format($grossAmount) . " for order {$orderId}. User {$user->name} role upgraded to host.",
+                        'Webhook confirmed payment of Rp '.number_format($grossAmount)." for order {$orderId}. User {$user->name} role upgraded to host.",
                         $user
                     );
 

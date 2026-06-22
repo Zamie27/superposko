@@ -198,7 +198,7 @@ const navGroups = computed<NavGroup[]>(() => {
                     title: 'Anggota',
                     href: '/management/members',
                     icon: Users,
-                    locked: !isSubscribed,
+                    locked: !isSubscribed || user.role === 'trial',
                 },
                 {
                     title: 'Log Aktifitas',
@@ -233,7 +233,7 @@ const navGroups = computed<NavGroup[]>(() => {
                     title: 'Dokumentasi',
                     href: '/documentation',
                     icon: Image,
-                    locked: !isSubscribed,
+                    locked: !isSubscribed || user.role === 'trial',
                 },
             ],
         },

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\ReportController::create
-* @see app/Http/Controllers/ReportController.php:16
+* @see app/Http/Controllers/ReportController.php:15
 * @route '/laporan/buat'
 */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\ReportController::create
-* @see app/Http/Controllers/ReportController.php:16
+* @see app/Http/Controllers/ReportController.php:15
 * @route '/laporan/buat'
 */
 create.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ReportController::create
-* @see app/Http/Controllers/ReportController.php:16
+* @see app/Http/Controllers/ReportController.php:15
 * @route '/laporan/buat'
 */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\ReportController::create
-* @see app/Http/Controllers/ReportController.php:16
+* @see app/Http/Controllers/ReportController.php:15
 * @route '/laporan/buat'
 */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\ReportController::create
-* @see app/Http/Controllers/ReportController.php:16
+* @see app/Http/Controllers/ReportController.php:15
 * @route '/laporan/buat'
 */
 const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => 
 
 /**
 * @see \App\Http\Controllers\ReportController::create
-* @see app/Http/Controllers/ReportController.php:16
+* @see app/Http/Controllers/ReportController.php:15
 * @route '/laporan/buat'
 */
 createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\ReportController::create
-* @see app/Http/Controllers/ReportController.php:16
+* @see app/Http/Controllers/ReportController.php:15
 * @route '/laporan/buat'
 */
 createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogHelper;
+use App\Helpers\HostRoleHelper;
 use App\Models\DutyRoster;
 use App\Models\Event;
 use App\Models\User;
-use App\Helpers\HostRoleHelper;
-use App\Helpers\ActivityLogHelper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -76,7 +76,7 @@ class ScheduleController extends Controller
     public function storeRoster(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!HostRoleHelper::isHostOrSekretaris($user)) {
+        if (! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat mengelola jadwal piket.');
         }
 
@@ -90,7 +90,7 @@ class ScheduleController extends Controller
 
         // Verify target user belongs to same posko
         $targetUser = User::find($validated['user_id']);
-        if (!$targetUser || ($targetUser->host_id !== $hostId && $targetUser->id !== $hostId)) {
+        if (! $targetUser || ($targetUser->host_id !== $hostId && $targetUser->id !== $hostId)) {
             abort(403, 'Akses ditolak.');
         }
 
@@ -104,7 +104,7 @@ class ScheduleController extends Controller
         ActivityLogHelper::log(
             'member',
             'assign_duty',
-            "User assigned {$targetUser->name} to duty task '{$validated['task_name']}' on " . ucfirst($validated['day_of_week'])
+            "User assigned {$targetUser->name} to duty task '{$validated['task_name']}' on ".ucfirst($validated['day_of_week'])
         );
 
         return back()->with('success', 'Jadwal piket berhasil ditambahkan.');
@@ -118,7 +118,7 @@ class ScheduleController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($roster->host_id !== $hostId || !HostRoleHelper::isHostOrSekretaris($user)) {
+        if ($roster->host_id !== $hostId || ! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat menghapus jadwal piket.');
         }
 
@@ -129,7 +129,7 @@ class ScheduleController extends Controller
         ActivityLogHelper::log(
             'member',
             'remove_duty',
-            "User removed duty task '{$taskName}' on " . ucfirst($day)
+            "User removed duty task '{$taskName}' on ".ucfirst($day)
         );
 
         return back()->with('success', 'Jadwal piket berhasil dihapus.');
@@ -141,7 +141,7 @@ class ScheduleController extends Controller
     public function storeEvent(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!HostRoleHelper::isHostOrSekretaris($user)) {
+        if (! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat menambahkan agenda.');
         }
 
@@ -182,7 +182,7 @@ class ScheduleController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($event->host_id !== $hostId || !HostRoleHelper::isHostOrSekretaris($user)) {
+        if ($event->host_id !== $hostId || ! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat memperbarui agenda.');
         }
 
@@ -219,7 +219,7 @@ class ScheduleController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($event->host_id !== $hostId || !HostRoleHelper::isHostOrSekretaris($user)) {
+        if ($event->host_id !== $hostId || ! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat menghapus agenda.');
         }
 

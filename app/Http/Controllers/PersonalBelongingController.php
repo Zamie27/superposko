@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PersonalBelonging;
 use App\Helpers\ActivityLogHelper;
+use App\Models\PersonalBelonging;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -137,11 +137,11 @@ class PersonalBelongingController extends Controller
 
         if ($type === 'departure') {
             $personalBelonging->update([
-                'is_packed_departure' => !$personalBelonging->is_packed_departure,
+                'is_packed_departure' => ! $personalBelonging->is_packed_departure,
             ]);
         } else {
             $personalBelonging->update([
-                'is_packed_return' => !$personalBelonging->is_packed_return,
+                'is_packed_return' => ! $personalBelonging->is_packed_return,
             ]);
         }
 

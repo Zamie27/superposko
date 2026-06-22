@@ -1,26 +1,31 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminActivityLogController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminDocumentationConfigController;
 use App\Http\Controllers\Admin\AdminPreorderController;
 use App\Http\Controllers\Admin\AdminPriceController;
+use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminSubscriptionController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\GoogleLoginController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentationController;
+use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\LogbookController;
+use App\Http\Controllers\LogisticController;
+use App\Http\Controllers\MemberActivityLogController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\Preorder\UserPreorderController;
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\ProkerDocumentController;
-use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\LogisticController;
-use App\Http\Controllers\LogbookController;
-use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\PersonalBelongingController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MemberActivityLogController;
+use App\Http\Controllers\Preorder\UserPreorderController;
+use App\Http\Controllers\ProkerDocumentController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\VotingController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -45,8 +50,8 @@ Route::get('auth/google/complete', [GoogleLoginController::class, 'showCompleteP
 Route::post('auth/google/complete', [GoogleLoginController::class, 'completeProfile'])->name('auth.google.complete.store');
 
 // Public/Auth Report Routes
-Route::get('laporan/buat', [\App\Http\Controllers\ReportController::class, 'create'])->name('reports.create');
-Route::post('laporan/buat', [\App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
+Route::get('laporan/buat', [ReportController::class, 'create'])->name('reports.create');
+Route::post('laporan/buat', [ReportController::class, 'store'])->name('reports.store');
 
 // Midtrans Payment Webhook Notification
 Route::match(['get', 'post'], 'payment/notification', [PaymentController::class, 'handleNotification'])->name('payment.notification');
@@ -85,7 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('finance', [FinanceController::class, 'store'])->name('finance.store');
         Route::post('finance/{finance}', [FinanceController::class, 'update'])->name('finance.update');
         Route::delete('finance/{finance}', [FinanceController::class, 'destroy'])->name('finance.destroy');
-        
+
         // Logbook & Proker
         Route::get('logbook', [LogbookController::class, 'index'])->name('logbook.index');
         Route::post('logbook/proker', [LogbookController::class, 'storeProker'])->name('logbook.proker.store');
@@ -139,15 +144,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('repository/{document}', [ProkerDocumentController::class, 'destroy'])->name('repository.destroy');
         Route::get('repository/{document}/download', [ProkerDocumentController::class, 'download'])->name('repository.download');
         Route::get('repository/{document}/view', [ProkerDocumentController::class, 'view'])->name('repository.view');
-        Route::get('voting', [\App\Http\Controllers\VotingController::class, 'index'])->name('voting.index');
-        Route::post('voting/poll', [\App\Http\Controllers\VotingController::class, 'storePoll'])->name('voting.poll.store');
-        Route::post('voting/poll/{poll}/vote', [\App\Http\Controllers\VotingController::class, 'vote'])->name('voting.poll.vote');
-        Route::delete('voting/poll/{poll}/vote', [\App\Http\Controllers\VotingController::class, 'cancelVote'])->name('voting.poll.vote.destroy');
-        Route::delete('voting/poll/{poll}', [\App\Http\Controllers\VotingController::class, 'destroyPoll'])->name('voting.poll.destroy');
-        Route::post('voting/aspiration', [\App\Http\Controllers\VotingController::class, 'storeAspiration'])->name('voting.aspiration.store');
-        Route::post('voting/aspiration/{aspiration}/like', [\App\Http\Controllers\VotingController::class, 'likeAspiration'])->name('voting.aspiration.like');
-        Route::put('voting/aspiration/{aspiration}/respond', [\App\Http\Controllers\VotingController::class, 'respondAspiration'])->name('voting.aspiration.respond');
-        Route::delete('voting/aspiration/{aspiration}', [\App\Http\Controllers\VotingController::class, 'destroyAspiration'])->name('voting.aspiration.destroy');
+        Route::get('voting', [VotingController::class, 'index'])->name('voting.index');
+        Route::post('voting/poll', [VotingController::class, 'storePoll'])->name('voting.poll.store');
+        Route::post('voting/poll/{poll}/vote', [VotingController::class, 'vote'])->name('voting.poll.vote');
+        Route::delete('voting/poll/{poll}/vote', [VotingController::class, 'cancelVote'])->name('voting.poll.vote.destroy');
+        Route::delete('voting/poll/{poll}', [VotingController::class, 'destroyPoll'])->name('voting.poll.destroy');
+        Route::post('voting/aspiration', [VotingController::class, 'storeAspiration'])->name('voting.aspiration.store');
+        Route::post('voting/aspiration/{aspiration}/like', [VotingController::class, 'likeAspiration'])->name('voting.aspiration.like');
+        Route::put('voting/aspiration/{aspiration}/respond', [VotingController::class, 'respondAspiration'])->name('voting.aspiration.respond');
+        Route::delete('voting/aspiration/{aspiration}', [VotingController::class, 'destroyAspiration'])->name('voting.aspiration.destroy');
         Route::get('documentation', [DocumentationController::class, 'index'])->name('host.documentation.index');
         Route::post('documentation/upload', [DocumentationController::class, 'store'])->name('host.documentation.upload');
         Route::post('documentation/upload-chunk', [DocumentationController::class, 'uploadChunk'])->name('host.documentation.upload_chunk');
@@ -185,19 +190,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('settings', [AdminSettingController::class, 'update'])->name('settings.update');
 
         // Admin Documentation Configurations
-        Route::get('documentation-configs', [\App\Http\Controllers\Admin\AdminDocumentationConfigController::class, 'index'])->name('documentation-configs.index');
-        Route::put('documentation-configs/{host}', [\App\Http\Controllers\Admin\AdminDocumentationConfigController::class, 'update'])->name('documentation-configs.update');
+        Route::get('documentation-configs', [AdminDocumentationConfigController::class, 'index'])->name('documentation-configs.index');
+        Route::put('documentation-configs/{host}', [AdminDocumentationConfigController::class, 'update'])->name('documentation-configs.update');
 
         // Admin Activity Logs Panel
-        Route::get('activity-logs', [\App\Http\Controllers\Admin\AdminActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('activity-logs', [AdminActivityLogController::class, 'index'])->name('activity-logs.index');
 
         // Admin Report Panel Routes
-        Route::get('reports', [\App\Http\Controllers\Admin\AdminReportController::class, 'index'])->name('reports.index');
-        Route::put('reports/{report}/resolve', [\App\Http\Controllers\Admin\AdminReportController::class, 'resolve'])->name('reports.resolve');
+        Route::get('reports', [AdminReportController::class, 'index'])->name('reports.index');
+        Route::put('reports/{report}/resolve', [AdminReportController::class, 'resolve'])->name('reports.resolve');
 
         // Test Payment
-        Route::get('payment/test', [\App\Http\Controllers\PaymentController::class, 'showTestPage'])->name('payment.test');
-        Route::post('payment/test/token', [\App\Http\Controllers\PaymentController::class, 'createSnapToken'])->name('payment.token');
+        Route::get('payment/test', [PaymentController::class, 'showTestPage'])->name('payment.test');
+        Route::post('payment/test/token', [PaymentController::class, 'createSnapToken'])->name('payment.token');
     });
 });
 

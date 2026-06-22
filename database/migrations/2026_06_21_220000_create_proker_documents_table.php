@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('proker_documents')) {
+        if (! Schema::hasTable('proker_documents')) {
             Schema::create('proker_documents', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('host_id')->constrained('users')->cascadeOnDelete();

@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
+use App\Models\Aspiration;
 use App\Models\Poll;
 use App\Models\PollOption;
-use App\Models\Aspiration;
-use App\Models\AspirationLike;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,7 +14,9 @@ class VotingTest extends TestCase
     use RefreshDatabase;
 
     protected User $host;
+
     protected User $member;
+
     protected User $otherHost;
 
     protected function setUp(): void
@@ -168,7 +169,6 @@ class VotingTest extends TestCase
             'user_id' => $this->member->id,
         ]);
     }
-
 
     public function test_user_cannot_vote_on_expired_poll(): void
     {

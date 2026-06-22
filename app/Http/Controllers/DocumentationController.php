@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -16,8 +17,11 @@ use Inertia\Response;
 class DocumentationController extends Controller
 {
     protected string $url = '';
+
     protected string $apiKey = '';
+
     protected string $immichEmail = '';
+
     protected string $immichPassword = '';
 
     /**
@@ -26,7 +30,7 @@ class DocumentationController extends Controller
     protected function resolveConfig(): bool
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
@@ -43,7 +47,7 @@ class DocumentationController extends Controller
             $this->immichPassword = $host->immich_password ?: config('services.immich.password', '');
         }
 
-        return !empty($this->apiKey) && !empty($this->url);
+        return ! empty($this->apiKey) && ! empty($this->url);
     }
 
     public function index(): Response
@@ -58,7 +62,7 @@ class DocumentationController extends Controller
         $immichPassword = $canManageImmich ? $this->immichPassword : '';
 
         // Jika API key belum diset, return kosong
-        if (!$hasConfig) {
+        if (! $hasConfig) {
             return Inertia::render('documentation/Index', [
                 'assets' => [],
                 'immichUrl' => $immichUrl,
@@ -132,7 +136,7 @@ class DocumentationController extends Controller
 
     public function thumbnail(string $id): \Symfony\Component\HttpFoundation\Response
     {
-        if (!$this->resolveConfig()) {
+        if (! $this->resolveConfig()) {
             abort(404);
         }
 
@@ -152,7 +156,7 @@ class DocumentationController extends Controller
 
     public function file(Request $request, string $id): \Symfony\Component\HttpFoundation\Response
     {
-        if (!$this->resolveConfig()) {
+        if (! $this->resolveConfig()) {
             abort(404);
         }
 
@@ -191,11 +195,11 @@ class DocumentationController extends Controller
 
     public function store(Request $request): \Symfony\Component\HttpFoundation\Response
     {
-        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+        if (! HostRoleHelper::canWritePublicRelations(auth()->user())) {
             return back()->with('error', 'Anda tidak memiliki hak untuk mengunggah dokumentasi.');
         }
 
-        if (!$this->resolveConfig()) {
+        if (! $this->resolveConfig()) {
             return back()->with('error', 'API Key Immich belum dikonfigurasi.');
         }
 
@@ -233,7 +237,7 @@ class DocumentationController extends Controller
             if ($response->successful()) {
                 $user = auth()->user();
                 $hostId = $user->host_id ?? $user->id;
-                \Illuminate\Support\Facades\Cache::forget('immich_storage_' . $hostId);
+                Cache::forget('immich_storage_'.$hostId);
 
                 if ($request->wantsJson()) {
                     return response()->json(['message' => 'File berhasil diunggah ke Dokumentasi.']);
@@ -258,11 +262,11 @@ class DocumentationController extends Controller
 
     public function uploadChunk(Request $request): JsonResponse
     {
-        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+        if (! HostRoleHelper::canWritePublicRelations(auth()->user())) {
             return response()->json(['message' => 'Anda tidak memiliki hak untuk mengunggah dokumentasi.'], 403);
         }
 
-        if (!$this->resolveConfig()) {
+        if (! $this->resolveConfig()) {
             return response()->json(['message' => 'API Key Immich belum dikonfigurasi.'], 400);
         }
 
@@ -383,7 +387,7 @@ class DocumentationController extends Controller
                 if ($response->successful()) {
                     $user = auth()->user();
                     $hostId = $user->host_id ?? $user->id;
-                    \Illuminate\Support\Facades\Cache::forget('immich_storage_' . $hostId);
+                    Cache::forget('immich_storage_'.$hostId);
 
                     return response()->json([
                         'status' => 'success',

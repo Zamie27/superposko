@@ -110,7 +110,7 @@ class InventoryAndLogisticTest extends TestCase
     public function test_finance_roles_can_create_inventory()
     {
         $host = User::factory()->create(['role' => 'host']);
-        
+
         $roles = ['sekretaris', 'bendahara'];
         foreach ($roles as $role) {
             $member = User::factory()->create([
@@ -432,8 +432,8 @@ class InventoryAndLogisticTest extends TestCase
                 [
                     'id' => $item2->id,
                     'amount' => 5, // leaves 0 (out)
-                ]
-            ]
+                ],
+            ],
         ];
 
         $response = $this->post(route('management.logistic.barang-keluar'), $payload);
@@ -471,8 +471,8 @@ class InventoryAndLogisticTest extends TestCase
                 [
                     'id' => $item->id,
                     'amount' => 15,
-                ]
-            ]
+                ],
+            ],
         ];
 
         $response = $this->post(route('management.logistic.barang-keluar'), $payload);

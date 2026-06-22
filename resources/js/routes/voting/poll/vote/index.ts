@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:202
+* @see app/Http/Controllers/VotingController.php:203
 * @route '/voting/poll/{poll}/vote'
 */
 export const destroy = (args: { poll: number | { id: number } } | [poll: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -16,7 +16,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:202
+* @see app/Http/Controllers/VotingController.php:203
 * @route '/voting/poll/{poll}/vote'
 */
 destroy.url = (args: { poll: number | { id: number } } | [poll: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -49,7 +49,7 @@ destroy.url = (args: { poll: number | { id: number } } | [poll: number | { id: n
 
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:202
+* @see app/Http/Controllers/VotingController.php:203
 * @route '/voting/poll/{poll}/vote'
 */
 destroy.delete = (args: { poll: number | { id: number } } | [poll: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -59,7 +59,7 @@ destroy.delete = (args: { poll: number | { id: number } } | [poll: number | { id
 
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:202
+* @see app/Http/Controllers/VotingController.php:203
 * @route '/voting/poll/{poll}/vote'
 */
 const destroyForm = (args: { poll: number | { id: number } } | [poll: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -74,7 +74,7 @@ const destroyForm = (args: { poll: number | { id: number } } | [poll: number | {
 
 /**
 * @see \App\Http\Controllers\VotingController::destroy
-* @see app/Http/Controllers/VotingController.php:202
+* @see app/Http/Controllers/VotingController.php:203
 * @route '/voting/poll/{poll}/vote'
 */
 destroyForm.delete = (args: { poll: number | { id: number } } | [poll: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

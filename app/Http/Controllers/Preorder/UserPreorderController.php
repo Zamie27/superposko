@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Preorder;
 
+use App\Helpers\ActivityLogHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Preorder;
-use App\Models\Setting;
 // phpcs:ignore
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -70,7 +71,7 @@ class UserPreorderController extends Controller
                 ]
             );
 
-            \App\Helpers\ActivityLogHelper::log(
+            ActivityLogHelper::log(
                 'preorder',
                 'submit_preorder',
                 "User submitted preorder request with name {$validated['name']} and email {$validated['email']}."

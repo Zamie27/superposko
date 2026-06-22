@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ProkerDocument;
 use App\Helpers\ActivityLogHelper;
 use App\Helpers\HostRoleHelper;
+use App\Models\ProkerDocument;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +21,7 @@ class ProkerDocumentController extends Controller
     protected function getHostId(): int
     {
         $user = auth()->user();
+
         return $user->host_id ?? $user->id;
     }
 
@@ -73,7 +74,7 @@ class ProkerDocumentController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+        if (! HostRoleHelper::canWritePublicRelations(auth()->user())) {
             abort(403, 'Anda tidak memiliki hak untuk mengunggah dokumen.');
         }
 
@@ -126,12 +127,12 @@ class ProkerDocumentController extends Controller
             abort(403, 'Anda tidak berhak mengunduh dokumen ini.');
         }
 
-        if (!Storage::exists($document->file_path)) {
+        if (! Storage::exists($document->file_path)) {
             abort(404, 'Berkas fisik tidak ditemukan di server.');
         }
 
         return Storage::download($document->file_path, $document->file_name, [
-            'Content-Disposition' => 'attachment; filename="' . $document->file_name . '"',
+            'Content-Disposition' => 'attachment; filename="'.$document->file_name.'"',
         ]);
     }
 
@@ -146,12 +147,12 @@ class ProkerDocumentController extends Controller
             abort(403, 'Anda tidak berhak melihat dokumen ini.');
         }
 
-        if (!Storage::exists($document->file_path)) {
+        if (! Storage::exists($document->file_path)) {
             abort(404, 'Berkas fisik tidak ditemukan di server.');
         }
 
         return Storage::response($document->file_path, $document->file_name, [
-            'Content-Disposition' => 'inline; filename="' . $document->file_name . '"',
+            'Content-Disposition' => 'inline; filename="'.$document->file_name.'"',
         ]);
     }
 
@@ -160,7 +161,7 @@ class ProkerDocumentController extends Controller
      */
     public function destroy(ProkerDocument $document): RedirectResponse
     {
-        if (!HostRoleHelper::canWritePublicRelations(auth()->user())) {
+        if (! HostRoleHelper::canWritePublicRelations(auth()->user())) {
             abort(403, 'Anda tidak memiliki hak untuk menghapus dokumen.');
         }
 

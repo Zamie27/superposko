@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Aspiration;
+use App\Models\DutyRoster;
+use App\Models\Event;
 use App\Models\Finance;
-use App\Models\ProgramKerja;
 use App\Models\Inventory;
 use App\Models\Logistic;
-use App\Models\User;
 use App\Models\Poll;
-use App\Models\Aspiration;
-use App\Models\Event;
-use App\Models\DutyRoster;
+use App\Models\ProgramKerja;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -64,7 +64,7 @@ class DashboardController extends Controller
         $activePolls = Poll::where('host_id', $hostId)
             ->where(function ($query) {
                 $query->whereNull('expires_at')
-                      ->orWhere('expires_at', '>', now());
+                    ->orWhere('expires_at', '>', now());
             })
             ->count();
 

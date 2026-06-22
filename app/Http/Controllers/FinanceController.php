@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogHelper;
+use App\Helpers\HostRoleHelper;
 use App\Models\Finance;
 use App\Models\ProgramKerja;
-use App\Helpers\HostRoleHelper;
-use App\Helpers\ActivityLogHelper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -84,7 +84,7 @@ class FinanceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (!HostRoleHelper::canWriteFinance($user)) {
+        if (! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak akses untuk mengelola keuangan.');
         }
 
@@ -101,11 +101,11 @@ class FinanceController extends Controller
         $hostId = $user->host_id ?? $user->id;
 
         // Ensure program kerja belongs to the same host if linked
-        if (!empty($validated['program_kerja_id'])) {
+        if (! empty($validated['program_kerja_id'])) {
             $proker = ProgramKerja::where('id', $validated['program_kerja_id'])
                 ->where('host_id', $hostId)
                 ->first();
-            if (!$proker) {
+            if (! $proker) {
                 abort(400, 'Program Kerja tidak valid untuk posko Anda.');
             }
         }
@@ -130,7 +130,7 @@ class FinanceController extends Controller
         ActivityLogHelper::log(
             'member',
             'create_finance',
-            "User recorded financial transaction: '{$finance->title}' (Rp " . number_format($finance->amount, 0, ',', '.') . ")."
+            "User recorded financial transaction: '{$finance->title}' (Rp ".number_format($finance->amount, 0, ',', '.').').'
         );
 
         return back()->with('success', 'Transaksi berhasil dicatat.');
@@ -144,7 +144,7 @@ class FinanceController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($finance->host_id !== $hostId || !HostRoleHelper::canWriteFinance($user)) {
+        if ($finance->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak akses untuk mengelola transaksi ini.');
         }
 
@@ -159,11 +159,11 @@ class FinanceController extends Controller
         ]);
 
         // Ensure program kerja belongs to the same host if linked
-        if (!empty($validated['program_kerja_id'])) {
+        if (! empty($validated['program_kerja_id'])) {
             $proker = ProgramKerja::where('id', $validated['program_kerja_id'])
                 ->where('host_id', $hostId)
                 ->first();
-            if (!$proker) {
+            if (! $proker) {
                 abort(400, 'Program Kerja tidak valid untuk posko Anda.');
             }
         }
@@ -203,7 +203,7 @@ class FinanceController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($finance->host_id !== $hostId || !HostRoleHelper::canWriteFinance($user)) {
+        if ($finance->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
             abort(403, 'Anda tidak memiliki hak akses untuk mengelola transaksi ini.');
         }
 
