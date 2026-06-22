@@ -195,6 +195,62 @@ const handleUpdateRole = async () => {
     }
 };
 
+// Trial Management Logic
+const isTrialModalOpen = ref(false);
+const trialDays = ref(5);
+
+const getTrialDaysLeft = (endsAtStr: string | null) => {
+    if (!endsAtStr) return 0;
+    const endsAt = new Date(endsAtStr);
+    const now = new Date();
+    const diffTime = endsAt.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+};
+
+const openTrialModal = (user: any) => {
+    selectedUser.value = user;
+    trialDays.value = user.trial_ends_at ? getTrialDaysLeft(user.trial_ends_at) || 5 : 5;
+    successMessage.value = '';
+    errorMessage.value = '';
+    isTrialModalOpen.value = true;
+};
+
+const handleUpdateTrial = async () => {
+    isProcessing.value = true;
+    errorMessage.value = '';
+    successMessage.value = '';
+
+    try {
+        const response = await fetch(`/admin/users/${selectedUser.value.id}/trial`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                trial_days: trialDays.value,
+            }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            successMessage.value = data.message;
+            router.reload({ only: ['users'] });
+            setTimeout(() => {
+                isTrialModalOpen.value = false;
+            }, 1500);
+        } else {
+            errorMessage.value = data.message || 'Terjadi kesalahan.';
+        }
+    } catch {
+        errorMessage.value = 'Gagal menghubungi server.';
+    } finally {
+        isProcessing.value = false;
+    }
+};
+
 const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -252,14 +308,18 @@ const getCookie = (name: string): string => {
                             <td class="px-6 py-4 text-slate-600">
                                 {{ user.university || '-' }}
                             </td>
-                            <td class="px-6 py-4">
+                             <td class="px-6 py-4">
                                 <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="{
                                     'bg-purple-50 text-purple-700': user.role === 'admin',
                                     'bg-sky-50 text-sky-700': user.role === 'host',
-                                    'bg-slate-100 text-slate-600': user.role !== 'admin' && user.role !== 'host',
+                                    'bg-amber-50 text-amber-700 border border-amber-200': user.role === 'trial',
+                                    'bg-slate-100 text-slate-600': user.role !== 'admin' && user.role !== 'host' && user.role !== 'trial',
                                 }">
                                     {{ user.role.toUpperCase() }}
                                 </span>
+                                <div v-if="user.role === 'trial'" class="text-[10px] text-amber-600 mt-1 font-semibold">
+                                    {{ getTrialDaysLeft(user.trial_ends_at) }} hari tersisa
+                                </div>
                             </td>
                             <td class="px-6 py-4 text-slate-500">
                                 <span v-if="user.role === 'member'">
@@ -271,7 +331,10 @@ const getCookie = (name: string): string => {
                                 <button @click="openRoleModal(user)" class="text-xs font-semibold text-sky-600 hover:text-sky-700 underline">
                                     Edit Role
                                 </button>
-                                <button @click="openResetModal(user)" class="text-xs font-semibold text-amber-600 hover:text-amber-700 underline">
+                                <button @click="openTrialModal(user)" class="text-xs font-semibold text-amber-600 hover:text-amber-700 underline">
+                                    Atur Trial
+                                </button>
+                                <button @click="openResetModal(user)" class="text-xs font-semibold text-slate-600 hover:text-slate-700 underline">
                                     Reset Password
                                 </button>
                                 <button @click="handleSendResetEmail(user)" class="text-xs font-semibold text-slate-500 hover:text-slate-700 underline">
@@ -393,6 +456,46 @@ const getCookie = (name: string): string => {
                 <DialogFooter>
                     <Button :disabled="isProcessing" @click="handleUpdateRole" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold">
                         <Spinner v-if="isProcessing" /> Simpan Perubahan
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Edit Trial Modal -->
+        <Dialog v-model:open="isTrialModalOpen">
+            <DialogContent class="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle class="flex items-center gap-2">
+                        <Shield class="size-5 text-amber-500" /> Atur/Beri Masa Trial Akun
+                    </DialogTitle>
+                </DialogHeader>
+                <div class="space-y-4 py-3">
+                    <p class="text-xs text-slate-500">
+                        Atur sisa durasi masa trial untuk pengguna <strong>{{ selectedUser?.name }}</strong> ({{ selectedUser?.email }}). Ini akan otomatis mengubah role mereka menjadi 'trial' dengan sisa durasi hari yang ditentukan.
+                    </p>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-700">Durasi Trial (Hari)</label>
+                        <input
+                            v-model="trialDays"
+                            type="number"
+                            min="1"
+                            placeholder="Contoh: 5"
+                            class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
+                        />
+                    </div>
+
+                    <!-- Alerts -->
+                    <div v-if="successMessage" class="p-3 bg-green-50 text-green-700 text-xs rounded-xl flex items-center gap-2">
+                        <Check class="size-4 shrink-0" /> {{ successMessage }}
+                    </div>
+                    <div v-if="errorMessage" class="p-3 bg-red-50 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                        <AlertCircle class="size-4 shrink-0" /> {{ errorMessage }}
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button :disabled="isProcessing" @click="handleUpdateTrial" class="bg-amber-500 hover:bg-amber-600 text-white font-semibold">
+                        <Spinner v-if="isProcessing" /> Simpan Trial
                     </Button>
                 </DialogFooter>
             </DialogContent>

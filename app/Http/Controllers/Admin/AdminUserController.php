@@ -110,4 +110,24 @@ class AdminUserController extends Controller
             'message' => "Role user {$user->name} berhasil diubah menjadi {$validated['role']}.",
         ]);
     }
+
+    /**
+     * Update user trial settings.
+     */
+    public function updateTrial(Request $request, User $user): JsonResponse
+    {
+        $validated = $request->validate([
+            'trial_days' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $user->update([
+            'role' => 'trial',
+            'trial_ends_at' => now()->addDays($validated['trial_days']),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Trial untuk user {$user->name} berhasil diaktifkan/diperbarui selama {$validated['trial_days']} hari.",
+        ]);
+    }
 }

@@ -169,6 +169,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('users/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset_password');
         Route::post('users/send-reset-email', [AdminUserController::class, 'sendResetEmail'])->name('users.send_reset_email');
         Route::put('users/{user}/role', [AdminUserController::class, 'updateRole'])->name('users.update_role');
+        Route::put('users/{user}/trial', [AdminUserController::class, 'updateTrial'])->name('users.update_trial');
 
         // Price Management
         Route::get('prices', [AdminPriceController::class, 'index'])->name('prices.index');

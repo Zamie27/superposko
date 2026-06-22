@@ -115,6 +115,7 @@ class GoogleLoginController extends Controller
             $user = new User;
             $user->email = $googleUser['email'];
             $user->role = 'trial';
+            $user->trial_ends_at = now()->addDays(5);
         }
 
         $user->name = $googleUser['name'];

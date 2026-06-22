@@ -18,7 +18,8 @@ class CheckTrialExpiration
         $user = $request->user();
 
         if ($user && $user->role === 'trial') {
-            if ($user->created_at->addDays(5)->isPast()) {
+            $endsAt = $user->trial_ends_at ?? $user->created_at->addDays(5);
+            if ($endsAt->isPast()) {
                 $user->update(['role' => 'user']);
             }
         }

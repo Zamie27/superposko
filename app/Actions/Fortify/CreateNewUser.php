@@ -32,6 +32,7 @@ class CreateNewUser implements CreatesNewUsers
             'kkn_address' => $input['kkn_address'],
             'password' => $input['password'],
             'role' => 'trial',
+            'trial_ends_at' => now()->addDays(5),
         ]);
     }
 }

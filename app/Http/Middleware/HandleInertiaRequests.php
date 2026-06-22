@@ -48,7 +48,7 @@ class HandleInertiaRequests extends Middleware
             'new_email_attempt' => $request->session()->get('new_email_attempt', ''),
             'auth' => [
                 'user' => $request->user() ? array_merge($request->user()->toArray(), [
-                    'display_role' => $request->user()->role === 'admin' ? 'Admin' : ($request->user()->host_id ? ucfirst($request->user()->role) : ($request->user()->role === 'host' ? 'Host' : ($request->user()->role === 'trial' ? 'Trial (' . ((int) max(0, ceil(now()->diffInSeconds($request->user()->created_at->addDays(5), false) / 86400))) . ' hari)' : 'User'))),
+                    'display_role' => $request->user()->role === 'admin' ? 'Admin' : ($request->user()->host_id ? ucfirst($request->user()->role) : ($request->user()->role === 'host' ? 'Host' : ($request->user()->role === 'trial' ? 'Trial (' . ((int) max(0, ceil(now()->diffInSeconds($request->user()->trial_ends_at ?? $request->user()->created_at->addDays(5), false) / 86400))) . ' hari)' : 'User'))),
                     'is_subscribed' => $request->user()->role === 'admin' ||
                         $request->user()->role === 'trial' ||
                         ($request->user()->role === 'host' && ($request->user()->subscription_expires_at === null || $request->user()->subscription_expires_at->isFuture())) ||
