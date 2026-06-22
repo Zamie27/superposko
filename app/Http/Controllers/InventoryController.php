@@ -55,6 +55,7 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'quantity' => ['required', 'integer', 'min:1'],
+            'unit' => ['required', 'string', 'max:255'],
             'condition' => ['required', 'string', Rule::in(['good', 'damaged', 'lost'])],
             'notes' => ['nullable', 'string', 'max:255'],
             'source' => ['required', 'string', Rule::in(['member', 'purchase'])],
@@ -86,7 +87,7 @@ class InventoryController extends Controller
                 'program_kerja_id' => null,
                 'created_by' => $user->id,
                 'type' => 'expense',
-                'amount' => $purchasePrice,
+                'amount' => $purchasePrice * $validated['quantity'],
                 'title' => 'Pembelian Inventaris: ' . $validated['name'],
                 'description' => 'Pembelian otomatis dari penambahan inventaris.',
                 'date' => now()->toDateString(),
@@ -102,6 +103,7 @@ class InventoryController extends Controller
             'finance_id' => $financeId,
             'name' => $validated['name'],
             'quantity' => $validated['quantity'],
+            'unit' => $validated['unit'],
             'condition' => $validated['condition'],
             'notes' => $validated['notes'] ?? null,
             'image_path' => $imagePath,
@@ -131,6 +133,7 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'quantity' => ['required', 'integer', 'min:1'],
+            'unit' => ['required', 'string', 'max:255'],
             'condition' => ['required', 'string', Rule::in(['good', 'damaged', 'lost'])],
             'notes' => ['nullable', 'string', 'max:255'],
             'source' => ['required', 'string', Rule::in(['member', 'purchase'])],
@@ -162,7 +165,7 @@ class InventoryController extends Controller
                 // Update existing finance record
                 Finance::where('id', $financeId)->update([
                     'title' => 'Pembelian Inventaris: ' . $validated['name'],
-                    'amount' => $purchasePrice,
+                    'amount' => $purchasePrice * $validated['quantity'],
                 ]);
             } else {
                 // Create new finance record (source changed from member to purchase)
@@ -171,7 +174,7 @@ class InventoryController extends Controller
                     'program_kerja_id' => null,
                     'created_by' => $user->id,
                     'type' => 'expense',
-                    'amount' => $purchasePrice,
+                    'amount' => $purchasePrice * $validated['quantity'],
                     'title' => 'Pembelian Inventaris: ' . $validated['name'],
                     'description' => 'Pembelian otomatis dari penambahan inventaris.',
                     'date' => now()->toDateString(),
@@ -191,6 +194,7 @@ class InventoryController extends Controller
             'finance_id' => $financeId,
             'name' => $validated['name'],
             'quantity' => $validated['quantity'],
+            'unit' => $validated['unit'],
             'condition' => $validated['condition'],
             'notes' => $validated['notes'] ?? null,
             'image_path' => $imagePath,

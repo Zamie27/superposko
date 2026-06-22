@@ -15,6 +15,7 @@ class Inventory extends Model
         'finance_id',
         'name',
         'quantity',
+        'unit',
         'condition',
         'notes',
         'image_path',

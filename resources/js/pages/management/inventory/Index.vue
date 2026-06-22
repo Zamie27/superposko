@@ -26,6 +26,7 @@ interface Inventory {
     id: number;
     name: string;
     quantity: number;
+    unit: string;
     condition: 'good' | 'damaged' | 'lost';
     notes: string | null;
     image_path: string | null;
@@ -86,6 +87,7 @@ const form = useForm({
     _method: 'POST',
     name: '',
     quantity: 1,
+    unit: 'pcs',
     condition: 'good' as 'good' | 'damaged' | 'lost',
     notes: '',
     source: 'member' as 'member' | 'purchase',
@@ -103,6 +105,7 @@ const openCreateModal = () => {
     form.source = 'member';
     form.owner_id = '';
     form.purchase_price = '';
+    form.unit = 'pcs';
     isModalOpen.value = true;
 };
 
@@ -114,6 +117,7 @@ const openEditModal = (item: Inventory) => {
     form._method = 'POST'; // Spoofing PUT using POST + _method
     form.name = item.name;
     form.quantity = item.quantity;
+    form.unit = item.unit || 'pcs';
     form.condition = item.condition;
     form.notes = item.notes || '';
     form.source = item.source ?? 'member';
@@ -325,7 +329,7 @@ const getConditionDetails = (condition: string) => {
 
                         <!-- Name and Quantity -->
                         <h3 class="font-bold text-slate-900 dark:text-white text-xs sm:text-base mb-0.5 leading-snug truncate" :title="item.name">{{ item.name }}</h3>
-                        <p class="text-[10px] sm:text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2 sm:mb-4">Jumlah: {{ item.quantity }} unit</p>
+                        <p class="text-[10px] sm:text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2 sm:mb-4">Jumlah: {{ item.quantity }} {{ item.unit || 'pcs' }}</p>
 
                         <!-- Notes -->
                         <div class="p-2 sm:p-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 italic line-clamp-2">
@@ -404,17 +408,30 @@ const getConditionDetails = (condition: string) => {
                         <p v-if="form.errors.name" class="text-xs text-red-500">{{ form.errors.name }}</p>
                     </div>
 
-                    <!-- Quantity Input -->
-                    <div class="space-y-1">
-                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Jumlah (Unit/Pcs)</label>
-                        <input
-                            v-model="form.quantity"
-                            type="number"
-                            min="1"
-                            class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
-                            required
-                        />
-                        <p v-if="form.errors.quantity" class="text-xs text-red-500">{{ form.errors.quantity }}</p>
+                    <!-- Quantity & Unit Row -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Jumlah</label>
+                            <input
+                                v-model.number="form.quantity"
+                                type="number"
+                                min="1"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
+                                required
+                            />
+                            <p v-if="form.errors.quantity" class="text-xs text-red-500">{{ form.errors.quantity }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Satuan Unit</label>
+                            <input
+                                v-model="form.unit"
+                                type="text"
+                                placeholder="Contoh: pcs, unit, set"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
+                                required
+                            />
+                            <p v-if="form.errors.unit" class="text-xs text-red-500">{{ form.errors.unit }}</p>
+                        </div>
                     </div>
 
                     <!-- Source Toggle: Sumber Barang -->
@@ -468,7 +485,7 @@ const getConditionDetails = (condition: string) => {
 
                     <!-- Purchase Price Input (only shown when source === 'purchase') -->
                     <div v-if="form.source === 'purchase'" class="space-y-1">
-                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Harga Pembelian (Rp)</label>
+                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Harga Satuan (Rp)</label>
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-semibold">Rp</span>
                             <input
@@ -479,6 +496,9 @@ const getConditionDetails = (condition: string) => {
                                 placeholder="0"
                                 class="w-full rounded-xl border border-slate-200 dark:border-slate-800 pl-9 pr-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:bg-slate-950 dark:text-white"
                             />
+                        </div>
+                        <div v-if="form.purchase_price && form.quantity" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                            Harga Total Pembelian: Rp {{ (Number(form.purchase_price) * Number(form.quantity)).toLocaleString('id-ID') }}
                         </div>
                         <p class="text-[10px] text-slate-400">Otomatis dicatat sebagai pengeluaran kas di E-Bendahara.</p>
                         <p v-if="form.errors.purchase_price" class="text-xs text-red-500">{{ form.errors.purchase_price }}</p>

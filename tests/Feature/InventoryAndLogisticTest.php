@@ -58,6 +58,7 @@ class InventoryAndLogisticTest extends TestCase
         $payload = [
             'name' => 'Wajan Goreng',
             'quantity' => 2,
+            'unit' => 'pcs',
             'condition' => 'good',
             'notes' => 'Milik warga RT 01',
             'source' => 'member',
@@ -79,6 +80,7 @@ class InventoryAndLogisticTest extends TestCase
             'source' => 'member',
             'name' => 'Wajan Goreng',
             'quantity' => 2,
+            'unit' => 'pcs',
             'condition' => 'good',
             'notes' => 'Milik warga RT 01',
         ]);
@@ -96,6 +98,7 @@ class InventoryAndLogisticTest extends TestCase
         $payload = [
             'name' => 'Tikar',
             'quantity' => 5,
+            'unit' => 'pcs',
             'condition' => 'good',
             'source' => 'member',
         ];
@@ -119,6 +122,7 @@ class InventoryAndLogisticTest extends TestCase
             $payload = [
                 'name' => "Tikar {$role}",
                 'quantity' => 1,
+                'unit' => 'pcs',
                 'condition' => 'good',
                 'source' => 'member',
             ];
@@ -147,6 +151,7 @@ class InventoryAndLogisticTest extends TestCase
             'host_id' => $host->id,
             'name' => 'Lama',
             'quantity' => 1,
+            'unit' => 'pcs',
             'condition' => 'good',
             'source' => 'member',
             'image_path' => $oldImagePath,
@@ -157,6 +162,7 @@ class InventoryAndLogisticTest extends TestCase
         $payload = [
             'name' => 'Baru',
             'quantity' => 3,
+            'unit' => 'pcs',
             'condition' => 'damaged',
             'notes' => 'Gagang patah',
             'source' => 'member',
@@ -176,6 +182,7 @@ class InventoryAndLogisticTest extends TestCase
             'id' => $inventory->id,
             'name' => 'Baru',
             'quantity' => 3,
+            'unit' => 'pcs',
             'condition' => 'damaged',
         ]);
     }
@@ -189,6 +196,7 @@ class InventoryAndLogisticTest extends TestCase
             'host_id' => $host1->id,
             'name' => 'Barang Host 1',
             'quantity' => 1,
+            'unit' => 'pcs',
             'condition' => 'good',
             'source' => 'member',
         ]);
@@ -198,6 +206,7 @@ class InventoryAndLogisticTest extends TestCase
         $payload = [
             'name' => 'Hack',
             'quantity' => 10,
+            'unit' => 'pcs',
             'condition' => 'lost',
             'source' => 'member',
         ];
@@ -220,6 +229,7 @@ class InventoryAndLogisticTest extends TestCase
             'host_id' => $host->id,
             'name' => 'Hapus Saya',
             'quantity' => 1,
+            'unit' => 'pcs',
             'condition' => 'good',
             'source' => 'member',
             'image_path' => $imagePath,
@@ -271,6 +281,7 @@ class InventoryAndLogisticTest extends TestCase
             'unit' => 'kg',
             'status' => 'sufficient',
             'notes' => 'Di dapur',
+            'source' => 'member',
         ];
 
         $response = $this->post(route('management.logistic.store'), $payload);
@@ -301,6 +312,7 @@ class InventoryAndLogisticTest extends TestCase
             'quantity' => 1,
             'unit' => 'Rak',
             'status' => 'sufficient',
+            'source' => 'member',
         ];
 
         $response = $this->post(route('management.logistic.store'), $payload);
@@ -326,6 +338,7 @@ class InventoryAndLogisticTest extends TestCase
             'unit' => 'kg',
             'status' => 'low',
             'notes' => 'Hampir habis',
+            'source' => 'member',
         ];
 
         $response = $this->put(route('management.logistic.update', $logistic), $payload);
@@ -361,6 +374,7 @@ class InventoryAndLogisticTest extends TestCase
             'quantity' => 100,
             'unit' => 'kg',
             'status' => 'out',
+            'source' => 'member',
         ];
 
         $response = $this->put(route('management.logistic.update', $logistic), $payload);
@@ -473,7 +487,8 @@ class InventoryAndLogisticTest extends TestCase
 
         $payload = [
             'name' => 'Kipas Angin',
-            'quantity' => 1,
+            'quantity' => 2,
+            'unit' => 'unit',
             'condition' => 'good',
             'source' => 'purchase',
             'purchase_price' => 250000,
@@ -491,11 +506,11 @@ class InventoryAndLogisticTest extends TestCase
             'name' => 'Kipas Angin',
         ]);
 
-        // Finance expense record auto-created in E-Bendahara
+        // Finance expense record auto-created in E-Bendahara (2 * 250,000 = 500,000)
         $this->assertDatabaseHas('finances', [
             'host_id' => $host->id,
             'type' => 'expense',
-            'amount' => 250000,
+            'amount' => 500000,
         ]);
 
         // Inventory finance_id links to the created Finance record
@@ -529,6 +544,7 @@ class InventoryAndLogisticTest extends TestCase
             'finance_id' => $finance->id,
             'name' => 'Dispenser',
             'quantity' => 1,
+            'unit' => 'unit',
             'condition' => 'good',
         ]);
 
@@ -538,6 +554,77 @@ class InventoryAndLogisticTest extends TestCase
 
         // Both inventory and finance record should be deleted
         $this->assertDatabaseMissing('inventories', ['id' => $inventory->id]);
+        $this->assertDatabaseMissing('finances', ['id' => $finance->id]);
+    }
+
+    public function test_host_can_create_logistic_purchased_from_kas()
+    {
+        $host = User::factory()->create(['role' => 'host']);
+        $this->actingAs($host);
+
+        $payload = [
+            'name' => 'Telur Ayam',
+            'quantity' => 3,
+            'unit' => 'rak',
+            'status' => 'sufficient',
+            'source' => 'purchase',
+            'purchase_price' => 60000, // 60,000 per rak
+        ];
+
+        $response = $this->post(route('management.logistic.store'), $payload);
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        // 3 * 60,000 = 180,000 total expense
+        $this->assertDatabaseHas('logistics', [
+            'host_id' => $host->id,
+            'source' => 'purchase',
+            'purchase_price' => 60000,
+            'name' => 'Telur Ayam',
+        ]);
+
+        $this->assertDatabaseHas('finances', [
+            'host_id' => $host->id,
+            'type' => 'expense',
+            'amount' => 180000,
+        ]);
+
+        $logistic = Logistic::where('name', 'Telur Ayam')->first();
+        $this->assertNotNull($logistic->finance_id);
+    }
+
+    public function test_deleting_purchased_logistic_also_deletes_finance_record()
+    {
+        $host = User::factory()->create(['role' => 'host']);
+        $this->actingAs($host);
+
+        $finance = Finance::create([
+            'host_id' => $host->id,
+            'program_kerja_id' => null,
+            'created_by' => $host->id,
+            'type' => 'expense',
+            'amount' => 120000,
+            'title' => 'Pembelian Logistik: Telur Ayam',
+            'description' => 'Test',
+            'date' => now()->toDateString(),
+        ]);
+
+        $logistic = Logistic::create([
+            'host_id' => $host->id,
+            'source' => 'purchase',
+            'purchase_price' => 60000,
+            'finance_id' => $finance->id,
+            'name' => 'Telur Ayam',
+            'quantity' => 2,
+            'unit' => 'rak',
+            'status' => 'sufficient',
+        ]);
+
+        $response = $this->delete(route('management.logistic.destroy', $logistic->id));
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        $this->assertDatabaseMissing('logistics', ['id' => $logistic->id]);
         $this->assertDatabaseMissing('finances', ['id' => $finance->id]);
     }
 }

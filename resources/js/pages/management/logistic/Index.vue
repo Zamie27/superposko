@@ -2,15 +2,23 @@
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { 
-    Plus, Search, Edit3, Trash2, X, ClipboardList, CheckCircle, AlertTriangle, AlertCircle, ArrowUpFromLine, Minus
+    Plus, Search, Edit3, Trash2, X, ClipboardList, CheckCircle, AlertTriangle, AlertCircle, ArrowUpFromLine, Minus, Wallet, Users, User as UserIcon
 } from '@lucide/vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useInitials } from '@/composables/useInitials';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useToast } from '@/composables/useToast';
 import { useConfirm } from '@/composables/useConfirm';
 
-const { confirm } = useConfirm();
-const toast = useToast();
+const { getInitials } = useInitials();
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    avatar?: string;
+}
 
 interface Logistic {
     id: number;
@@ -19,11 +27,20 @@ interface Logistic {
     unit: string;
     status: 'sufficient' | 'low' | 'out';
     notes: string | null;
+    owner_id: number | null;
+    owner?: User | null;
+    source: 'member' | 'purchase';
+    purchase_price: number | null;
+    finance_id: number | null;
     created_at: string;
 }
 
+const { confirm } = useConfirm();
+const toast = useToast();
+
 const props = defineProps<{
     logistics: Logistic[];
+    members: User[];
     canWrite: boolean;
 }>();
 
@@ -70,12 +87,18 @@ const form = useForm({
     unit: 'pcs',
     status: 'sufficient' as 'sufficient' | 'low' | 'out',
     notes: '',
+    source: 'member' as 'member' | 'purchase',
+    owner_id: '' as string | number,
+    purchase_price: '' as string | number,
 });
 
 const openCreateModal = () => {
     isEditMode.value = false;
     editingLogisticId.value = null;
     form.reset();
+    form.source = 'member';
+    form.owner_id = '';
+    form.purchase_price = '';
     isModalOpen.value = true;
 };
 
@@ -87,6 +110,9 @@ const openEditModal = (item: Logistic) => {
     form.unit = item.unit;
     form.status = item.status;
     form.notes = item.notes || '';
+    form.source = item.source ?? 'member';
+    form.owner_id = item.owner_id || '';
+    form.purchase_price = item.purchase_price ?? '';
     isModalOpen.value = true;
 };
 
@@ -337,6 +363,38 @@ const getStatusDetails = (status: string) => {
                         {{ item.notes || 'Tidak ada catatan tambahan.' }}
                     </div>
                 </div>
+
+                <!-- Card Footer - Source / Owner Details -->
+                <div class="px-5 py-3 border-t border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-1 mt-4 rounded-b-2xl">
+                    <!-- Purchase from Kas badge -->
+                    <template v-if="item.source === 'purchase'">
+                        <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">Sumber</span>
+                        <div class="flex items-center gap-1.5">
+                            <Wallet class="size-3.5 text-emerald-500 shrink-0" />
+                            <span class="text-[10px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 truncate">
+                                Beli Kas{{ item.purchase_price ? ' · Rp ' + Number(item.purchase_price).toLocaleString('id-ID') : '' }}
+                            </span>
+                        </div>
+                    </template>
+                    <!-- Member owner -->
+                    <template v-else>
+                        <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">Pemilik</span>
+                        <div class="flex items-center gap-1.5 overflow-hidden">
+                            <Avatar v-if="item.owner" class="size-5 sm:size-6 overflow-hidden rounded-full shrink-0">
+                                <AvatarImage v-if="item.owner.avatar" :src="item.owner.avatar" :alt="item.owner.name" />
+                                <AvatarFallback class="text-[8px] sm:text-[9px] bg-sky-100 text-sky-800 font-bold dark:bg-sky-950 dark:text-sky-300">
+                                    {{ getInitials(item.owner.name) }}
+                                </AvatarFallback>
+                            </Avatar>
+                            <Avatar v-else class="size-5 sm:size-6 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                                <UserIcon class="size-3 text-slate-400" />
+                            </Avatar>
+                            <span class="text-[10px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[60px] sm:max-w-none">
+                                {{ item.owner ? item.owner.name : 'Posko' }}
+                            </span>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
 
@@ -362,7 +420,7 @@ const getStatusDetails = (status: string) => {
                     </button>
                 </div>
 
-                <form @submit.prevent="submitForm" class="p-5 space-y-4">
+                <form @submit.prevent="submitForm" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
                     <!-- Name Input -->
                     <div class="space-y-1">
                         <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Nama Bahan / Logistik</label>
@@ -402,6 +460,76 @@ const getStatusDetails = (status: string) => {
                             />
                             <p v-if="form.errors.unit" class="text-xs text-red-500">{{ form.errors.unit }}</p>
                         </div>
+                    </div>
+
+                    <!-- Source Toggle: Sumber Barang -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Sumber Barang</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button
+                                type="button"
+                                @click="form.source = 'member'; form.purchase_price = ''"
+                                :class="[
+                                    'flex items-center gap-2 p-3 rounded-xl border-2 text-xs font-semibold transition cursor-pointer',
+                                    form.source === 'member'
+                                        ? 'border-sky-500 bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-400'
+                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                                ]"
+                            >
+                                <Users class="size-4 shrink-0" />
+                                Milik Anggota
+                            </button>
+                            <button
+                                type="button"
+                                @click="form.source = 'purchase'; form.owner_id = ''"
+                                :class="[
+                                    'flex items-center gap-2 p-3 rounded-xl border-2 text-xs font-semibold transition cursor-pointer',
+                                    form.source === 'purchase'
+                                        ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                                ]"
+                            >
+                                <Wallet class="size-4 shrink-0" />
+                                Beli dari Kas
+                            </button>
+                        </div>
+                        <p v-if="form.errors.source" class="text-xs text-red-500">{{ form.errors.source }}</p>
+                    </div>
+
+                    <!-- Member Selector (only shown when source === 'member') -->
+                    <div v-if="form.source === 'member'" class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Pemilik Barang (Anggota)</label>
+                        <select
+                            v-model="form.owner_id"
+                            class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-950 dark:text-white"
+                        >
+                            <option value="">Milik Posko (Bersama)</option>
+                            <option v-for="member in members" :key="member.id" :value="member.id">
+                                {{ member.name }}
+                            </option>
+                        </select>
+                        <p v-if="form.errors.owner_id" class="text-xs text-red-500">{{ form.errors.owner_id }}</p>
+                    </div>
+
+                    <!-- Purchase Price Input (only shown when source === 'purchase') -->
+                    <div v-if="form.source === 'purchase'" class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Harga Satuan (Rp)</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-semibold">Rp</span>
+                            <input
+                                v-model="form.purchase_price"
+                                type="number"
+                                min="0"
+                                step="1000"
+                                placeholder="0"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 pl-9 pr-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:bg-slate-950 dark:text-white"
+                            />
+                        </div>
+                        <div v-if="form.purchase_price && form.quantity" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                            Harga Total Pembelian: Rp {{ (Number(form.purchase_price) * Number(form.quantity)).toLocaleString('id-ID') }}
+                        </div>
+                        <p class="text-[10px] text-slate-400">Otomatis dicatat sebagai pengeluaran kas di E-Bendahara.</p>
+                        <p v-if="form.errors.purchase_price" class="text-xs text-red-500">{{ form.errors.purchase_price }}</p>
                     </div>
 
                     <!-- Status Select -->

@@ -138,7 +138,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\InventoryController::update
-* @see app/Http/Controllers/InventoryController.php:122
+* @see app/Http/Controllers/InventoryController.php:124
 * @route '/management/inventory/{inventory}'
 */
 export const update = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -153,7 +153,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\InventoryController::update
-* @see app/Http/Controllers/InventoryController.php:122
+* @see app/Http/Controllers/InventoryController.php:124
 * @route '/management/inventory/{inventory}'
 */
 update.url = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -186,7 +186,7 @@ update.url = (args: { inventory: number | { id: number } } | [inventory: number 
 
 /**
 * @see \App\Http\Controllers\InventoryController::update
-* @see app/Http/Controllers/InventoryController.php:122
+* @see app/Http/Controllers/InventoryController.php:124
 * @route '/management/inventory/{inventory}'
 */
 update.put = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -196,7 +196,7 @@ update.put = (args: { inventory: number | { id: number } } | [inventory: number 
 
 /**
 * @see \App\Http\Controllers\InventoryController::update
-* @see app/Http/Controllers/InventoryController.php:122
+* @see app/Http/Controllers/InventoryController.php:124
 * @route '/management/inventory/{inventory}'
 */
 const updateForm = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -211,7 +211,7 @@ const updateForm = (args: { inventory: number | { id: number } } | [inventory: n
 
 /**
 * @see \App\Http\Controllers\InventoryController::update
-* @see app/Http/Controllers/InventoryController.php:122
+* @see app/Http/Controllers/InventoryController.php:124
 * @route '/management/inventory/{inventory}'
 */
 updateForm.put = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -228,7 +228,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\InventoryController::destroy
-* @see app/Http/Controllers/InventoryController.php:212
+* @see app/Http/Controllers/InventoryController.php:216
 * @route '/management/inventory/{inventory}'
 */
 export const destroy = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -243,7 +243,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\InventoryController::destroy
-* @see app/Http/Controllers/InventoryController.php:212
+* @see app/Http/Controllers/InventoryController.php:216
 * @route '/management/inventory/{inventory}'
 */
 destroy.url = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -276,7 +276,7 @@ destroy.url = (args: { inventory: number | { id: number } } | [inventory: number
 
 /**
 * @see \App\Http\Controllers\InventoryController::destroy
-* @see app/Http/Controllers/InventoryController.php:212
+* @see app/Http/Controllers/InventoryController.php:216
 * @route '/management/inventory/{inventory}'
 */
 destroy.delete = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -286,7 +286,7 @@ destroy.delete = (args: { inventory: number | { id: number } } | [inventory: num
 
 /**
 * @see \App\Http\Controllers\InventoryController::destroy
-* @see app/Http/Controllers/InventoryController.php:212
+* @see app/Http/Controllers/InventoryController.php:216
 * @route '/management/inventory/{inventory}'
 */
 const destroyForm = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -301,7 +301,7 @@ const destroyForm = (args: { inventory: number | { id: number } } | [inventory: 
 
 /**
 * @see \App\Http\Controllers\InventoryController::destroy
-* @see app/Http/Controllers/InventoryController.php:212
+* @see app/Http/Controllers/InventoryController.php:216
 * @route '/management/inventory/{inventory}'
 */
 destroyForm.delete = (args: { inventory: number | { id: number } } | [inventory: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\LogisticController::index
-* @see app/Http/Controllers/LogisticController.php:19
+* @see app/Http/Controllers/LogisticController.php:21
 * @route '/management/logistic'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\LogisticController::index
-* @see app/Http/Controllers/LogisticController.php:19
+* @see app/Http/Controllers/LogisticController.php:21
 * @route '/management/logistic'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\LogisticController::index
-* @see app/Http/Controllers/LogisticController.php:19
+* @see app/Http/Controllers/LogisticController.php:21
 * @route '/management/logistic'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\LogisticController::index
-* @see app/Http/Controllers/LogisticController.php:19
+* @see app/Http/Controllers/LogisticController.php:21
 * @route '/management/logistic'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\LogisticController::index
-* @see app/Http/Controllers/LogisticController.php:19
+* @see app/Http/Controllers/LogisticController.php:21
 * @route '/management/logistic'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\LogisticController::index
-* @see app/Http/Controllers/LogisticController.php:19
+* @see app/Http/Controllers/LogisticController.php:21
 * @route '/management/logistic'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\LogisticController::index
-* @see app/Http/Controllers/LogisticController.php:19
+* @see app/Http/Controllers/LogisticController.php:21
 * @route '/management/logistic'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\LogisticController::store
-* @see app/Http/Controllers/LogisticController.php:37
+* @see app/Http/Controllers/LogisticController.php:46
 * @route '/management/logistic'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\LogisticController::store
-* @see app/Http/Controllers/LogisticController.php:37
+* @see app/Http/Controllers/LogisticController.php:46
 * @route '/management/logistic'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\LogisticController::store
-* @see app/Http/Controllers/LogisticController.php:37
+* @see app/Http/Controllers/LogisticController.php:46
 * @route '/management/logistic'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\LogisticController::store
-* @see app/Http/Controllers/LogisticController.php:37
+* @see app/Http/Controllers/LogisticController.php:46
 * @route '/management/logistic'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\LogisticController::store
-* @see app/Http/Controllers/LogisticController.php:37
+* @see app/Http/Controllers/LogisticController.php:46
 * @route '/management/logistic'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\LogisticController::update
-* @see app/Http/Controllers/LogisticController.php:75
+* @see app/Http/Controllers/LogisticController.php:115
 * @route '/management/logistic/{logistic}'
 */
 export const update = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -153,7 +153,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\LogisticController::update
-* @see app/Http/Controllers/LogisticController.php:75
+* @see app/Http/Controllers/LogisticController.php:115
 * @route '/management/logistic/{logistic}'
 */
 update.url = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -186,7 +186,7 @@ update.url = (args: { logistic: number | { id: number } } | [logistic: number | 
 
 /**
 * @see \App\Http\Controllers\LogisticController::update
-* @see app/Http/Controllers/LogisticController.php:75
+* @see app/Http/Controllers/LogisticController.php:115
 * @route '/management/logistic/{logistic}'
 */
 update.put = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -196,7 +196,7 @@ update.put = (args: { logistic: number | { id: number } } | [logistic: number | 
 
 /**
 * @see \App\Http\Controllers\LogisticController::update
-* @see app/Http/Controllers/LogisticController.php:75
+* @see app/Http/Controllers/LogisticController.php:115
 * @route '/management/logistic/{logistic}'
 */
 const updateForm = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -211,7 +211,7 @@ const updateForm = (args: { logistic: number | { id: number } } | [logistic: num
 
 /**
 * @see \App\Http\Controllers\LogisticController::update
-* @see app/Http/Controllers/LogisticController.php:75
+* @see app/Http/Controllers/LogisticController.php:115
 * @route '/management/logistic/{logistic}'
 */
 updateForm.put = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -228,7 +228,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\LogisticController::destroy
-* @see app/Http/Controllers/LogisticController.php:112
+* @see app/Http/Controllers/LogisticController.php:196
 * @route '/management/logistic/{logistic}'
 */
 export const destroy = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -243,7 +243,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\LogisticController::destroy
-* @see app/Http/Controllers/LogisticController.php:112
+* @see app/Http/Controllers/LogisticController.php:196
 * @route '/management/logistic/{logistic}'
 */
 destroy.url = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -276,7 +276,7 @@ destroy.url = (args: { logistic: number | { id: number } } | [logistic: number |
 
 /**
 * @see \App\Http\Controllers\LogisticController::destroy
-* @see app/Http/Controllers/LogisticController.php:112
+* @see app/Http/Controllers/LogisticController.php:196
 * @route '/management/logistic/{logistic}'
 */
 destroy.delete = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -286,7 +286,7 @@ destroy.delete = (args: { logistic: number | { id: number } } | [logistic: numbe
 
 /**
 * @see \App\Http\Controllers\LogisticController::destroy
-* @see app/Http/Controllers/LogisticController.php:112
+* @see app/Http/Controllers/LogisticController.php:196
 * @route '/management/logistic/{logistic}'
 */
 const destroyForm = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -301,7 +301,7 @@ const destroyForm = (args: { logistic: number | { id: number } } | [logistic: nu
 
 /**
 * @see \App\Http\Controllers\LogisticController::destroy
-* @see app/Http/Controllers/LogisticController.php:112
+* @see app/Http/Controllers/LogisticController.php:196
 * @route '/management/logistic/{logistic}'
 */
 destroyForm.delete = (args: { logistic: number | { id: number } } | [logistic: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -318,7 +318,7 @@ destroy.form = destroyForm
 
 /**
 * @see \App\Http\Controllers\LogisticController::barangKeluar
-* @see app/Http/Controllers/LogisticController.php:136
+* @see app/Http/Controllers/LogisticController.php:225
 * @route '/management/logistic/barang-keluar'
 */
 export const barangKeluar = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -333,7 +333,7 @@ barangKeluar.definition = {
 
 /**
 * @see \App\Http\Controllers\LogisticController::barangKeluar
-* @see app/Http/Controllers/LogisticController.php:136
+* @see app/Http/Controllers/LogisticController.php:225
 * @route '/management/logistic/barang-keluar'
 */
 barangKeluar.url = (options?: RouteQueryOptions) => {
@@ -342,7 +342,7 @@ barangKeluar.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\LogisticController::barangKeluar
-* @see app/Http/Controllers/LogisticController.php:136
+* @see app/Http/Controllers/LogisticController.php:225
 * @route '/management/logistic/barang-keluar'
 */
 barangKeluar.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -352,7 +352,7 @@ barangKeluar.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\LogisticController::barangKeluar
-* @see app/Http/Controllers/LogisticController.php:136
+* @see app/Http/Controllers/LogisticController.php:225
 * @route '/management/logistic/barang-keluar'
 */
 const barangKeluarForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -362,7 +362,7 @@ const barangKeluarForm = (options?: RouteQueryOptions): RouteFormDefinition<'pos
 
 /**
 * @see \App\Http\Controllers\LogisticController::barangKeluar
-* @see app/Http/Controllers/LogisticController.php:136
+* @see app/Http/Controllers/LogisticController.php:225
 * @route '/management/logistic/barang-keluar'
 */
 barangKeluarForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
