@@ -130,4 +130,34 @@ class AdminUserController extends Controller
             'message' => "Trial untuk user {$user->name} berhasil diaktifkan/diperbarui selama {$validated['trial_days']} hari.",
         ]);
     }
+
+    /**
+     * Ban the specified user.
+     */
+    public function ban(User $user): JsonResponse
+    {
+        $user->update([
+            'banned_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "User {$user->name} berhasil di-ban.",
+        ]);
+    }
+
+    /**
+     * Unban the specified user.
+     */
+    public function unban(User $user): JsonResponse
+    {
+        $user->update([
+            'banned_at' => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Ban untuk user {$user->name} berhasil dibatalkan.",
+        ]);
+    }
 }

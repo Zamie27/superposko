@@ -74,12 +74,27 @@ Route::get('auth/google/complete', [GoogleLoginController::class, 'showCompleteP
 Route::post('auth/google/complete', [GoogleLoginController::class, 'completeProfile'])->name('auth.google.complete.store');
 
 // Public/Auth Report Routes
+Route::get('banned', function () {
+    return Inertia::render('auth/Banned');
+})->name('banned');
+
 Route::get('laporan/buat', [ReportController::class, 'create'])->name('reports.create');
 Route::post('laporan/buat', [ReportController::class, 'store'])->name('reports.store');
 Route::post('bug-report', [BugReportController::class, 'store'])->name('bug-report.store');
 
 // Midtrans Payment Webhook Notification
 Route::match(['get', 'post'], 'payment/notification', [PaymentController::class, 'handleNotification'])->name('payment.notification');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('email/verify-otp', [\App\Http\Controllers\Auth\EmailVerificationOtpController::class, 'verify'])->name('verification.verify_otp');
+    Route::post('email/resend-otp', [\App\Http\Controllers\Auth\EmailVerificationOtpController::class, 'resend'])->name('verification.resend_otp');
+    Route::post('logout-to-register', function (\Illuminate\Http\Request $request) {
+        \Illuminate\Support\Facades\Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('register');
+    })->name('logout_to_register');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Redirection/Rendering helper for main /dashboard entry path
@@ -199,6 +214,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('users/send-reset-email', [AdminUserController::class, 'sendResetEmail'])->name('users.send_reset_email');
         Route::put('users/{user}/role', [AdminUserController::class, 'updateRole'])->name('users.update_role');
         Route::put('users/{user}/trial', [AdminUserController::class, 'updateTrial'])->name('users.update_trial');
+        Route::post('users/{user}/ban', [AdminUserController::class, 'ban'])->name('users.ban');
+        Route::post('users/{user}/unban', [AdminUserController::class, 'unban'])->name('users.unban');
 
         // Price Management
         Route::get('prices', [AdminPriceController::class, 'index'])->name('prices.index');

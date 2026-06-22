@@ -17,6 +17,8 @@ const props = defineProps<{
             role: string;
             host_id: number | null;
             university: string | null;
+            banned_at: string | null;
+            trial_ends_at: string | null;
         }>;
         links: Array<any>;
         current_page: number;
@@ -251,6 +253,70 @@ const handleUpdateTrial = async () => {
     }
 };
 
+const handleBanUser = async (user: any) => {
+    const isConfirmed = await confirm({
+        title: 'Ban User?',
+        message: `Apakah Anda yakin ingin mem-ban akun ${user.name}? User ini tidak akan bisa mengakses platform dan akan diarahkan ke halaman banned.`,
+        confirmText: 'Ya, Ban',
+        cancelText: 'Batal',
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+        const response = await fetch(`/admin/users/${user.id}/ban`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+                'Accept': 'application/json',
+            },
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            toast.success(data.message);
+            router.reload({ only: ['users'] });
+        } else {
+            toast.error(data.message || 'Terjadi kesalahan.');
+        }
+    } catch {
+        toast.error('Gagal mem-ban user.');
+    }
+};
+
+const handleUnbanUser = async (user: any) => {
+    const isConfirmed = await confirm({
+        title: 'Batalkan Ban?',
+        message: `Apakah Anda yakin ingin membuka kembali akses untuk akun ${user.name}?`,
+        confirmText: 'Ya, Buka',
+        cancelText: 'Batal',
+    });
+
+    if (!isConfirmed) return;
+
+    try {
+        const response = await fetch(`/admin/users/${user.id}/unban`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+                'Accept': 'application/json',
+            },
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            toast.success(data.message);
+            router.reload({ only: ['users'] });
+        } else {
+            toast.error(data.message || 'Terjadi kesalahan.');
+        }
+    } catch {
+        toast.error('Gagal membuka ban.');
+    }
+};
+
 const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -320,6 +386,11 @@ const getCookie = (name: string): string => {
                                 <div v-if="user.role === 'trial'" class="text-[10px] text-amber-600 mt-1 font-semibold">
                                     {{ getTrialDaysLeft(user.trial_ends_at) }} hari tersisa
                                 </div>
+                                <div v-if="user.banned_at" class="mt-1">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-red-50 text-red-700 px-2 py-0.5 text-[10px] font-semibold border border-red-200">
+                                        BANNED
+                                    </span>
+                                </div>
                             </td>
                             <td class="px-6 py-4 text-slate-500">
                                 <span v-if="user.role === 'member'">
@@ -339,6 +410,20 @@ const getCookie = (name: string): string => {
                                 </button>
                                 <button @click="handleSendResetEmail(user)" class="text-xs font-semibold text-slate-500 hover:text-slate-700 underline">
                                     Kirim Email Reset
+                                </button>
+                                <button
+                                    v-if="user.banned_at"
+                                    @click="handleUnbanUser(user)"
+                                    class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 underline"
+                                >
+                                    Batal Ban
+                                </button>
+                                <button
+                                    v-else
+                                    @click="handleBanUser(user)"
+                                    class="text-xs font-semibold text-red-600 hover:text-red-700 underline"
+                                >
+                                    Ban Akun
                                 </button>
                             </td>
                         </tr>

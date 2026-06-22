@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             CheckTrialExpiration::class,
+            \App\Http\Middleware\CheckBanned::class,
         ]);
 
         $middleware->alias([

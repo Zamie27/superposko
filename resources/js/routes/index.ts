@@ -292,7 +292,132 @@ homeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 home.form = homeForm
 
 /**
-* @see routes/web.php:86
+* @see routes/web.php:77
+* @route '/banned'
+*/
+export const banned = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: banned.url(options),
+    method: 'get',
+})
+
+banned.definition = {
+    methods: ["get","head"],
+    url: '/banned',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:77
+* @route '/banned'
+*/
+banned.url = (options?: RouteQueryOptions) => {
+    return banned.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:77
+* @route '/banned'
+*/
+banned.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: banned.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:77
+* @route '/banned'
+*/
+banned.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: banned.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:77
+* @route '/banned'
+*/
+const bannedForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: banned.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:77
+* @route '/banned'
+*/
+bannedForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: banned.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:77
+* @route '/banned'
+*/
+bannedForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: banned.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+banned.form = bannedForm
+
+/**
+* @see routes/web.php:91
+* @route '/logout-to-register'
+*/
+export const logout_to_register = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: logout_to_register.url(options),
+    method: 'post',
+})
+
+logout_to_register.definition = {
+    methods: ["post"],
+    url: '/logout-to-register',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see routes/web.php:91
+* @route '/logout-to-register'
+*/
+logout_to_register.url = (options?: RouteQueryOptions) => {
+    return logout_to_register.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:91
+* @route '/logout-to-register'
+*/
+logout_to_register.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: logout_to_register.url(options),
+    method: 'post',
+})
+
+/**
+* @see routes/web.php:91
+* @route '/logout-to-register'
+*/
+const logout_to_registerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: logout_to_register.url(options),
+    method: 'post',
+})
+
+/**
+* @see routes/web.php:91
+* @route '/logout-to-register'
+*/
+logout_to_registerForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: logout_to_register.url(options),
+    method: 'post',
+})
+
+logout_to_register.form = logout_to_registerForm
+
+/**
+* @see routes/web.php:101
 * @route '/dashboard'
 */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -306,7 +431,7 @@ dashboard.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:86
+* @see routes/web.php:101
 * @route '/dashboard'
 */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -314,7 +439,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:86
+* @see routes/web.php:101
 * @route '/dashboard'
 */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -323,7 +448,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:86
+* @see routes/web.php:101
 * @route '/dashboard'
 */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -332,7 +457,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:86
+* @see routes/web.php:101
 * @route '/dashboard'
 */
 const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -341,7 +466,7 @@ const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 })
 
 /**
-* @see routes/web.php:86
+* @see routes/web.php:101
 * @route '/dashboard'
 */
 dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -350,7 +475,7 @@ dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see routes/web.php:86
+* @see routes/web.php:101
 * @route '/dashboard'
 */
 dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

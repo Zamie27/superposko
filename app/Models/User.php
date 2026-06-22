@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -28,9 +28,9 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'google_id', 'university', 'npm', 'group_number', 'kkn_address', 'role', 'host_id', 'subscription_expires_at', 'trial_ends_at', 'immich_api_key', 'immich_email', 'immich_password'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'university', 'npm', 'group_number', 'kkn_address', 'role', 'host_id', 'subscription_expires_at', 'trial_ends_at', 'banned_at', 'verification_otp', 'verification_otp_expires_at', 'immich_api_key', 'immich_email', 'immich_password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
@@ -48,7 +48,24 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
             'subscription_expires_at' => 'datetime',
             'trial_ends_at' => 'datetime',
+            'banned_at' => 'datetime',
+            'verification_otp_expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Send OTP email verification notification instead of standard link.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $otp = (string) rand(100000, 999999);
+        
+        $this->forceFill([
+            'verification_otp' => $otp,
+            'verification_otp_expires_at' => now()->addMinutes(15),
+        ])->save();
+
+        \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\SendRegistrationOtpMail($otp));
     }
 
     /**
