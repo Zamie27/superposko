@@ -76,12 +76,14 @@ const submitForm = () => {
         form.put(`/management/members/${editingMember.value.id}`, {
             onSuccess: () => {
                 isModalOpen.value = false;
+                form.reset();
             },
         });
     } else {
         form.post('/management/members', {
             onSuccess: () => {
                 isModalOpen.value = false;
+                form.reset();
             },
         });
     }

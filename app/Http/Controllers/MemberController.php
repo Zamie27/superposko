@@ -45,6 +45,10 @@ class MemberController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
             'role' => ['required', 'string', Rule::in(['bendahara', 'sekretaris', 'anggota', 'pdd'])],
+        ], [
+            'email.unique' => 'Email Sudah Digunakan',
+            'email.email' => 'Email Tidak Sesuai',
+            'password.min' => 'Password Tidak Memenuhi Syarat',
         ]);
 
         $hostId = $user->host_id ?? $user->id;

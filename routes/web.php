@@ -42,12 +42,31 @@ Route::get('/', function () {
         'packagePrice' => (int) Setting::get('package_price', 100000),
         'packageStrikePrice' => (int) Setting::get('package_strike_price', 150000),
         'packageDescription' => Setting::get('package_description', 'Dapatkan akses penuh ke seluruh modul platform untuk satu posko KKN tanpa batasan kuota user/anggota kelompok.'),
+        'preorderPrice' => (int) Setting::get('preorder_price', 50000),
+        'preorderStrikePrice' => (int) Setting::get('preorder_strike_price', 100000),
+        'preorderPromoActive' => filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN),
         'footerAbout' => Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
         'footerEmail' => Setting::get('footer_email', 'kuukok.id@gmail.com'),
         'footerPhone' => Setting::get('footer_phone', '+62 851-7173-9232'),
         'footerCopyright' => Setting::get('footer_copyright', 'Kuukok.id'),
     ]);
 })->name('home');
+
+Route::get('event', function () {
+    return Inertia::render('event/Index', [
+        'title' => Setting::get('event_title', 'SuperPosko Beta Bug Hunting & Feedback Event'),
+        'description' => Setting::get('event_description', 'Event testing ini diadakan untuk menguji kesiapan, kesesuaian fitur, kestabilan kinerja, dan keamanan aplikasi SuperPosko sebelum peluncuran resmi. Mari berkontribusi untuk menciptakan aplikasi KKN terbaik!'),
+        'youtubeEmbedUrl' => Setting::get('event_youtube_embed_url', 'https://www.youtube.com/embed/dQw4w9WgXcQ'),
+        'prize' => Setting::get('event_prize', 'Rp 100.000'),
+        'startDate' => Setting::get('event_start_date', '2026-06-23'),
+        'endDate' => Setting::get('event_end_date', '2026-06-28'),
+        'rules' => Setting::get('event_rules', "1. Peserta wajib mendaftar akun di SuperPosko.\n2. Peserta menguji fungsionalitas fitur (E-Bendahara, Piket, Logbook, dll.) dan melaporkan setiap bug yang ditemukan melalui bubble Lapor Bug.\n3. Bug yang valid dan belum pernah dilaporkan sebelumnya akan mendapatkan poin.\n4. Pemenang ditentukan berdasarkan jumlah temuan bug valid terbanyak.\n5. Keputusan juri bersifat mutlak."),
+        'footerAbout' => Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
+        'footerEmail' => Setting::get('footer_email', 'kuukok.id@gmail.com'),
+        'footerPhone' => Setting::get('footer_phone', '+62 851-7173-9232'),
+        'footerCopyright' => Setting::get('footer_copyright', 'Kuukok.id'),
+    ]);
+})->name('event.public');
 
 Route::get('auth/google', [GoogleLoginController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [GoogleLoginController::class, 'handleGoogleCallback'])->name('auth.google.callback');

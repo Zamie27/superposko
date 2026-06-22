@@ -86,6 +86,9 @@ const props = defineProps<{
     packagePrice: number;
     packageStrikePrice: number;
     packageDescription: string;
+    preorderPrice: number;
+    preorderStrikePrice: number;
+    preorderPromoActive: boolean;
     footerAbout: string;
     footerEmail: string;
     footerPhone: string;
@@ -145,6 +148,7 @@ const faqs = [
                 <!-- Desktop Nav -->
                 <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
                     <Link href="/" class="text-[#38BDF8] transition-colors">Home</Link>
+                    <Link href="/event" class="hover:text-[#38BDF8] transition-colors">Event</Link>
                     <a href="#fitur" class="hover:text-[#38BDF8] transition-colors">Fitur</a>
                     <a href="#pricing" class="hover:text-[#38BDF8] transition-colors">Harga</a>
                     <a href="#faq" class="hover:text-[#38BDF8] transition-colors">FAQ</a>
@@ -193,6 +197,7 @@ const faqs = [
             <!-- Mobile Dropdown Nav -->
             <div v-if="isMenuOpen" class="border-b border-slate-200/50 bg-[#F4F7F7] px-6 py-4 md:hidden">
                 <nav class="flex flex-col gap-4 text-sm font-semibold text-slate-600">
+                    <Link href="/event" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Event</Link>
                     <a href="#fitur" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Fitur</a>
                     <a href="#pricing" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Harga</a>
                     <a href="#faq" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">FAQ</a>
@@ -331,8 +336,116 @@ const faqs = [
                     </p>
                 </div>
 
-                <!-- Pricing Card -->
-                <div class="mx-auto max-w-md rounded-2xl border border-[#38BDF8]/40 bg-white p-8 text-center shadow-md">
+                <!-- Pricing Cards Grid -->
+                <div v-if="preorderPromoActive" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
+                    <!-- 1. Paket Posko Card (Standard) -->
+                    <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-md relative overflow-hidden flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Akses Penuh SaaS</span>
+                            <h3 class="mt-2 text-2xl font-bold text-slate-900">{{ packageName }}</h3>
+                            <div class="my-6 flex items-baseline justify-center gap-1.5 flex-col items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm line-through text-slate-400">Rp {{ packageStrikePrice.toLocaleString('id-ID') }}</span>
+                                    <span class="text-4xl font-extrabold text-slate-900">Rp {{ packagePrice.toLocaleString('id-ID') }}</span>
+                                </div>
+                                <span class="text-xs text-slate-500 mt-1">Sekali bayar untuk 1 Siklus Posko (40 Hari)</span>
+                            </div>
+                            <p class="text-sm leading-relaxed text-slate-600">
+                                {{ packageDescription }}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <div class="mt-8">
+                                <Link
+                                    v-if="$page.props.auth.user"
+                                    :href="dashboard()"
+                                    class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-white transition duration-200"
+                                >
+                                    Masuk ke Dashboard
+                                </Link>
+                                <Link
+                                    v-else
+                                    :href="register()"
+                                    class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-white transition duration-200"
+                                >
+                                    Daftar Sekarang
+                                </Link>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="my-6 border-t border-slate-100"></div>
+
+                            <!-- Features Checklist -->
+                            <ul class="space-y-3.5 text-left text-sm text-slate-650">
+                                <li v-for="item in checklistFeatures" :key="item" class="flex items-center gap-3">
+                                    <svg class="h-5 w-5 shrink-0 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>{{ item }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 2. Pre-Order Card -->
+                    <div class="rounded-2xl border border-amber-500/40 bg-white p-8 text-center shadow-lg relative overflow-hidden flex flex-col justify-between">
+                        <!-- Ribbon -->
+                        <div class="absolute top-0 right-0 bg-amber-500 text-white text-[10px] font-black uppercase py-1.5 px-8 rotate-45 translate-x-6 translate-y-3 shadow-xs">
+                            Pre Order!
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-600">Harga Promo Terbatas</span>
+                            <h3 class="mt-2 text-2xl font-bold text-slate-900">Pre Order {{ packageName }}</h3>
+                            <div class="my-6 flex items-baseline justify-center gap-1.5 flex-col items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm line-through text-slate-400">Rp {{ preorderStrikePrice.toLocaleString('id-ID') }}</span>
+                                    <span class="text-4xl font-extrabold text-slate-900">Rp {{ preorderPrice.toLocaleString('id-ID') }}</span>
+                                </div>
+                                <span class="text-xs text-slate-500 mt-1">Dapatkan harga spesial sebelum perilisan resmi</span>
+                            </div>
+                            <p class="text-sm leading-relaxed text-slate-600">
+                                Pesan paket posko Anda lebih awal selama masa promo pre-order ini dan nikmati potongan harga flat hingga KKN Anda selesai.
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <div class="mt-8">
+                                <Link
+                                    v-if="$page.props.auth.user"
+                                    href="/preorder"
+                                    class="block w-full rounded-xl bg-amber-500 hover:bg-amber-600 py-3 text-sm font-bold text-white transition duration-200"
+                                >
+                                    Dapatkan Sekarang
+                                </Link>
+                                <Link
+                                    v-else
+                                    :href="register()"
+                                    class="block w-full rounded-xl bg-amber-500 hover:bg-amber-600 py-3 text-sm font-bold text-white transition duration-200"
+                                >
+                                    Dapatkan Sekarang
+                                </Link>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="my-6 border-t border-slate-100"></div>
+
+                            <!-- Features Checklist -->
+                            <ul class="space-y-3.5 text-left text-sm text-slate-655">
+                                <li v-for="item in checklistFeatures" :key="item" class="flex items-center gap-3">
+                                    <svg class="h-5 w-5 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>{{ item }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fallback: Only Paket Posko Card (Standard) -->
+                <div v-else class="mx-auto max-w-md rounded-2xl border border-[#38BDF8]/40 bg-white p-8 text-center shadow-md">
                     <span class="text-xs font-bold uppercase tracking-wider text-sky-600">Akses Penuh SaaS</span>
                     <h3 class="mt-2 text-2xl font-bold text-slate-900">{{ packageName }}</h3>
                     <div class="my-6 flex items-baseline justify-center gap-1.5 flex-col items-center">
