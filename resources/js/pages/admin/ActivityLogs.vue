@@ -101,7 +101,7 @@ const formatDate = (dateStr: string) => {
 <template>
     <Head title="Log Aktifitas Sistem - Admin" />
 
-    <div class="flex min-h-full flex-1 flex-col gap-6 p-6 max-w-7xl mx-auto font-sans">
+    <div class="p-6 max-w-7xl mx-auto font-sans space-y-6 w-full">
         <div class="flex items-center gap-3">
             <Link href="/admin/dashboard" class="rounded-lg p-2 hover:bg-slate-100 text-slate-500 transition-colors">
                 <ArrowLeft class="size-5" />

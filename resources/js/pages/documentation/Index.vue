@@ -222,15 +222,15 @@ const closeLightbox = () => {
         <!-- Secure Content Wrap -->
         <template v-if="$page.props.auth.user.role !== 'trial' && $page.props.auth.user.is_subscribed">
             <!-- Blocking Config Error Message -->
-            <div v-if="error === 'mohon tunggu storage dokumentasi sedang disiapkan oleh admin. tunggu paling lama 1x24 jam.'" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-card border rounded-2xl shadow-xs min-h-[400px] font-sans">
+            <div v-if="error" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-card border rounded-2xl shadow-xs min-h-[400px] font-sans">
                 <div class="h-16 w-16 rounded-full bg-sky-50 dark:bg-sky-950/30 flex items-center justify-center text-[#38BDF8] mb-6 animate-pulse">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
                 </div>
                 <h3 class="text-xl font-bold text-slate-900 dark:text-white">Penyimpanan Galeri Sedang Disiapkan</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 max-w-md leading-relaxed">
-                    Mohon tunggu, storage dokumentasi sedang disiapkan oleh admin. Tunggu paling lama 1x24 jam.
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 max-w-md leading-relaxed font-semibold">
+                    Storage dokumentasi sedang disiapkan, tunggu maksimal 1x24 jam.
                 </p>
                 <div class="mt-8">
                     <a href="/dashboard" class="rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 px-6 py-3 text-sm font-bold text-slate-700 dark:text-slate-350 transition duration-200">

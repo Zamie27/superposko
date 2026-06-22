@@ -4,7 +4,7 @@ import {
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
     ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase, Download,
-    Bell, Bug
+    Bell, Bug, FileText
 } from '@lucide/vue';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -336,6 +336,20 @@ const installPwa = () => {
                     >
                         <Download class="size-4" />
                         <span>Instal Aplikasi</span>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+
+            <SidebarMenu class="px-2 mb-1">
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        as-child
+                        class="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100 cursor-pointer"
+                    >
+                        <a href="https://pdf.kuukok.my.id/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
+                            <FileText class="size-4 text-neutral-500 shrink-0" />
+                            <span>Tools Dokumen</span>
+                        </a>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
