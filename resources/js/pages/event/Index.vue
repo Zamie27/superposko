@@ -172,11 +172,14 @@ const formatDate = (dateStr: string) => {
                     <div class="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center mb-4">
                         <Trophy class="size-6 text-white" />
                     </div>
-                    <div>
+                    <div class="space-y-1">
                         <span class="text-xs font-bold uppercase tracking-wider text-amber-100 block">Total Hadiah</span>
                         <h3 class="text-3xl font-black mt-2 select-all">{{ prize }}</h3>
+                        <span class="text-xs font-bold text-white bg-white/20 px-2.5 py-0.5 rounded-md inline-block mt-1">
+                            & Sertifikat Penghargaan
+                        </span>
                     </div>
-                    <span class="text-[10px] text-amber-100/80 mt-4">Hadiah saldo digital untuk pelapor bug valid</span>
+                    <span class="text-[10px] text-amber-100/80 mt-4">Hadiah saldo digital untuk pelapor bug valid dan Sertifikat Penghargaan</span>
                 </div>
 
                 <!-- Date Duration card -->

@@ -29,6 +29,7 @@ const props = defineProps<{
     filters: {
         search?: string;
         category?: string;
+        per_page?: string | number;
     };
 }>();
 
@@ -43,6 +44,7 @@ defineOptions({
 
 const search = ref(props.filters.search || '');
 const category = ref(props.filters.category || '');
+const perPage = ref(props.filters.per_page?.toString() || '30');
 
 const handleFilter = () => {
     router.get(
@@ -50,6 +52,7 @@ const handleFilter = () => {
         {
             search: search.value,
             category: category.value,
+            per_page: perPage.value,
         },
         {
             preserveState: true,
@@ -62,10 +65,11 @@ const handleFilter = () => {
 const clearFilters = () => {
     search.value = '';
     category.value = '';
+    perPage.value = '30';
     handleFilter();
 };
 
-watch(category, () => {
+watch([category, perPage], () => {
     handleFilter();
 });
 
@@ -134,6 +138,21 @@ const formatDate = (dateStr: string) => {
                     <option value="preorder">Preorder</option>
                     <option value="settings">Pengaturan</option>
                     <option value="member">Anggota</option>
+                </select>
+
+                <!-- Per Page Select -->
+                <select
+                    v-model="perPage"
+                    class="rounded-xl border border-slate-200 px-4 py-2 text-sm focus:border-sky-500 focus:outline-none bg-white min-w-[120px]"
+                >
+                    <option value="10">10 Baris</option>
+                    <option value="20">20 Baris</option>
+                    <option value="30">30 Baris</option>
+                    <option value="50">50 Baris</option>
+                    <option value="100">100 Baris</option>
+                    <option value="200">200 Baris</option>
+                    <option value="500">500 Baris</option>
+                    <option value="all">Semua</option>
                 </select>
             </div>
 

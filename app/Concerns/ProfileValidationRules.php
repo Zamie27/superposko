@@ -19,6 +19,7 @@ trait ProfileValidationRules
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
             'university' => ['required', 'string', 'max:255'],
+            'npm' => ['required', 'string', 'min:8', 'max:20'],
             'group_number' => ['required', 'string', 'max:255'],
             'kkn_address' => ['required', 'string', 'max:1000'],
         ];

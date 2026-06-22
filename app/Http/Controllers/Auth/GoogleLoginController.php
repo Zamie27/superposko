@@ -103,6 +103,7 @@ class GoogleLoginController extends Controller
 
         Validator::make($input, [
             'university' => ['required', 'string', 'max:255'],
+            'npm' => ['required', 'string', 'min:8', 'max:20'],
             'group_number' => ['required', 'string', 'max:255'],
             'kkn_address' => ['required', 'string', 'max:1000'],
             'password' => ['required', 'string', Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
@@ -121,6 +122,7 @@ class GoogleLoginController extends Controller
         $user->name = $googleUser['name'];
         $user->google_id = $googleUser['google_id'];
         $user->university = $input['university'];
+        $user->npm = $input['npm'];
         $user->group_number = $input['group_number'];
         $user->kkn_address = $input['kkn_address'];
 

@@ -31,6 +31,7 @@ class ProfileUpdateTest extends TestCase
                 'name' => 'Test User',
                 'email' => 'test@example.com',
                 'university' => 'Universitas Gadjah Mada',
+                'npm' => 'D1A230000',
                 'group_number' => 'Kelompok 15',
                 'kkn_address' => 'Desa Sejahtera',
             ]);
@@ -59,6 +60,7 @@ class ProfileUpdateTest extends TestCase
                 'name' => 'Test User',
                 'email' => $user->email,
                 'university' => $user->university,
+                'npm' => $user->npm,
                 'group_number' => $user->group_number,
                 'kkn_address' => $user->kkn_address,
             ]);

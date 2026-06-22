@@ -17,8 +17,9 @@ class AdminActivityLogController extends Controller
     {
         $search = $request->input('search');
         $category = $request->input('category');
+        $perPage = $request->input('per_page', 30);
 
-        $logs = ActivityLog::query()
+        $query = ActivityLog::query()
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('user_name', 'like', "%{$search}%")
@@ -30,13 +31,17 @@ class AdminActivityLogController extends Controller
             ->when($category, function ($query, $category) {
                 $query->where('category', $category);
             })
-            ->orderBy('id', 'desc')
-            ->paginate(30)
-            ->withQueryString();
+            ->orderBy('id', 'desc');
+
+        if ($perPage === 'all') {
+            $logs = $query->paginate(999999)->withQueryString();
+        } else {
+            $logs = $query->paginate(max(10, (int) $perPage))->withQueryString();
+        }
 
         return Inertia::render('admin/ActivityLogs', [
             'logs' => $logs,
-            'filters' => $request->only(['search', 'category']),
+            'filters' => $request->only(['search', 'category', 'per_page']),
         ]);
     }
 }

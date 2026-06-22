@@ -30,6 +30,7 @@ class RegistrationTest extends TestCase
             'name' => 'Test User',
             'email' => 'test@example.com',
             'university' => 'Universitas Gadjah Mada',
+            'npm' => 'D1A230000',
             'group_number' => 'Kelompok KKN 45',
             'kkn_address' => 'Desa Karangmojo, Gunungkidul',
             'password' => 'Password123!',

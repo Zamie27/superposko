@@ -32,6 +32,7 @@ const nameForm = useForm({
     name: user.value.name,
     email: user.value.email, // backend requires email in validation rules
     university: user.value.university || '',
+    npm: user.value.npm || '',
     group_number: user.value.group_number || '',
     kkn_address: user.value.kkn_address || '',
 });
@@ -233,6 +234,18 @@ const togglePushSubscription = async () => {
                         placeholder="Asal Universitas"
                     />
                     <InputError class="mt-2" :message="nameForm.errors.university" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="npm">NPM / NIM</Label>
+                    <Input
+                        id="npm"
+                        class="mt-1 block w-full"
+                        v-model="nameForm.npm"
+                        required
+                        placeholder="NPM / NIM"
+                    />
+                    <InputError class="mt-2" :message="nameForm.errors.npm" />
                 </div>
 
                 <div class="grid gap-2">

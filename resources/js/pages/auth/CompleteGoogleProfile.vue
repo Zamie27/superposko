@@ -22,6 +22,7 @@ defineOptions({
 
 const form = useForm({
     university: '',
+    npm: '',
     group_number: '',
     kkn_address: '',
     password: '',
@@ -43,7 +44,7 @@ const isPasswordValid = computed(() => {
 });
 
 const handleNextStep1 = () => {
-    if (form.university && form.group_number && form.kkn_address) {
+    if (form.university && form.npm && form.group_number && form.kkn_address) {
         step.value = 2;
     }
 };
@@ -82,6 +83,18 @@ const submit = () => {
                     placeholder="Nama universitas Anda"
                 />
                 <InputError :message="form.errors.university" />
+            </div>
+
+            <div class="grid gap-2">
+                <Label for="npm">NPM / NIM</Label>
+                <Input
+                    id="npm"
+                    type="text"
+                    required
+                    v-model="form.npm"
+                    placeholder="Contoh: D1A230000"
+                />
+                <InputError :message="form.errors.npm" />
             </div>
 
             <div class="grid gap-2">
