@@ -1,18 +1,19 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminActivityLogController;
+use App\Http\Controllers\Admin\AdminBugReportController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminDocumentationConfigController;
+use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminPreorderController;
 use App\Http\Controllers\Admin\AdminPriceController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminSettingController;
-use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminSubscriptionController;
 use App\Http\Controllers\Admin\AdminTrialController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\GoogleLoginController;
-use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\BugReportController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentationController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PersonalBelongingController;
 use App\Http\Controllers\Preorder\UserPreorderController;
 use App\Http\Controllers\ProkerDocumentController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\VotingController;
@@ -55,6 +57,7 @@ Route::post('auth/google/complete', [GoogleLoginController::class, 'completeProf
 // Public/Auth Report Routes
 Route::get('laporan/buat', [ReportController::class, 'create'])->name('reports.create');
 Route::post('laporan/buat', [ReportController::class, 'store'])->name('reports.store');
+Route::post('bug-report', [BugReportController::class, 'store'])->name('bug-report.store');
 
 // Midtrans Payment Webhook Notification
 Route::match(['get', 'post'], 'payment/notification', [PaymentController::class, 'handleNotification'])->name('payment.notification');
@@ -217,6 +220,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Admin Report Panel Routes
         Route::get('reports', [AdminReportController::class, 'index'])->name('reports.index');
         Route::put('reports/{report}/resolve', [AdminReportController::class, 'resolve'])->name('reports.resolve');
+
+        // Admin Bug Report Management
+        Route::get('bug-reports', [AdminBugReportController::class, 'index'])->name('bug-reports.index');
+        Route::put('bug-reports/{bugReport}/resolve', [AdminBugReportController::class, 'resolve'])->name('bug-reports.resolve');
 
         // Test Payment
         Route::get('payment/test', [PaymentController::class, 'showTestPage'])->name('payment.test');

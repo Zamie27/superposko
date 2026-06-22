@@ -5,6 +5,7 @@ import AppShell from '@/components/AppShell.vue';
 import ToastContainer from '@/components/ToastContainer.vue';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import ReportBubble from '@/components/ReportBubble.vue';
+import BugReportBubble from '@/components/BugReportBubble.vue';
 import type { BreadcrumbItem } from '@/types';
 
 type Props = {
@@ -25,5 +26,6 @@ withDefaults(defineProps<Props>(), {
         <ToastContainer />
         <ConfirmationModal />
         <ReportBubble />
+        <BugReportBubble />
     </AppShell>
 </template>

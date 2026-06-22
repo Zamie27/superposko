@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BugReport;
 use App\Models\Preorder;
 use App\Models\User;
 use Inertia\Inertia;
@@ -33,6 +34,27 @@ class AdminController extends Controller
                     ->orWhere('trial_ends_at', '>', now());
             })->count();
 
+        // Bug report leaderboard: Top reporters by total submissions
+        $topBugReporters = BugReport::query()
+            ->selectRaw('reporter_name, contact_info, COUNT(*) as total_reports')
+            ->groupBy('reporter_name', 'contact_info')
+            ->orderByDesc('total_reports')
+            ->limit(10)
+            ->get();
+
+        // Bug report leaderboard: Top reporters by accepted/resolved bugs
+        $topAcceptedReporters = BugReport::query()
+            ->selectRaw('reporter_name, contact_info, COUNT(*) as accepted_reports')
+            ->where('status', 'resolved')
+            ->groupBy('reporter_name', 'contact_info')
+            ->orderByDesc('accepted_reports')
+            ->limit(10)
+            ->get();
+
+        $totalBugReports = BugReport::count();
+        $pendingBugReports = BugReport::where('status', 'pending')->count();
+        $resolvedBugReports = BugReport::where('status', 'resolved')->count();
+
         return Inertia::render('admin/Dashboard', [
             'stats' => [
                 'totalUsers' => $totalUsers,
@@ -42,7 +64,12 @@ class AdminController extends Controller
                 'pendingPreorders' => $pendingPreorders,
                 'approvedPreorders' => $approvedPreorders,
                 'totalTrials' => $totalTrials,
+                'totalBugReports' => $totalBugReports,
+                'pendingBugReports' => $pendingBugReports,
+                'resolvedBugReports' => $resolvedBugReports,
             ],
+            'topBugReporters' => $topBugReporters,
+            'topAcceptedReporters' => $topAcceptedReporters,
         ]);
     }
 }

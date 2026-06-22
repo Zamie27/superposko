@@ -4,7 +4,7 @@ import {
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
     ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase, Download,
-    Bell
+    Bell, Bug
 } from '@lucide/vue';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -125,6 +125,11 @@ const navGroups = computed<NavGroup[]>(() => {
                         title: 'Laporan Masalah',
                         href: '/admin/reports',
                         icon: Info,
+                    },
+                    {
+                        title: 'Laporan Bug',
+                        href: '/admin/bug-reports',
+                        icon: Bug,
                     },
                 ],
             },

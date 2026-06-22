@@ -9,6 +9,7 @@ import AdminSettingController from './AdminSettingController'
 import AdminDocumentationConfigController from './AdminDocumentationConfigController'
 import AdminActivityLogController from './AdminActivityLogController'
 import AdminReportController from './AdminReportController'
+import AdminBugReportController from './AdminBugReportController'
 
 const Admin = {
     AdminController: Object.assign(AdminController, AdminController),
@@ -22,6 +23,7 @@ const Admin = {
     AdminDocumentationConfigController: Object.assign(AdminDocumentationConfigController, AdminDocumentationConfigController),
     AdminActivityLogController: Object.assign(AdminActivityLogController, AdminActivityLogController),
     AdminReportController: Object.assign(AdminReportController, AdminReportController),
+    AdminBugReportController: Object.assign(AdminBugReportController, AdminBugReportController),
 }
 
 export default Admin

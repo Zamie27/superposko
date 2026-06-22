@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { Users, CreditCard, ShoppingBag, Settings, CheckCircle2, Shield, Clock, Bell } from '@lucide/vue';
+import { Users, CreditCard, ShoppingBag, Settings, CheckCircle2, Shield, Clock, Bell, Bug, Trophy, Medal } from '@lucide/vue';
 
 defineProps<{
     stats: {
@@ -11,7 +11,20 @@ defineProps<{
         pendingPreorders: number;
         approvedPreorders: number;
         totalTrials: number;
+        totalBugReports: number;
+        pendingBugReports: number;
+        resolvedBugReports: number;
     };
+    topBugReporters: Array<{
+        reporter_name: string;
+        contact_info: string | null;
+        total_reports: number;
+    }>;
+    topAcceptedReporters: Array<{
+        reporter_name: string;
+        contact_info: string | null;
+        accepted_reports: number;
+    }>;
 }>();
 
 defineOptions({
@@ -24,6 +37,13 @@ defineOptions({
         ],
     },
 });
+
+const getRankStyle = (index: number) => {
+    if (index === 0) return 'bg-amber-400 text-white';
+    if (index === 1) return 'bg-slate-400 text-white';
+    if (index === 2) return 'bg-amber-600 text-white';
+    return 'bg-slate-100 text-slate-500';
+};
 </script>
 
 <template>
@@ -82,6 +102,108 @@ defineOptions({
                 </div>
                 <div class="p-3 bg-indigo-50 text-indigo-500 rounded-2xl">
                     <ShoppingBag class="size-5" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Bug Report Stats + Leaderboards -->
+        <div class="space-y-4">
+            <h2 class="text-lg font-bold text-slate-900">Statistik Laporan Bug</h2>
+
+            <!-- Bug Report Stat Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Link href="/admin/bug-reports" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex items-center justify-between hover:border-sky-500 transition group">
+                    <div class="space-y-1">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Laporan Bug</span>
+                        <h3 class="text-2xl font-extrabold text-slate-900">{{ stats.totalBugReports }}</h3>
+                        <p class="text-[10px] text-slate-400">Semua laporan masuk</p>
+                    </div>
+                    <div class="p-3 bg-sky-50 text-sky-500 rounded-2xl group-hover:bg-sky-100 transition">
+                        <Bug class="size-5" />
+                    </div>
+                </Link>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex items-center justify-between">
+                    <div class="space-y-1">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Bug Pending</span>
+                        <h3 class="text-2xl font-extrabold text-red-600">{{ stats.pendingBugReports }}</h3>
+                        <p class="text-[10px] text-slate-400">Belum ditangani</p>
+                    </div>
+                    <div class="p-3 bg-red-50 text-red-500 rounded-2xl">
+                        <Bug class="size-5" />
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex items-center justify-between">
+                    <div class="space-y-1">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Bug Diterima</span>
+                        <h3 class="text-2xl font-extrabold text-green-600">{{ stats.resolvedBugReports }}</h3>
+                        <p class="text-[10px] text-slate-400">Sudah diverifikasi</p>
+                    </div>
+                    <div class="p-3 bg-green-50 text-green-500 rounded-2xl">
+                        <CheckCircle2 class="size-5" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-column Leaderboards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Top Bug Reporters -->
+                <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-2.5">
+                        <div class="p-2 bg-amber-50 text-amber-500 rounded-xl">
+                            <Trophy class="size-4" />
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Peringkat Pelapor Bug Terbanyak</h3>
+                            <p class="text-[10px] text-slate-400">Berdasarkan jumlah laporan bug yang dikirim</p>
+                        </div>
+                    </div>
+                    <div v-if="topBugReporters.length > 0" class="divide-y divide-slate-50">
+                        <div v-for="(reporter, index) in topBugReporters" :key="index" class="px-5 py-3 flex items-center gap-3 hover:bg-slate-50/50 transition">
+                            <span class="flex items-center justify-center size-7 rounded-full text-xs font-bold shrink-0" :class="getRankStyle(index)">
+                                {{ index + 1 }}
+                            </span>
+                            <div class="flex-grow min-w-0">
+                                <div class="font-semibold text-sm text-slate-800 truncate">{{ reporter.reporter_name }}</div>
+                                <div class="text-[10px] text-slate-400 truncate">{{ reporter.contact_info || 'Tidak ada kontak' }}</div>
+                            </div>
+                            <span class="text-sm font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-lg shrink-0">
+                                {{ reporter.total_reports }}
+                            </span>
+                        </div>
+                    </div>
+                    <div v-else class="px-5 py-8 text-center text-sm text-slate-400">
+                        Belum ada laporan bug.
+                    </div>
+                </div>
+
+                <!-- Top Accepted/Resolved Reporters -->
+                <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-2.5">
+                        <div class="p-2 bg-green-50 text-green-500 rounded-xl">
+                            <Medal class="size-4" />
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm">Peringkat Temuan Bug Diterima</h3>
+                            <p class="text-[10px] text-slate-400">Bug yang sudah diverifikasi admin sebagai temuan valid</p>
+                        </div>
+                    </div>
+                    <div v-if="topAcceptedReporters.length > 0" class="divide-y divide-slate-50">
+                        <div v-for="(reporter, index) in topAcceptedReporters" :key="index" class="px-5 py-3 flex items-center gap-3 hover:bg-slate-50/50 transition">
+                            <span class="flex items-center justify-center size-7 rounded-full text-xs font-bold shrink-0" :class="getRankStyle(index)">
+                                {{ index + 1 }}
+                            </span>
+                            <div class="flex-grow min-w-0">
+                                <div class="font-semibold text-sm text-slate-800 truncate">{{ reporter.reporter_name }}</div>
+                                <div class="text-[10px] text-slate-400 truncate">{{ reporter.contact_info || 'Tidak ada kontak' }}</div>
+                            </div>
+                            <span class="text-sm font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-lg shrink-0">
+                                {{ reporter.accepted_reports }}
+                            </span>
+                        </div>
+                    </div>
+                    <div v-else class="px-5 py-8 text-center text-sm text-slate-400">
+                        Belum ada bug yang diterima.
+                    </div>
                 </div>
             </div>
         </div>
@@ -170,3 +292,4 @@ defineOptions({
         </div>
     </div>
 </template>
+
