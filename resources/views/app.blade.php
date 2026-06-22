@@ -24,6 +24,8 @@
 
         <link rel="icon" href="/icon_superposko.png" type="image/png">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#38BDF8">
 
         @fonts
 
@@ -31,6 +33,16 @@
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>
         </x-inertia::head>
+
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(reg => console.log('PWA Service Worker registered successfully:', reg.scope))
+                        .catch(err => console.error('PWA Service Worker registration failed:', err));
+                });
+            }
+        </script>
     </head>
     <body class="font-sans antialiased">
         <x-inertia::app />
