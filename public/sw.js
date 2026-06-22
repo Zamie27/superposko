@@ -8,6 +8,7 @@ self.addEventListener('install', (event) => {
             return cache.addAll([
                 '/',
                 '/manifest.json',
+                '/pwa_icon.svg',
                 '/icon_superposko.png'
             ]);
         })
