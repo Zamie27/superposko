@@ -442,7 +442,7 @@ const faqs = [
                             </ul>
                         </div>
                     </div>
-                </div>iv>
+                </div>
 
                 <!-- Fallback: Only Paket Posko Card (Standard) -->
                 <div v-else class="mx-auto max-w-md rounded-2xl border border-[#38BDF8]/40 bg-white p-8 text-center shadow-md">
