@@ -6,6 +6,7 @@ import FinanceController from './FinanceController'
 import LogbookController from './LogbookController'
 import InventoryController from './InventoryController'
 import LogisticController from './LogisticController'
+import PersonalBelongingController from './PersonalBelongingController'
 import ScheduleController from './ScheduleController'
 import MemberController from './MemberController'
 import ContactController from './ContactController'
@@ -24,6 +25,7 @@ const Controllers = {
     LogbookController: Object.assign(LogbookController, LogbookController),
     InventoryController: Object.assign(InventoryController, InventoryController),
     LogisticController: Object.assign(LogisticController, LogisticController),
+    PersonalBelongingController: Object.assign(PersonalBelongingController, PersonalBelongingController),
     ScheduleController: Object.assign(ScheduleController, ScheduleController),
     MemberController: Object.assign(MemberController, MemberController),
     ContactController: Object.assign(ContactController, ContactController),

@@ -18,6 +18,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LogisticController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\PersonalBelongingController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -106,6 +107,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('management/logistic/{logistic}', [LogisticController::class, 'update'])->name('management.logistic.update');
         Route::delete('management/logistic/{logistic}', [LogisticController::class, 'destroy'])->name('management.logistic.destroy');
         Route::post('management/logistic/barang-keluar', [LogisticController::class, 'barangKeluar'])->name('management.logistic.barang-keluar');
+
+        // Personal Belongings Checklist (Barang Bawaan Pribadi KKN)
+        Route::get('personal-belongings', [PersonalBelongingController::class, 'index'])->name('personal-belongings.index');
+        Route::post('personal-belongings', [PersonalBelongingController::class, 'store'])->name('personal-belongings.store');
+        Route::put('personal-belongings/{personalBelonging}', [PersonalBelongingController::class, 'update'])->name('personal-belongings.update');
+        Route::delete('personal-belongings/{personalBelonging}', [PersonalBelongingController::class, 'destroy'])->name('personal-belongings.destroy');
+        Route::post('personal-belongings/{personalBelonging}/toggle-packed', [PersonalBelongingController::class, 'togglePacked'])->name('personal-belongings.toggle-packed');
 
         Route::get('management/schedule', [ScheduleController::class, 'index'])->name('management.schedule.index');
         Route::post('management/schedule/roster', [ScheduleController::class, 'storeRoster'])->name('management.schedule.roster.store');

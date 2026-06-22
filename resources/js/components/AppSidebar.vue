@@ -3,7 +3,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { 
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
-    ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar 
+    ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase
 } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -180,6 +180,12 @@ const navGroups = computed<NavGroup[]>(() => {
                     title: 'Logistik',
                     href: '/management/logistic',
                     icon: ClipboardList,
+                    locked: !isSubscribed,
+                },
+                {
+                    title: 'Barang Pribadi',
+                    href: '/personal-belongings',
+                    icon: Briefcase,
                     locked: !isSubscribed,
                 },
                 {
