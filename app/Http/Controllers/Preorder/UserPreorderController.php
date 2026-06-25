@@ -31,6 +31,7 @@ class UserPreorderController extends Controller
         return Inertia::render('preorder/Index', [
             'preorderPrice' => (int) Setting::get('preorder_price', 50000),
             'preorderStrikePrice' => (int) Setting::get('preorder_strike_price', 100000),
+            'staticQrisUrl' => Setting::get('static_qris_path') ? asset('storage/' . Setting::get('static_qris_path')) : '/images/qris.jpg',
             'existingPreorder' => $existingPreorder ? [
                 'status' => $existingPreorder->status,
                 'created_at' => $existingPreorder->created_at?->toIso8601String(),

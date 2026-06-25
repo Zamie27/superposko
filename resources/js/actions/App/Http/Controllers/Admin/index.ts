@@ -4,6 +4,7 @@ import AdminPriceController from './AdminPriceController'
 import AdminSubscriptionController from './AdminSubscriptionController'
 import AdminTrialController from './AdminTrialController'
 import AdminPreorderController from './AdminPreorderController'
+import AdminSubscriptionRequestController from './AdminSubscriptionRequestController'
 import AdminNotificationController from './AdminNotificationController'
 import AdminSettingController from './AdminSettingController'
 import AdminDocumentationConfigController from './AdminDocumentationConfigController'
@@ -18,6 +19,7 @@ const Admin = {
     AdminSubscriptionController: Object.assign(AdminSubscriptionController, AdminSubscriptionController),
     AdminTrialController: Object.assign(AdminTrialController, AdminTrialController),
     AdminPreorderController: Object.assign(AdminPreorderController, AdminPreorderController),
+    AdminSubscriptionRequestController: Object.assign(AdminSubscriptionRequestController, AdminSubscriptionRequestController),
     AdminNotificationController: Object.assign(AdminNotificationController, AdminNotificationController),
     AdminSettingController: Object.assign(AdminSettingController, AdminSettingController),
     AdminDocumentationConfigController: Object.assign(AdminDocumentationConfigController, AdminDocumentationConfigController),

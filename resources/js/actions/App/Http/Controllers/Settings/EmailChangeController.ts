@@ -57,7 +57,7 @@ sendOtp.form = sendOtpForm
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:80
+* @see app/Http/Controllers/Settings/EmailChangeController.php:78
 * @route '/settings/profile/email-change'
 */
 export const verifyAndChange = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -72,7 +72,7 @@ verifyAndChange.definition = {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:80
+* @see app/Http/Controllers/Settings/EmailChangeController.php:78
 * @route '/settings/profile/email-change'
 */
 verifyAndChange.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ verifyAndChange.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:80
+* @see app/Http/Controllers/Settings/EmailChangeController.php:78
 * @route '/settings/profile/email-change'
 */
 verifyAndChange.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -91,7 +91,7 @@ verifyAndChange.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => (
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:80
+* @see app/Http/Controllers/Settings/EmailChangeController.php:78
 * @route '/settings/profile/email-change'
 */
 const verifyAndChangeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -106,7 +106,7 @@ const verifyAndChangeForm = (options?: RouteQueryOptions): RouteFormDefinition<'
 
 /**
 * @see \App\Http\Controllers\Settings\EmailChangeController::verifyAndChange
-* @see app/Http/Controllers/Settings/EmailChangeController.php:80
+* @see app/Http/Controllers/Settings/EmailChangeController.php:78
 * @route '/settings/profile/email-change'
 */
 verifyAndChangeForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

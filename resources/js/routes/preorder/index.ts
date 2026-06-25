@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Preorder\UserPreorderController::store
-* @see app/Http/Controllers/Preorder/UserPreorderController.php:44
+* @see app/Http/Controllers/Preorder/UserPreorderController.php:45
 * @route '/preorder'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Preorder\UserPreorderController::store
-* @see app/Http/Controllers/Preorder/UserPreorderController.php:44
+* @see app/Http/Controllers/Preorder/UserPreorderController.php:45
 * @route '/preorder'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Preorder\UserPreorderController::store
-* @see app/Http/Controllers/Preorder/UserPreorderController.php:44
+* @see app/Http/Controllers/Preorder/UserPreorderController.php:45
 * @route '/preorder'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Preorder\UserPreorderController::store
-* @see app/Http/Controllers/Preorder/UserPreorderController.php:44
+* @see app/Http/Controllers/Preorder/UserPreorderController.php:45
 * @route '/preorder'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\Preorder\UserPreorderController::store
-* @see app/Http/Controllers/Preorder/UserPreorderController.php:44
+* @see app/Http/Controllers/Preorder/UserPreorderController.php:45
 * @route '/preorder'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

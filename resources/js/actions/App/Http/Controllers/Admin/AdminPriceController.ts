@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -97,7 +97,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 update.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -116,7 +116,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -131,7 +131,7 @@ const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -146,6 +146,128 @@ updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 
 update.form = updateForm
 
-const AdminPriceController = { index, update }
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::updateQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:75
+* @route '/admin/prices/qris'
+*/
+export const updateQris = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: updateQris.url(options),
+    method: 'post',
+})
+
+updateQris.definition = {
+    methods: ["post"],
+    url: '/admin/prices/qris',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::updateQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:75
+* @route '/admin/prices/qris'
+*/
+updateQris.url = (options?: RouteQueryOptions) => {
+    return updateQris.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::updateQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:75
+* @route '/admin/prices/qris'
+*/
+updateQris.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: updateQris.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::updateQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:75
+* @route '/admin/prices/qris'
+*/
+const updateQrisForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateQris.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::updateQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:75
+* @route '/admin/prices/qris'
+*/
+updateQrisForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: updateQris.url(options),
+    method: 'post',
+})
+
+updateQris.form = updateQrisForm
+
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::deleteQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:108
+* @route '/admin/prices/qris'
+*/
+export const deleteQris = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: deleteQris.url(options),
+    method: 'delete',
+})
+
+deleteQris.definition = {
+    methods: ["delete"],
+    url: '/admin/prices/qris',
+} satisfies RouteDefinition<["delete"]>
+
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::deleteQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:108
+* @route '/admin/prices/qris'
+*/
+deleteQris.url = (options?: RouteQueryOptions) => {
+    return deleteQris.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::deleteQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:108
+* @route '/admin/prices/qris'
+*/
+deleteQris.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
+    url: deleteQris.url(options),
+    method: 'delete',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::deleteQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:108
+* @route '/admin/prices/qris'
+*/
+const deleteQrisForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: deleteQris.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminPriceController::deleteQris
+* @see app/Http/Controllers/Admin/AdminPriceController.php:108
+* @route '/admin/prices/qris'
+*/
+deleteQrisForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: deleteQris.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'DELETE',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'post',
+})
+
+deleteQris.form = deleteQrisForm
+
+const AdminPriceController = { index, update, updateQris, deleteQris }
 
 export default AdminPriceController

@@ -12,6 +12,13 @@ const props = defineProps<{
     isProduction: boolean;
     packagePrice: number;
     packageStrikePrice: number;
+    checkoutPaymentMethod: string;
+    staticQrisUrl: string | null;
+    existingRequest: {
+        status: string;
+        rejection_reason: string | null;
+        created_at: string;
+    } | null;
 }>();
 
 defineOptions({
@@ -36,6 +43,17 @@ const successMessage = ref('');
 const countdown = ref(5);
 const toast = useToast();
 
+const fileInput = ref<HTMLInputElement | null>(null);
+const previewUrl = ref<string | null>(null);
+
+import { useForm } from '@inertiajs/vue3';
+const qrisForm = useForm({
+    name: '',
+    email: '',
+    whatsapp: '',
+    payment_proof: null as File | null,
+});
+
 const formattedPrice = computed(() => {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -54,18 +72,49 @@ const formattedStrikePrice = computed(() => {
 
 // Load Midtrans Snap JS dynamically
 onMounted(() => {
-    const snapUrl = props.isProduction
-        ? 'https://app.midtrans.com/snap/snap.js'
-        : 'https://app.sandbox.midtrans.com/snap/snap.js';
+    if (props.checkoutPaymentMethod === 'midtrans') {
+        const snapUrl = props.isProduction
+            ? 'https://app.midtrans.com/snap/snap.js'
+            : 'https://app.sandbox.midtrans.com/snap/snap.js';
 
-    if (!document.querySelector(`script[src="${snapUrl}"]`)) {
-        const script = document.createElement('script');
-        script.src = snapUrl;
-        script.setAttribute('data-client-key', props.midtransClientKey);
-        script.async = true;
-        document.head.appendChild(script);
+        if (!document.querySelector(`script[src="${snapUrl}"]`)) {
+            const script = document.createElement('script');
+            script.src = snapUrl;
+            script.setAttribute('data-client-key', props.midtransClientKey);
+            script.async = true;
+            document.head.appendChild(script);
+        }
+    } else {
+        // Init form with user data for QRIS
+        const user = (window as any).Inertia?.page?.props?.auth?.user || {};
+        qrisForm.name = user.name || '';
+        qrisForm.email = user.email || '';
     }
 });
+
+const handleFileChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+
+    if (target.files && target.files.length > 0) {
+        const file = target.files[0];
+        qrisForm.payment_proof = file;
+        previewUrl.value = URL.createObjectURL(file);
+    }
+};
+
+const triggerFileSelect = () => {
+    fileInput.value?.click();
+};
+
+const submitQrisPayment = () => {
+    qrisForm.post('/payment/qris', {
+        forceFormData: true,
+        onSuccess: () => {
+            qrisForm.reset('whatsapp', 'payment_proof');
+            previewUrl.value = null;
+        },
+    });
+};
 
 const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
@@ -200,12 +249,62 @@ const features = [
                     Aktifkan Fitur Kolaborasi Posko KKN Anda
                 </h1>
                 <p class="text-base text-slate-600 max-w-2xl mx-auto">
-                    Kembangkan transparansi program kerja, administrasi keuangan, dan dokumentasi posko KKN dengan sekali transaksi praktis menggunakan pembayaran digital Midtrans.
+                    Kembangkan transparansi program kerja, administrasi keuangan, dan dokumentasi posko KKN dengan sekali transaksi praktis.
                 </p>
             </div>
 
+            <!-- Existing Subscription Request Status Box (QRIS manual only) -->
+            <div v-if="checkoutPaymentMethod === 'qris_static' && existingRequest" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 max-w-2xl mx-auto">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-xl" :class="{
+                        'bg-amber-50 text-amber-600 border border-amber-100': existingRequest.status === 'pending',
+                        'bg-green-50 text-green-600 border border-green-100': existingRequest.status === 'approved',
+                        'bg-red-50 text-red-600 border border-red-100': existingRequest.status === 'rejected',
+                    }">
+                        <AlertTriangle v-if="existingRequest.status === 'pending'" class="size-6 animate-pulse" />
+                        <CheckCircle2 v-else-if="existingRequest.status === 'approved'" class="size-6" />
+                        <XCircle v-else class="size-6" />
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900">Status Pengajuan Aktivasi Langganan</h3>
+                        <p class="text-xs text-slate-500">Diajukan pada {{ new Date(existingRequest.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' }) }}</p>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl border text-sm leading-relaxed" :class="{
+                    'border-amber-200 bg-amber-50/30 text-amber-900': existingRequest.status === 'pending',
+                    'border-green-200 bg-green-50/30 text-green-900': existingRequest.status === 'approved',
+                    'border-red-200 bg-red-50/30 text-red-900': existingRequest.status === 'rejected',
+                }">
+                    <p v-if="existingRequest.status === 'pending'">
+                        <strong>Tinjauan Pembayaran:</strong> Bukti transfer Anda sedang dalam verifikasi admin. Akun Anda akan otomatis diaktifkan menjadi Host segera setelah verifikasi disetujui (biasanya kurang dari 24 jam).
+                    </p>
+                    <p v-else-if="existingRequest.status === 'approved'">
+                        <strong>Aktivasi Disetujui!</strong> Akun Anda berhasil dipromosikan menjadi Host. Silakan kembali ke dashboard untuk menikmati semua fitur premium.
+                    </p>
+                    <div v-else class="space-y-2">
+                        <p class="font-bold text-red-900">Verifikasi Gagal!</p>
+                        <p class="text-xs text-red-700 leading-relaxed">
+                            Bukti transfer Anda tidak dapat divalidasi oleh admin. Alasan penolakan:
+                        </p>
+                        <div class="p-3 bg-red-50 rounded-lg border border-red-100 text-xs font-semibold text-red-950 mt-1">
+                            {{ existingRequest.rejection_reason || 'Tidak ada alasan spesifik yang diberikan oleh admin.' }}
+                        </div>
+                        <p class="text-xs text-red-700 mt-2 font-semibold">
+                            Silakan lakukan pengecekan ulang dan kirim kembali formulir pendaftaran di bawah dengan menyertakan bukti transfer yang valid.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex justify-end" v-if="existingRequest.status === 'approved'">
+                    <Link href="/dashboard" class="rounded-xl bg-[#38BDF8] text-white font-bold px-6 py-2.5 hover:bg-[#38BDF8]/90 transition duration-200">
+                        Masuk ke Dashboard
+                    </Link>
+                </div>
+            </div>
+
             <!-- Main Layout Split Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+            <div v-if="checkoutPaymentMethod === 'midtrans' || !existingRequest || existingRequest.status === 'rejected'" class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
                 
                 <!-- Left Details / Features list (7 cols on large screen) -->
                 <div class="md:col-span-7 space-y-6">
@@ -236,7 +335,8 @@ const features = [
 
                 <!-- Right Card / Pricing & Checkout (5 cols on large screen) -->
                 <div class="md:col-span-5 space-y-6">
-                    <div class="bg-white rounded-2xl border border-slate-200/85 p-6 shadow-sm relative overflow-hidden flex flex-col">
+                    <!-- Midtrans Flow -->
+                    <div v-if="checkoutPaymentMethod === 'midtrans'" class="bg-white rounded-2xl border border-slate-200/85 p-6 shadow-sm relative overflow-hidden flex flex-col">
                         <!-- Premium gradient corner accent -->
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-sky-400/20 to-transparent pointer-events-none rounded-bl-full"></div>
 
@@ -277,8 +377,126 @@ const features = [
                         </div>
                     </div>
 
+                    <!-- Static QRIS Manual Flow -->
+                    <div v-else class="bg-white rounded-2xl border border-slate-200/85 p-6 shadow-sm relative overflow-hidden flex flex-col space-y-5">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-sky-400/20 to-transparent pointer-events-none rounded-bl-full"></div>
+
+                        <div class="space-y-1 pb-4 border-b border-slate-100">
+                            <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Manual Activation</h3>
+                            <h4 class="text-xl font-extrabold text-slate-900">Scan QRIS & Unggah Bukti</h4>
+                            <p class="text-xs text-slate-400">Transfer manual melalui QRIS e-wallet resmi</p>
+                        </div>
+
+                        <!-- Pricing Display -->
+                        <div class="space-y-2">
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-xs text-slate-400 line-through font-medium">{{ formattedStrikePrice }}</span>
+                                <div class="flex items-baseline gap-2">
+                                    <span class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ formattedPrice }}</span>
+                                    <span class="text-xs text-slate-400 font-medium">/ 40 hari</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- QRIS Code Container -->
+                        <div class="rounded-xl border p-2 bg-slate-50 flex flex-col items-center justify-center space-y-2">
+                            <img :src="staticQrisUrl || '/images/qris.jpg'" alt="QRIS SuperPosko" class="max-w-[180px] h-auto rounded-lg shadow-sm border bg-white" />
+                        </div>
+
+                        <!-- Submission Fields -->
+                        <form @submit.prevent="submitQrisPayment" class="space-y-4">
+                            <!-- Name -->
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <CreditCard class="size-3.5 text-slate-400" /> Nama Lengkap
+                                </label>
+                                <input
+                                    v-model="qrisForm.name"
+                                    type="text"
+                                    placeholder="Nama Lengkap"
+                                    class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                    required
+                                />
+                                <p v-if="qrisForm.errors.name" class="text-[11px] text-red-500">{{ qrisForm.errors.name }}</p>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <CreditCard class="size-3.5 text-slate-400" /> Alamat Email
+                                </label>
+                                <input
+                                    v-model="qrisForm.email"
+                                    type="email"
+                                    placeholder="nama@email.com"
+                                    class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                    required
+                                />
+                                <p v-if="qrisForm.errors.email" class="text-[11px] text-red-500">{{ qrisForm.errors.email }}</p>
+                            </div>
+
+                            <!-- WhatsApp -->
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <CreditCard class="size-3.5 text-slate-400" /> Nomor WhatsApp
+                                </label>
+                                <input
+                                    v-model="qrisForm.whatsapp"
+                                    type="text"
+                                    placeholder="Contoh: 08123456789"
+                                    class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                    required
+                                />
+                                <p v-if="qrisForm.errors.whatsapp" class="text-[11px] text-red-500">{{ qrisForm.errors.whatsapp }}</p>
+                            </div>
+
+                            <!-- Payment Proof -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                    <CreditCard class="size-3.5 text-slate-400" /> Bukti Transfer (Screenshot)
+                                </label>
+                                
+                                <div 
+                                    @click="triggerFileSelect"
+                                    class="border border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:bg-slate-50/50 transition flex flex-col items-center justify-center gap-2"
+                                >
+                                    <input 
+                                        ref="fileInput" 
+                                        type="file" 
+                                        class="hidden" 
+                                        accept="image/*"
+                                        @change="handleFileChange"
+                                    />
+                                    
+                                    <template v-if="!previewUrl">
+                                        <CreditCard class="size-6 text-slate-400" />
+                                        <span class="text-xs font-medium text-slate-600">Klik untuk unggah gambar</span>
+                                        <span class="text-[9px] text-slate-400">PNG, JPG, JPEG (Maks. 2MB)</span>
+                                    </template>
+                                    <template v-else>
+                                        <img :src="previewUrl" alt="Bukti Transfer" class="max-h-24 object-contain rounded-lg border shadow-sm" />
+                                        <span class="text-[10px] text-sky-600 font-semibold underline">Ganti Gambar</span>
+                                    </template>
+                                </div>
+                                <p v-if="qrisForm.errors.payment_proof" class="text-[11px] text-red-500">{{ qrisForm.errors.payment_proof }}</p>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="pt-2">
+                                <Button
+                                    type="submit"
+                                    :disabled="qrisForm.processing"
+                                    class="w-full bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-sm text-sm"
+                                >
+                                    <Spinner v-if="qrisForm.processing" class="size-4" />
+                                    Kirim Pengajuan Langganan
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+
                     <!-- Transaction Feedback States -->
-                    <div v-if="transactionStatus !== 'idle'" class="rounded-xl border p-4 space-y-3.5 shadow-sm animate-fade-in" :class="{
+                    <div v-if="checkoutPaymentMethod === 'midtrans' && transactionStatus !== 'idle'" class="rounded-xl border p-4 space-y-3.5 shadow-sm animate-fade-in" :class="{
                         'border-green-200 bg-green-50/50 text-green-950': transactionStatus === 'success',
                         'border-amber-200 bg-amber-50/50 text-amber-950': transactionStatus === 'pending',
                         'border-red-200 bg-red-50/50 text-red-950': transactionStatus === 'error',
@@ -302,7 +520,7 @@ const features = [
                                 <br>
                                 <span class="font-bold text-sky-700 flex items-center gap-1 mt-2">
                                     Mengarahkan Anda ke Dashboard dalam {{ countdown }} detik... 
-                                    <ArrowRight class="size-3.5 animate-bounce-horizontal" />
+                                    <ArrowRight class="size-3.5 " />
                                 </span>
                             </span>
                             <span v-else-if="transactionStatus === 'pending'">

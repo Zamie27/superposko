@@ -93,6 +93,11 @@ const navGroups = computed<NavGroup[]>(() => {
                         icon: ShoppingBag,
                     },
                     {
+                        title: 'Pengajuan QRIS',
+                        href: '/admin/subscription-requests',
+                        icon: CreditCard,
+                    },
+                    {
                         title: 'Manajemen Trial',
                         href: '/admin/trials',
                         icon: Clock,

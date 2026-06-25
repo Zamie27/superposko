@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\AdminPriceController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminSubscriptionController;
+use App\Http\Controllers\Admin\AdminSubscriptionRequestController;
 use App\Http\Controllers\Admin\AdminTrialController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\GoogleLoginController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\LogisticController;
 use App\Http\Controllers\MemberActivityLogController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Payment\SubscriptionRequestController;
 use App\Http\Controllers\PersonalBelongingController;
 use App\Http\Controllers\Preorder\UserPreorderController;
 use App\Http\Controllers\ProkerDocumentController;
@@ -82,8 +84,9 @@ Route::get('laporan/buat', [ReportController::class, 'create'])->name('reports.c
 Route::post('laporan/buat', [ReportController::class, 'store'])->name('reports.store');
 Route::post('bug-report', [BugReportController::class, 'store'])->name('bug-report.store');
 
-// Midtrans Payment Webhook Notification
+// Midtrans & Tripay Payment Webhook Notification
 Route::match(['get', 'post'], 'payment/notification', [PaymentController::class, 'handleNotification'])->name('payment.notification');
+Route::post('payment/tripay/callback', [\App\Http\Controllers\TripayController::class, 'handleCallback'])->name('payment.tripay.callback');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('email/verify-otp', [\App\Http\Controllers\Auth\EmailVerificationOtpController::class, 'verify'])->name('verification.verify_otp');
@@ -117,6 +120,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('payment', [PaymentController::class, 'showCheckoutPage'])->name('payment.index');
         Route::post('payment/token', [PaymentController::class, 'createSnapToken'])->name('payment.token_user');
         Route::post('payment/success', [PaymentController::class, 'handlePaymentSuccess'])->name('payment.success');
+        Route::post('payment/qris', [SubscriptionRequestController::class, 'store'])->name('payment.qris.store');
+        
+        // Tripay Payment Initation
+        Route::post('payment/tripay/create', [\App\Http\Controllers\TripayController::class, 'createPayment'])->name('payment.tripay.create');
     });
 
     // Host Group (under host.protect middleware to restrict user-role modifications)
@@ -220,6 +227,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Price Management
         Route::get('prices', [AdminPriceController::class, 'index'])->name('prices.index');
         Route::put('prices', [AdminPriceController::class, 'update'])->name('prices.update');
+        Route::post('prices/qris', [AdminPriceController::class, 'updateQris'])->name('prices.qris.update');
+        Route::delete('prices/qris', [AdminPriceController::class, 'deleteQris'])->name('prices.qris.delete');
 
         // Subscription Management
         Route::get('subscriptions', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');
@@ -236,6 +245,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('preorders', [AdminPreorderController::class, 'index'])->name('preorders.index');
         Route::post('preorders/{preorder}/approve', [AdminPreorderController::class, 'approve'])->name('preorders.approve');
         Route::post('preorders/{preorder}/reject', [AdminPreorderController::class, 'reject'])->name('preorders.reject');
+
+        // QRIS Subscription Request Management
+        Route::get('subscription-requests', [AdminSubscriptionRequestController::class, 'index'])->name('subscription-requests.index');
+        Route::post('subscription-requests/{subscriptionRequest}/approve', [AdminSubscriptionRequestController::class, 'approve'])->name('subscription-requests.approve');
+        Route::post('subscription-requests/{subscriptionRequest}/reject', [AdminSubscriptionRequestController::class, 'reject'])->name('subscription-requests.reject');
 
         // Notification & Announcement Management
         Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');

@@ -1,4 +1,5 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
+import qris from './qris'
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::index
 * @see app/Http/Controllers/Admin/AdminPriceController.php:17
@@ -82,7 +83,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -97,7 +98,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 update.url = (options?: RouteQueryOptions) => {
@@ -106,7 +107,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -116,7 +117,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -131,7 +132,7 @@ const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> =>
 
 /**
 * @see \App\Http\Controllers\Admin\AdminPriceController::update
-* @see app/Http/Controllers/Admin/AdminPriceController.php:35
+* @see app/Http/Controllers/Admin/AdminPriceController.php:38
 * @route '/admin/prices'
 */
 updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -149,6 +150,7 @@ update.form = updateForm
 const prices = {
     index: Object.assign(index, index),
     update: Object.assign(update, update),
+    qris: Object.assign(qris, qris),
 }
 
 export default prices

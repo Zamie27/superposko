@@ -254,6 +254,17 @@ return 'bg-amber-600 text-white';
                     </div>
                 </Link>
 
+                <!-- Subscription Requests Management -->
+                <Link href="/admin/subscription-requests" class="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-sky-500 hover:shadow-sm transition duration-200 flex flex-col justify-between h-40">
+                    <div class="space-y-2">
+                        <div class="p-2 bg-sky-50 text-sky-500 rounded-xl w-10 h-10 flex items-center justify-center">
+                            <CreditCard class="size-5" />
+                        </div>
+                        <h4 class="font-bold text-slate-900 group-hover:text-sky-600 transition">Pengajuan QRIS Langganan</h4>
+                        <p class="text-xs text-slate-500">Cek bukti transfer QRIS manual, setujui dan aktifkan akses langganan kelompok.</p>
+                    </div>
+                </Link>
+
                 <!-- Trial Management -->
                 <Link href="/admin/trials" class="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-sky-500 hover:shadow-sm transition duration-200 flex flex-col justify-between h-40">
                     <div class="space-y-2">

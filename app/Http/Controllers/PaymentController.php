@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ActivityLogHelper;
 use App\Models\Setting;
+use App\Models\SubscriptionRequest;
 use App\Models\User;
 use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
@@ -30,17 +31,27 @@ class PaymentController extends Controller
     /**
      * Show the subscription checkout page for normal users.
      */
-    public function showCheckoutPage(): Response|RedirectResponse
+    public function showCheckoutPage(Request $request): Response|RedirectResponse
     {
         if (filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN)) {
             return redirect()->route('dashboard');
         }
+
+        $user = $request->user();
+        $existingRequest = SubscriptionRequest::where('user_id', $user->id)->first();
 
         return Inertia::render('payment/Checkout', [
             'midtransClientKey' => Setting::get('midtrans_client_key', config('services.midtrans.client_key', '')),
             'isProduction' => filter_var(Setting::get('midtrans_is_production', config('services.midtrans.is_production', false)), FILTER_VALIDATE_BOOLEAN),
             'packagePrice' => (int) Setting::get('package_price', 100000),
             'packageStrikePrice' => (int) Setting::get('package_strike_price', 150000),
+            'checkoutPaymentMethod' => Setting::get('checkout_payment_method', 'midtrans'),
+            'staticQrisUrl' => Setting::get('static_qris_path') ? asset('storage/' . Setting::get('static_qris_path')) : '/images/qris.jpg',
+            'existingRequest' => $existingRequest ? [
+                'status' => $existingRequest->status,
+                'rejection_reason' => $existingRequest->rejection_reason,
+                'created_at' => $existingRequest->created_at?->toIso8601String(),
+            ] : null,
         ]);
     }
 

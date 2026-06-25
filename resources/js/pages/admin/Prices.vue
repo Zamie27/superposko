@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { CreditCard, ArrowLeft, CheckCircle2, AlertTriangle } from '@lucide/vue';
+import { CreditCard, ArrowLeft, CheckCircle2, AlertTriangle, QrCode, Upload, Trash2 } from '@lucide/vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -13,6 +14,9 @@ const props = defineProps<{
         preorderPrice: number;
         preorderStrikePrice: number;
         preorderPromoActive: boolean;
+        checkoutPaymentMethod: string;
+        staticQrisPath: string | null;
+        staticQrisUrl: string | null;
     };
 }>();
 
@@ -33,12 +37,59 @@ const form = useForm({
     preorderPrice: props.pricing.preorderPrice,
     preorderStrikePrice: props.pricing.preorderStrikePrice,
     preorderPromoActive: props.pricing.preorderPromoActive,
+    checkoutPaymentMethod: props.pricing.checkoutPaymentMethod,
 });
 
 const submitForm = () => {
     form.put('/admin/prices', {
         preserveScroll: true,
     });
+};
+
+const qrisForm = useForm({
+    qris_image: null as File | null,
+});
+
+const qrisInput = ref<HTMLInputElement | null>(null);
+const qrisPreview = ref<string | null>(props.pricing.staticQrisUrl || null);
+
+const handleQrisChange = (e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) {
+        qrisForm.qris_image = file;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            qrisPreview.value = event.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const uploadQris = () => {
+    qrisForm.post('/admin/prices/qris', {
+        preserveScroll: true,
+        onSuccess: () => {
+            qrisForm.reset();
+            if (qrisInput.value) {
+                qrisInput.value.value = '';
+            }
+        },
+    });
+};
+
+const deleteQris = () => {
+    if (confirm('Apakah Anda yakin ingin menghapus QRIS statis ini?')) {
+        qrisForm.delete('/admin/prices/qris', {
+            preserveScroll: true,
+            onSuccess: () => {
+                qrisPreview.value = null;
+                qrisForm.reset();
+                if (qrisInput.value) {
+                    qrisInput.value.value = '';
+                }
+            },
+        });
+    }
 };
 </script>
 
@@ -108,6 +159,43 @@ const submitForm = () => {
                             required
                         ></textarea>
                         <p v-if="form.errors.packageDescription" class="text-xs text-red-500">{{ form.errors.packageDescription }}</p>
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <label class="text-xs font-semibold text-slate-700 block">Metode Pembayaran Checkout Utama</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label 
+                                class="flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all duration-200"
+                                :class="form.checkoutPaymentMethod === 'midtrans' ? 'border-sky-500 bg-sky-50/30' : 'border-slate-200 hover:bg-slate-50'"
+                            >
+                                <input 
+                                    type="radio" 
+                                    value="midtrans" 
+                                    v-model="form.checkoutPaymentMethod"
+                                    class="text-sky-500 focus:ring-sky-500"
+                                />
+                                <div>
+                                    <div class="text-sm font-bold text-slate-900">Midtrans Gateway</div>
+                                    <div class="text-[11px] text-slate-500">Otomatis via QRIS/E-Wallet/VA Midtrans</div>
+                                </div>
+                            </label>
+                            <label 
+                                class="flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all duration-200"
+                                :class="form.checkoutPaymentMethod === 'qris_static' ? 'border-sky-500 bg-sky-50/30' : 'border-slate-200 hover:bg-slate-50'"
+                            >
+                                <input 
+                                    type="radio" 
+                                    value="qris_static" 
+                                    v-model="form.checkoutPaymentMethod"
+                                    class="text-sky-500 focus:ring-sky-500"
+                                />
+                                <div>
+                                    <div class="text-sm font-bold text-slate-900">QRIS Statis (Manual)</div>
+                                    <div class="text-[11px] text-slate-500">User upload bukti, admin validasi manual</div>
+                                </div>
+                            </label>
+                        </div>
+                        <p v-if="form.errors.checkoutPaymentMethod" class="text-xs text-red-500">{{ form.errors.checkoutPaymentMethod }}</p>
                     </div>
                 </div>
 
@@ -180,6 +268,62 @@ const submitForm = () => {
                     </Button>
                 </div>
             </form>
+        </div>
+
+        <!-- Section 3: QRIS Statis Pembayaran -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 class="text-base font-bold text-slate-900 border-b pb-2 flex items-center gap-2 mb-4">
+                <QrCode class="size-5 text-emerald-500" /> QRIS Statis Pembayaran (Alternatif)
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <!-- Preview QRIS -->
+                <div class="flex flex-col items-center justify-center p-4 border border-dashed rounded-xl bg-slate-50 min-h-[250px]">
+                    <div v-if="qrisPreview" class="flex flex-col items-center gap-3">
+                        <img :src="qrisPreview" alt="QRIS Statis" class="max-h-64 object-contain rounded-lg border shadow-sm" />
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            @click="deleteQris"
+                            class="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            <Trash2 class="size-4" /> Hapus QRIS
+                        </Button>
+                    </div>
+                    <div v-else class="text-center p-6 text-slate-400 flex flex-col items-center gap-2">
+                        <QrCode class="size-12 text-slate-300" />
+                        <p class="text-sm font-medium">Belum ada QRIS statis diunggah</p>
+                        <p class="text-xs">QRIS ini akan ditampilkan sebagai alternatif pembayaran manual bagi pengguna.</p>
+                    </div>
+                </div>
+
+                <!-- Form Upload -->
+                <div class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-700">Pilih Berkas QRIS</label>
+                        <input
+                            ref="qrisInput"
+                            type="file"
+                            accept="image/jpeg,image/png,image/jpg"
+                            @change="handleQrisChange"
+                            class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100"
+                        />
+                        <p class="text-[10px] text-slate-400">Mendukung format JPG, JPEG, PNG. Ukuran maksimal 2MB.</p>
+                        <p v-if="qrisForm.errors.qris_image" class="text-xs text-red-500">{{ qrisForm.errors.qris_image }}</p>
+                    </div>
+
+                    <Button
+                        type="button"
+                        :disabled="!qrisForm.qris_image || qrisForm.processing"
+                        @click="uploadQris"
+                        class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold w-full rounded-xl transition duration-200 flex items-center justify-center gap-2"
+                    >
+                        <Spinner v-if="qrisForm.processing" />
+                        <Upload class="size-4" /> Unggah QRIS Baru
+                    </Button>
+                </div>
+            </div>
         </div>
     </div>
 </template>

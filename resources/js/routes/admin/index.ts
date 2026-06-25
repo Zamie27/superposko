@@ -4,6 +4,7 @@ import prices from './prices'
 import subscriptions from './subscriptions'
 import trials from './trials'
 import preorders from './preorders'
+import subscriptionRequests from './subscription-requests'
 import notifications from './notifications'
 import settings from './settings'
 import documentationConfigs from './documentation-configs'
@@ -99,6 +100,7 @@ const admin = {
     subscriptions: Object.assign(subscriptions, subscriptions),
     trials: Object.assign(trials, trials),
     preorders: Object.assign(preorders, preorders),
+    subscriptionRequests: Object.assign(subscriptionRequests, subscriptionRequests),
     notifications: Object.assign(notifications, notifications),
     settings: Object.assign(settings, settings),
     documentationConfigs: Object.assign(documentationConfigs, documentationConfigs),

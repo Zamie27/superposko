@@ -138,7 +138,7 @@ send_push.form = send_pushForm
 
 /**
 * @see \App\Http\Controllers\Admin\AdminNotificationController::send_email
-* @see app/Http/Controllers/Admin/AdminNotificationController.php:136
+* @see app/Http/Controllers/Admin/AdminNotificationController.php:138
 * @route '/admin/notifications/send-email'
 */
 export const send_email = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -153,7 +153,7 @@ send_email.definition = {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminNotificationController::send_email
-* @see app/Http/Controllers/Admin/AdminNotificationController.php:136
+* @see app/Http/Controllers/Admin/AdminNotificationController.php:138
 * @route '/admin/notifications/send-email'
 */
 send_email.url = (options?: RouteQueryOptions) => {
@@ -162,7 +162,7 @@ send_email.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Admin\AdminNotificationController::send_email
-* @see app/Http/Controllers/Admin/AdminNotificationController.php:136
+* @see app/Http/Controllers/Admin/AdminNotificationController.php:138
 * @route '/admin/notifications/send-email'
 */
 send_email.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ send_email.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\Admin\AdminNotificationController::send_email
-* @see app/Http/Controllers/Admin/AdminNotificationController.php:136
+* @see app/Http/Controllers/Admin/AdminNotificationController.php:138
 * @route '/admin/notifications/send-email'
 */
 const send_emailForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -182,7 +182,7 @@ const send_emailForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'
 
 /**
 * @see \App\Http\Controllers\Admin\AdminNotificationController::send_email
-* @see app/Http/Controllers/Admin/AdminNotificationController.php:136
+* @see app/Http/Controllers/Admin/AdminNotificationController.php:138
 * @route '/admin/notifications/send-email'
 */
 send_emailForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

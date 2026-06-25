@@ -9,6 +9,7 @@ import { dashboard } from '@/routes';
 const props = defineProps<{
     preorderPrice: number;
     preorderStrikePrice: number;
+    staticQrisUrl: string;
     existingPreorder: {
         status: string;
         created_at: string;
@@ -232,10 +233,7 @@ const features = [
 
                         <!-- QRIS Code Container -->
                         <div class="rounded-xl border p-2 bg-slate-50 flex flex-col items-center justify-center space-y-2">
-                            <img src="/images/qris.jpg" alt="QRIS SuperPosko" class="max-w-[180px] h-auto rounded-lg shadow-sm border bg-white" />
-                            <div class="text-[9px] text-slate-400 text-center uppercase tracking-wider font-semibold">
-                                GPN QRIS - M. Ridho Al Zamzami
-                            </div>
+                            <img :src="props.staticQrisUrl" alt="QRIS SuperPosko" class="max-w-[180px] h-auto rounded-lg shadow-sm border bg-white" />
                         </div>
 
                         <!-- Submission Fields -->

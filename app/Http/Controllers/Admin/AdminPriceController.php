@@ -25,6 +25,9 @@ class AdminPriceController extends Controller
                 'preorderPrice' => (int) Setting::get('preorder_price', 50000),
                 'preorderStrikePrice' => (int) Setting::get('preorder_strike_price', 100000),
                 'preorderPromoActive' => filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN),
+                'checkoutPaymentMethod' => Setting::get('checkout_payment_method', 'midtrans'),
+                'staticQrisPath' => Setting::get('static_qris_path', null),
+                'staticQrisUrl' => Setting::get('static_qris_path') ? asset('storage/' . Setting::get('static_qris_path')) : null,
             ],
         ]);
     }
@@ -42,6 +45,7 @@ class AdminPriceController extends Controller
             'preorderPrice' => ['required', 'integer', 'min:0'],
             'preorderStrikePrice' => ['required', 'integer', 'min:0'],
             'preorderPromoActive' => ['required', 'boolean'],
+            'checkoutPaymentMethod' => ['required', 'string', 'in:midtrans,qris_static'],
         ]);
 
         Setting::set('package_name', $validated['packageName']);
@@ -51,6 +55,7 @@ class AdminPriceController extends Controller
         Setting::set('preorder_price', $validated['preorderPrice']);
         Setting::set('preorder_strike_price', $validated['preorderStrikePrice']);
         Setting::set('preorder_promo_active', $validated['preorderPromoActive'] ? '1' : '0');
+        Setting::set('checkout_payment_method', $validated['checkoutPaymentMethod']);
 
         ActivityLogHelper::log(
             'settings',
@@ -61,6 +66,63 @@ class AdminPriceController extends Controller
         return Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Konfigurasi harga berhasil diperbarui.',
+        ])->back();
+    }
+
+    /**
+     * Upload static QRIS image.
+     */
+    public function updateQris(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
+    {
+        $request->validate([
+            'qris_image' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+        ]);
+
+        if ($request->hasFile('qris_image')) {
+            $oldPath = Setting::get('static_qris_path');
+            if ($oldPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            }
+
+            $path = $request->file('qris_image')->store('qris', 'public');
+            Setting::set('static_qris_path', $path);
+
+            ActivityLogHelper::log(
+                'settings',
+                'update_qris',
+                "Admin updated static QRIS payment image."
+            );
+
+            return Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => 'QRIS pembayaran berhasil diunggah.',
+            ])->back();
+        }
+
+        return back()->withErrors(['qris_image' => 'Gagal mengunggah berkas.']);
+    }
+
+    /**
+     * Delete static QRIS image.
+     */
+    public function deleteQris(): \Symfony\Component\HttpFoundation\RedirectResponse
+    {
+        $oldPath = Setting::get('static_qris_path');
+        if ($oldPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+        }
+
+        Setting::set('static_qris_path', null);
+
+        ActivityLogHelper::log(
+            'settings',
+            'delete_qris',
+            "Admin deleted static QRIS payment image."
+        );
+
+        return Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'QRIS pembayaran berhasil dihapus.',
         ])->back();
     }
 }

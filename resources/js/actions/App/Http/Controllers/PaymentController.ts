@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
-* @see app/Http/Controllers/PaymentController.php:154
+* @see app/Http/Controllers/PaymentController.php:165
 * @route '/payment/notification'
 */
 export const handleNotification = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ handleNotification.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
-* @see app/Http/Controllers/PaymentController.php:154
+* @see app/Http/Controllers/PaymentController.php:165
 * @route '/payment/notification'
 */
 handleNotification.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ handleNotification.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
-* @see app/Http/Controllers/PaymentController.php:154
+* @see app/Http/Controllers/PaymentController.php:165
 * @route '/payment/notification'
 */
 handleNotification.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ handleNotification.get = (options?: RouteQueryOptions): RouteDefinition<'get'> =
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
-* @see app/Http/Controllers/PaymentController.php:154
+* @see app/Http/Controllers/PaymentController.php:165
 * @route '/payment/notification'
 */
 handleNotification.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -45,7 +45,7 @@ handleNotification.post = (options?: RouteQueryOptions): RouteDefinition<'post'>
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
-* @see app/Http/Controllers/PaymentController.php:154
+* @see app/Http/Controllers/PaymentController.php:165
 * @route '/payment/notification'
 */
 handleNotification.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -55,7 +55,7 @@ handleNotification.head = (options?: RouteQueryOptions): RouteDefinition<'head'>
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
-* @see app/Http/Controllers/PaymentController.php:154
+* @see app/Http/Controllers/PaymentController.php:165
 * @route '/payment/notification'
 */
 const handleNotificationForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ const handleNotificationForm = (options?: RouteQueryOptions): RouteFormDefinitio
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
-* @see app/Http/Controllers/PaymentController.php:154
+* @see app/Http/Controllers/PaymentController.php:165
 * @route '/payment/notification'
 */
 handleNotificationForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -75,7 +75,7 @@ handleNotificationForm.get = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
-* @see app/Http/Controllers/PaymentController.php:154
+* @see app/Http/Controllers/PaymentController.php:165
 * @route '/payment/notification'
 */
 handleNotificationForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -85,7 +85,7 @@ handleNotificationForm.post = (options?: RouteQueryOptions): RouteFormDefinition
 
 /**
 * @see \App\Http\Controllers\PaymentController::handleNotification
-* @see app/Http/Controllers/PaymentController.php:154
+* @see app/Http/Controllers/PaymentController.php:165
 * @route '/payment/notification'
 */
 handleNotificationForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -102,7 +102,7 @@ handleNotification.form = handleNotificationForm
 
 /**
 * @see \App\Http\Controllers\PaymentController::showCheckoutPage
-* @see app/Http/Controllers/PaymentController.php:33
+* @see app/Http/Controllers/PaymentController.php:34
 * @route '/payment'
 */
 export const showCheckoutPage = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -117,7 +117,7 @@ showCheckoutPage.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::showCheckoutPage
-* @see app/Http/Controllers/PaymentController.php:33
+* @see app/Http/Controllers/PaymentController.php:34
 * @route '/payment'
 */
 showCheckoutPage.url = (options?: RouteQueryOptions) => {
@@ -126,7 +126,7 @@ showCheckoutPage.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PaymentController::showCheckoutPage
-* @see app/Http/Controllers/PaymentController.php:33
+* @see app/Http/Controllers/PaymentController.php:34
 * @route '/payment'
 */
 showCheckoutPage.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -136,7 +136,7 @@ showCheckoutPage.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 
 /**
 * @see \App\Http\Controllers\PaymentController::showCheckoutPage
-* @see app/Http/Controllers/PaymentController.php:33
+* @see app/Http/Controllers/PaymentController.php:34
 * @route '/payment'
 */
 showCheckoutPage.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -146,7 +146,7 @@ showCheckoutPage.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
 /**
 * @see \App\Http\Controllers\PaymentController::showCheckoutPage
-* @see app/Http/Controllers/PaymentController.php:33
+* @see app/Http/Controllers/PaymentController.php:34
 * @route '/payment'
 */
 const showCheckoutPageForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,7 +156,7 @@ const showCheckoutPageForm = (options?: RouteQueryOptions): RouteFormDefinition<
 
 /**
 * @see \App\Http\Controllers\PaymentController::showCheckoutPage
-* @see app/Http/Controllers/PaymentController.php:33
+* @see app/Http/Controllers/PaymentController.php:34
 * @route '/payment'
 */
 showCheckoutPageForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -166,7 +166,7 @@ showCheckoutPageForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'g
 
 /**
 * @see \App\Http\Controllers\PaymentController::showCheckoutPage
-* @see app/Http/Controllers/PaymentController.php:33
+* @see app/Http/Controllers/PaymentController.php:34
 * @route '/payment'
 */
 showCheckoutPageForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -183,7 +183,7 @@ showCheckoutPage.form = showCheckoutPageForm
 
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/payment/token'
 */
 const createSnapToken231e3cdb958ff8c0705143ef203cf96a = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -198,7 +198,7 @@ createSnapToken231e3cdb958ff8c0705143ef203cf96a.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/payment/token'
 */
 createSnapToken231e3cdb958ff8c0705143ef203cf96a.url = (options?: RouteQueryOptions) => {
@@ -207,7 +207,7 @@ createSnapToken231e3cdb958ff8c0705143ef203cf96a.url = (options?: RouteQueryOptio
 
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/payment/token'
 */
 createSnapToken231e3cdb958ff8c0705143ef203cf96a.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -217,7 +217,7 @@ createSnapToken231e3cdb958ff8c0705143ef203cf96a.post = (options?: RouteQueryOpti
 
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/payment/token'
 */
 const createSnapToken231e3cdb958ff8c0705143ef203cf96aForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -227,7 +227,7 @@ const createSnapToken231e3cdb958ff8c0705143ef203cf96aForm = (options?: RouteQuer
 
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/payment/token'
 */
 createSnapToken231e3cdb958ff8c0705143ef203cf96aForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -238,7 +238,7 @@ createSnapToken231e3cdb958ff8c0705143ef203cf96aForm.post = (options?: RouteQuery
 createSnapToken231e3cdb958ff8c0705143ef203cf96a.form = createSnapToken231e3cdb958ff8c0705143ef203cf96aForm
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/admin/payment/test/token'
 */
 const createSnapTokenf4cc32ff538dabf70948ddef53890123 = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -253,7 +253,7 @@ createSnapTokenf4cc32ff538dabf70948ddef53890123.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/admin/payment/test/token'
 */
 createSnapTokenf4cc32ff538dabf70948ddef53890123.url = (options?: RouteQueryOptions) => {
@@ -262,7 +262,7 @@ createSnapTokenf4cc32ff538dabf70948ddef53890123.url = (options?: RouteQueryOptio
 
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/admin/payment/test/token'
 */
 createSnapTokenf4cc32ff538dabf70948ddef53890123.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -272,7 +272,7 @@ createSnapTokenf4cc32ff538dabf70948ddef53890123.post = (options?: RouteQueryOpti
 
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/admin/payment/test/token'
 */
 const createSnapTokenf4cc32ff538dabf70948ddef53890123Form = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -282,7 +282,7 @@ const createSnapTokenf4cc32ff538dabf70948ddef53890123Form = (options?: RouteQuer
 
 /**
 * @see \App\Http\Controllers\PaymentController::createSnapToken
-* @see app/Http/Controllers/PaymentController.php:50
+* @see app/Http/Controllers/PaymentController.php:61
 * @route '/admin/payment/test/token'
 */
 createSnapTokenf4cc32ff538dabf70948ddef53890123Form.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -304,7 +304,7 @@ export const createSnapToken = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::handlePaymentSuccess
-* @see app/Http/Controllers/PaymentController.php:99
+* @see app/Http/Controllers/PaymentController.php:110
 * @route '/payment/success'
 */
 export const handlePaymentSuccess = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -319,7 +319,7 @@ handlePaymentSuccess.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::handlePaymentSuccess
-* @see app/Http/Controllers/PaymentController.php:99
+* @see app/Http/Controllers/PaymentController.php:110
 * @route '/payment/success'
 */
 handlePaymentSuccess.url = (options?: RouteQueryOptions) => {
@@ -328,7 +328,7 @@ handlePaymentSuccess.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PaymentController::handlePaymentSuccess
-* @see app/Http/Controllers/PaymentController.php:99
+* @see app/Http/Controllers/PaymentController.php:110
 * @route '/payment/success'
 */
 handlePaymentSuccess.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -338,7 +338,7 @@ handlePaymentSuccess.post = (options?: RouteQueryOptions): RouteDefinition<'post
 
 /**
 * @see \App\Http\Controllers\PaymentController::handlePaymentSuccess
-* @see app/Http/Controllers/PaymentController.php:99
+* @see app/Http/Controllers/PaymentController.php:110
 * @route '/payment/success'
 */
 const handlePaymentSuccessForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -348,7 +348,7 @@ const handlePaymentSuccessForm = (options?: RouteQueryOptions): RouteFormDefinit
 
 /**
 * @see \App\Http\Controllers\PaymentController::handlePaymentSuccess
-* @see app/Http/Controllers/PaymentController.php:99
+* @see app/Http/Controllers/PaymentController.php:110
 * @route '/payment/success'
 */
 handlePaymentSuccessForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -360,7 +360,7 @@ handlePaymentSuccess.form = handlePaymentSuccessForm
 
 /**
 * @see \App\Http\Controllers\PaymentController::showTestPage
-* @see app/Http/Controllers/PaymentController.php:22
+* @see app/Http/Controllers/PaymentController.php:23
 * @route '/admin/payment/test'
 */
 export const showTestPage = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -375,7 +375,7 @@ showTestPage.definition = {
 
 /**
 * @see \App\Http\Controllers\PaymentController::showTestPage
-* @see app/Http/Controllers/PaymentController.php:22
+* @see app/Http/Controllers/PaymentController.php:23
 * @route '/admin/payment/test'
 */
 showTestPage.url = (options?: RouteQueryOptions) => {
@@ -384,7 +384,7 @@ showTestPage.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\PaymentController::showTestPage
-* @see app/Http/Controllers/PaymentController.php:22
+* @see app/Http/Controllers/PaymentController.php:23
 * @route '/admin/payment/test'
 */
 showTestPage.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -394,7 +394,7 @@ showTestPage.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\PaymentController::showTestPage
-* @see app/Http/Controllers/PaymentController.php:22
+* @see app/Http/Controllers/PaymentController.php:23
 * @route '/admin/payment/test'
 */
 showTestPage.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -404,7 +404,7 @@ showTestPage.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\PaymentController::showTestPage
-* @see app/Http/Controllers/PaymentController.php:22
+* @see app/Http/Controllers/PaymentController.php:23
 * @route '/admin/payment/test'
 */
 const showTestPageForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -414,7 +414,7 @@ const showTestPageForm = (options?: RouteQueryOptions): RouteFormDefinition<'get
 
 /**
 * @see \App\Http\Controllers\PaymentController::showTestPage
-* @see app/Http/Controllers/PaymentController.php:22
+* @see app/Http/Controllers/PaymentController.php:23
 * @route '/admin/payment/test'
 */
 showTestPageForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -424,7 +424,7 @@ showTestPageForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 
 /**
 * @see \App\Http\Controllers\PaymentController::showTestPage
-* @see app/Http/Controllers/PaymentController.php:22
+* @see app/Http/Controllers/PaymentController.php:23
 * @route '/admin/payment/test'
 */
 showTestPageForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

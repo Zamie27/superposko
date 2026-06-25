@@ -1,6 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
-* @see routes/web.php:55
+* @see routes/web.php:57
 * @route '/event'
 */
 export const publicMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +14,7 @@ publicMethod.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:55
+* @see routes/web.php:57
 * @route '/event'
 */
 publicMethod.url = (options?: RouteQueryOptions) => {
@@ -22,7 +22,7 @@ publicMethod.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:55
+* @see routes/web.php:57
 * @route '/event'
 */
 publicMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ publicMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:55
+* @see routes/web.php:57
 * @route '/event'
 */
 publicMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -40,7 +40,7 @@ publicMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:55
+* @see routes/web.php:57
 * @route '/event'
 */
 const publicMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -49,7 +49,7 @@ const publicMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get
 })
 
 /**
-* @see routes/web.php:55
+* @see routes/web.php:57
 * @route '/event'
 */
 publicMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -58,7 +58,7 @@ publicMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 })
 
 /**
-* @see routes/web.php:55
+* @see routes/web.php:57
 * @route '/event'
 */
 publicMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

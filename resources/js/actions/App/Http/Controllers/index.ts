@@ -2,7 +2,9 @@ import Auth from './Auth'
 import ReportController from './ReportController'
 import BugReportController from './BugReportController'
 import PaymentController from './PaymentController'
+import TripayController from './TripayController'
 import Preorder from './Preorder'
+import Payment from './Payment'
 import DashboardController from './DashboardController'
 import FinanceController from './FinanceController'
 import LogbookController from './LogbookController'
@@ -25,7 +27,9 @@ const Controllers = {
     ReportController: Object.assign(ReportController, ReportController),
     BugReportController: Object.assign(BugReportController, BugReportController),
     PaymentController: Object.assign(PaymentController, PaymentController),
+    TripayController: Object.assign(TripayController, TripayController),
     Preorder: Object.assign(Preorder, Preorder),
+    Payment: Object.assign(Payment, Payment),
     DashboardController: Object.assign(DashboardController, DashboardController),
     FinanceController: Object.assign(FinanceController, FinanceController),
     LogbookController: Object.assign(LogbookController, LogbookController),
