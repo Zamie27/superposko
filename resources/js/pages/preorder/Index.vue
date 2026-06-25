@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { CheckCircle, AlertCircle, Upload, Phone, Mail, User, ShieldCheck, Sparkles, Check } from '@lucide/vue';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { dashboard } from '@/routes';
@@ -81,6 +81,26 @@ const initForm = () => {
     form.email = user.email || '';
 };
 
+let pollingInterval: any = null;
+
+const startPolling = () => {
+    if (pollingInterval) clearInterval(pollingInterval);
+    pollingInterval = setInterval(async () => {
+        try {
+            const response = await fetch('/payment/tripay/status');
+            if (response.ok) {
+                const res = await response.json();
+                if (res.success && res.status === 'PAID') {
+                    clearInterval(pollingInterval);
+                    window.location.href = '/payment/tripay/return';
+                }
+            }
+        } catch (e) {
+            console.error('Error polling status:', e);
+        }
+    }, 4000);
+};
+
 onMounted(() => {
     if (props.checkoutPaymentMethod === 'qris_static') {
         initForm();
@@ -96,6 +116,14 @@ onMounted(() => {
             }
         }
     }
+
+    if (props.activeTripayUrl) {
+        startPolling();
+    }
+});
+
+onBeforeUnmount(() => {
+    if (pollingInterval) clearInterval(pollingInterval);
 });
 
 const handleFileChange = (e: Event) => {
@@ -177,7 +205,8 @@ const handlePayment = async () => {
         const res = await response.json();
 
         if (res.success && res.data && res.data.checkout_url) {
-            window.location.href = res.data.checkout_url;
+            window.open(res.data.checkout_url, '_blank');
+            window.location.reload();
         } else {
             mainToast.error(res.message || 'Gagal mendapatkan tautan pembayaran Tripay.');
         }

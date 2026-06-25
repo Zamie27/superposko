@@ -149,6 +149,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('payment/tripay/return', [\App\Http\Controllers\TripayController::class, 'handleReturn'])->name('payment.tripay.return');
+    Route::get('payment/tripay/status', [\App\Http\Controllers\TripayController::class, 'checkStatus'])->name('payment.tripay.status');
 
     // User Group (restricted to role 'user' only via user.only middleware)
     Route::middleware(['user.only'])->group(function () {

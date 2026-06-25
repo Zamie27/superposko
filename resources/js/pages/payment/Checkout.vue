@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { CreditCard, CheckCircle2, AlertTriangle, XCircle, ShieldCheck, Sparkles, Check, ArrowRight } from '@lucide/vue';
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, onBeforeUnmount } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useToast } from '@/composables/useToast';
@@ -78,6 +78,26 @@ const formattedStrikePrice = computed(() => {
     }).format(props.packageStrikePrice);
 });
 
+let pollingInterval: any = null;
+
+const startPolling = () => {
+    if (pollingInterval) clearInterval(pollingInterval);
+    pollingInterval = setInterval(async () => {
+        try {
+            const response = await fetch('/payment/tripay/status');
+            if (response.ok) {
+                const res = await response.json();
+                if (res.success && res.status === 'PAID') {
+                    clearInterval(pollingInterval);
+                    window.location.href = '/payment/tripay/return';
+                }
+            }
+        } catch (e) {
+            console.error('Error polling status:', e);
+        }
+    }, 4000);
+};
+
 onMounted(() => {
     if (props.checkoutPaymentMethod === 'qris_static') {
         // Init form with user data for QRIS
@@ -95,6 +115,14 @@ onMounted(() => {
             selectedMethod.value = props.tripayChannels[0].code;
         }
     }
+
+    if (props.activeTripayUrl) {
+        startPolling();
+    }
+});
+
+onBeforeUnmount(() => {
+    if (pollingInterval) clearInterval(pollingInterval);
 });
 
 const handleFileChange = (e: Event) => {
@@ -168,7 +196,8 @@ const handlePayment = async () => {
         const res = await response.json();
 
         if (res.success && res.data && res.data.checkout_url) {
-            window.location.href = res.data.checkout_url;
+            window.open(res.data.checkout_url, '_blank');
+            router.reload();
         } else {
             toast.error(res.message || 'Gagal mendapatkan tautan pembayaran Tripay.');
         }

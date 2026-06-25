@@ -137,6 +137,87 @@ handleReturnForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'
 handleReturn.form = handleReturnForm
 
 /**
+* @see \App\Http\Controllers\TripayController::checkStatus
+* @see app/Http/Controllers/TripayController.php:407
+* @route '/payment/tripay/status'
+*/
+export const checkStatus = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: checkStatus.url(options),
+    method: 'get',
+})
+
+checkStatus.definition = {
+    methods: ["get","head"],
+    url: '/payment/tripay/status',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\TripayController::checkStatus
+* @see app/Http/Controllers/TripayController.php:407
+* @route '/payment/tripay/status'
+*/
+checkStatus.url = (options?: RouteQueryOptions) => {
+    return checkStatus.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\TripayController::checkStatus
+* @see app/Http/Controllers/TripayController.php:407
+* @route '/payment/tripay/status'
+*/
+checkStatus.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: checkStatus.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\TripayController::checkStatus
+* @see app/Http/Controllers/TripayController.php:407
+* @route '/payment/tripay/status'
+*/
+checkStatus.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: checkStatus.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\TripayController::checkStatus
+* @see app/Http/Controllers/TripayController.php:407
+* @route '/payment/tripay/status'
+*/
+const checkStatusForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: checkStatus.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\TripayController::checkStatus
+* @see app/Http/Controllers/TripayController.php:407
+* @route '/payment/tripay/status'
+*/
+checkStatusForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: checkStatus.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\TripayController::checkStatus
+* @see app/Http/Controllers/TripayController.php:407
+* @route '/payment/tripay/status'
+*/
+checkStatusForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: checkStatus.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+checkStatus.form = checkStatusForm
+
+/**
 * @see \App\Http\Controllers\TripayController::createPayment
 * @see app/Http/Controllers/TripayController.php:21
 * @route '/payment/tripay/create'
@@ -248,6 +329,6 @@ cancelCurrentPaymentForm.post = (options?: RouteQueryOptions): RouteFormDefiniti
 
 cancelCurrentPayment.form = cancelCurrentPaymentForm
 
-const TripayController = { handleCallback, handleReturn, createPayment, cancelCurrentPayment }
+const TripayController = { handleCallback, handleReturn, checkStatus, createPayment, cancelCurrentPayment }
 
 export default TripayController

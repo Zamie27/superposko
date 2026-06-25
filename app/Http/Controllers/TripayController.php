@@ -400,4 +400,68 @@ class TripayController extends Controller
 
         return redirect()->route('payment.index')->with('info', 'Status transaksi Anda sedang diproses. Silakan hubungi admin jika saldo terpotong namun status belum berubah.');
     }
+
+    /**
+     * Check current active transaction status.
+     */
+    public function checkStatus(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        // 1. If role is already host, they are paid
+        if ($user->role === 'host') {
+            return response()->json([
+                'success' => true,
+                'status' => 'PAID',
+            ]);
+        }
+
+        // 2. Check cached preorder reference
+        $preorderRef = \Illuminate\Support\Facades\Cache::get('user_preorder_tripay_ref_' . $user->id);
+        if ($preorderRef) {
+            $detail = $this->tripayService->getTransactionDetail($preorderRef);
+            if ($detail && isset($detail['status'])) {
+                $status = strtoupper($detail['status']);
+                if ($status === 'PAID') {
+                    // Update database immediately
+                    $preorder = \App\Models\Preorder::where('user_id', $user->id)->first();
+                    if ($preorder) {
+                        $preorder->update(['status' => 'approved']);
+                    }
+                    $user->update([
+                        'role' => 'host',
+                        'subscription_expires_at' => now()->addDays(40),
+                    ]);
+                }
+                return response()->json([
+                    'success' => true,
+                    'status' => $status,
+                ]);
+            }
+        }
+
+        // 3. Check cached subscription reference
+        $subRef = \Illuminate\Support\Facades\Cache::get('user_tripay_ref_' . $user->id);
+        if ($subRef) {
+            $detail = $this->tripayService->getTransactionDetail($subRef);
+            if ($detail && isset($detail['status'])) {
+                $status = strtoupper($detail['status']);
+                if ($status === 'PAID') {
+                    $user->update([
+                        'role' => 'host',
+                        'subscription_expires_at' => now()->addDays(40),
+                    ]);
+                }
+                return response()->json([
+                    'success' => true,
+                    'status' => $status,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => 'UNPAID',
+        ]);
+    }
 }
