@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\TripayController::handleCallback
-* @see app/Http/Controllers/TripayController.php:161
+* @see app/Http/Controllers/TripayController.php:162
 * @route '/payment/tripay/callback'
 */
 export const handleCallback = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ handleCallback.definition = {
 
 /**
 * @see \App\Http\Controllers\TripayController::handleCallback
-* @see app/Http/Controllers/TripayController.php:161
+* @see app/Http/Controllers/TripayController.php:162
 * @route '/payment/tripay/callback'
 */
 handleCallback.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ handleCallback.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\TripayController::handleCallback
-* @see app/Http/Controllers/TripayController.php:161
+* @see app/Http/Controllers/TripayController.php:162
 * @route '/payment/tripay/callback'
 */
 handleCallback.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ handleCallback.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\TripayController::handleCallback
-* @see app/Http/Controllers/TripayController.php:161
+* @see app/Http/Controllers/TripayController.php:162
 * @route '/payment/tripay/callback'
 */
 const handleCallbackForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const handleCallbackForm = (options?: RouteQueryOptions): RouteFormDefinition<'p
 
 /**
 * @see \App\Http\Controllers\TripayController::handleCallback
-* @see app/Http/Controllers/TripayController.php:161
+* @see app/Http/Controllers/TripayController.php:162
 * @route '/payment/tripay/callback'
 */
 handleCallbackForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ handleCallback.form = handleCallbackForm
 
 /**
 * @see \App\Http\Controllers\TripayController::handleReturn
-* @see app/Http/Controllers/TripayController.php:277
+* @see app/Http/Controllers/TripayController.php:278
 * @route '/payment/tripay/return'
 */
 export const handleReturn = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -72,7 +72,7 @@ handleReturn.definition = {
 
 /**
 * @see \App\Http\Controllers\TripayController::handleReturn
-* @see app/Http/Controllers/TripayController.php:277
+* @see app/Http/Controllers/TripayController.php:278
 * @route '/payment/tripay/return'
 */
 handleReturn.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ handleReturn.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\TripayController::handleReturn
-* @see app/Http/Controllers/TripayController.php:277
+* @see app/Http/Controllers/TripayController.php:278
 * @route '/payment/tripay/return'
 */
 handleReturn.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -91,7 +91,7 @@ handleReturn.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\TripayController::handleReturn
-* @see app/Http/Controllers/TripayController.php:277
+* @see app/Http/Controllers/TripayController.php:278
 * @route '/payment/tripay/return'
 */
 handleReturn.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -101,7 +101,7 @@ handleReturn.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\TripayController::handleReturn
-* @see app/Http/Controllers/TripayController.php:277
+* @see app/Http/Controllers/TripayController.php:278
 * @route '/payment/tripay/return'
 */
 const handleReturnForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -111,7 +111,7 @@ const handleReturnForm = (options?: RouteQueryOptions): RouteFormDefinition<'get
 
 /**
 * @see \App\Http\Controllers\TripayController::handleReturn
-* @see app/Http/Controllers/TripayController.php:277
+* @see app/Http/Controllers/TripayController.php:278
 * @route '/payment/tripay/return'
 */
 handleReturnForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -121,7 +121,7 @@ handleReturnForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'>
 
 /**
 * @see \App\Http\Controllers\TripayController::handleReturn
-* @see app/Http/Controllers/TripayController.php:277
+* @see app/Http/Controllers/TripayController.php:278
 * @route '/payment/tripay/return'
 */
 handleReturnForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -138,7 +138,7 @@ handleReturn.form = handleReturnForm
 
 /**
 * @see \App\Http\Controllers\TripayController::createPayment
-* @see app/Http/Controllers/TripayController.php:20
+* @see app/Http/Controllers/TripayController.php:21
 * @route '/payment/tripay/create'
 */
 export const createPayment = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -153,7 +153,7 @@ createPayment.definition = {
 
 /**
 * @see \App\Http\Controllers\TripayController::createPayment
-* @see app/Http/Controllers/TripayController.php:20
+* @see app/Http/Controllers/TripayController.php:21
 * @route '/payment/tripay/create'
 */
 createPayment.url = (options?: RouteQueryOptions) => {
@@ -162,7 +162,7 @@ createPayment.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\TripayController::createPayment
-* @see app/Http/Controllers/TripayController.php:20
+* @see app/Http/Controllers/TripayController.php:21
 * @route '/payment/tripay/create'
 */
 createPayment.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ createPayment.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => (
 
 /**
 * @see \App\Http\Controllers\TripayController::createPayment
-* @see app/Http/Controllers/TripayController.php:20
+* @see app/Http/Controllers/TripayController.php:21
 * @route '/payment/tripay/create'
 */
 const createPaymentForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -182,7 +182,7 @@ const createPaymentForm = (options?: RouteQueryOptions): RouteFormDefinition<'po
 
 /**
 * @see \App\Http\Controllers\TripayController::createPayment
-* @see app/Http/Controllers/TripayController.php:20
+* @see app/Http/Controllers/TripayController.php:21
 * @route '/payment/tripay/create'
 */
 createPaymentForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -194,7 +194,7 @@ createPayment.form = createPaymentForm
 
 /**
 * @see \App\Http\Controllers\TripayController::cancelCurrentPayment
-* @see app/Http/Controllers/TripayController.php:133
+* @see app/Http/Controllers/TripayController.php:134
 * @route '/payment/tripay/cancel'
 */
 export const cancelCurrentPayment = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -209,7 +209,7 @@ cancelCurrentPayment.definition = {
 
 /**
 * @see \App\Http\Controllers\TripayController::cancelCurrentPayment
-* @see app/Http/Controllers/TripayController.php:133
+* @see app/Http/Controllers/TripayController.php:134
 * @route '/payment/tripay/cancel'
 */
 cancelCurrentPayment.url = (options?: RouteQueryOptions) => {
@@ -218,7 +218,7 @@ cancelCurrentPayment.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\TripayController::cancelCurrentPayment
-* @see app/Http/Controllers/TripayController.php:133
+* @see app/Http/Controllers/TripayController.php:134
 * @route '/payment/tripay/cancel'
 */
 cancelCurrentPayment.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -228,7 +228,7 @@ cancelCurrentPayment.post = (options?: RouteQueryOptions): RouteDefinition<'post
 
 /**
 * @see \App\Http\Controllers\TripayController::cancelCurrentPayment
-* @see app/Http/Controllers/TripayController.php:133
+* @see app/Http/Controllers/TripayController.php:134
 * @route '/payment/tripay/cancel'
 */
 const cancelCurrentPaymentForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -238,7 +238,7 @@ const cancelCurrentPaymentForm = (options?: RouteQueryOptions): RouteFormDefinit
 
 /**
 * @see \App\Http\Controllers\TripayController::cancelCurrentPayment
-* @see app/Http/Controllers/TripayController.php:133
+* @see app/Http/Controllers/TripayController.php:134
 * @route '/payment/tripay/cancel'
 */
 cancelCurrentPaymentForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

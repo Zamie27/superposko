@@ -275,7 +275,7 @@ class TripayController extends Controller
     /**
      * Handle user redirect back from Tripay payment.
      */
-    public function handleReturn(Request $request)
+    public function handleReturn(Request $request): \Inertia\Response|\Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
 
