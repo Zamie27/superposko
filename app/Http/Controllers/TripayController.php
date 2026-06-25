@@ -9,6 +9,7 @@ use App\Services\TripayService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class TripayController extends Controller
 {
@@ -282,31 +283,57 @@ class TripayController extends Controller
         $preorderRef = \Illuminate\Support\Facades\Cache::get('user_preorder_tripay_ref_' . $user->id);
         if ($preorderRef) {
             $detail = $this->tripayService->getTransactionDetail($preorderRef);
-            if ($detail && isset($detail['status']) && strtoupper($detail['status']) === 'PAID') {
-                // Preorder is paid! Approve it and update role to host immediately
-                $preorder = \App\Models\Preorder::where('user_id', $user->id)->first();
-                if ($preorder) {
-                    $preorder->update(['status' => 'approved']);
+            if ($detail && isset($detail['status'])) {
+                $statusStr = strtoupper($detail['status']);
+                if ($statusStr === 'PAID') {
+                    // Preorder is paid! Approve it and update role to host immediately
+                    $preorder = \App\Models\Preorder::where('user_id', $user->id)->first();
+                    if ($preorder) {
+                        $preorder->update(['status' => 'approved']);
+                    } else {
+                        \App\Models\Preorder::create([
+                            'user_id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'whatsapp' => '0000000000',
+                            'payment_proof' => 'tripay',
+                            'status' => 'approved',
+                        ]);
+                    }
+
+                    $user->update([
+                        'role' => 'host',
+                        'subscription_expires_at' => now()->addDays(40),
+                    ]);
+
+                    \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_ref_' . $user->id);
+                    \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_url_' . $user->id);
+
+                    return Inertia::render('payment/Success', [
+                        'status' => 'success',
+                        'reference' => $detail['reference'] ?? $preorderRef,
+                        'amount' => (int) ($detail['amount'] ?? Setting::get('preorder_price', 50000)),
+                        'paymentMethod' => $detail['payment_name'] ?? 'Tripay',
+                    ]);
+                } elseif ($statusStr === 'UNPAID') {
+                    return Inertia::render('payment/Success', [
+                        'status' => 'pending',
+                        'reference' => $detail['reference'] ?? $preorderRef,
+                        'amount' => (int) ($detail['amount'] ?? Setting::get('preorder_price', 50000)),
+                        'paymentMethod' => $detail['payment_name'] ?? 'Tripay',
+                    ]);
                 } else {
-                    \App\Models\Preorder::create([
-                        'user_id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'whatsapp' => '0000000000',
-                        'payment_proof' => 'tripay',
-                        'status' => 'approved',
+                    \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_ref_' . $user->id);
+                    \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_url_' . $user->id);
+
+                    return Inertia::render('payment/Success', [
+                        'status' => 'failed',
+                        'reference' => $detail['reference'] ?? $preorderRef,
+                        'amount' => (int) ($detail['amount'] ?? Setting::get('preorder_price', 50000)),
+                        'paymentMethod' => $detail['payment_name'] ?? 'Tripay',
+                        'errorMessage' => 'Pembayaran dibatalkan atau kedaluwarsa.',
                     ]);
                 }
-
-                $user->update([
-                    'role' => 'host',
-                    'subscription_expires_at' => now()->addDays(40),
-                ]);
-
-                \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_ref_' . $user->id);
-                \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_url_' . $user->id);
-
-                return redirect()->route('dashboard')->with('success', 'Pembayaran preorder berhasil! Akun Anda telah di-upgrade menjadi Host.');
             }
         }
 
@@ -314,23 +341,56 @@ class TripayController extends Controller
         $subRef = \Illuminate\Support\Facades\Cache::get('user_tripay_ref_' . $user->id);
         if ($subRef) {
             $detail = $this->tripayService->getTransactionDetail($subRef);
-            if ($detail && isset($detail['status']) && strtoupper($detail['status']) === 'PAID') {
-                // Subscription is paid! Update role to host immediately
-                $user->update([
-                    'role' => 'host',
-                    'subscription_expires_at' => now()->addDays(40),
-                ]);
+            if ($detail && isset($detail['status'])) {
+                $statusStr = strtoupper($detail['status']);
+                if ($statusStr === 'PAID') {
+                    // Subscription is paid! Update role to host immediately
+                    $user->update([
+                        'role' => 'host',
+                        'subscription_expires_at' => now()->addDays(40),
+                    ]);
 
-                \Illuminate\Support\Facades\Cache::forget('user_tripay_ref_' . $user->id);
-                \Illuminate\Support\Facades\Cache::forget('user_tripay_url_' . $user->id);
+                    \Illuminate\Support\Facades\Cache::forget('user_tripay_ref_' . $user->id);
+                    \Illuminate\Support\Facades\Cache::forget('user_tripay_url_' . $user->id);
 
-                return redirect()->route('dashboard')->with('success', 'Pembayaran berhasil! Akun Anda telah di-upgrade menjadi Host.');
+                    return Inertia::render('payment/Success', [
+                        'status' => 'success',
+                        'reference' => $detail['reference'] ?? $subRef,
+                        'amount' => (int) ($detail['amount'] ?? Setting::get('package_price', 100000)),
+                        'paymentMethod' => $detail['payment_name'] ?? 'Tripay',
+                    ]);
+                } elseif ($statusStr === 'UNPAID') {
+                    return Inertia::render('payment/Success', [
+                        'status' => 'pending',
+                        'reference' => $detail['reference'] ?? $subRef,
+                        'amount' => (int) ($detail['amount'] ?? Setting::get('package_price', 100000)),
+                        'paymentMethod' => $detail['payment_name'] ?? 'Tripay',
+                    ]);
+                } else {
+                    \Illuminate\Support\Facades\Cache::forget('user_tripay_ref_' . $user->id);
+                    \Illuminate\Support\Facades\Cache::forget('user_tripay_url_' . $user->id);
+
+                    return Inertia::render('payment/Success', [
+                        'status' => 'failed',
+                        'reference' => $detail['reference'] ?? $subRef,
+                        'amount' => (int) ($detail['amount'] ?? Setting::get('package_price', 100000)),
+                        'paymentMethod' => $detail['payment_name'] ?? 'Tripay',
+                        'errorMessage' => 'Pembayaran dibatalkan atau kedaluwarsa.',
+                    ]);
+                }
             }
         }
 
         // If user returns and role is already host (e.g. webhook processed first)
         if ($user->role === 'host') {
-            return redirect()->route('dashboard')->with('success', 'Pembayaran berhasil diproses! Selamat datang di dashboard Host.');
+            return Inertia::render('payment/Success', [
+                'status' => 'success',
+                'reference' => 'PAID',
+                'amount' => filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN)
+                    ? (int) Setting::get('preorder_price', 50000)
+                    : (int) Setting::get('package_price', 100000),
+                'paymentMethod' => 'Tripay',
+            ]);
         }
 
         // Otherwise redirect back to preorder/payment page with info
