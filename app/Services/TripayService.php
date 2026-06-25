@@ -19,10 +19,17 @@ class TripayService
 
     public function __construct()
     {
-        $this->apiKey = (string) config('services.tripay.api_key', '');
-        $this->privateKey = (string) config('services.tripay.private_key', '');
-        $this->merchantCode = (string) config('services.tripay.merchant_code', '');
-        $this->isProduction = (bool) config('services.tripay.is_production', false);
+        $this->apiKey = (string) (\App\Models\Setting::get('tripay_api_key') ?: config('services.tripay.api_key', ''));
+        $this->privateKey = (string) (\App\Models\Setting::get('tripay_private_key') ?: config('services.tripay.private_key', ''));
+        $this->merchantCode = (string) (\App\Models\Setting::get('tripay_merchant_code') ?: config('services.tripay.merchant_code', ''));
+
+        $envProduction = config('services.tripay.is_production');
+        $dbProduction = \App\Models\Setting::get('tripay_is_production');
+        if ($dbProduction !== null && $dbProduction !== '') {
+            $this->isProduction = filter_var($dbProduction, FILTER_VALIDATE_BOOLEAN);
+        } else {
+            $this->isProduction = filter_var($envProduction, FILTER_VALIDATE_BOOLEAN);
+        }
 
         $this->baseUrl = $this->isProduction
             ? 'https://tripay.co.id/api/'
@@ -65,6 +72,8 @@ class TripayService
                     'quantity' => 1,
                 ],
             ],
+            'callback_url' => route('payment.tripay.callback'),
+            'redirect_url' => route('payment.tripay.return'),
             'signature' => $signature,
         ];
 
@@ -118,6 +127,36 @@ class TripayService
             return null;
         } catch (\Exception $e) {
             Log::error('Exception saat mengambil detail transaksi Tripay: '.$e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * Get active payment channels from Tripay.
+     *
+     * @return array<int, array<string, mixed>>|null
+     */
+    public function getPaymentChannels(): ?array
+    {
+        try {
+            $response = Http::timeout(10)
+                ->connectTimeout(5)
+                ->withToken($this->apiKey)
+                ->get($this->baseUrl.'merchant/payment-channel');
+
+            if ($response->successful()) {
+                $responseData = $response->json();
+                if (isset($responseData['success']) && $responseData['success'] === true) {
+                    return $responseData['data'] ?? null;
+                }
+            }
+
+            Log::error('Gagal mengambil channel pembayaran Tripay: '.$response->body());
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Exception saat mengambil channel pembayaran Tripay: '.$e->getMessage());
 
             return null;
         }

@@ -106,7 +106,7 @@ const deleteQris = () => {
             </Link>
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900">Konfigurasi Harga Platform</h1>
-                <p class="text-sm text-slate-500">Atur nominal langganan (SaaS Utama & Preorder). Nominal di sini akan merubah nominal pembayaran Midtrans secara langsung.</p>
+                <p class="text-sm text-slate-500">Atur nominal langganan (SaaS Utama & Preorder). Nominal di sini akan merubah nominal pembayaran Tripay secara langsung.</p>
             </div>
         </div>
 
@@ -169,17 +169,17 @@ const deleteQris = () => {
                         <div class="grid grid-cols-2 gap-4">
                             <label 
                                 class="flex items-center gap-3 p-3.5 border rounded-xl cursor-pointer transition-all duration-200"
-                                :class="form.checkoutPaymentMethod === 'midtrans' ? 'border-sky-500 bg-sky-50/30' : 'border-slate-200 hover:bg-slate-50'"
+                                :class="form.checkoutPaymentMethod === 'tripay' ? 'border-sky-500 bg-sky-50/30' : 'border-slate-200 hover:bg-slate-50'"
                             >
                                 <input 
                                     type="radio" 
-                                    value="midtrans" 
+                                    value="tripay" 
                                     v-model="form.checkoutPaymentMethod"
                                     class="text-sky-500 focus:ring-sky-500"
                                 />
                                 <div>
-                                    <div class="text-sm font-bold text-slate-900">Midtrans Gateway</div>
-                                    <div class="text-[11px] text-slate-500">Otomatis via QRIS/E-Wallet/VA Midtrans</div>
+                                    <div class="text-sm font-bold text-slate-900">Tripay Gateway</div>
+                                    <div class="text-[11px] text-slate-500">Otomatis via QRIS/E-Wallet/VA Tripay</div>
                                 </div>
                             </label>
                             <label 
@@ -255,7 +255,7 @@ const deleteQris = () => {
                 <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl flex gap-3 text-amber-900 text-xs leading-relaxed">
                     <AlertTriangle class="size-5 shrink-0 text-amber-600" />
                     <div>
-                        <strong>Catatan Penting:</strong> Mengubah harga di atas akan langsung mengubah nominal checkout pembayaran digital Midtrans (API transaksi Sandbox & Production) serta tampilan informasi harga diskon pada Landing Page / Halaman Depan.
+                        <strong>Catatan Penting:</strong> Mengubah harga di atas akan langsung mengubah nominal checkout pembayaran digital Tripay (API transaksi Sandbox & Production) serta tampilan informasi harga diskon pada Landing Page / Halaman Depan.
                     </div>
                 </div>
 

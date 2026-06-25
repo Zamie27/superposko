@@ -12,10 +12,10 @@ const props = defineProps<{
         footerPhone: string;
         footerCopyright: string;
         socialInstagram?: string;
-        midtransMerchantId: string;
-        midtransClientKey: string;
-        midtransServerKey: string;
-        midtransIsProduction: boolean;
+        tripayApiKey: string;
+        tripayPrivateKey: string;
+        tripayMerchantCode: string;
+        tripayIsProduction: boolean;
         immichUrl: string;
         
         eventTitle?: string;
@@ -63,10 +63,10 @@ const form = useForm({
     footerPhone: '62' + displayPhone.value,
     footerCopyright: props.settings.footerCopyright,
     socialInstagram: props.settings.socialInstagram || 'superposko',
-    midtransMerchantId: props.settings.midtransMerchantId,
-    midtransClientKey: props.settings.midtransClientKey,
-    midtransServerKey: props.settings.midtransServerKey,
-    midtransIsProduction: props.settings.midtransIsProduction,
+    tripayApiKey: props.settings.tripayApiKey,
+    tripayPrivateKey: props.settings.tripayPrivateKey,
+    tripayMerchantCode: props.settings.tripayMerchantCode,
+    tripayIsProduction: props.settings.tripayIsProduction,
     immichUrl: props.settings.immichUrl,
     
     // Event Form fields
@@ -231,66 +231,64 @@ const submitForm = () => {
 
                 <!-- 2. API INTEGRATIONS TAB -->
                 <div v-if="activeTab === 'api'" class="space-y-6">
-                    <!-- Midtrans Integration -->
+                    <!-- Tripay Integration -->
                     <div class="space-y-4">
                         <h3 class="text-base font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-                            <Settings class="size-5 text-sky-500" /> Midtrans Snap Payment Gateway
+                            <Settings class="size-5 text-sky-500" /> Tripay Payment Gateway
                         </h3>
 
-                        <!-- Midtrans Instruction Callout -->
+                        <!-- Tripay Instruction Callout -->
                         <div class="p-4 rounded-xl bg-sky-50 border border-sky-100 text-xs text-sky-800 space-y-2">
-                            <p class="font-bold">Panduan Konfigurasi Midtrans Dashboard:</p>
-                            <p>Silakan masuk ke Dashboard Midtrans Anda dan atur Endpoint URLs berikut:</p>
+                            <p class="font-bold">Panduan Konfigurasi Tripay Merchant:</p>
+                            <p>Silakan masuk ke Dashboard Merchant Tripay Anda dan atur Callback URL berikut:</p>
                             <ul class="list-disc pl-4 space-y-1 font-mono text-[11px]">
-                                <li><strong>Finish Redirect URL:</strong> https://superposko.web.id/payment</li>
-                                <li><strong>Error Redirect URL:</strong> https://superposko.web.id/payment</li>
-                                <li><strong>Notification Webhook URL:</strong> https://superposko.web.id/payment/notification</li>
+                                <li><strong>Callback URL:</strong> https://superposko.web.id/payment/tripay/callback</li>
                             </ul>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="space-y-1.5">
-                                <label class="text-xs font-semibold text-slate-700">Merchant ID</label>
+                                <label class="text-xs font-semibold text-slate-700">Merchant Code</label>
                                 <input
-                                    v-model="form.midtransMerchantId"
+                                    v-model="form.tripayMerchantCode"
                                     type="text"
-                                    placeholder="GXXXXXXXXX"
+                                    placeholder="TXXXXX"
                                     class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
                                 />
-                                <p v-if="form.errors.midtransMerchantId" class="text-xs text-red-500">{{ form.errors.midtransMerchantId }}</p>
+                                <p v-if="form.errors.tripayMerchantCode" class="text-xs text-red-500">{{ form.errors.tripayMerchantCode }}</p>
                             </div>
 
                             <div class="space-y-1.5 flex flex-col justify-end pb-1.5">
                                 <label class="text-xs font-semibold text-slate-700 mb-2">Environment Mode (Production)</label>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" v-model="form.midtransIsProduction" class="sr-only peer">
+                                    <input type="checkbox" v-model="form.tripayIsProduction" class="sr-only peer">
                                     <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
-                                    <span class="ml-3 text-sm font-medium text-slate-600">{{ form.midtransIsProduction ? 'Production Mode (Real Payment)' : 'Sandbox Mode (Testing)' }}</span>
+                                    <span class="ml-3 text-sm font-medium text-slate-600">{{ form.tripayIsProduction ? 'Production Mode (Real Payment)' : 'Sandbox Mode (Testing)' }}</span>
                                 </label>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="space-y-1.5">
-                                <label class="text-xs font-semibold text-slate-700">Client Key</label>
+                                <label class="text-xs font-semibold text-slate-700">API Key</label>
                                 <input
-                                    v-model="form.midtransClientKey"
+                                    v-model="form.tripayApiKey"
                                     type="text"
-                                    placeholder="Mid-client-..."
+                                    placeholder="DEV-SDK-..."
                                     class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
                                 />
-                                <p v-if="form.errors.midtransClientKey" class="text-xs text-red-500">{{ form.errors.midtransClientKey }}</p>
+                                <p v-if="form.errors.tripayApiKey" class="text-xs text-red-500">{{ form.errors.tripayApiKey }}</p>
                             </div>
 
                             <div class="space-y-1.5">
-                                <label class="text-xs font-semibold text-slate-700">Server Key</label>
+                                <label class="text-xs font-semibold text-slate-700">Private Key</label>
                                 <input
-                                    v-model="form.midtransServerKey"
+                                    v-model="form.tripayPrivateKey"
                                     type="password"
-                                    placeholder="Mid-server-..."
+                                    placeholder="Private Key"
                                     class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
                                 />
-                                <p v-if="form.errors.midtransServerKey" class="text-xs text-red-500">{{ form.errors.midtransServerKey }}</p>
+                                <p v-if="form.errors.tripayPrivateKey" class="text-xs text-red-500">{{ form.errors.tripayPrivateKey }}</p>
                             </div>
                         </div>
                     </div>

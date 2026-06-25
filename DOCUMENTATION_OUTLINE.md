@@ -50,7 +50,7 @@ File ini merinci pemetaan rute, fitur, peran, dan modul yang ada di platform **S
 #### 📄 Panduan Memulai (Quick Start)
 *   **Registrasi & Login**: Pengguna dapat masuk menggunakan Google Sign-In atau email standar dengan verifikasi OTP.
 *   **Membeli/Mengaktifkan Posko**:
-    *   Setelah login, pengguna awal (Host) dapat membeli lisensi posko melalui **Sistem Pembayaran Midtrans** (Payment Gateway).
+    *   Setelah login, pengguna awal (Host) dapat membeli lisensi posko melalui **Sistem Pembayaran Tripay** (Payment Gateway).
     *   Setelah pembayaran sukses, modul posko akan aktif sepenuhnya dan Host bisa mengundang anggota.
 
 #### 📄 Paket Langganan Posko

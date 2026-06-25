@@ -8,8 +8,6 @@ import { useToast } from '@/composables/useToast';
 import { dashboard } from '@/routes';
 
 const props = defineProps<{
-    midtransClientKey: string;
-    isProduction: boolean;
     packagePrice: number;
     packageStrikePrice: number;
     checkoutPaymentMethod: string;
@@ -19,7 +17,18 @@ const props = defineProps<{
         rejection_reason: string | null;
         created_at: string;
     } | null;
+    tripayChannels?: Array<{
+        code: string;
+        name: string;
+        icon_url: string;
+        group: string;
+        active: boolean;
+    }>;
+    activeTripayUrl: string | null;
+    activeTripayRef: string | null;
 }>();
+
+const selectedMethod = ref<string>('');
 
 defineOptions({
     layout: {
@@ -69,25 +78,22 @@ const formattedStrikePrice = computed(() => {
     }).format(props.packageStrikePrice);
 });
 
-// Load Midtrans Snap JS dynamically
 onMounted(() => {
-    if (props.checkoutPaymentMethod === 'midtrans') {
-        const snapUrl = props.isProduction
-            ? 'https://app.midtrans.com/snap/snap.js'
-            : 'https://app.sandbox.midtrans.com/snap/snap.js';
-
-        if (!document.querySelector(`script[src="${snapUrl}"]`)) {
-            const script = document.createElement('script');
-            script.src = snapUrl;
-            script.setAttribute('data-client-key', props.midtransClientKey);
-            script.async = true;
-            document.head.appendChild(script);
-        }
-    } else {
+    if (props.checkoutPaymentMethod === 'qris_static') {
         // Init form with user data for QRIS
         const user = (window as any).Inertia?.page?.props?.auth?.user || {};
         qrisForm.name = user.name || '';
         qrisForm.email = user.email || '';
+    }
+
+    // Auto-select first active Tripay channel
+    if (props.tripayChannels && props.tripayChannels.length > 0) {
+        const hasQris = props.tripayChannels.find(c => c.code === 'QRIS');
+        if (hasQris) {
+            selectedMethod.value = 'QRIS';
+        } else {
+            selectedMethod.value = props.tripayChannels[0].code;
+        }
     }
 });
 
@@ -115,6 +121,8 @@ const submitQrisPayment = () => {
     });
 };
 
+
+
 const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -127,12 +135,54 @@ const getCookie = (name: string): string => {
 };
 
 const handlePayment = async () => {
+    if (props.activeTripayUrl) {
+        window.location.href = props.activeTripayUrl;
+        return;
+    }
+
+    if (!selectedMethod.value) {
+        toast.error('Silakan pilih metode pembayaran terlebih dahulu.');
+        return;
+    }
+
     isLoading.value = true;
-    transactionStatus.value = 'idle';
-    resultData.value = null;
 
     try {
-        const response = await fetch('/payment/token', {
+        const response = await fetch('/payment/tripay/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                method: selectedMethod.value
+            })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.message || 'Gagal menghubungi server.');
+        }
+
+        const res = await response.json();
+
+        if (res.success && res.data && res.data.checkout_url) {
+            window.location.href = res.data.checkout_url;
+        } else {
+            toast.error(res.message || 'Gagal mendapatkan tautan pembayaran Tripay.');
+        }
+    } catch (error: any) {
+        toast.error(error.message || 'Terjadi kesalahan sistem.');
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const handleCancelPayment = async () => {
+    isLoading.value = true;
+    try {
+        const response = await fetch('/payment/tripay/cancel', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -142,80 +192,15 @@ const handlePayment = async () => {
         });
 
         if (!response.ok) {
-            const errData = await response.json();
-
-            throw new Error(errData.message || 'Gagal menghubungi server.');
+            throw new Error('Gagal membatalkan transaksi.');
         }
 
-        const data = await response.json();
-
-        if (data.success && data.token) {
-            // @ts-expect-error - window.snap is injected by Midtrans Snap.js
-            if (window.snap) {
-                // @ts-expect-error - window.snap is injected by Midtrans Snap.js
-                window.snap.pay(data.token, {
-                    onSuccess: async function (result: any) {
-                        transactionStatus.value = 'pending';
-                        resultData.value = result;
-                        await verifyPayment(result.order_id);
-                    },
-                    onPending: function (result: any) {
-                        transactionStatus.value = 'pending';
-                        resultData.value = result;
-                    },
-                    onError: function (result: any) {
-                        transactionStatus.value = 'error';
-                        resultData.value = result;
-                    },
-                    onClose: function () {
-                        transactionStatus.value = 'closed';
-                    }
-                });
-            } else {
-                toast.error('Midtrans Snap SDK gagal dimuat. Coba refresh halaman.');
-            }
-        } else {
-            toast.error(data.message || 'Gagal mendapatkan token transaksi.');
-        }
+        toast.success('Transaksi sebelumnya dibatalkan.');
+        router.reload();
     } catch (error: any) {
         toast.error(error.message || 'Terjadi kesalahan sistem.');
     } finally {
         isLoading.value = false;
-    }
-};
-
-const verifyPayment = async (orderId: string) => {
-    try {
-        const response = await fetch('/payment/success', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ order_id: orderId }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-            transactionStatus.value = 'success';
-            successMessage.value = data.message;
-            
-            // Start countdown to redirect
-            const interval = setInterval(() => {
-                countdown.value--;
-
-                if (countdown.value <= 0) {
-                    clearInterval(interval);
-                    router.visit('/dashboard');
-                }
-            }, 1000);
-        } else {
-            transactionStatus.value = 'error';
-        }
-    } catch {
-        transactionStatus.value = 'error';
     }
 };
 
@@ -303,7 +288,7 @@ const features = [
             </div>
 
             <!-- Main Layout Split Grid -->
-            <div v-if="checkoutPaymentMethod === 'midtrans' || !existingRequest || existingRequest.status === 'rejected'" class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+            <div v-if="checkoutPaymentMethod === 'tripay' || !existingRequest || existingRequest.status === 'rejected'" class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
                 
                 <!-- Left Details / Features list (7 cols on large screen) -->
                 <div class="md:col-span-7 space-y-6">
@@ -334,8 +319,8 @@ const features = [
 
                 <!-- Right Card / Pricing & Checkout (5 cols on large screen) -->
                 <div class="md:col-span-5 space-y-6">
-                    <!-- Midtrans Flow -->
-                    <div v-if="checkoutPaymentMethod === 'midtrans'" class="bg-white rounded-2xl border border-slate-200/85 p-6 shadow-sm relative overflow-hidden flex flex-col">
+                    <!-- Tripay Flow -->
+                    <div v-if="checkoutPaymentMethod === 'tripay'" class="bg-white rounded-2xl border border-slate-200/85 p-6 shadow-sm relative overflow-hidden flex flex-col space-y-6">
                         <!-- Premium gradient corner accent -->
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-sky-400/20 to-transparent pointer-events-none rounded-bl-full"></div>
 
@@ -345,8 +330,49 @@ const features = [
                             <p class="text-xs text-slate-400">1x Aktivasi untuk 1 Kelompok KKN</p>
                         </div>
 
+                        <!-- Pending Payment Alert -->
+                        <div v-if="activeTripayUrl" class="bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 leading-relaxed flex gap-2.5">
+                            <AlertTriangle class="size-4 shrink-0 text-amber-600 mt-0.5" />
+                            <div>
+                                <span class="font-bold">Tagihan Belum Dibayar:</span> Anda memiliki transaksi Tripay yang sedang aktif (Ref: <code class="font-mono bg-amber-100 px-1 py-0.5 rounded text-[10px]">{{ activeTripayRef }}</code>). Silakan selesaikan pembayaran Anda.
+                            </div>
+                        </div>
+
+                        <!-- Payment Method Selector -->
+                        <div class="space-y-3" :class="{ 'opacity-65 pointer-events-none': activeTripayUrl }">
+                            <label class="text-xs font-bold text-slate-700 block">Pilih Metode Pembayaran:</label>
+                            <div v-if="tripayChannels && tripayChannels.length > 0" class="space-y-2.5">
+                                <button
+                                    v-for="channel in tripayChannels"
+                                    :key="channel.code"
+                                    type="button"
+                                    @click="selectedMethod = channel.code"
+                                    :class="[
+                                        'w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-200',
+                                        selectedMethod === channel.code
+                                            ? 'border-sky-500 bg-sky-50/40 ring-1 ring-sky-500 scale-[1.01]'
+                                            : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
+                                    ]"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <img :src="channel.icon_url" :alt="channel.name" class="h-5 w-auto object-contain bg-white rounded p-0.5 border" />
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-bold text-slate-900">{{ channel.name }}</span>
+                                            <span class="text-[10px] text-slate-400">{{ channel.group }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="size-4.5 rounded-full border flex items-center justify-center" :class="selectedMethod === channel.code ? 'border-sky-500 bg-sky-500 text-white' : 'border-slate-300'">
+                                        <Check v-if="selectedMethod === channel.code" class="size-3 font-bold" />
+                                    </div>
+                                </button>
+                            </div>
+                            <div v-else class="text-xs text-slate-400 py-2">
+                                Tidak ada metode pembayaran Tripay yang aktif.
+                            </div>
+                        </div>
+
                         <!-- Pricing Display -->
-                        <div class="py-6 space-y-2">
+                        <div class="py-4 border-t border-b border-slate-100 space-y-2">
                             <div class="flex flex-col gap-1">
                                 <span class="text-sm text-slate-400 line-through font-medium">{{ formattedStrikePrice }}</span>
                                 <div class="flex items-baseline gap-2">
@@ -361,17 +387,28 @@ const features = [
                         <div class="space-y-3">
                             <Button
                                 @click="handlePayment"
-                                :disabled="isLoading || transactionStatus === 'success'"
+                                :disabled="isLoading || transactionStatus === 'success' || (!selectedMethod && !activeTripayUrl)"
                                 class="w-full bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white font-bold py-4 rounded-xl transition duration-200 flex items-center justify-center gap-2.5 shadow-sm text-sm"
                             >
                                 <Spinner v-if="isLoading" class="size-4" />
                                 <CreditCard v-else class="size-4" />
-                                Bayar Sekarang
+                                {{ activeTripayUrl ? 'Lanjutkan Pembayaran' : 'Bayar Sekarang' }}
                             </Button>
+                            
+                            <button
+                                v-if="activeTripayUrl"
+                                @click="handleCancelPayment"
+                                :disabled="isLoading"
+                                type="button"
+                                class="w-full text-center text-xs font-semibold text-red-500 hover:text-red-600 transition py-1 hover:underline mt-2 flex items-center justify-center gap-1.5"
+                            >
+                                <Spinner v-if="isLoading" class="size-3" />
+                                Batalkan & Ganti Metode Pembayaran
+                            </button>
                             
                             <div class="flex items-center justify-center gap-1.5 text-[10px] text-slate-400">
                                 <ShieldCheck class="size-3.5 text-slate-400" />
-                                Transaksi aman & terenkripsi oleh Midtrans
+                                Transaksi aman & terenkripsi oleh Tripay
                             </div>
                         </div>
                     </div>
@@ -494,45 +531,6 @@ const features = [
                         </form>
                     </div>
 
-                    <!-- Transaction Feedback States -->
-                    <div v-if="checkoutPaymentMethod === 'midtrans' && transactionStatus !== 'idle'" class="rounded-xl border p-4 space-y-3.5 shadow-sm animate-fade-in" :class="{
-                        'border-green-200 bg-green-50/50 text-green-950': transactionStatus === 'success',
-                        'border-amber-200 bg-amber-50/50 text-amber-950': transactionStatus === 'pending',
-                        'border-red-200 bg-red-50/50 text-red-950': transactionStatus === 'error',
-                        'border-slate-200 bg-slate-50/50 text-slate-950': transactionStatus === 'closed'
-                    }">
-                        <div class="flex items-center gap-2.5 font-bold text-sm">
-                            <CheckCircle2 v-if="transactionStatus === 'success'" class="size-5 text-green-600" />
-                            <AlertTriangle v-else-if="transactionStatus === 'pending'" class="size-5 text-amber-600" />
-                            <XCircle v-else-if="transactionStatus === 'error'" class="size-5 text-red-600" />
-                            <AlertTriangle v-else class="size-5 text-slate-600" />
-
-                            <span v-if="transactionStatus === 'success'">Pembayaran Berhasil!</span>
-                            <span v-else-if="transactionStatus === 'pending'">Menunggu Pembayaran</span>
-                            <span v-else-if="transactionStatus === 'error'">Pembayaran Gagal</span>
-                            <span v-else>Checkout Ditutup</span>
-                        </div>
-
-                        <p class="text-xs leading-relaxed text-slate-600">
-                            <span v-if="transactionStatus === 'success'">
-                                {{ successMessage || 'Terima kasih! Pembayaran Anda telah terkonfirmasi secara aman.' }} 
-                                <br>
-                                <span class="font-bold text-sky-700 flex items-center gap-1 mt-2">
-                                    Mengarahkan Anda ke Dashboard dalam {{ countdown }} detik... 
-                                    <ArrowRight class="size-3.5 " />
-                                </span>
-                            </span>
-                            <span v-else-if="transactionStatus === 'pending'">
-                                Selesaikan transaksi Anda melalui portal pembayaran Midtrans yang telah terbuka.
-                            </span>
-                            <span v-else-if="transactionStatus === 'error'">
-                                Terjadi kendala saat memproses atau memverifikasi transaksi. Silakan coba klik Bayar Sekarang kembali.
-                            </span>
-                            <span v-else>
-                                Anda telah menutup jendela checkout sebelum menyelesaikan pembayaran. Klik 'Bayar Sekarang' untuk mencoba kembali.
-                            </span>
-                        </p>
-                    </div>
                 </div>
 
             </div>

@@ -9,11 +9,20 @@ import { dashboard } from '@/routes';
 const props = defineProps<{
     preorderPrice: number;
     preorderStrikePrice: number;
-    staticQrisUrl: string;
+    activeTripayUrl: string | null;
+    activeTripayRef: string | null;
+    checkoutPaymentMethod: string;
+    staticQrisUrl: string | null;
     existingPreorder: {
         status: string;
         created_at: string;
     } | null;
+    tripayChannels?: Array<{
+        code: string;
+        name: string;
+        icon_url: string;
+        group: string;
+    }>;
 }>();
 
 defineOptions({
@@ -41,6 +50,14 @@ const form = useForm({
     payment_proof: null as File | null,
 });
 
+const selectedMethod = ref<string>('');
+const isLoading = ref(false);
+const toast = ref<any>(null); // Fallback for alerts or toast
+
+// Import toast hook
+import { useToast } from '@/composables/useToast';
+const mainToast = useToast();
+
 const formattedPrice = computed(() => {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -65,12 +82,24 @@ const initForm = () => {
 };
 
 onMounted(() => {
-    initForm();
+    if (props.checkoutPaymentMethod === 'qris_static') {
+        initForm();
+        selectedMethod.value = 'qris_static';
+    } else {
+        // Auto-select first active Tripay channel
+        if (props.tripayChannels && props.tripayChannels.length > 0) {
+            const hasQris = props.tripayChannels.find(c => c.code === 'QRIS');
+            if (hasQris) {
+                selectedMethod.value = 'QRIS';
+            } else {
+                selectedMethod.value = props.tripayChannels[0].code;
+            }
+        }
+    }
 });
 
 const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
-
     if (target.files && target.files.length > 0) {
         const file = target.files[0];
         form.payment_proof = file;
@@ -82,14 +111,118 @@ const triggerFileSelect = () => {
     fileInput.value?.click();
 };
 
-const submitPreorder = () => {
+const submitQrisPreorder = () => {
+    if (!form.name || !form.email || !form.whatsapp) {
+        mainToast.error('Silakan lengkapi formulir pendaftaran terlebih dahulu.');
+        return;
+    }
+    if (!form.payment_proof) {
+        mainToast.error('Silakan unggah bukti transfer terlebih dahulu.');
+        return;
+    }
+
     form.post('/preorder', {
         forceFormData: true,
         onSuccess: () => {
             form.reset('whatsapp', 'payment_proof');
             previewUrl.value = null;
+            mainToast.success('Form Preorder berhasil dikirim! Silakan tunggu konfirmasi Admin.');
         },
     });
+};
+
+const getCookie = (name: string): string => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+
+    if (parts.length === 2) {
+        return decodeURIComponent(parts.pop()?.split(';').shift() || '');
+    }
+
+    return '';
+};
+
+const handlePayment = async () => {
+    if (props.activeTripayUrl) {
+        window.location.href = props.activeTripayUrl;
+        return;
+    }
+
+    if (!selectedMethod.value) {
+        mainToast.error('Silakan pilih metode pembayaran terlebih dahulu.');
+        return;
+    }
+
+    isLoading.value = true;
+
+    try {
+        const response = await fetch('/payment/tripay/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                type: 'preorder',
+                method: selectedMethod.value
+            })
+        });
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.message || 'Gagal menghubungi server.');
+        }
+
+        const res = await response.json();
+
+        if (res.success && res.data && res.data.checkout_url) {
+            window.location.href = res.data.checkout_url;
+        } else {
+            mainToast.error(res.message || 'Gagal mendapatkan tautan pembayaran Tripay.');
+        }
+    } catch (error: any) {
+        mainToast.error(error.message || 'Terjadi kesalahan sistem.');
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const handleSubmit = () => {
+    if (props.checkoutPaymentMethod === 'qris_static') {
+        submitQrisPreorder();
+    } else {
+        handlePayment();
+    }
+};
+
+const handleCancelPayment = async () => {
+    isLoading.value = true;
+    try {
+        const response = await fetch('/payment/tripay/cancel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                type: 'preorder'
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Gagal membatalkan transaksi.');
+        }
+
+        mainToast.success('Transaksi sebelumnya dibatalkan.');
+        // Clear cached state for fast UI feedback
+        window.location.reload();
+    } catch (error: any) {
+        mainToast.error(error.message || 'Terjadi kesalahan sistem.');
+    } finally {
+        isLoading.value = false;
+    }
 };
 
 const features = [
@@ -208,7 +341,7 @@ const features = [
                     </div>
                 </div>
 
-                <!-- Right Side: Pendaftaran & Pembayaran QRIS Form (5 cols) -->
+                <!-- Right Side: Pendaftaran & Pembayaran Tripay Form (5 cols) -->
                 <div class="md:col-span-5 space-y-6">
                     <div class="bg-white rounded-2xl border border-slate-200/85 p-6 shadow-sm relative overflow-hidden flex flex-col space-y-6">
                         <!-- Premium gradient corner accent -->
@@ -216,8 +349,16 @@ const features = [
 
                         <div class="space-y-1 pb-4 border-b border-slate-100">
                             <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Preorder Promo</h3>
-                            <h4 class="text-xl font-extrabold text-slate-900">Scan QRIS & Daftar</h4>
-                            <p class="text-xs text-slate-400">Pindai kode QRIS e-wallet & unggah bukti transfer</p>
+                            <h4 class="text-xl font-extrabold text-slate-900">Daftar & Bayar</h4>
+                            <p class="text-xs text-slate-400">Isi formulir pendaftaran dan selesaikan pembayaran aman via Tripay</p>
+                        </div>
+
+                        <!-- Pending Payment Alert -->
+                        <div v-if="activeTripayUrl" class="bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 leading-relaxed flex gap-2.5">
+                            <AlertCircle class="size-4 shrink-0 text-amber-600 mt-0.5" />
+                            <div>
+                                <span class="font-bold">Tagihan Belum Dibayar:</span> Anda memiliki transaksi Tripay yang sedang aktif (Ref: <code class="font-mono bg-amber-100 px-1 py-0.5 rounded text-[10px]">{{ activeTripayRef }}</code>). Silakan selesaikan pembayaran Anda.
+                            </div>
                         </div>
 
                         <!-- Pricing Display -->
@@ -231,99 +372,152 @@ const features = [
                             </div>
                         </div>
 
-                        <!-- QRIS Code Container -->
-                        <div class="rounded-xl border p-2 bg-slate-50 flex flex-col items-center justify-center space-y-2">
-                            <img :src="props.staticQrisUrl" alt="QRIS SuperPosko" class="max-w-[180px] h-auto rounded-lg shadow-sm border bg-white" />
-                        </div>
-
                         <!-- Submission Fields -->
-                        <form @submit.prevent="submitPreorder" class="space-y-4 pt-2">
-                            <!-- Name -->
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                                    <User class="size-3.5 text-slate-400" /> Nama Lengkap
-                                </label>
-                                <input
-                                    v-model="form.name"
-                                    type="text"
-                                    placeholder="Nama Lengkap"
-                                    class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                    required
-                                />
-                                <p v-if="form.errors.name" class="text-[11px] text-red-500">{{ form.errors.name }}</p>
-                            </div>
-
-                            <!-- Email -->
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                                    <Mail class="size-3.5 text-slate-400" /> Alamat Email
-                                </label>
-                                <input
-                                    v-model="form.email"
-                                    type="email"
-                                    placeholder="nama@email.com"
-                                    class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                    required
-                                />
-                                <p v-if="form.errors.email" class="text-[11px] text-red-500">{{ form.errors.email }}</p>
-                            </div>
-
-                            <!-- WhatsApp -->
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                                    <Phone class="size-3.5 text-slate-400" /> Nomor WhatsApp
-                                </label>
-                                <input
-                                    v-model="form.whatsapp"
-                                    type="text"
-                                    placeholder="Contoh: 08123456789"
-                                    class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                    required
-                                />
-                                <p v-if="form.errors.whatsapp" class="text-[11px] text-red-500">{{ form.errors.whatsapp }}</p>
-                            </div>
-
-                            <!-- Payment Proof -->
-                            <div class="space-y-2">
-                                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                                    <Upload class="size-3.5 text-slate-400" /> Bukti Transfer (Screenshot)
-                                </label>
-                                
-                                <div 
-                                    @click="triggerFileSelect"
-                                    class="border border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:bg-slate-50/50 transition flex flex-col items-center justify-center gap-2"
-                                >
-                                    <input 
-                                        ref="fileInput" 
-                                        type="file" 
-                                        class="hidden" 
-                                        accept="image/*"
-                                        @change="handleFileChange"
-                                    />
-                                    
-                                    <template v-if="!previewUrl">
-                                        <Upload class="size-6 text-slate-400" />
-                                        <span class="text-xs font-medium text-slate-600">Klik untuk unggah gambar</span>
-                                        <span class="text-[9px] text-slate-400">PNG, JPG, JPEG (Maks. 2MB)</span>
-                                    </template>
-                                    <template v-else>
-                                        <img :src="previewUrl" alt="Bukti Transfer" class="max-h-24 object-contain rounded-lg border shadow-sm" />
-                                        <span class="text-[10px] text-sky-600 font-semibold underline">Ganti Gambar</span>
-                                    </template>
+                        <form @submit.prevent="handleSubmit" class="space-y-4 pt-2">
+                            <!-- Static QRIS Manual Flow (only if checkoutPaymentMethod is qris_static) -->
+                            <template v-if="checkoutPaymentMethod === 'qris_static'">
+                                <!-- QRIS Code Container -->
+                                <div class="rounded-xl border p-2 bg-slate-50 flex flex-col items-center justify-center space-y-2">
+                                    <img :src="staticQrisUrl || '/images/qris.jpg'" alt="QRIS SuperPosko" class="max-w-[180px] h-auto rounded-lg shadow-sm border bg-white" />
                                 </div>
-                                <p v-if="form.errors.payment_proof" class="text-[11px] text-red-500">{{ form.errors.payment_proof }}</p>
-                            </div>
+
+                                <!-- Name -->
+                                <div class="space-y-1.5" :class="{ 'opacity-65 pointer-events-none': activeTripayUrl }">
+                                    <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                        <User class="size-3.5 text-slate-400" /> Nama Lengkap
+                                    </label>
+                                    <input
+                                        v-model="form.name"
+                                        type="text"
+                                        placeholder="Nama Lengkap"
+                                        class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                        required
+                                        :disabled="!!activeTripayUrl"
+                                    />
+                                    <p v-if="form.errors.name" class="text-[11px] text-red-500">{{ form.errors.name }}</p>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="space-y-1.5" :class="{ 'opacity-65 pointer-events-none': activeTripayUrl }">
+                                    <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                        <Mail class="size-3.5 text-slate-400" /> Alamat Email
+                                    </label>
+                                    <input
+                                        v-model="form.email"
+                                        type="email"
+                                        placeholder="nama@email.com"
+                                        class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                        required
+                                        :disabled="!!activeTripayUrl"
+                                    />
+                                    <p v-if="form.errors.email" class="text-[11px] text-red-500">{{ form.errors.email }}</p>
+                                </div>
+
+                                <!-- WhatsApp -->
+                                <div class="space-y-1.5" :class="{ 'opacity-65 pointer-events-none': activeTripayUrl }">
+                                    <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                        <Phone class="size-3.5 text-slate-400" /> Nomor WhatsApp
+                                    </label>
+                                    <input
+                                        v-model="form.whatsapp"
+                                        type="text"
+                                        placeholder="Contoh: 08123456789"
+                                        class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                        required
+                                        :disabled="!!activeTripayUrl"
+                                    />
+                                    <p v-if="form.errors.whatsapp" class="text-[11px] text-red-500">{{ form.errors.whatsapp }}</p>
+                                </div>
+
+                                <!-- Payment Proof -->
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                        <Upload class="size-3.5 text-slate-400" /> Bukti Transfer (Screenshot)
+                                    </label>
+                                    
+                                    <div 
+                                        @click="triggerFileSelect"
+                                        class="border border-dashed border-slate-200 rounded-xl p-4 text-center cursor-pointer hover:bg-slate-50/50 transition flex flex-col items-center justify-center gap-2"
+                                    >
+                                        <input 
+                                            ref="fileInput" 
+                                            type="file" 
+                                            class="hidden" 
+                                            accept="image/*"
+                                            @change="handleFileChange"
+                                        />
+                                        
+                                        <template v-if="!previewUrl">
+                                            <Upload class="size-6 text-slate-400" />
+                                            <span class="text-xs font-medium text-slate-600">Klik untuk unggah gambar</span>
+                                            <span class="text-[9px] text-slate-400">PNG, JPG, JPEG (Maks. 2MB)</span>
+                                        </template>
+                                        <template v-else>
+                                            <img :src="previewUrl" alt="Bukti Transfer" class="max-h-24 object-contain rounded-lg border shadow-sm" />
+                                            <span class="text-[10px] text-sky-600 font-semibold underline">Ganti Gambar</span>
+                                        </template>
+                                    </div>
+                                    <p v-if="form.errors.payment_proof" class="text-[11px] text-red-500">{{ form.errors.payment_proof }}</p>
+                                </div>
+                            </template>
+
+                            <!-- Tripay Flow (only if checkoutPaymentMethod is tripay) -->
+                            <template v-else>
+                                <!-- Payment Method Selector -->
+                                <div class="space-y-3" :class="{ 'opacity-65 pointer-events-none': activeTripayUrl }">
+                                    <label class="text-xs font-bold text-slate-700 block">Pilih Metode Pembayaran:</label>
+                                    <div v-if="tripayChannels && tripayChannels.length > 0" class="space-y-2.5">
+                                        <button
+                                            v-for="channel in tripayChannels"
+                                            :key="channel.code"
+                                            type="button"
+                                            @click="selectedMethod = channel.code"
+                                            :class="[
+                                                'w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-200',
+                                                selectedMethod === channel.code
+                                                    ? 'border-sky-500 bg-sky-50/40 ring-1 ring-sky-500 scale-[1.01]'
+                                                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
+                                            ]"
+                                        >
+                                            <div class="flex items-center gap-3">
+                                                <img :src="channel.icon_url" :alt="channel.name" class="h-5 w-auto object-contain bg-white rounded p-0.5 border" />
+                                                <div class="flex flex-col">
+                                                    <span class="text-xs font-bold text-slate-900">{{ channel.name }}</span>
+                                                    <span class="text-[10px] text-slate-400">{{ channel.group }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="size-4.5 rounded-full border flex items-center justify-center" :class="selectedMethod === channel.code ? 'border-sky-500 bg-sky-500 text-white' : 'border-slate-300'">
+                                                <Check v-if="selectedMethod === channel.code" class="size-3 font-bold" />
+                                            </div>
+                                        </button>
+                                    </div>
+                                    <div v-else class="text-xs text-slate-400 py-2">
+                                        Tidak ada metode pembayaran Tripay yang aktif.
+                                    </div>
+                                </div>
+                            </template>
 
                             <!-- Submit Button -->
-                            <div class="pt-2">
+                            <div class="pt-2 space-y-3">
                                 <Button
                                     type="submit"
-                                    :disabled="form.processing"
+                                    :disabled="isLoading || form.processing || (!selectedMethod && !activeTripayUrl)"
                                     class="w-full bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white font-bold py-3.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-sm text-sm"
                                 >
-                                    <Spinner v-if="form.processing" class="size-4" />
-                                    Kirim Formulir Preorder
+                                    <Spinner v-if="isLoading || form.processing" class="size-4" />
+                                    <ShieldCheck v-else class="size-4" />
+                                    {{ activeTripayUrl ? 'Lanjutkan Pembayaran' : (checkoutPaymentMethod === 'qris_static' ? 'Kirim Pengajuan Preorder' : 'Bayar Sekarang') }}
                                 </Button>
+
+                                <button
+                                    v-if="activeTripayUrl"
+                                    @click="handleCancelPayment"
+                                    :disabled="isLoading"
+                                    type="button"
+                                    class="w-full text-center text-xs font-semibold text-red-500 hover:text-red-600 transition py-1 hover:underline mt-1"
+                                >
+                                    Batalkan & Ganti Metode Pembayaran
+                                </button>
                             </div>
                         </form>
                     </div>

@@ -123,8 +123,7 @@ Route::get('laporan/buat', [ReportController::class, 'create'])->name('reports.c
 Route::post('laporan/buat', [ReportController::class, 'store'])->name('reports.store');
 Route::post('bug-report', [BugReportController::class, 'store'])->name('bug-report.store');
 
-// Midtrans & Tripay Payment Webhook Notification
-Route::match(['get', 'post'], 'payment/notification', [PaymentController::class, 'handleNotification'])->name('payment.notification');
+// Tripay Payment Webhook Notification
 Route::post('payment/tripay/callback', [\App\Http\Controllers\TripayController::class, 'handleCallback'])->name('payment.tripay.callback');
 
 Route::middleware(['auth'])->group(function () {
@@ -149,6 +148,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('host.dashboard');
     })->name('dashboard');
 
+    Route::get('payment/tripay/return', [\App\Http\Controllers\TripayController::class, 'handleReturn'])->name('payment.tripay.return');
+
     // User Group (restricted to role 'user' only via user.only middleware)
     Route::middleware(['user.only'])->group(function () {
         // Preorder
@@ -157,12 +158,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Beli Langganan (Subscription Checkout)
         Route::get('payment', [PaymentController::class, 'showCheckoutPage'])->name('payment.index');
-        Route::post('payment/token', [PaymentController::class, 'createSnapToken'])->name('payment.token_user');
-        Route::post('payment/success', [PaymentController::class, 'handlePaymentSuccess'])->name('payment.success');
         Route::post('payment/qris', [SubscriptionRequestController::class, 'store'])->name('payment.qris.store');
         
         // Tripay Payment Initation
         Route::post('payment/tripay/create', [\App\Http\Controllers\TripayController::class, 'createPayment'])->name('payment.tripay.create');
+        Route::post('payment/tripay/cancel', [\App\Http\Controllers\TripayController::class, 'cancelCurrentPayment'])->name('payment.tripay.cancel');
     });
 
     // Host Group (under host.protect middleware to restrict user-role modifications)
@@ -314,9 +314,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('bug-reports', [AdminBugReportController::class, 'index'])->name('bug-reports.index');
         Route::put('bug-reports/{bugReport}/resolve', [AdminBugReportController::class, 'resolve'])->name('bug-reports.resolve');
 
-        // Test Payment
+        // Test Payment Preview
         Route::get('payment/test', [PaymentController::class, 'showTestPage'])->name('payment.test');
-        Route::post('payment/test/token', [PaymentController::class, 'createSnapToken'])->name('payment.token');
     });
 });
 

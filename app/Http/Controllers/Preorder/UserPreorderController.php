@@ -28,6 +28,32 @@ class UserPreorderController extends Controller
         // Check if user already submitted a preorder
         $existingPreorder = Preorder::where('user_id', $user->id)->first();
 
+        // Check if there is a cached unpaid Tripay preorder transaction
+        $activeTripayUrl = null;
+        $activeTripayRef = null;
+        
+        $cachedRef = \Illuminate\Support\Facades\Cache::get('user_preorder_tripay_ref_' . $user->id);
+        $cachedUrl = \Illuminate\Support\Facades\Cache::get('user_preorder_tripay_url_' . $user->id);
+        
+        $tripayService = app(\App\Services\TripayService::class);
+        
+        if ($cachedRef && $cachedUrl) {
+            $detail = $tripayService->getTransactionDetail($cachedRef);
+            if ($detail && isset($detail['status']) && strtoupper($detail['status']) === 'UNPAID') {
+                $activeTripayUrl = $cachedUrl;
+                $activeTripayRef = $cachedRef;
+            } else {
+                \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_ref_' . $user->id);
+                \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_url_' . $user->id);
+            }
+        }
+
+        // Fetch active payment channels dynamically from Tripay and filter out DANA
+        $channels = collect($tripayService->getPaymentChannels() ?? [])
+            ->reject(fn($channel) => ($channel['code'] ?? '') === 'DANA')
+            ->values()
+            ->toArray();
+
         return Inertia::render('preorder/Index', [
             'preorderPrice' => (int) Setting::get('preorder_price', 50000),
             'preorderStrikePrice' => (int) Setting::get('preorder_strike_price', 100000),
@@ -36,6 +62,10 @@ class UserPreorderController extends Controller
                 'status' => $existingPreorder->status,
                 'created_at' => $existingPreorder->created_at?->toIso8601String(),
             ] : null,
+            'tripayChannels' => $channels,
+            'activeTripayUrl' => $activeTripayUrl,
+            'activeTripayRef' => $activeTripayRef,
+            'checkoutPaymentMethod' => Setting::get('checkout_payment_method', 'tripay'),
         ]);
     }
 

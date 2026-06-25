@@ -19,7 +19,7 @@ class SubscriptionRequestController extends Controller
         $user = $request->user();
 
         // Only allow QRIS payment method
-        if (Setting::get('checkout_payment_method', 'midtrans') !== 'qris_static') {
+        if (Setting::get('checkout_payment_method', 'tripay') !== 'qris_static') {
             return redirect()->back()->with('error', 'Metode pembayaran QRIS tidak aktif.');
         }
 

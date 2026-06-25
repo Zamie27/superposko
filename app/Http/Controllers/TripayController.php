@@ -19,38 +19,140 @@ class TripayController extends Controller
      */
     public function createPayment(Request $request): JsonResponse
     {
-        if (filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN)) {
+        $type = $request->input('type', 'subscription'); // 'subscription' or 'preorder'
+
+        if ($type === 'subscription' && filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Pembayaran dinonaktifkan karena preorder sedang aktif.',
             ], 403);
         }
 
+        if ($type === 'preorder' && !filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Preorder dinonaktifkan karena SaaS utama sedang aktif.',
+            ], 403);
+        }
+
         $user = $request->user();
-        $amount = (int) Setting::get('package_price', 100000);
-        $merchantRef = 'SUB-' . $user->id . '-' . time();
+
+        if ($type === 'preorder') {
+            $validated = $request->validate([
+                'name' => ['nullable', 'string', 'max:255'],
+                'email' => ['nullable', 'email', 'max:255'],
+                'whatsapp' => ['nullable', 'string', 'max:20'],
+                'method' => ['nullable', 'string'],
+            ]);
+            $customerName = !empty($validated['name']) ? $validated['name'] : $user->name;
+            $customerEmail = !empty($validated['email']) ? $validated['email'] : $user->email;
+            $customerWhatsapp = !empty($validated['whatsapp']) ? $validated['whatsapp'] : ($user->phone ?? '0000000000');
+
+            $amount = (int) Setting::get('preorder_price', 50000);
+            $merchantRef = 'PRE-' . $user->id . '-' . time();
+        } else {
+            $amount = (int) Setting::get('package_price', 100000);
+            $merchantRef = 'SUB-' . $user->id . '-' . time();
+        }
+
+        // Get active payment channels from Tripay
+        $channels = $this->tripayService->getPaymentChannels();
+
+        if (empty($channels)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil channel pembayaran aktif dari Tripay. Pastikan API key dan status merchant di Tripay sudah benar.',
+            ], 500);
+        }
+
+        // Extract active channel codes and filter out DANA
+        $activeCodes = array_map(function ($c) {
+            return $c['code'] ?? '';
+        }, $channels);
+        $activeCodes = array_values(array_filter($activeCodes, fn($code) => $code && $code !== 'DANA'));
+
+        // Determine method: check request, default to QRIS, or fallback to the first active channel
+        $method = $request->input('method');
+        if (empty($method)) {
+            if (in_array('QRIS', $activeCodes)) {
+                $method = 'QRIS';
+            } else {
+                $method = $activeCodes[0] ?? 'QRIS';
+            }
+        }
 
         $params = [
-            'method' => $request->input('method', 'QRIS'),
+            'method' => $method,
             'merchant_ref' => $merchantRef,
             'amount' => $amount,
-            'customer_name' => $user->name,
-            'customer_email' => $user->email,
+            'customer_name' => $type === 'preorder' ? $customerName : $user->name,
+            'customer_email' => $type === 'preorder' ? $customerEmail : $user->email,
         ];
 
         $transaction = $this->tripayService->createTransaction($params);
 
         if ($transaction) {
+            if ($type === 'preorder') {
+                // Cache the preorder reference and url
+                \Illuminate\Support\Facades\Cache::put('user_preorder_tripay_ref_' . $user->id, $transaction['reference'], now()->addHours(24));
+                \Illuminate\Support\Facades\Cache::put('user_preorder_tripay_url_' . $user->id, $transaction['checkout_url'], now()->addHours(24));
+
+                // Save preorder to database with status 'pending'
+                \App\Models\Preorder::updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'name' => $customerName,
+                        'email' => $customerEmail,
+                        'whatsapp' => $customerWhatsapp,
+                        'payment_proof' => 'tripay',
+                        'status' => 'pending',
+                    ]
+                );
+            } else {
+                // Cache the subscription reference and url
+                \Illuminate\Support\Facades\Cache::put('user_tripay_ref_' . $user->id, $transaction['reference'], now()->addHours(24));
+                \Illuminate\Support\Facades\Cache::put('user_tripay_url_' . $user->id, $transaction['checkout_url'], now()->addHours(24));
+            }
+
             return response()->json([
                 'success' => true,
                 'data' => $transaction,
             ]);
         }
 
+        $activeChannelsStr = implode(', ', $activeCodes);
         return response()->json([
             'success' => false,
-            'message' => 'Gagal membuat pembayaran ke Tripay.',
+            'message' => "Gagal membuat pembayaran ke Tripay menggunakan {$method}. Channel aktif Anda di Tripay: [{$activeChannelsStr}].",
         ], 500);
+    }
+
+    /**
+     * Cancel/clear current active cached payment.
+     */
+    public function cancelCurrentPayment(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $type = $request->input('type', 'subscription');
+
+        if ($type === 'preorder') {
+            \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_ref_' . $user->id);
+            \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_url_' . $user->id);
+
+            // Delete pending preorder if it was paid via tripay to allow choosing again
+            $preorder = \App\Models\Preorder::where('user_id', $user->id)->first();
+            if ($preorder && $preorder->status === 'pending' && $preorder->payment_proof === 'tripay') {
+                $preorder->delete();
+            }
+        } else {
+            \Illuminate\Support\Facades\Cache::forget('user_tripay_ref_' . $user->id);
+            \Illuminate\Support\Facades\Cache::forget('user_tripay_url_' . $user->id);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transaksi sebelumnya berhasil dibatalkan.',
+        ]);
     }
 
     /**
@@ -98,28 +200,65 @@ class TripayController extends Controller
         // Only handle paid status
         if ($status === 'PAID') {
             $parts = explode('-', $merchantRef);
-            if (count($parts) >= 2 && $parts[0] === 'SUB') {
+            if (count($parts) >= 2) {
+                $prefix = $parts[0];
                 $userId = $parts[1];
                 $user = User::find($userId);
 
                 if ($user) {
-                    // Update user role to host and extend active subscription
-                    $user->update([
-                        'role' => 'host',
-                        'subscription_expires_at' => now()->addDays(40),
-                    ]);
+                    if ($prefix === 'SUB') {
+                        // Update user role to host and extend active subscription
+                        $user->update([
+                            'role' => 'host',
+                            'subscription_expires_at' => now()->addDays(40),
+                        ]);
 
-                    ActivityLogHelper::log(
-                        'payment',
-                        'payment_webhook_success_tripay',
-                        "Webhook Tripay mengonfirmasi pembayaran Rp " . number_format($totalAmount) . " untuk referensi {$merchantRef}. User {$user->name} role di-upgrade ke host.",
-                        $user
-                    );
+                        ActivityLogHelper::log(
+                            'payment',
+                            'payment_webhook_success_tripay',
+                            "Webhook Tripay mengonfirmasi pembayaran Rp " . number_format($totalAmount) . " untuk referensi {$merchantRef}. User {$user->name} role di-upgrade ke host.",
+                            $user
+                        );
 
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Pembayaran berhasil diproses, posko aktif.',
-                    ]);
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Pembayaran berhasil diproses, posko aktif.',
+                        ]);
+                    } elseif ($prefix === 'PRE') {
+                        // Find preorder record
+                        $preorder = \App\Models\Preorder::where('user_id', $user->id)->first();
+
+                        if ($preorder) {
+                            $preorder->update(['status' => 'approved']);
+                        } else {
+                            \App\Models\Preorder::create([
+                                'user_id' => $user->id,
+                                'name' => $user->name,
+                                'email' => $user->email,
+                                'whatsapp' => '0000000000',
+                                'payment_proof' => 'tripay',
+                                'status' => 'approved',
+                            ]);
+                        }
+
+                        // Promote user to host as well on approved preorder!
+                        $user->update([
+                            'role' => 'host',
+                            'subscription_expires_at' => now()->addDays(40),
+                        ]);
+
+                        ActivityLogHelper::log(
+                            'preorder',
+                            'preorder_webhook_success_tripay',
+                            "Webhook Tripay mengonfirmasi preorder Rp " . number_format($totalAmount) . " untuk referensi {$merchantRef}. Preorder disetujui, user {$user->name} role di-upgrade ke host.",
+                            $user
+                        );
+
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Preorder berhasil diproses, posko aktif.',
+                        ]);
+                    }
                 } else {
                     Log::error("User dengan ID {$userId} tidak ditemukan dari callback Tripay.");
                 }
@@ -130,5 +269,75 @@ class TripayController extends Controller
             'success' => true,
             'message' => 'Callback diterima namun tidak memicu aksi.',
         ]);
+    }
+
+    /**
+     * Handle user redirect back from Tripay payment.
+     */
+    public function handleReturn(Request $request)
+    {
+        $user = $request->user();
+
+        // Check if there is cached preorder transaction
+        $preorderRef = \Illuminate\Support\Facades\Cache::get('user_preorder_tripay_ref_' . $user->id);
+        if ($preorderRef) {
+            $detail = $this->tripayService->getTransactionDetail($preorderRef);
+            if ($detail && isset($detail['status']) && strtoupper($detail['status']) === 'PAID') {
+                // Preorder is paid! Approve it and update role to host immediately
+                $preorder = \App\Models\Preorder::where('user_id', $user->id)->first();
+                if ($preorder) {
+                    $preorder->update(['status' => 'approved']);
+                } else {
+                    \App\Models\Preorder::create([
+                        'user_id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'whatsapp' => '0000000000',
+                        'payment_proof' => 'tripay',
+                        'status' => 'approved',
+                    ]);
+                }
+
+                $user->update([
+                    'role' => 'host',
+                    'subscription_expires_at' => now()->addDays(40),
+                ]);
+
+                \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_ref_' . $user->id);
+                \Illuminate\Support\Facades\Cache::forget('user_preorder_tripay_url_' . $user->id);
+
+                return redirect()->route('dashboard')->with('success', 'Pembayaran preorder berhasil! Akun Anda telah di-upgrade menjadi Host.');
+            }
+        }
+
+        // Check if there is cached subscription transaction
+        $subRef = \Illuminate\Support\Facades\Cache::get('user_tripay_ref_' . $user->id);
+        if ($subRef) {
+            $detail = $this->tripayService->getTransactionDetail($subRef);
+            if ($detail && isset($detail['status']) && strtoupper($detail['status']) === 'PAID') {
+                // Subscription is paid! Update role to host immediately
+                $user->update([
+                    'role' => 'host',
+                    'subscription_expires_at' => now()->addDays(40),
+                ]);
+
+                \Illuminate\Support\Facades\Cache::forget('user_tripay_ref_' . $user->id);
+                \Illuminate\Support\Facades\Cache::forget('user_tripay_url_' . $user->id);
+
+                return redirect()->route('dashboard')->with('success', 'Pembayaran berhasil! Akun Anda telah di-upgrade menjadi Host.');
+            }
+        }
+
+        // If user returns and role is already host (e.g. webhook processed first)
+        if ($user->role === 'host') {
+            return redirect()->route('dashboard')->with('success', 'Pembayaran berhasil diproses! Selamat datang di dashboard Host.');
+        }
+
+        // Otherwise redirect back to preorder/payment page with info
+        if (filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN)) {
+            return redirect()->route('preorder.index')->with('info', 'Status transaksi Anda sedang diproses. Silakan hubungi admin jika saldo terpotong namun status belum berubah.');
+        }
+
+        return redirect()->route('payment.index')->with('info', 'Status transaksi Anda sedang diproses. Silakan hubungi admin jika saldo terpotong namun status belum berubah.');
     }
 }

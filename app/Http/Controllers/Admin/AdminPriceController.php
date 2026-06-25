@@ -25,7 +25,7 @@ class AdminPriceController extends Controller
                 'preorderPrice' => (int) Setting::get('preorder_price', 50000),
                 'preorderStrikePrice' => (int) Setting::get('preorder_strike_price', 100000),
                 'preorderPromoActive' => filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN),
-                'checkoutPaymentMethod' => Setting::get('checkout_payment_method', 'midtrans'),
+                'checkoutPaymentMethod' => Setting::get('checkout_payment_method', 'tripay'),
                 'staticQrisPath' => Setting::get('static_qris_path', null),
                 'staticQrisUrl' => Setting::get('static_qris_path') ? asset('storage/' . Setting::get('static_qris_path')) : null,
             ],
@@ -45,7 +45,7 @@ class AdminPriceController extends Controller
             'preorderPrice' => ['required', 'integer', 'min:0'],
             'preorderStrikePrice' => ['required', 'integer', 'min:0'],
             'preorderPromoActive' => ['required', 'boolean'],
-            'checkoutPaymentMethod' => ['required', 'string', 'in:midtrans,qris_static'],
+            'checkoutPaymentMethod' => ['required', 'string', 'in:tripay,qris_static'],
         ]);
 
         Setting::set('package_name', $validated['packageName']);

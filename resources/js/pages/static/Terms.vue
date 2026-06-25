@@ -100,7 +100,7 @@ defineProps<{
                         <Scale class="w-5 h-5 text-sky-500" /> 3. Kebijakan Pembayaran & Pengembalian Dana
                     </h2>
                     <p>
-                        Layanan aktivasi posko adalah transaksi sekali bayar (one-time payment) untuk masa aktif selama 40 hari penuh. Seluruh pembayaran diproses secara aman melalui integrasi Tripay / Midtrans. Pembayaran yang telah sukses dikonfirmasi tidak dapat dibatalkan atau dikembalikan (non-refundable).
+                        Layanan aktivasi posko adalah transaksi sekali bayar (one-time payment) untuk masa aktif selama 40 hari penuh. Seluruh pembayaran diproses secara aman melalui integrasi Tripay. Pembayaran yang telah sukses dikonfirmasi tidak dapat dibatalkan atau dikembalikan (non-refundable).
                     </p>
                 </div>
 

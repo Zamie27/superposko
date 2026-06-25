@@ -90,7 +90,7 @@ defineProps<{
                         <CheckCircle2 class="w-5 h-5 text-sky-500" /> 2. Penggunaan Informasi
                     </h2>
                     <p>
-                        Seluruh informasi dan data yang dikumpulkan digunakan semata-mata untuk mengoperasikan, memelihara, dan menyediakan fitur kolaborasi SuperPosko (misalnya: pengiriman kode verifikasi OTP, integrasi transaksi pembayaran Tripay/Midtrans, visualisasi diagram iuran kas, dan sinkronisasi logbook tim). Kami tidak akan memperjualbelikan data Anda kepada pihak ketiga manapun.
+                        Seluruh informasi dan data yang dikumpulkan digunakan semata-mata untuk mengoperasikan, memelihara, dan menyediakan fitur kolaborasi SuperPosko (misalnya: pengiriman kode verifikasi OTP, integrasi transaksi pembayaran Tripay, visualisasi diagram iuran kas, dan sinkronisasi logbook tim). Kami tidak akan memperjualbelikan data Anda kepada pihak ketiga manapun.
                     </p>
                 </div>
 
