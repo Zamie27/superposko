@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { CheckCircle, AlertCircle, Upload, Phone, Mail, User, ShieldCheck, Sparkles, Check } from '@lucide/vue';
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { dashboard } from '@/routes';
@@ -101,6 +101,17 @@ const startPolling = () => {
     }, 4000);
 };
 
+watch(() => props.activeTripayUrl, (newVal) => {
+    if (newVal) {
+        startPolling();
+    } else {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+        }
+    }
+}, { immediate: true });
+
 onMounted(() => {
     if (props.checkoutPaymentMethod === 'qris_static') {
         initForm();
@@ -115,10 +126,6 @@ onMounted(() => {
                 selectedMethod.value = props.tripayChannels[0].code;
             }
         }
-    }
-
-    if (props.activeTripayUrl) {
-        startPolling();
     }
 });
 
