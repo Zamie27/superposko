@@ -172,13 +172,19 @@ const getCookie = (name: string): string => {
 
 const handlePayment = async () => {
     if (props.activeTripayUrl) {
-        window.location.href = props.activeTripayUrl;
+        window.open(props.activeTripayUrl, '_blank');
         return;
     }
 
     if (!selectedMethod.value) {
         mainToast.error('Silakan pilih metode pembayaran terlebih dahulu.');
         return;
+    }
+
+    // Pre-open blank tab to bypass browser popup blockers during async operations
+    const paymentWindow = window.open('', '_blank');
+    if (paymentWindow) {
+        paymentWindow.document.write('<p style="font-family: sans-serif; text-align: center; margin-top: 20%; color: #64748b;">Membuka halaman pembayaran Tripay, mohon tunggu...</p>');
     }
 
     isLoading.value = true;
@@ -205,11 +211,22 @@ const handlePayment = async () => {
         const res = await response.json();
 
         if (res.success && res.data && res.data.checkout_url) {
-            window.location.href = res.data.checkout_url;
+            if (paymentWindow) {
+                paymentWindow.location.href = res.data.checkout_url;
+            } else {
+                window.open(res.data.checkout_url, '_blank');
+            }
+            window.location.reload();
         } else {
+            if (paymentWindow) {
+                paymentWindow.close();
+            }
             mainToast.error(res.message || 'Gagal mendapatkan tautan pembayaran Tripay.');
         }
     } catch (error: any) {
+        if (paymentWindow) {
+            paymentWindow.close();
+        }
         mainToast.error(error.message || 'Terjadi kesalahan sistem.');
     } finally {
         isLoading.value = false;
