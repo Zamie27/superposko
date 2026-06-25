@@ -1,5 +1,86 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+export const showPublicDoc = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showPublicDoc.url(options),
+    method: 'get',
+})
+
+showPublicDoc.definition = {
+    methods: ["get","head"],
+    url: '/panduan',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDoc.url = (options?: RouteQueryOptions) => {
+    return showPublicDoc.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDoc.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showPublicDoc.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDoc.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: showPublicDoc.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+const showPublicDocForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showPublicDoc.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDocForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showPublicDoc.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDocForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showPublicDoc.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+showPublicDoc.form = showPublicDocForm
+
+/**
 * @see \App\Http\Controllers\DocumentationController::index
 * @see app/Http/Controllers/DocumentationController.php:53
 * @route '/documentation'
@@ -390,6 +471,6 @@ fileForm.head = (args: { id: string | number } | [id: string | number ] | string
 
 file.form = fileForm
 
-const DocumentationController = { index, store, uploadChunk, thumbnail, file }
+const DocumentationController = { showPublicDoc, index, store, uploadChunk, thumbnail, file }
 
 export default DocumentationController

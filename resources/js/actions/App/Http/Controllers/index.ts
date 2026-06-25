@@ -1,4 +1,5 @@
 import Auth from './Auth'
+import DocumentationController from './DocumentationController'
 import ReportController from './ReportController'
 import BugReportController from './BugReportController'
 import PaymentController from './PaymentController'
@@ -17,13 +18,13 @@ import MemberActivityLogController from './MemberActivityLogController'
 import ContactController from './ContactController'
 import ProkerDocumentController from './ProkerDocumentController'
 import VotingController from './VotingController'
-import DocumentationController from './DocumentationController'
 import PushSubscriptionController from './PushSubscriptionController'
 import Admin from './Admin'
 import Settings from './Settings'
 
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
+    DocumentationController: Object.assign(DocumentationController, DocumentationController),
     ReportController: Object.assign(ReportController, ReportController),
     BugReportController: Object.assign(BugReportController, BugReportController),
     PaymentController: Object.assign(PaymentController, PaymentController),
@@ -42,7 +43,6 @@ const Controllers = {
     ContactController: Object.assign(ContactController, ContactController),
     ProkerDocumentController: Object.assign(ProkerDocumentController, ProkerDocumentController),
     VotingController: Object.assign(VotingController, VotingController),
-    DocumentationController: Object.assign(DocumentationController, DocumentationController),
     PushSubscriptionController: Object.assign(PushSubscriptionController, PushSubscriptionController),
     Admin: Object.assign(Admin, Admin),
     Settings: Object.assign(Settings, Settings),

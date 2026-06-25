@@ -80,6 +80,8 @@ Route::get('banned', function () {
     return Inertia::render('auth/Banned');
 })->name('banned');
 
+Route::get('panduan', [DocumentationController::class, 'showPublicDoc'])->name('documentation.public');
+
 Route::get('laporan/buat', [ReportController::class, 'create'])->name('reports.create');
 Route::post('laporan/buat', [ReportController::class, 'store'])->name('reports.store');
 Route::post('bug-report', [BugReportController::class, 'store'])->name('bug-report.store');

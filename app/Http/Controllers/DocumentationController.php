@@ -423,4 +423,93 @@ class DocumentationController extends Controller
             'message' => "Chunk ke-{$chunkIndex} berhasil diunggah.",
         ]);
     }
+
+    /**
+     * Display the public documentation page.
+     */
+    public function showPublicDoc(Request $request): Response
+    {
+        // Read outline file directly
+        $outlinePath = base_path('DOCUMENTATION_OUTLINE.md');
+        $outlineContent = file_exists($outlinePath) ? file_get_contents($outlinePath) : '';
+
+        // We will parse the content section by section
+        // Split by markdown headings or parse it systematically
+        $sections = [];
+        $lines = explode("\n", $outlineContent);
+        
+        $currentGroup = '';
+        $topicsContent = [];
+        $currentTopicSlug = '';
+        $currentTopicMarkdown = '';
+
+        foreach ($lines as $line) {
+            // Check for main section headers
+            if (str_starts_with($line, '## ')) {
+                $currentGroup = trim(str_replace('##', '', $line));
+            } 
+            // Check for sub headers (e.g. ### 1. GETTING STARTED)
+            elseif (str_starts_with($line, '### ')) {
+                $title = trim(str_replace('###', '', $line));
+                $slug = strtolower(str_replace(' ', '-', preg_replace('/[^a-zA-Z0-9\s-]/', '', $title)));
+                
+                $sections[] = [
+                    'title' => $title,
+                    'slug' => $slug,
+                    'group' => $currentGroup ?: 'Umum',
+                    'items' => [],
+                ];
+            } 
+            // Check for topic items (e.g. #### 📄 Pengenalan SuperPosko)
+            elseif (str_starts_with($line, '#### ') || (str_contains($line, '📄') && str_starts_with(trim($line), '####'))) {
+                // If there was an active topic, save its accumulated markdown content
+                if ($currentTopicSlug) {
+                    $topicsContent[$currentTopicSlug] = class_exists(\Illuminate\Support\Str::class) && method_exists(\Illuminate\Support\Str::class, 'markdown')
+                        ? \Illuminate\Support\Str::markdown($currentTopicMarkdown)
+                        : nl2br(e($currentTopicMarkdown));
+                }
+
+                $cleanLine = trim(str_replace('####', '', $line));
+                $itemTitle = trim(str_replace('📄', '', $cleanLine));
+                $itemSlug = strtolower(str_replace(' ', '-', preg_replace('/[^a-zA-Z0-9\s-]/', '', $itemTitle)));
+
+                $currentTopicSlug = $itemSlug;
+                $currentTopicMarkdown = "### " . $itemTitle . "\n\n";
+
+                if (count($sections) > 0) {
+                    $sections[count($sections) - 1]['items'][] = [
+                        'title' => $itemTitle,
+                        'slug' => $itemSlug,
+                    ];
+                }
+            } 
+            // Accumulate markdown text for the current active topic
+            else {
+                if ($currentTopicSlug && trim($line) !== '---') {
+                    $currentTopicMarkdown .= $line . "\n";
+                }
+            }
+        }
+
+        // Save the last active topic
+        if ($currentTopicSlug) {
+            $topicsContent[$currentTopicSlug] = class_exists(\Illuminate\Support\Str::class) && method_exists(\Illuminate\Support\Str::class, 'markdown')
+                ? \Illuminate\Support\Str::markdown($currentTopicMarkdown)
+                : nl2br(e($currentTopicMarkdown));
+        }
+
+        // Filter sections to only include those that actually have items
+        $filteredSections = array_values(array_filter($sections, function ($section) {
+            return count($section['items']) > 0;
+        }));
+
+        return Inertia::render('documentation/PublicGuide', [
+            'outline' => $filteredSections,
+            'topicsContent' => $topicsContent,
+            'footerAbout' => Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
+            'footerEmail' => Setting::get('footer_email', 'kuukok.id@gmail.com'),
+            'footerPhone' => Setting::get('footer_phone', '+62 851-7173-9232'),
+            'footerCopyright' => Setting::get('footer_copyright', 'Kuukok.id'),
+        ]);
+    }
 }
