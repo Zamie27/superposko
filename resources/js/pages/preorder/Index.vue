@@ -205,8 +205,7 @@ const handlePayment = async () => {
         const res = await response.json();
 
         if (res.success && res.data && res.data.checkout_url) {
-            window.open(res.data.checkout_url, '_blank');
-            window.location.reload();
+            window.location.href = res.data.checkout_url;
         } else {
             mainToast.error(res.message || 'Gagal mendapatkan tautan pembayaran Tripay.');
         }
