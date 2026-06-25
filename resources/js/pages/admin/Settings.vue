@@ -11,6 +11,7 @@ const props = defineProps<{
         footerEmail: string;
         footerPhone: string;
         footerCopyright: string;
+        socialInstagram?: string;
         midtransMerchantId: string;
         midtransClientKey: string;
         midtransServerKey: string;
@@ -61,6 +62,7 @@ const form = useForm({
     footerEmail: props.settings.footerEmail,
     footerPhone: '62' + displayPhone.value,
     footerCopyright: props.settings.footerCopyright,
+    socialInstagram: props.settings.socialInstagram || 'superposko',
     midtransMerchantId: props.settings.midtransMerchantId,
     midtransClientKey: props.settings.midtransClientKey,
     midtransServerKey: props.settings.midtransServerKey,
@@ -171,7 +173,7 @@ const submitForm = () => {
                             <p v-if="form.errors.footerAbout" class="text-xs text-red-500">{{ form.errors.footerAbout }}</p>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="space-y-1.5">
                                 <label class="text-xs font-semibold text-slate-700">Email Hubungi Kami</label>
                                 <input
@@ -197,6 +199,20 @@ const submitForm = () => {
                                     />
                                 </div>
                                 <p v-if="form.errors.footerPhone" class="text-xs text-red-500">{{ form.errors.footerPhone }}</p>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-slate-700">Username Instagram</label>
+                                <div class="relative flex items-center">
+                                    <span class="absolute left-3.5 text-sm font-semibold text-slate-500">@</span>
+                                    <input
+                                        v-model="form.socialInstagram"
+                                        type="text"
+                                        placeholder="superposko"
+                                        class="w-full rounded-xl border border-slate-200 pl-8 pr-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none"
+                                    />
+                                </div>
+                                <p v-if="form.errors.socialInstagram" class="text-xs text-red-500">{{ form.errors.socialInstagram }}</p>
                             </div>
                         </div>
 

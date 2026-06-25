@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { BookOpen, Users, Compass, ShieldCheck } from '@lucide/vue';
 import { login, register, dashboard } from '@/routes';
+import PublicFooter from '@/components/PublicFooter.vue';
 
 const props = defineProps<{
     footerAbout: string;
@@ -12,24 +13,6 @@ const props = defineProps<{
 }>();
 
 const isMenuOpen = ref(false);
-
-const formattedPhone = computed(() => {
-    if (!props.footerPhone) return '';
-    let clean = props.footerPhone.replace(/[^0-9]/g, '');
-    if (clean.startsWith('62')) {
-        clean = clean.substring(2);
-    } else if (clean.startsWith('0')) {
-        clean = clean.substring(1);
-    }
-    const part1 = clean.substring(0, 3);
-    const part2 = clean.substring(3, 7);
-    const part3 = clean.substring(7);
-    let result = '+62';
-    if (part1) result += ' ' + part1;
-    if (part2) result += '-' + part2;
-    if (part3) result += '-' + part3;
-    return result;
-});
 </script>
 
 <template>
@@ -123,50 +106,18 @@ const formattedPhone = computed(() => {
                         SuperPosko dirancang berdasarkan riset mendalam terhadap kendala-kendala umum yang dihadapi oleh kelompok KKN di lapangan, seperti konflik pembagian tugas harian, tidak transparannya kas keuangan kelompok, dan hilangnya proposal/berkas fisik penting. 
                     </p>
                     <p class="text-sm text-slate-600 leading-relaxed">
-                        Dengan SuperPosko, seluruh anggota tim memiliki akses visual instan terhadap arus dana kas, status progres program kerja kelompok, dan jadwal piket posko secara real-time. Kami percaya, koordinasi tim yang rapi dan transparan adalah kunci kesuksesan program KKN.
+                        Dengan SuperPosko, seluruh anggota tim memiliki akses visual instan terhadap arus dana kas, status progres program kerja kelompok, dan jadwal piket posko secara real-time. Kami percaya, koordinasi tim yang rapi and transparan adalah kunci kesuksesan program KKN.
                     </p>
                 </div>
             </div>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-slate-900 py-16 text-slate-400 border-t border-slate-800/50 mt-auto">
-            <div class="mx-auto max-w-7xl px-6 lg:px-8">
-                <div class="grid grid-cols-1 gap-12 md:grid-cols-4">
-                    <div class="md:col-span-2">
-                        <div class="flex items-center gap-2 text-white">
-                            <img src="/icon_superposko.png" alt="SuperPosko Icon" class="h-10 w-auto" />
-                        </div>
-                        <p class="mt-4 max-w-md text-sm leading-relaxed">
-                            {{ footerAbout }}
-                        </p>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">Pintasan</h4>
-                        <ul class="mt-4 space-y-2.5 text-sm">
-                            <li><Link href="/" class="hover:text-[#38BDF8] transition-colors">Home Page</Link></li>
-                            <li><Link href="/panduan" class="hover:text-[#38BDF8] transition-colors">Panduan</Link></li>
-                            <li><Link href="/privacy" class="hover:text-[#38BDF8] transition-colors">Kebijakan Privasi</Link></li>
-                            <li><Link href="/terms" class="hover:text-[#38BDF8] transition-colors">Syarat & Ketentuan</Link></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">Hubungi Kami</h4>
-                        <ul class="mt-4 space-y-2.5 text-sm">
-                            <li>Email: {{ footerEmail }}</li>
-                            <li>Telepon: {{ formattedPhone }}</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="mt-12 border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-                    <p>
-                        &copy; 2026 
-                        <a href="https://kuukok.my.id" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline font-medium">{{ footerCopyright }}</a> 
-                        - Solusi digital profesional. Hak Cipta Dilindungi.
-                    </p>
-                </div>
-            </div>
-        </footer>
+        <PublicFooter 
+            :footerAbout="footerAbout"
+            :footerEmail="footerEmail"
+            :footerPhone="footerPhone"
+            :footerCopyright="footerCopyright"
+        />
     </div>
 </template>

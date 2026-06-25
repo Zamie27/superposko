@@ -22,6 +22,7 @@ class AdminSettingController extends Controller
                 'footerEmail' => Setting::get('footer_email', 'kuukok.id@gmail.com'),
                 'footerPhone' => Setting::get('footer_phone', '+62 851-7173-9232'),
                 'footerCopyright' => Setting::get('footer_copyright', 'Kuukok.id'),
+                'socialInstagram' => Setting::get('social_instagram', 'superposko'),
                 'midtransMerchantId' => Setting::get('midtrans_merchant_id', config('services.midtrans.merchant_id', '')),
                 'midtransClientKey' => Setting::get('midtrans_client_key', config('services.midtrans.client_key', '')),
                 'midtransServerKey' => Setting::get('midtrans_server_key', config('services.midtrans.server_key', '')),
@@ -50,6 +51,7 @@ class AdminSettingController extends Controller
             'footerEmail' => ['required', 'email'],
             'footerPhone' => ['required', 'string'],
             'footerCopyright' => ['required', 'string'],
+            'socialInstagram' => ['nullable', 'string', 'max:255'],
             'midtransMerchantId' => ['nullable', 'string', 'max:255'],
             'midtransClientKey' => ['nullable', 'string', 'max:255'],
             'midtransServerKey' => ['nullable', 'string', 'max:255'],
@@ -77,6 +79,7 @@ class AdminSettingController extends Controller
         Setting::set('footer_email', $validated['footerEmail']);
         Setting::set('footer_phone', $phone);
         Setting::set('footer_copyright', $validated['footerCopyright']);
+        Setting::set('social_instagram', $validated['socialInstagram'] ?? '');
         Setting::set('midtrans_merchant_id', $validated['midtransMerchantId'] ?? '');
         Setting::set('midtrans_client_key', $validated['midtransClientKey'] ?? '');
         Setting::set('midtrans_server_key', $validated['midtransServerKey'] ?? '');

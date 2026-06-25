@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { BookOpen, ChevronRight, Menu, X, ArrowLeft } from '@lucide/vue';
 import { login, register, dashboard } from '@/routes';
+import PublicFooter from '@/components/PublicFooter.vue';
 
 const props = defineProps<{
     outline: Array<{
@@ -201,44 +202,12 @@ const selectTopic = (slug: string) => {
         </div>
 
         <!-- Footer -->
-        <footer class="bg-slate-900 py-16 text-slate-400 border-t border-slate-800/50 mt-auto">
-            <div class="mx-auto max-w-7xl px-6 lg:px-8">
-                <div class="grid grid-cols-1 gap-12 md:grid-cols-4">
-                    <div class="md:col-span-2">
-                        <div class="flex items-center gap-2 text-white">
-                            <img src="/icon_superposko.png" alt="SuperPosko Icon" class="h-10 w-auto" />
-                        </div>
-                        <p class="mt-4 max-w-md text-sm leading-relaxed">
-                            {{ footerAbout }}
-                        </p>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">Pintasan</h4>
-                        <ul class="mt-4 space-y-2.5 text-sm">
-                            <li><Link href="/" class="hover:text-[#38BDF8] transition-colors">Home Page</Link></li>
-                            <li><a href="/#fitur" class="hover:text-[#38BDF8] transition-colors">Fitur Utama</a></li>
-                            <li><a href="/#pricing" class="hover:text-[#38BDF8] transition-colors">Harga Paket</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">Hubungi Kami</h4>
-                        <ul class="mt-4 space-y-2.5 text-sm">
-                            <li>Email: {{ footerEmail }}</li>
-                            <li>Telepon: {{ formattedPhone }}</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="mt-12 border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-                    <p>
-                        &copy; 2026 
-                        <a href="https://kuukok.my.id" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline font-medium">{{ footerCopyright }}</a> 
-                        - Solusi digital profesional. Hak Cipta Dilindungi.
-                    </p>
-                    <p>Dibuat dengan dedikasi untuk memajukan pengabdian masyarakat mahasiswa Indonesia.</p>
-                </div>
-            </div>
-        </footer>
+        <PublicFooter 
+            :footerAbout="footerAbout"
+            :footerEmail="footerEmail"
+            :footerPhone="footerPhone"
+            :footerCopyright="footerCopyright"
+        />
     </div>
 </template>
 
