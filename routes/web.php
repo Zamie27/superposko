@@ -82,6 +82,33 @@ Route::get('banned', function () {
 
 Route::get('panduan', [DocumentationController::class, 'showPublicDoc'])->name('documentation.public');
 
+Route::get('about', function () {
+    return Inertia::render('static/About', [
+        'footerAbout' => \App\Models\Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
+        'footerEmail' => \App\Models\Setting::get('footer_email', 'kuukok.id@gmail.com'),
+        'footerPhone' => \App\Models\Setting::get('footer_phone', '+62 851-7173-9232'),
+        'footerCopyright' => \App\Models\Setting::get('footer_copyright', 'Kuukok.id'),
+    ]);
+})->name('static.about');
+
+Route::get('privacy', function () {
+    return Inertia::render('static/Privacy', [
+        'footerAbout' => \App\Models\Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
+        'footerEmail' => \App\Models\Setting::get('footer_email', 'kuukok.id@gmail.com'),
+        'footerPhone' => \App\Models\Setting::get('footer_phone', '+62 851-7173-9232'),
+        'footerCopyright' => \App\Models\Setting::get('footer_copyright', 'Kuukok.id'),
+    ]);
+})->name('static.privacy');
+
+Route::get('terms', function () {
+    return Inertia::render('static/Terms', [
+        'footerAbout' => \App\Models\Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
+        'footerEmail' => \App\Models\Setting::get('footer_email', 'kuukok.id@gmail.com'),
+        'footerPhone' => \App\Models\Setting::get('footer_phone', '+62 851-7173-9232'),
+        'footerCopyright' => \App\Models\Setting::get('footer_copyright', 'Kuukok.id'),
+    ]);
+})->name('static.terms');
+
 Route::get('laporan/buat', [ReportController::class, 'create'])->name('reports.create');
 Route::post('laporan/buat', [ReportController::class, 'store'])->name('reports.store');
 Route::post('bug-report', [BugReportController::class, 'store'])->name('bug-report.store');

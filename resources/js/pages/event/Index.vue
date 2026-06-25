@@ -326,8 +326,11 @@ return '';
                         <h4 class="text-xs font-bold uppercase tracking-wider text-white">Pintasan</h4>
                         <ul class="mt-4 space-y-2.5 text-sm">
                             <li><Link href="/" class="hover:text-[#38BDF8] transition-colors">Home Page</Link></li>
-                            <li><a href="/#fitur" class="hover:text-[#38BDF8] transition-colors">Fitur Utama</a></li>
-                            <li><a href="/#pricing" class="hover:text-[#38BDF8] transition-colors">Harga Paket</a></li>
+                            <li><Link href="/about" class="hover:text-[#38BDF8] transition-colors">Tentang Kami</Link></li>
+                            <li><Link href="/panduan" class="hover:text-[#38BDF8] transition-colors">Panduan</Link></li>
+                            <li><Link href="/privacy" class="hover:text-[#38BDF8] transition-colors">Kebijakan Privasi</Link></li>
+                            <li><Link href="/terms" class="hover:text-[#38BDF8] transition-colors">Syarat & Ketentuan</Link></li>
+                            <li><Link href="/laporan/buat" class="hover:text-[#38BDF8] transition-colors">Kontak Support</Link></li>
                         </ul>
                     </div>
                     <div>
