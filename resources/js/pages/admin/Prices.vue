@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { CreditCard, ArrowLeft, CheckCircle2, AlertTriangle, QrCode, Upload, Trash2 } from '@lucide/vue';
+import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 
@@ -55,6 +55,7 @@ const qrisPreview = ref<string | null>(props.pricing.staticQrisUrl || null);
 
 const handleQrisChange = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
+
     if (file) {
         qrisForm.qris_image = file;
         const reader = new FileReader();
@@ -70,6 +71,7 @@ const uploadQris = () => {
         preserveScroll: true,
         onSuccess: () => {
             qrisForm.reset();
+
             if (qrisInput.value) {
                 qrisInput.value.value = '';
             }
@@ -84,6 +86,7 @@ const deleteQris = () => {
             onSuccess: () => {
                 qrisPreview.value = null;
                 qrisForm.reset();
+
                 if (qrisInput.value) {
                     qrisInput.value.value = '';
                 }

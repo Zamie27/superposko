@@ -8,9 +8,13 @@ use Illuminate\Support\Facades\Log;
 class TripayService
 {
     protected string $apiKey;
+
     protected string $privateKey;
+
     protected string $merchantCode;
+
     protected bool $isProduction;
+
     protected string $baseUrl;
 
     public function __construct()
@@ -19,9 +23,9 @@ class TripayService
         $this->privateKey = (string) config('services.tripay.private_key', '');
         $this->merchantCode = (string) config('services.tripay.merchant_code', '');
         $this->isProduction = (bool) config('services.tripay.is_production', false);
-        
-        $this->baseUrl = $this->isProduction 
-            ? 'https://tripay.co.id/api/' 
+
+        $this->baseUrl = $this->isProduction
+            ? 'https://tripay.co.id/api/'
             : 'https://tripay.co.id/api-sandbox/';
     }
 
@@ -30,13 +34,13 @@ class TripayService
      */
     public function generateRequestSignature(string $merchantRef, int $amount): string
     {
-        return hash_hmac('sha256', $this->merchantCode . $merchantRef . $amount, $this->privateKey);
+        return hash_hmac('sha256', $this->merchantCode.$merchantRef.$amount, $this->privateKey);
     }
 
     /**
      * Create a closed transaction in Tripay.
      *
-     * @param array<string, mixed> $params
+     * @param  array<string, mixed>  $params
      * @return array<string, mixed>|null
      */
     public function createTransaction(array $params): ?array
@@ -59,7 +63,7 @@ class TripayService
                     'name' => 'Aktivasi Lisensi SuperPosko',
                     'price' => $amount,
                     'quantity' => 1,
-                ]
+                ],
             ],
             'signature' => $signature,
         ];
@@ -68,7 +72,7 @@ class TripayService
             $response = Http::timeout(10)
                 ->connectTimeout(5)
                 ->withToken($this->apiKey)
-                ->post($this->baseUrl . 'transaction/create', $payload);
+                ->post($this->baseUrl.'transaction/create', $payload);
 
             if ($response->successful()) {
                 $responseData = $response->json();
@@ -77,16 +81,20 @@ class TripayService
                 }
             }
 
-            Log::error('Gagal membuat transaksi Tripay: ' . $response->body());
+            Log::error('Gagal membuat transaksi Tripay: '.$response->body());
+
             return null;
         } catch (\Exception $e) {
-            Log::error('Exception saat membuat transaksi Tripay: ' . $e->getMessage());
+            Log::error('Exception saat membuat transaksi Tripay: '.$e->getMessage());
+
             return null;
         }
     }
 
     /**
      * Get transaction detail from Tripay.
+     *
+     * @return array<string, mixed>|null
      */
     public function getTransactionDetail(string $reference): ?array
     {
@@ -94,8 +102,8 @@ class TripayService
             $response = Http::timeout(10)
                 ->connectTimeout(5)
                 ->withToken($this->apiKey)
-                ->get($this->baseUrl . 'transaction/detail', [
-                    'reference' => $reference
+                ->get($this->baseUrl.'transaction/detail', [
+                    'reference' => $reference,
                 ]);
 
             if ($response->successful()) {
@@ -105,10 +113,12 @@ class TripayService
                 }
             }
 
-            Log::error('Gagal mengambil detail transaksi Tripay: ' . $response->body());
+            Log::error('Gagal mengambil detail transaksi Tripay: '.$response->body());
+
             return null;
         } catch (\Exception $e) {
-            Log::error('Exception saat mengambil detail transaksi Tripay: ' . $e->getMessage());
+            Log::error('Exception saat mengambil detail transaksi Tripay: '.$e->getMessage());
+
             return null;
         }
     }

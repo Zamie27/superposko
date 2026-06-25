@@ -71,6 +71,7 @@ const handleApprove = async (id: number, name: string) => {
 
 const handleReject = async (id: number, name: string) => {
     const reason = prompt('Masukkan alasan penolakan (opsional):');
+
     if (reason === null) {
         return; // User cancelled prompt
     }

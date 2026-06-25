@@ -431,13 +431,15 @@ class DocumentationController extends Controller
     {
         // Read outline file directly
         $outlinePath = base_path('DOCUMENTATION_OUTLINE.md');
-        $outlineContent = file_exists($outlinePath) ? file_get_contents($outlinePath) : '';
+        $rawContent = file_exists($outlinePath) ? file_get_contents($outlinePath) : '';
+        $outlineContent = is_string($rawContent) ? $rawContent : '';
 
         // We will parse the content section by section
         // Split by markdown headings or parse it systematically
+        /** @var array<int, array{title: string, slug: string, group: string, items: array<int, array{title: string, slug: string}>}> $sections */
         $sections = [];
         $lines = explode("\n", $outlineContent);
-        
+
         $currentGroup = '';
         $topicsContent = [];
         $currentTopicSlug = '';
@@ -447,26 +449,24 @@ class DocumentationController extends Controller
             // Check for main section headers
             if (str_starts_with($line, '## ')) {
                 $currentGroup = trim(str_replace('##', '', $line));
-            } 
+            }
             // Check for sub headers (e.g. ### 1. GETTING STARTED)
             elseif (str_starts_with($line, '### ')) {
                 $title = trim(str_replace('###', '', $line));
                 $slug = strtolower(str_replace(' ', '-', preg_replace('/[^a-zA-Z0-9\s-]/', '', $title)));
-                
+
                 $sections[] = [
                     'title' => $title,
                     'slug' => $slug,
                     'group' => $currentGroup ?: 'Umum',
                     'items' => [],
                 ];
-            } 
+            }
             // Check for topic items (e.g. #### 📄 Pengenalan SuperPosko)
             elseif (str_starts_with($line, '#### ') || (str_contains($line, '📄') && str_starts_with(trim($line), '####'))) {
                 // If there was an active topic, save its accumulated markdown content
                 if ($currentTopicSlug) {
-                    $topicsContent[$currentTopicSlug] = class_exists(\Illuminate\Support\Str::class) && method_exists(\Illuminate\Support\Str::class, 'markdown')
-                        ? \Illuminate\Support\Str::markdown($currentTopicMarkdown)
-                        : nl2br(e($currentTopicMarkdown));
+                    $topicsContent[$currentTopicSlug] = (string) Str::markdown($currentTopicMarkdown);
                 }
 
                 $cleanLine = trim(str_replace('####', '', $line));
@@ -474,28 +474,27 @@ class DocumentationController extends Controller
                 $itemSlug = strtolower(str_replace(' ', '-', preg_replace('/[^a-zA-Z0-9\s-]/', '', $itemTitle)));
 
                 $currentTopicSlug = $itemSlug;
-                $currentTopicMarkdown = "### " . $itemTitle . "\n\n";
+                $currentTopicMarkdown = '### '.$itemTitle."\n\n";
 
                 if (count($sections) > 0) {
-                    $sections[count($sections) - 1]['items'][] = [
+                    $lastIdx = count($sections) - 1;
+                    $sections[$lastIdx]['items'][] = [
                         'title' => $itemTitle,
                         'slug' => $itemSlug,
                     ];
                 }
-            } 
+            }
             // Accumulate markdown text for the current active topic
             else {
                 if ($currentTopicSlug && trim($line) !== '---') {
-                    $currentTopicMarkdown .= $line . "\n";
+                    $currentTopicMarkdown .= $line."\n";
                 }
             }
         }
 
         // Save the last active topic
         if ($currentTopicSlug) {
-            $topicsContent[$currentTopicSlug] = class_exists(\Illuminate\Support\Str::class) && method_exists(\Illuminate\Support\Str::class, 'markdown')
-                ? \Illuminate\Support\Str::markdown($currentTopicMarkdown)
-                : nl2br(e($currentTopicMarkdown));
+            $topicsContent[$currentTopicSlug] = (string) Str::markdown($currentTopicMarkdown);
         }
 
         // Filter sections to only include those that actually have items

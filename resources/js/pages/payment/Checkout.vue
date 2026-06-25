@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { CreditCard, CheckCircle2, AlertTriangle, XCircle, ShieldCheck, Sparkles, Check, ArrowRight } from '@lucide/vue';
 import { onMounted, ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,6 @@ const toast = useToast();
 const fileInput = ref<HTMLInputElement | null>(null);
 const previewUrl = ref<string | null>(null);
 
-import { useForm } from '@inertiajs/vue3';
 const qrisForm = useForm({
     name: '',
     email: '',

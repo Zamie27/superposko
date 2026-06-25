@@ -49,6 +49,7 @@ class AdminTest extends TestCase
             'preorderPrice' => 60000,
             'preorderStrikePrice' => 120000,
             'preorderPromoActive' => true,
+            'checkoutPaymentMethod' => 'midtrans',
         ]);
 
         $response->assertRedirect();

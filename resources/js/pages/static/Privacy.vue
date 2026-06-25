@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import { ShieldAlert, Key, Eye, CheckCircle2 } from '@lucide/vue';
-import { login, register, dashboard } from '@/routes';
 import PublicFooter from '@/components/PublicFooter.vue';
+import { login, register, dashboard } from '@/routes';
 
-const props = defineProps<{
+defineProps<{
     footerAbout: string;
     footerEmail: string;
     footerPhone: string;
     footerCopyright: string;
 }>();
-
-const isMenuOpen = ref(false);
 </script>
 
 <template>
