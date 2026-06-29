@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # 1. Container Aplikasi (Backend Laravel 13 & PHP 8.4 + Node.js 24)
   app:
@@ -14,7 +16,8 @@ services:
     volumes:
       - ./:/var/www/html:Z
     networks:
-      - superposko-network
+      apps-network:
+        ipv4_address: 10.20.2.20
 
   # 2. Web Server (Nginx)
   nginx:
@@ -22,14 +25,15 @@ services:
     container_name: superposko-nginx
     restart: unless-stopped
     ports:
-      - "9091:80"
+      - "8085:80"
     volumes:
       - ./:/var/www/html:Z
       - ./docker/nginx/conf.d:/etc/nginx/conf.d:Z
     depends_on:
       - app
     networks:
-      - superposko-network
+      apps-network:
+        ipv4_address: 10.20.2.10
 
   # 3. Database Server (MySQL)
   mysql:
@@ -46,26 +50,12 @@ services:
     volumes:
       - superposko-db-data:/var/lib/mysql:Z
     networks:
-      - superposko-network
-
-  # 4. Database Management (PHPMyAdmin)
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: superposko-pma
-    restart: always
-    ports:
-      - "9093:80"
-    environment:
-      - PMA_ARBITRARY=1
-      - PMA_HOST=superposko-db
-    depends_on:
-      - mysql
-    networks:
-      - superposko-network
+      apps-network:
+        ipv4_address: 10.20.2.30
 
 networks:
-  superposko-network:
-    driver: bridge
+  apps-network:
+    external: true
 
 volumes:
   superposko-db-data:
