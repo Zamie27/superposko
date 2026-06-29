@@ -234,10 +234,124 @@ sendForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
 
 send.form = sendForm
 
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::verify_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:15
+* @route '/email/verify-otp'
+*/
+export const verify_otp = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: verify_otp.url(options),
+    method: 'post',
+})
+
+verify_otp.definition = {
+    methods: ["post"],
+    url: '/email/verify-otp',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::verify_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:15
+* @route '/email/verify-otp'
+*/
+verify_otp.url = (options?: RouteQueryOptions) => {
+    return verify_otp.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::verify_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:15
+* @route '/email/verify-otp'
+*/
+verify_otp.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: verify_otp.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::verify_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:15
+* @route '/email/verify-otp'
+*/
+const verify_otpForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: verify_otp.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::verify_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:15
+* @route '/email/verify-otp'
+*/
+verify_otpForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: verify_otp.url(options),
+    method: 'post',
+})
+
+verify_otp.form = verify_otpForm
+
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::resend_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:63
+* @route '/email/resend-otp'
+*/
+export const resend_otp = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: resend_otp.url(options),
+    method: 'post',
+})
+
+resend_otp.definition = {
+    methods: ["post"],
+    url: '/email/resend-otp',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::resend_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:63
+* @route '/email/resend-otp'
+*/
+resend_otp.url = (options?: RouteQueryOptions) => {
+    return resend_otp.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::resend_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:63
+* @route '/email/resend-otp'
+*/
+resend_otp.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: resend_otp.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::resend_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:63
+* @route '/email/resend-otp'
+*/
+const resend_otpForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: resend_otp.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\Auth\EmailVerificationOtpController::resend_otp
+* @see app/Http/Controllers/Auth/EmailVerificationOtpController.php:63
+* @route '/email/resend-otp'
+*/
+resend_otpForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: resend_otp.url(options),
+    method: 'post',
+})
+
+resend_otp.form = resend_otpForm
+
 const verification = {
     notice: Object.assign(notice, notice),
     verify: Object.assign(verify, verify),
     send: Object.assign(send, send),
+    verify_otp: Object.assign(verify_otp, verify_otp),
+    resend_otp: Object.assign(resend_otp, resend_otp),
 }
 
 export default verification

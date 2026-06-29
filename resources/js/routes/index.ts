@@ -218,8 +218,7 @@ registerForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 register.form = registerForm
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:41
 * @route '/'
 */
 export const home = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -233,8 +232,7 @@ home.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:41
 * @route '/'
 */
 home.url = (options?: RouteQueryOptions) => {
@@ -242,8 +240,7 @@ home.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:41
 * @route '/'
 */
 home.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -252,8 +249,7 @@ home.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:41
 * @route '/'
 */
 home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -262,8 +258,7 @@ home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:41
 * @route '/'
 */
 const homeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -272,8 +267,7 @@ const homeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:41
 * @route '/'
 */
 homeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -282,8 +276,7 @@ homeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 })
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:41
 * @route '/'
 */
 homeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -299,8 +292,132 @@ homeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 home.form = homeForm
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:79
+* @route '/banned'
+*/
+export const banned = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: banned.url(options),
+    method: 'get',
+})
+
+banned.definition = {
+    methods: ["get","head"],
+    url: '/banned',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:79
+* @route '/banned'
+*/
+banned.url = (options?: RouteQueryOptions) => {
+    return banned.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:79
+* @route '/banned'
+*/
+banned.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: banned.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:79
+* @route '/banned'
+*/
+banned.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: banned.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:79
+* @route '/banned'
+*/
+const bannedForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: banned.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:79
+* @route '/banned'
+*/
+bannedForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: banned.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:79
+* @route '/banned'
+*/
+bannedForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: banned.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+banned.form = bannedForm
+
+/**
+* @see routes/web.php:132
+* @route '/logout-to-register'
+*/
+export const logout_to_register = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: logout_to_register.url(options),
+    method: 'post',
+})
+
+logout_to_register.definition = {
+    methods: ["post"],
+    url: '/logout-to-register',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see routes/web.php:132
+* @route '/logout-to-register'
+*/
+logout_to_register.url = (options?: RouteQueryOptions) => {
+    return logout_to_register.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:132
+* @route '/logout-to-register'
+*/
+logout_to_register.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: logout_to_register.url(options),
+    method: 'post',
+})
+
+/**
+* @see routes/web.php:132
+* @route '/logout-to-register'
+*/
+const logout_to_registerForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: logout_to_register.url(options),
+    method: 'post',
+})
+
+/**
+* @see routes/web.php:132
+* @route '/logout-to-register'
+*/
+logout_to_registerForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: logout_to_register.url(options),
+    method: 'post',
+})
+
+logout_to_register.form = logout_to_registerForm
+
+/**
+* @see routes/web.php:142
 * @route '/dashboard'
 */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -314,8 +431,7 @@ dashboard.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:142
 * @route '/dashboard'
 */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -323,8 +439,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:142
 * @route '/dashboard'
 */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -333,8 +448,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:142
 * @route '/dashboard'
 */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -343,8 +457,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:142
 * @route '/dashboard'
 */
 const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -353,8 +466,7 @@ const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> 
 })
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:142
 * @route '/dashboard'
 */
 dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -363,8 +475,7 @@ dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 })
 
 /**
-* @see \Inertia\Controller::__invoke
-* @see vendor/inertiajs/inertia-laravel/src/Controller.php:13
+* @see routes/web.php:142
 * @route '/dashboard'
 */
 dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

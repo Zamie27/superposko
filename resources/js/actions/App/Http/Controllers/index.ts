@@ -1,14 +1,50 @@
 import Auth from './Auth'
-import PaymentController from './PaymentController'
-import MemberController from './MemberController'
 import DocumentationController from './DocumentationController'
+import ReportController from './ReportController'
+import BugReportController from './BugReportController'
+import TripayController from './TripayController'
+import Preorder from './Preorder'
+import PaymentController from './PaymentController'
+import Payment from './Payment'
+import DashboardController from './DashboardController'
+import FinanceController from './FinanceController'
+import LogbookController from './LogbookController'
+import InventoryController from './InventoryController'
+import LogisticController from './LogisticController'
+import PersonalBelongingController from './PersonalBelongingController'
+import ScheduleController from './ScheduleController'
+import MemberController from './MemberController'
+import MemberActivityLogController from './MemberActivityLogController'
+import ContactController from './ContactController'
+import ProkerDocumentController from './ProkerDocumentController'
+import VotingController from './VotingController'
+import PushSubscriptionController from './PushSubscriptionController'
+import Admin from './Admin'
 import Settings from './Settings'
 
 const Controllers = {
     Auth: Object.assign(Auth, Auth),
-    PaymentController: Object.assign(PaymentController, PaymentController),
-    MemberController: Object.assign(MemberController, MemberController),
     DocumentationController: Object.assign(DocumentationController, DocumentationController),
+    ReportController: Object.assign(ReportController, ReportController),
+    BugReportController: Object.assign(BugReportController, BugReportController),
+    TripayController: Object.assign(TripayController, TripayController),
+    Preorder: Object.assign(Preorder, Preorder),
+    PaymentController: Object.assign(PaymentController, PaymentController),
+    Payment: Object.assign(Payment, Payment),
+    DashboardController: Object.assign(DashboardController, DashboardController),
+    FinanceController: Object.assign(FinanceController, FinanceController),
+    LogbookController: Object.assign(LogbookController, LogbookController),
+    InventoryController: Object.assign(InventoryController, InventoryController),
+    LogisticController: Object.assign(LogisticController, LogisticController),
+    PersonalBelongingController: Object.assign(PersonalBelongingController, PersonalBelongingController),
+    ScheduleController: Object.assign(ScheduleController, ScheduleController),
+    MemberController: Object.assign(MemberController, MemberController),
+    MemberActivityLogController: Object.assign(MemberActivityLogController, MemberActivityLogController),
+    ContactController: Object.assign(ContactController, ContactController),
+    ProkerDocumentController: Object.assign(ProkerDocumentController, ProkerDocumentController),
+    VotingController: Object.assign(VotingController, VotingController),
+    PushSubscriptionController: Object.assign(PushSubscriptionController, PushSubscriptionController),
+    Admin: Object.assign(Admin, Admin),
     Settings: Object.assign(Settings, Settings),
 }
 

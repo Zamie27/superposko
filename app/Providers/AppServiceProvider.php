@@ -2,9 +2,14 @@
 
 namespace App\Providers;
 
+use App\Helpers\ActivityLogHelper;
+use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,6 +29,43 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        $this->registerActivityListeners();
+    }
+
+    /**
+     * Register listeners for auditing auth actions.
+     */
+    protected function registerActivityListeners(): void
+    {
+        Event::listen(
+            Login::class,
+            function (Login $event) {
+                /** @var User $user */
+                $user = $event->user;
+                ActivityLogHelper::log(
+                    'auth',
+                    'login',
+                    "User {$user->name} logged in.",
+                    $user
+                );
+            }
+        );
+
+        Event::listen(
+            Logout::class,
+            function (Logout $event) {
+                $user = $event->user;
+                if ($user instanceof User) {
+                    ActivityLogHelper::log(
+                        'auth',
+                        'logout',
+                        "User {$user->name} logged out.",
+                        $user
+                    );
+                }
+            }
+        );
     }
 
     /**

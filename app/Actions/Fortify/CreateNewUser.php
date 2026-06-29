@@ -28,9 +28,12 @@ class CreateNewUser implements CreatesNewUsers
             'name' => $input['name'],
             'email' => $input['email'],
             'university' => $input['university'],
+            'npm' => $input['npm'],
             'group_number' => $input['group_number'],
             'kkn_address' => $input['kkn_address'],
             'password' => $input['password'],
+            'role' => 'trial',
+            'trial_ends_at' => now()->addDays(5),
         ]);
     }
 }

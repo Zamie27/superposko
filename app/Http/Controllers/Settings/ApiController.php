@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\File;
+use Inertia\Response;
 
 class ApiController extends Controller
 {
-    public function edit()
+    public function edit(): Response
     {
         return Inertia::render('settings/Api', [
             'immichUrl' => config('services.immich.url'),
@@ -18,7 +19,7 @@ class ApiController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function update(Request $request): RedirectResponse
     {
         $request->validate([
             'immich_url' => ['nullable', 'url', 'max:255'],
@@ -34,22 +35,28 @@ class ApiController extends Controller
         return back()->with('success', 'Konfigurasi API berhasil diperbarui.');
     }
 
-    private function setEnvValue($key, $value)
+    private function setEnvValue(string $key, string $value): void
     {
         $path = base_path('.env');
 
         if (file_exists($path)) {
-            $value = '"' . trim($value) . '"';
+            $value = '"'.trim($value).'"';
             $oldContent = file_get_contents($path);
+
+            if ($oldContent === false) {
+                return;
+            }
 
             // Check if key exists
             if (preg_match("/^{$key}=/m", $oldContent)) {
                 $newContent = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $oldContent);
             } else {
-                $newContent = $oldContent . "\n{$key}={$value}\n";
+                $newContent = $oldContent."\n{$key}={$value}\n";
             }
 
-            file_put_contents($path, $newContent);
+            if ($newContent !== null) {
+                file_put_contents($path, $newContent);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import PublicFooter from '@/components/PublicFooter.vue';
 import { dashboard, login, register } from '@/routes';
 
 const isMenuOpen = ref(false);
@@ -75,15 +76,30 @@ const checklistFeatures = [
     'Schedule Management (Piket & Agenda)',
     'Repository Proker (Lost & Found)',
     'Voting & Aspirasi',
+    'Manajemen Barang Bawaan Pribadi',
     'Galeri Dokumentasi (Penyimpanan 20 GB)',
     'Menambahkan Anggota Sampai 20 Akun',
     'Support 24/7'
 ];
 
+defineProps<{
+    packageName: string;
+    packagePrice: number;
+    packageStrikePrice: number;
+    packageDescription: string;
+    preorderPrice: number;
+    preorderStrikePrice: number;
+    preorderPromoActive: boolean;
+    footerAbout: string;
+    footerEmail: string;
+    footerPhone: string;
+    footerCopyright: string;
+}>();
+
 const faqs = [
     {
-        question: 'Apakah biaya Rp 100.000 berlaku per anggota?',
-        answer: 'Tidak, biaya Rp 100.000/bulan adalah biaya flat per kelompok posko KKN, berapapun jumlah anggota di dalamnya.'
+        question: 'Apakah biaya langganan flat?',
+        answer: 'Ya, biaya flat per kelompok posko KKN, berapapun jumlah anggota di dalamnya.'
     },
     {
         question: 'Bagaimana cara mendaftarkan kelompok kami?',
@@ -112,6 +128,8 @@ const faqs = [
                 <!-- Desktop Nav -->
                 <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
                     <Link href="/" class="text-[#38BDF8] transition-colors">Home</Link>
+                    <Link href="/event" class="hover:text-[#38BDF8] transition-colors">Event</Link>
+                    <Link href="/panduan" class="hover:text-[#38BDF8] transition-colors">Panduan</Link>
                     <a href="#fitur" class="hover:text-[#38BDF8] transition-colors">Fitur</a>
                     <a href="#pricing" class="hover:text-[#38BDF8] transition-colors">Harga</a>
                     <a href="#faq" class="hover:text-[#38BDF8] transition-colors">FAQ</a>
@@ -160,6 +178,9 @@ const faqs = [
             <!-- Mobile Dropdown Nav -->
             <div v-if="isMenuOpen" class="border-b border-slate-200/50 bg-[#F4F7F7] px-6 py-4 md:hidden">
                 <nav class="flex flex-col gap-4 text-sm font-semibold text-slate-600">
+                    <Link href="/" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Home</Link>
+                    <Link href="/event" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Event</Link>
+                    <Link href="/panduan" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Panduan</Link>
                     <a href="#fitur" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Fitur</a>
                     <a href="#pricing" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Harga</a>
                     <a href="#faq" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">FAQ</a>
@@ -291,23 +312,134 @@ const faqs = [
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="text-center max-w-2xl mx-auto mb-12">
                     <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-                        Harga Flat per Posko KKN
+                        Harga Langganan Terjangkau
                     </h2>
                     <p class="mt-4 text-base text-slate-600">
                         Investasi hemat demi transparansi keuangan dan keteraturan administrasi seluruh anggota kelompok posko KKN Anda.
                     </p>
                 </div>
 
-                <!-- Pricing Card -->
-                <div class="mx-auto max-w-md rounded-2xl border border-[#38BDF8]/40 bg-white p-8 text-center shadow-md">
+                <!-- Pricing Cards Grid -->
+                <div v-if="preorderPromoActive" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
+                    <!-- 1. Pre-Order Card -->
+                    <div class="rounded-2xl border border-amber-500/40 bg-white p-8 text-center shadow-lg relative overflow-hidden flex flex-col justify-between">
+                        <!-- Ribbon -->
+                        <div class="absolute top-0 right-0 bg-amber-500 text-white text-[10px] font-black uppercase py-1.5 px-8 rotate-45 translate-x-6 translate-y-3 shadow-xs">
+                            Pre Order!
+                        </div>
+
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-600">Harga Promo Terbatas</span>
+                            <h3 class="mt-2 text-2xl font-bold text-slate-900">Pre Order {{ packageName }}</h3>
+                            <div class="my-6 flex items-baseline justify-center gap-1.5 flex-col items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm line-through text-slate-400">Rp {{ preorderStrikePrice.toLocaleString('id-ID') }}</span>
+                                    <span class="text-4xl font-extrabold text-slate-900">Rp {{ preorderPrice.toLocaleString('id-ID') }}</span>
+                                </div>
+                                <span class="text-xs text-slate-500 mt-1">Dapatkan harga spesial sebelum perilisan resmi</span>
+                            </div>
+                            <p class="text-sm leading-relaxed text-slate-600">
+                                Pesan paket posko Anda lebih awal selama masa promo pre-order ini dan nikmati potongan harga flat hingga KKN Anda selesai.
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <div class="mt-8">
+                                <Link
+                                    v-if="$page.props.auth.user"
+                                    href="/preorder"
+                                    class="block w-full rounded-xl bg-amber-500 hover:bg-amber-600 py-3 text-sm font-bold text-white transition duration-200"
+                                >
+                                    Dapatkan Sekarang
+                                </Link>
+                                <Link
+                                    v-else
+                                    :href="register()"
+                                    class="block w-full rounded-xl bg-amber-500 hover:bg-amber-600 py-3 text-sm font-bold text-white transition duration-200"
+                                >
+                                    Dapatkan Sekarang
+                                </Link>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="my-6 border-t border-slate-100"></div>
+
+                            <!-- Features Checklist -->
+                            <ul class="space-y-3.5 text-left text-sm text-slate-655">
+                                <li v-for="item in checklistFeatures" :key="item" class="flex items-center gap-3">
+                                    <svg class="h-5 w-5 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>{{ item }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 2. Paket Posko Card (Standard) -->
+                    <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-md relative overflow-hidden flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Akses Penuh SaaS</span>
+                            <h3 class="mt-2 text-2xl font-bold text-slate-900">{{ packageName }}</h3>
+                            <div class="my-6 flex items-baseline justify-center gap-1.5 flex-col items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm line-through text-slate-400">Rp {{ packageStrikePrice.toLocaleString('id-ID') }}</span>
+                                    <span class="text-4xl font-extrabold text-slate-900">Rp {{ packagePrice.toLocaleString('id-ID') }}</span>
+                                </div>
+                                <span class="text-xs text-slate-500 mt-1">Sekali bayar untuk 1 Siklus Posko (40 Hari)</span>
+                            </div>
+                            <p class="text-sm leading-relaxed text-slate-600">
+                                {{ packageDescription }}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <div class="mt-8">
+                                <Link
+                                    v-if="$page.props.auth.user"
+                                    :href="dashboard()"
+                                    class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-white transition duration-200"
+                                >
+                                    Masuk ke Dashboard
+                                </Link>
+                                <Link
+                                    v-else
+                                    :href="register()"
+                                    class="block w-full rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 py-3 text-sm font-bold text-white transition duration-200"
+                                >
+                                    Daftar Sekarang
+                                </Link>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="my-6 border-t border-slate-100"></div>
+
+                            <!-- Features Checklist -->
+                            <ul class="space-y-3.5 text-left text-sm text-slate-655">
+                                <li v-for="item in checklistFeatures" :key="item" class="flex items-center gap-3">
+                                    <svg class="h-5 w-5 shrink-0 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>{{ item }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fallback: Only Paket Posko Card (Standard) -->
+                <div v-else class="mx-auto max-w-md rounded-2xl border border-[#38BDF8]/40 bg-white p-8 text-center shadow-md">
                     <span class="text-xs font-bold uppercase tracking-wider text-sky-600">Akses Penuh SaaS</span>
-                    <h3 class="mt-2 text-2xl font-bold text-slate-900">Paket Posko</h3>
-                    <div class="my-6 flex items-baseline justify-center gap-1">
-                        <span class="text-4xl font-extrabold text-slate-900">Rp 100.000</span>
-                        <span class="text-sm font-semibold text-slate-500">/ bulan (40 hari)</span>
+                    <h3 class="mt-2 text-2xl font-bold text-slate-900">{{ packageName }}</h3>
+                    <div class="my-6 flex items-baseline justify-center gap-1.5 flex-col items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm line-through text-slate-400">Rp {{ packageStrikePrice.toLocaleString('id-ID') }}</span>
+                            <span class="text-4xl font-extrabold text-slate-900">Rp {{ packagePrice.toLocaleString('id-ID') }}</span>
+                        </div>
+                        <span class="text-xs text-slate-500 mt-1">Sekali bayar untuk 1 Siklus Posko (40 Hari)</span>
                     </div>
                     <p class="text-sm leading-relaxed text-slate-600">
-                        Dapatkan akses penuh ke seluruh modul platform untuk satu posko KKN tanpa batasan kuota user/anggota kelompok.
+                        {{ packageDescription }}
                     </p>
                     
                     <div class="mt-8">
@@ -377,6 +509,7 @@ const faqs = [
                         </p>
                         <div class="mt-8 flex justify-center gap-4.5">
                             <Link
+                                id="dashboard-cta-link"
                                 v-if="$page.props.auth.user"
                                 :href="dashboard()"
                                 class="rounded-xl bg-white hover:bg-slate-100 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-sm transition duration-200"
@@ -384,6 +517,7 @@ const faqs = [
                                 Masuk ke Dasbor
                             </Link>
                             <Link
+                                id="register-cta-link"
                                 v-else
                                 :href="register()"
                                 class="rounded-xl bg-white hover:bg-slate-100 px-6 py-3.5 text-sm font-bold text-slate-950 shadow-sm transition duration-200"
@@ -397,45 +531,12 @@ const faqs = [
         </section>
 
         <!-- Footer -->
-        <footer class="bg-slate-900 py-16 text-slate-400 border-t border-slate-800/50">
-            <div class="mx-auto max-w-7xl px-6 lg:px-8">
-                <div class="grid grid-cols-1 gap-12 md:grid-cols-4">
-                    <div class="md:col-span-2">
-                        <div class="flex items-center gap-2 text-white">
-                            <!-- Footer logo as icon only without text -->
-                            <img src="/icon_superposko.png" alt="SuperPosko Icon" class="h-10 w-auto" />
-                        </div>
-                        <p class="mt-4 max-w-md text-sm leading-relaxed">
-                            SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.
-                        </p>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">Pintasan</h4>
-                        <ul class="mt-4 space-y-2.5 text-sm">
-                            <li><a href="#fitur" class="hover:text-[#38BDF8] transition-colors">Fitur Utama</a></li>
-                            <li><a href="#pricing" class="hover:text-[#38BDF8] transition-colors">Harga Paket</a></li>
-                            <li><a href="#faq" class="hover:text-[#38BDF8] transition-colors">FAQ</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">Hubungi Kami</h4>
-                        <ul class="mt-4 space-y-2.5 text-sm">
-                            <li>Email: kuukok.id@gmail.com</li>
-                            <li>Telepon: +62 851-7173-9232</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="mt-12 border-t border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-                    <p>
-                        &copy; 2026 
-                        <a href="https://kuukok.my.id" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline font-medium">Kuukok.id</a> 
-                        - Solusi digital profesional. Hak Cipta Dilindungi.
-                    </p>
-                    <p>Dibuat dengan dedikasi untuk memajukan pengabdian masyarakat mahasiswa Indonesia.</p>
-                </div>
-            </div>
-        </footer>
+        <PublicFooter 
+            :footerAbout="footerAbout"
+            :footerEmail="footerEmail"
+            :footerPhone="footerPhone"
+            :footerCopyright="footerCopyright"
+        />
 
     </div>
 </template>

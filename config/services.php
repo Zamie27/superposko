@@ -41,16 +41,24 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
-    'midtrans' => [
-        'merchant_id' => env('MIDTRANS_MERCHANT_ID'),
-        'client_key' => env('MIDTRANS_CLIENT_KEY'),
-        'server_key' => env('MIDTRANS_SERVER_KEY'),
-        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
-    ],
-
     'immich' => [
         'url' => env('IMMICH_URL'),
         'api_key' => env('IMMICH_API_KEY'),
+        'email' => env('IMMICH_EMAIL'),
+        'password' => env('IMMICH_PASSWORD'),
+    ],
+
+    'vapid' => [
+        'public_key' => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject' => env('VAPID_SUBJECT'),
+    ],
+
+    'tripay' => [
+        'api_key' => env('TRIPAY_API_KEY'),
+        'private_key' => env('TRIPAY_PRIVATE_KEY'),
+        'merchant_code' => env('TRIPAY_MERCHANT_CODE'),
+        'is_production' => env('TRIPAY_IS_PRODUCTION', false),
     ],
 
 ];

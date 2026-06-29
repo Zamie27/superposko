@@ -1,75 +1,77 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import tripay from './tripay'
+import qris from './qris'
 /**
-* @see \App\Http\Controllers\PaymentController::test
-* @see app/Http/Controllers/PaymentController.php:18
-* @route '/payment/test'
+* @see \App\Http\Controllers\PaymentController::index
+* @see app/Http/Controllers/PaymentController.php:17
+* @route '/payment'
 */
-export const test = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: test.url(options),
+export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
     method: 'get',
 })
 
-test.definition = {
+index.definition = {
     methods: ["get","head"],
-    url: '/payment/test',
+    url: '/payment',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see \App\Http\Controllers\PaymentController::test
-* @see app/Http/Controllers/PaymentController.php:18
-* @route '/payment/test'
+* @see \App\Http\Controllers\PaymentController::index
+* @see app/Http/Controllers/PaymentController.php:17
+* @route '/payment'
 */
-test.url = (options?: RouteQueryOptions) => {
-    return test.definition.url + queryParams(options)
+index.url = (options?: RouteQueryOptions) => {
+    return index.definition.url + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\PaymentController::test
-* @see app/Http/Controllers/PaymentController.php:18
-* @route '/payment/test'
+* @see \App\Http\Controllers\PaymentController::index
+* @see app/Http/Controllers/PaymentController.php:17
+* @route '/payment'
 */
-test.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: test.url(options),
+index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index.url(options),
     method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\PaymentController::test
-* @see app/Http/Controllers/PaymentController.php:18
-* @route '/payment/test'
+* @see \App\Http\Controllers\PaymentController::index
+* @see app/Http/Controllers/PaymentController.php:17
+* @route '/payment'
 */
-test.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: test.url(options),
+index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index.url(options),
     method: 'head',
 })
 
 /**
-* @see \App\Http\Controllers\PaymentController::test
-* @see app/Http/Controllers/PaymentController.php:18
-* @route '/payment/test'
+* @see \App\Http\Controllers\PaymentController::index
+* @see app/Http/Controllers/PaymentController.php:17
+* @route '/payment'
 */
-const testForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: test.url(options),
+const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
     method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\PaymentController::test
-* @see app/Http/Controllers/PaymentController.php:18
-* @route '/payment/test'
+* @see \App\Http\Controllers\PaymentController::index
+* @see app/Http/Controllers/PaymentController.php:17
+* @route '/payment'
 */
-testForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: test.url(options),
+indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url(options),
     method: 'get',
 })
 
 /**
-* @see \App\Http\Controllers\PaymentController::test
-* @see app/Http/Controllers/PaymentController.php:18
-* @route '/payment/test'
+* @see \App\Http\Controllers\PaymentController::index
+* @see app/Http/Controllers/PaymentController.php:17
+* @route '/payment'
 */
-testForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-    action: test.url({
+indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: index.url({
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -78,67 +80,12 @@ testForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     method: 'get',
 })
 
-test.form = testForm
-
-/**
-* @see \App\Http\Controllers\PaymentController::token
-* @see app/Http/Controllers/PaymentController.php:29
-* @route '/payment/test/token'
-*/
-export const token = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: token.url(options),
-    method: 'post',
-})
-
-token.definition = {
-    methods: ["post"],
-    url: '/payment/test/token',
-} satisfies RouteDefinition<["post"]>
-
-/**
-* @see \App\Http\Controllers\PaymentController::token
-* @see app/Http/Controllers/PaymentController.php:29
-* @route '/payment/test/token'
-*/
-token.url = (options?: RouteQueryOptions) => {
-    return token.definition.url + queryParams(options)
-}
-
-/**
-* @see \App\Http\Controllers\PaymentController::token
-* @see app/Http/Controllers/PaymentController.php:29
-* @route '/payment/test/token'
-*/
-token.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: token.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\PaymentController::token
-* @see app/Http/Controllers/PaymentController.php:29
-* @route '/payment/test/token'
-*/
-const tokenForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: token.url(options),
-    method: 'post',
-})
-
-/**
-* @see \App\Http\Controllers\PaymentController::token
-* @see app/Http/Controllers/PaymentController.php:29
-* @route '/payment/test/token'
-*/
-tokenForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-    action: token.url(options),
-    method: 'post',
-})
-
-token.form = tokenForm
+index.form = indexForm
 
 const payment = {
-    test: Object.assign(test, test),
-    token: Object.assign(token, token),
+    tripay: Object.assign(tripay, tripay),
+    index: Object.assign(index, index),
+    qris: Object.assign(qris, qris),
 }
 
 export default payment

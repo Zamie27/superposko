@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\EmailChangeController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -10,6 +11,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('settings/profile/email-otp', [EmailChangeController::class, 'sendOtp'])->name('profile.email.otp');
+    Route::put('settings/profile/email-change', [EmailChangeController::class, 'verifyAndChange'])->name('profile.email.change');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -22,9 +25,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('settings/password', [SecurityController::class, 'update'])
         ->middleware('throttle:6,1')
         ->name('user-password.update');
-
-    Route::get('settings/api', [\App\Http\Controllers\Settings\ApiController::class, 'edit'])->name('api.edit');
-    Route::put('settings/api', [\App\Http\Controllers\Settings\ApiController::class, 'update'])->name('api.update');
-
-
 });

@@ -89,6 +89,19 @@ const isMatched = computed(() => password.value !== '' && password.value === pas
             </div>
 
             <div class="grid gap-2">
+                <Label for="npm">NPM / NIM</Label>
+                <Input
+                    id="npm"
+                    type="text"
+                    required
+                    :tabindex="3"
+                    name="npm"
+                    placeholder="Contoh: D1A230000"
+                />
+                <InputError :message="errors.npm" />
+            </div>
+
+            <div class="grid gap-2">
                 <Label for="group_number">Nomor / Nama Kelompok KKN</Label>
                 <Input
                     id="group_number"

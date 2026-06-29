@@ -1,7 +1,88 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+export const showPublicDoc = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showPublicDoc.url(options),
+    method: 'get',
+})
+
+showPublicDoc.definition = {
+    methods: ["get","head"],
+    url: '/panduan',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDoc.url = (options?: RouteQueryOptions) => {
+    return showPublicDoc.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDoc.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showPublicDoc.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDoc.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: showPublicDoc.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+const showPublicDocForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showPublicDoc.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDocForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showPublicDoc.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::showPublicDoc
+* @see app/Http/Controllers/DocumentationController.php:430
+* @route '/panduan'
+*/
+showPublicDocForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showPublicDoc.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+showPublicDoc.form = showPublicDocForm
+
+/**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:53
 * @route '/documentation'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +97,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:53
 * @route '/documentation'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +106,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:53
 * @route '/documentation'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +116,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:53
 * @route '/documentation'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +126,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:53
 * @route '/documentation'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +136,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:53
 * @route '/documentation'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +146,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\DocumentationController::index
-* @see app/Http/Controllers/DocumentationController.php:21
+* @see app/Http/Controllers/DocumentationController.php:53
 * @route '/documentation'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +163,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:196
 * @route '/documentation/upload'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +178,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:196
 * @route '/documentation/upload'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +187,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:196
 * @route '/documentation/upload'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +197,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:196
 * @route '/documentation/upload'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +207,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\DocumentationController::store
-* @see app/Http/Controllers/DocumentationController.php:130
+* @see app/Http/Controllers/DocumentationController.php:196
 * @route '/documentation/upload'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -137,8 +218,64 @@ storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 store.form = storeForm
 
 /**
+* @see \App\Http\Controllers\DocumentationController::uploadChunk
+* @see app/Http/Controllers/DocumentationController.php:263
+* @route '/documentation/upload-chunk'
+*/
+export const uploadChunk = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: uploadChunk.url(options),
+    method: 'post',
+})
+
+uploadChunk.definition = {
+    methods: ["post"],
+    url: '/documentation/upload-chunk',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\DocumentationController::uploadChunk
+* @see app/Http/Controllers/DocumentationController.php:263
+* @route '/documentation/upload-chunk'
+*/
+uploadChunk.url = (options?: RouteQueryOptions) => {
+    return uploadChunk.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\DocumentationController::uploadChunk
+* @see app/Http/Controllers/DocumentationController.php:263
+* @route '/documentation/upload-chunk'
+*/
+uploadChunk.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: uploadChunk.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::uploadChunk
+* @see app/Http/Controllers/DocumentationController.php:263
+* @route '/documentation/upload-chunk'
+*/
+const uploadChunkForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: uploadChunk.url(options),
+    method: 'post',
+})
+
+/**
+* @see \App\Http\Controllers\DocumentationController::uploadChunk
+* @see app/Http/Controllers/DocumentationController.php:263
+* @route '/documentation/upload-chunk'
+*/
+uploadChunkForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    action: uploadChunk.url(options),
+    method: 'post',
+})
+
+uploadChunk.form = uploadChunkForm
+
+/**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:137
 * @route '/documentation/thumbnail/{id}'
 */
 export const thumbnail = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -153,7 +290,7 @@ thumbnail.definition = {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:137
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnail.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -180,7 +317,7 @@ thumbnail.url = (args: { id: string | number } | [id: string | number ] | string
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:137
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnail.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +327,7 @@ thumbnail.get = (args: { id: string | number } | [id: string | number ] | string
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:137
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnail.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +337,7 @@ thumbnail.head = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:137
 * @route '/documentation/thumbnail/{id}'
 */
 const thumbnailForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +347,7 @@ const thumbnailForm = (args: { id: string | number } | [id: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:137
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnailForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -220,7 +357,7 @@ thumbnailForm.get = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\DocumentationController::thumbnail
-* @see app/Http/Controllers/DocumentationController.php:75
+* @see app/Http/Controllers/DocumentationController.php:137
 * @route '/documentation/thumbnail/{id}'
 */
 thumbnailForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -237,7 +374,7 @@ thumbnail.form = thumbnailForm
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:157
 * @route '/documentation/file/{id}'
 */
 export const file = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -252,7 +389,7 @@ file.definition = {
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:157
 * @route '/documentation/file/{id}'
 */
 file.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -279,7 +416,7 @@ file.url = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:157
 * @route '/documentation/file/{id}'
 */
 file.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -289,7 +426,7 @@ file.get = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:157
 * @route '/documentation/file/{id}'
 */
 file.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -299,7 +436,7 @@ file.head = (args: { id: string | number } | [id: string | number ] | string | n
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:157
 * @route '/documentation/file/{id}'
 */
 const fileForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -309,7 +446,7 @@ const fileForm = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:157
 * @route '/documentation/file/{id}'
 */
 fileForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -319,7 +456,7 @@ fileForm.get = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Http\Controllers\DocumentationController::file
-* @see app/Http/Controllers/DocumentationController.php:93
+* @see app/Http/Controllers/DocumentationController.php:157
 * @route '/documentation/file/{id}'
 */
 fileForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -334,6 +471,6 @@ fileForm.head = (args: { id: string | number } | [id: string | number ] | string
 
 file.form = fileForm
 
-const DocumentationController = { index, store, thumbnail, file }
+const DocumentationController = { showPublicDoc, index, store, uploadChunk, thumbnail, file }
 
 export default DocumentationController

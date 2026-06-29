@@ -2,7 +2,10 @@
 import AppContent from '@/components/AppContent.vue';
 import AppHeader from '@/components/AppHeader.vue';
 import AppShell from '@/components/AppShell.vue';
-import { Toaster } from '@/components/ui/sonner';
+import BugReportBubble from '@/components/BugReportBubble.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
+import ReportBubble from '@/components/ReportBubble.vue';
+import ToastContainer from '@/components/ToastContainer.vue';
 import type { BreadcrumbItem } from '@/types';
 
 type Props = {
@@ -20,6 +23,9 @@ withDefaults(defineProps<Props>(), {
         <AppContent variant="header">
             <slot />
         </AppContent>
-        <Toaster />
+        <ToastContainer />
+        <ConfirmationModal />
+        <ReportBubble />
+        <BugReportBubble />
     </AppShell>
 </template>

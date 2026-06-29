@@ -19,10 +19,6 @@ const sidebarNavItems: NavItem[] = [
         title: 'Security',
         href: editSecurity(),
     },
-    {
-        title: 'API Integrations',
-        href: '/settings/api',
-    },
 ];
 
 const { isCurrentOrParentUrl } = useCurrentUrl();

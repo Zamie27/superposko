@@ -34,6 +34,7 @@ class UserFactory extends Factory
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
             'university' => 'Universitas Indonesia',
+            'npm' => 'D1A230000',
             'group_number' => 'Kelompok 12',
             'kkn_address' => 'Desa Makmur Jaya',
         ];

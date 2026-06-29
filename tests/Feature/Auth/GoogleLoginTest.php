@@ -100,6 +100,7 @@ class GoogleLoginTest extends TestCase
             ],
         ])->post(route('auth.google.complete.store'), [
             'university' => 'Universitas Indonesia',
+            'npm' => 'D1A230000',
             'group_number' => 'Kelompok 12',
             'kkn_address' => 'Jalan Kaliurang KM 12',
             'password' => 'Password123!',
@@ -113,6 +114,7 @@ class GoogleLoginTest extends TestCase
             'email' => 'budi.google@example.com',
             'google_id' => 'google-id-123',
             'university' => 'Universitas Indonesia',
+            'npm' => 'D1A230000',
             'group_number' => 'Kelompok 12',
             'kkn_address' => 'Jalan Kaliurang KM 12',
         ]);

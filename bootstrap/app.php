@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CheckTrialExpiration;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\HostRouteProtectionMiddleware;
+use App\Http\Middleware\UserOnlyMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,12 +19,27 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+
+        $middleware->validateCsrfTokens(except: [
+            'payment/notification',
+            'payment/tripay/callback',
+        ]);
 
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            CheckTrialExpiration::class,
+            \App\Http\Middleware\CheckBanned::class,
+        ]);
+
+        $middleware->alias([
+            'admin' => AdminMiddleware::class,
+            'host.protect' => HostRouteProtectionMiddleware::class,
+            'user.only' => UserOnlyMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

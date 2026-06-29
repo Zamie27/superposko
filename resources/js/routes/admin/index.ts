@@ -1,0 +1,113 @@
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import users from './users'
+import prices from './prices'
+import subscriptions from './subscriptions'
+import trials from './trials'
+import preorders from './preorders'
+import subscriptionRequests from './subscription-requests'
+import notifications from './notifications'
+import settings from './settings'
+import documentationConfigs from './documentation-configs'
+import activityLogs from './activity-logs'
+import reports from './reports'
+import bugReports from './bug-reports'
+import payment from './payment'
+/**
+* @see \App\Http\Controllers\Admin\AdminController::dashboard
+* @see app/Http/Controllers/Admin/AdminController.php:17
+* @route '/admin/dashboard'
+*/
+export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: dashboard.url(options),
+    method: 'get',
+})
+
+dashboard.definition = {
+    methods: ["get","head"],
+    url: '/admin/dashboard',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Admin\AdminController::dashboard
+* @see app/Http/Controllers/Admin/AdminController.php:17
+* @route '/admin/dashboard'
+*/
+dashboard.url = (options?: RouteQueryOptions) => {
+    return dashboard.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Admin\AdminController::dashboard
+* @see app/Http/Controllers/Admin/AdminController.php:17
+* @route '/admin/dashboard'
+*/
+dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: dashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminController::dashboard
+* @see app/Http/Controllers/Admin/AdminController.php:17
+* @route '/admin/dashboard'
+*/
+dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: dashboard.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminController::dashboard
+* @see app/Http/Controllers/Admin/AdminController.php:17
+* @route '/admin/dashboard'
+*/
+const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: dashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminController::dashboard
+* @see app/Http/Controllers/Admin/AdminController.php:17
+* @route '/admin/dashboard'
+*/
+dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: dashboard.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\Admin\AdminController::dashboard
+* @see app/Http/Controllers/Admin/AdminController.php:17
+* @route '/admin/dashboard'
+*/
+dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: dashboard.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+dashboard.form = dashboardForm
+
+const admin = {
+    dashboard: Object.assign(dashboard, dashboard),
+    users: Object.assign(users, users),
+    prices: Object.assign(prices, prices),
+    subscriptions: Object.assign(subscriptions, subscriptions),
+    trials: Object.assign(trials, trials),
+    preorders: Object.assign(preorders, preorders),
+    subscriptionRequests: Object.assign(subscriptionRequests, subscriptionRequests),
+    notifications: Object.assign(notifications, notifications),
+    settings: Object.assign(settings, settings),
+    documentationConfigs: Object.assign(documentationConfigs, documentationConfigs),
+    activityLogs: Object.assign(activityLogs, activityLogs),
+    reports: Object.assign(reports, reports),
+    bugReports: Object.assign(bugReports, bugReports),
+    payment: Object.assign(payment, payment),
+}
+
+export default admin

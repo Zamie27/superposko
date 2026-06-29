@@ -15,4 +15,11 @@ class ExampleTest extends TestCase
 
         $response->assertOk();
     }
+
+    public function test_returns_a_successful_response_for_panduan_page()
+    {
+        $response = $this->get(route('documentation.public'));
+
+        $response->assertOk();
+    }
 }
