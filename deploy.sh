@@ -29,6 +29,9 @@ docker exec "$APP_CONTAINER" npm run build
 
 # 6. Run migrations
 echo "🗄️  Running migrations..."
+# Auto create database and user in shared mariadb container if they do not exist
+docker exec mariadb mariadb -u root -pmariapassword -e "CREATE DATABASE IF NOT EXISTS db_superposko; CREATE USER IF NOT EXISTS 'superposko_user'@'%' IDENTIFIED BY 'superposko_password'; GRANT ALL PRIVILEGES ON db_superposko.* TO 'superposko_user'@'%'; FLUSH PRIVILEGES;" 2>/dev/null || true
+
 docker exec "$APP_CONTAINER" php artisan migrate --force
 
 # 7. Clear & cache config
