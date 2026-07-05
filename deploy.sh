@@ -8,7 +8,7 @@ echo "🚀 Deploying Superposko..."
 
 # 1. Fix permissions
 echo "🔑 Fixing permissions..."
-chown -R 1000:1000 "$APP_DIR"
+chown -R root:root "$APP_DIR"
 
 # 2. Pull latest code
 echo "📦 Pulling latest code..."
@@ -16,7 +16,7 @@ git -C "$APP_DIR" fetch origin
 git -C "$APP_DIR" reset --hard origin/main
 
 # 3. Fix permissions again after pull
-chown -R 1000:1000 "$APP_DIR"
+chown -R root:root "$APP_DIR"
 
 # 4. Install PHP dependencies
 echo "🎻 Installing Composer dependencies..."
