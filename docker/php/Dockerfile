@@ -24,15 +24,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install Node.js 24.x
 RUN apk add --no-cache nodejs npm
 
-# Add user for laravel application
-RUN addgroup -g 1000 www && adduser -u 1000 -G www -h /home/www -D www
-
-# Copy existing application directory permissions
-COPY --chown=www:www . /var/www/html
-
-# Change current user to www
-USER www
-
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
 CMD ["php-fpm"]
