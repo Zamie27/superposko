@@ -485,18 +485,28 @@ const triggerPrint = () => {
                                 <td class="py-3.5 px-4 text-center whitespace-nowrap">
                                     <span 
                                         class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold"
-                                        :class="[record.type === 'income' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-450' : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400']"
+                                        :class="[
+                                            (record.type === 'income' && record.program_kerja_id)
+                                                ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400'
+                                                : record.type === 'income'
+                                                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-450'
+                                                    : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400'
+                                        ]"
                                     >
-                                        {{ record.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
+                                        {{ (record.type === 'income' && record.program_kerja_id) ? 'Alokasi Proker' : record.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
                                     </span>
                                 </td>
 
                                 <!-- Amount -->
                                 <td 
                                     class="py-3.5 px-4 text-right font-extrabold whitespace-nowrap"
-                                    :class="[record.type === 'income' ? 'text-emerald-600 dark:text-emerald-450' : 'text-slate-800 dark:text-slate-200']"
+                                    :class="[
+                                        (record.type === 'income' && !record.program_kerja_id)
+                                            ? 'text-emerald-600 dark:text-emerald-450'
+                                            : 'text-slate-800 dark:text-slate-200'
+                                    ]"
                                 >
-                                    {{ record.type === 'income' ? '+' : '-' }} {{ formatRupiah(record.amount) }}
+                                    {{ (record.type === 'income' && !record.program_kerja_id) ? '+' : '-' }} {{ formatRupiah(record.amount) }}
                                 </td>
 
                                 <!-- Link Proker / Kategori -->
