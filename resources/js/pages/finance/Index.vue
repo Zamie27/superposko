@@ -2,7 +2,7 @@
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { 
     Plus, Edit, Trash2, FileText, ArrowUpRight, ArrowDownLeft, Wallet, 
-    X, ImageIcon, Search, Filter, Printer, ExternalLink, Info
+    X, ImageIcon, Search, Filter, Printer, ExternalLink, Info, RefreshCw
 } from '@lucide/vue';
 import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -75,7 +75,7 @@ const filePreview = ref<string | null>(null);
 const linkType = ref<'umum' | 'proker'>('umum');
 const selectedCategory = ref('');
 const customCategory = ref('');
-const selectedProkerCategory = ref('Belanja Proker');
+const selectedProkerCategory = ref('Kas ke Proker');
 
 const incomeCategories = [
     { value: 'Iuran Anggota', label: 'Iuran Anggota' },
@@ -182,9 +182,9 @@ const openEditModal = (record: FinanceRecord) => {
     form.category = record.category || '';
     filePreview.value = record.receipt_path;
 
-    if (record.program_kerja_id) {
+    if (record.type === 'allocation' || record.program_kerja_id) {
         linkType.value = 'proker';
-        selectedProkerCategory.value = record.category || 'Belanja Proker';
+        selectedProkerCategory.value = record.category || 'Kas ke Proker';
         selectedCategory.value = '';
         customCategory.value = '';
     } else {
@@ -219,20 +219,26 @@ const handleFileChange = (e: Event) => {
 
 const submitForm = () => {
     if (linkType.value === 'umum') {
+        // General transactions (income or expense, no proker)
         form.program_kerja_id = '';
         if (selectedCategory.value === 'Lainnya') {
             form.category = customCategory.value;
         } else {
             form.category = selectedCategory.value;
         }
+        // type stays as income or expense
     } else {
-        if (form.type === 'expense') {
-            form.category = selectedProkerCategory.value || 'Belanja Proker';
-        } else {
-            form.category = 'Pemasukan Proker';
-        }
+        // Proker-linked transactions
         if (form.program_kerja_id === 'null' || form.program_kerja_id === '') {
             form.program_kerja_id = '';
+        }
+
+        if (form.type === 'allocation') {
+            // Alokasi Dana: category = 'Kas ke Proker' or 'Proker ke Kas'
+            form.category = selectedProkerCategory.value || 'Kas ke Proker';
+        } else if (form.type === 'expense') {
+            // Belanja Proker: category = 'Belanja Proker'
+            form.category = 'Belanja Proker';
         }
     }
 
@@ -486,14 +492,14 @@ const triggerPrint = () => {
                                     <span 
                                         class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold"
                                         :class="[
-                                            (record.type === 'income' && record.program_kerja_id)
+                                            record.type === 'allocation'
                                                 ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400'
                                                 : record.type === 'income'
                                                     ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-450'
                                                     : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400'
                                         ]"
                                     >
-                                        {{ (record.type === 'income' && record.program_kerja_id) ? 'Alokasi Proker' : record.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
+                                        {{ record.type === 'allocation' ? (record.category === 'Kas ke Proker' ? 'Alokasi → Proker' : 'Alokasi → Kas') : record.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
                                     </span>
                                 </td>
 
@@ -501,12 +507,12 @@ const triggerPrint = () => {
                                 <td 
                                     class="py-3.5 px-4 text-right font-extrabold whitespace-nowrap"
                                     :class="[
-                                        (record.type === 'income' && !record.program_kerja_id)
+                                        (record.type === 'income' || (record.type === 'allocation' && record.category === 'Proker ke Kas'))
                                             ? 'text-emerald-600 dark:text-emerald-450'
                                             : 'text-slate-800 dark:text-slate-200'
                                     ]"
                                 >
-                                    {{ (record.type === 'income' && !record.program_kerja_id) ? '+' : '-' }} {{ formatRupiah(record.amount) }}
+                                    {{ (record.type === 'income' || (record.type === 'allocation' && record.category === 'Proker ke Kas')) ? '+' : '-' }} {{ formatRupiah(record.amount) }}
                                 </td>
 
                                 <!-- Link Proker / Kategori -->
@@ -680,24 +686,33 @@ const triggerPrint = () => {
                     <!-- Type selector -->
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Tipe Transaksi</label>
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-3 gap-2">
                             <button
                                 type="button"
-                                @click="form.type = 'expense'"
-                                class="py-2.5 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                @click="form.type = 'expense'; linkType = 'umum'"
+                                class="py-2.5 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-1.5"
                                 :class="[form.type === 'expense' ? 'bg-red-500 border-red-500 text-white shadow-xs' : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white']"
                             >
                                 <ArrowDownLeft class="size-4" />
-                                <span>Pengeluaran (Cash Out)</span>
+                                <span>Pengeluaran</span>
                             </button>
                             <button
                                 type="button"
-                                @click="form.type = 'income'"
-                                class="py-2.5 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-2"
+                                @click="form.type = 'income'; linkType = 'umum'"
+                                class="py-2.5 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-1.5"
                                 :class="[form.type === 'income' ? 'bg-emerald-500 border-emerald-500 text-white shadow-xs' : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white']"
                             >
                                 <ArrowUpRight class="size-4" />
-                                <span>Pemasukan (Cash In)</span>
+                                <span>Pemasukan</span>
+                            </button>
+                            <button
+                                type="button"
+                                @click="form.type = 'allocation'; linkType = 'proker'"
+                                class="py-2.5 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-1.5"
+                                :class="[form.type === 'allocation' ? 'bg-amber-500 border-amber-500 text-white shadow-xs' : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white']"
+                            >
+                                <RefreshCw class="size-4" />
+                                <span>Alokasi Dana</span>
                             </button>
                         </div>
                     </div>
@@ -743,50 +758,17 @@ const triggerPrint = () => {
                         </div>
                     </div>
 
-                    <!-- Kategori Transaksi Linkage (Umum vs Proker) -->
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Kategori Transaksi</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button
-                                type="button"
-                                @click="linkType = 'umum'"
-                                :class="[
-                                    'py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5',
-                                    linkType === 'umum'
-                                        ? 'bg-sky-500 border-sky-500 text-white shadow-xs'
-                                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white'
-                                ]"
-                            >
-                                Secara Umum
-                            </button>
-                            <button
-                                type="button"
-                                @click="linkType = 'proker'"
-                                :class="[
-                                    'py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5',
-                                    linkType === 'proker'
-                                        ? 'bg-sky-500 border-sky-500 text-white shadow-xs'
-                                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white'
-                                ]"
-                            >
-                                Program Kerja (Proker)
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Jika Linkage Umum -->
-                    <div v-if="linkType === 'umum'">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                            {{ form.type === 'income' ? 'Jenis Pemasukan' : 'Jenis Pengeluaran' }}
-                        </label>
+                    <!-- === INCOME: Jenis Pemasukan Umum === -->
+                    <div v-if="form.type === 'income'">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Jenis Pemasukan</label>
                         <select 
                             v-model="selectedCategory"
                             class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
                             required
                         >
-                            <option value="" class="dark:bg-slate-900">-- Pilih {{ form.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }} --</option>
+                            <option value="" class="dark:bg-slate-900">-- Pilih Jenis Pemasukan --</option>
                             <option 
-                                v-for="cat in (form.type === 'income' ? incomeCategories : expenseCategories)" 
+                                v-for="cat in incomeCategories" 
                                 :key="cat.value" 
                                 :value="cat.value"
                                 class="dark:bg-slate-900"
@@ -794,13 +776,11 @@ const triggerPrint = () => {
                                 {{ cat.label }}
                             </option>
                         </select>
-                        
-                        <!-- Custom Category Input if "Lainnya" -->
                         <div v-if="selectedCategory === 'Lainnya'" class="mt-2">
                             <input 
                                 v-model="customCategory"
                                 type="text"
-                                placeholder="Tulis kategori manual..."
+                                placeholder="Tulis jenis pemasukan manual..."
                                 required
                                 class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
                             />
@@ -808,8 +788,94 @@ const triggerPrint = () => {
                         <p v-if="form.errors.category" class="text-xs text-red-500 mt-1">{{ form.errors.category }}</p>
                     </div>
 
-                    <!-- Jika Linkage Proker -->
-                    <div v-else class="space-y-3">
+                    <!-- === EXPENSE: Umum / Proker Toggle === -->
+                    <div v-else-if="form.type === 'expense'" class="space-y-3">
+                        <!-- Kategori Transaksi (Umum vs Proker) -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Kategori Pengeluaran</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button
+                                    type="button"
+                                    @click="linkType = 'umum'"
+                                    :class="[
+                                        'py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5',
+                                        linkType === 'umum'
+                                            ? 'bg-sky-500 border-sky-500 text-white shadow-xs'
+                                            : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white'
+                                    ]"
+                                >
+                                    Pengeluaran Umum
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="linkType = 'proker'"
+                                    :class="[
+                                        'py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5',
+                                        linkType === 'proker'
+                                            ? 'bg-sky-500 border-sky-500 text-white shadow-xs'
+                                            : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white'
+                                    ]"
+                                >
+                                    Belanja Program Kerja
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Jika Pengeluaran Umum -->
+                        <div v-if="linkType === 'umum'">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Jenis Pengeluaran</label>
+                            <select 
+                                v-model="selectedCategory"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                                required
+                            >
+                                <option value="" class="dark:bg-slate-900">-- Pilih Jenis Pengeluaran --</option>
+                                <option 
+                                    v-for="cat in expenseCategories" 
+                                    :key="cat.value" 
+                                    :value="cat.value"
+                                    class="dark:bg-slate-900"
+                                >
+                                    {{ cat.label }}
+                                </option>
+                            </select>
+                            <div v-if="selectedCategory === 'Lainnya'" class="mt-2">
+                                <input 
+                                    v-model="customCategory"
+                                    type="text"
+                                    placeholder="Tulis jenis pengeluaran manual..."
+                                    required
+                                    class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
+                                />
+                            </div>
+                            <p v-if="form.errors.category" class="text-xs text-red-500 mt-1">{{ form.errors.category }}</p>
+                        </div>
+
+                        <!-- Jika Belanja Program Kerja -->
+                        <div v-else>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Program Kerja</label>
+                            <select 
+                                v-model="form.program_kerja_id"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                                required
+                            >
+                                <option value="" class="dark:bg-slate-900">-- Pilih Program Kerja --</option>
+                                <option 
+                                    v-for="proker in programKerjas" 
+                                    :key="proker.id" 
+                                    :value="proker.id"
+                                    class="dark:bg-slate-900"
+                                >
+                                    {{ proker.name }} (Estimasi: {{ formatRupiah(proker.budget) }})
+                                </option>
+                            </select>
+                            <p v-if="form.errors.program_kerja_id" class="text-xs text-red-500 mt-1">{{ form.errors.program_kerja_id }}</p>
+                        </div>
+                    </div>
+
+                    <!-- === ALLOCATION: Alokasi Dana Proker === -->
+                    <div v-else-if="form.type === 'allocation'" class="space-y-3">
+                        <!-- Pilih Program Kerja -->
                         <div>
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Program Kerja</label>
                             <select 
@@ -824,22 +890,22 @@ const triggerPrint = () => {
                                     :value="proker.id"
                                     class="dark:bg-slate-900"
                                 >
-                                    {{ proker.name }} (Estimasi Anggaran: {{ formatRupiah(proker.budget) }})
+                                    {{ proker.name }} (Estimasi: {{ formatRupiah(proker.budget) }})
                                 </option>
                             </select>
                             <p v-if="form.errors.program_kerja_id" class="text-xs text-red-500 mt-1">{{ form.errors.program_kerja_id }}</p>
                         </div>
 
-                        <!-- Tipe Transaksi Proker (Alokasi Dana vs Belanja Proker) -->
-                        <div v-if="form.type === 'expense'">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tipe Transaksi Proker</label>
+                        <!-- Arah Alokasi Dana -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Arah Alokasi Dana</label>
                             <select 
                                 v-model="selectedProkerCategory"
                                 class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
                                 required
                             >
-                                <option value="Alokasi Dana" class="dark:bg-slate-900">Alokasi Dana (Kas Posko -> Proker)</option>
-                                <option value="Belanja Proker" class="dark:bg-slate-900">Belanja Proker (Realisasi Pengeluaran)</option>
+                                <option value="Kas ke Proker" class="dark:bg-slate-900">Kas Posko → Program Kerja</option>
+                                <option value="Proker ke Kas" class="dark:bg-slate-900">Program Kerja → Kas Posko</option>
                             </select>
                             <p v-if="form.errors.category" class="text-xs text-red-500 mt-1">{{ form.errors.category }}</p>
                         </div>

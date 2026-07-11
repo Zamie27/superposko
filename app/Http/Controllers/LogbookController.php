@@ -59,15 +59,13 @@ class LogbookController extends Controller
                 $query->select('id', 'program_kerja_id', 'title', 'type', 'amount', 'date', 'category')->orderBy('date', 'desc');
             }])
             ->withSum(['finances as spent' => function ($query) {
-                $query->where('type', 'expense')->where('category', '!=', 'Alokasi Dana');
+                $query->where('type', 'expense');
             }], 'amount')
-            ->withSum(['finances as earned' => function ($query) {
-                $query->where(function ($q) {
-                    $q->where('type', 'income')
-                      ->orWhere(function ($sub) {
-                          $sub->where('type', 'expense')->where('category', 'Alokasi Dana');
-                      });
-                });
+            ->withSum(['finances as allocated' => function ($query) {
+                $query->where('type', 'allocation')->where('category', 'Kas ke Proker');
+            }], 'amount')
+            ->withSum(['finances as returned' => function ($query) {
+                $query->where('type', 'allocation')->where('category', 'Proker ke Kas');
             }], 'amount')
             ->where('host_id', $hostId)
             ->orderBy('created_at', 'desc')
@@ -83,7 +81,7 @@ class LogbookController extends Controller
                     'progress' => $proker->progress,
                     'budget' => (float) $proker->budget,
                     'spent' => (float) ($proker->spent ?? 0),
-                    'earned' => (float) ($proker->earned ?? 0),
+                    'earned' => (float) (($proker->allocated ?? 0) - ($proker->returned ?? 0)),
                     'status' => $proker->status,
                     'pic' => $proker->pic,
                     'finances' => $proker->finances->map(function ($f) {
