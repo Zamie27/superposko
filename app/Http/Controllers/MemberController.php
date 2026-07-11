@@ -434,8 +434,12 @@ class MemberController extends Controller
                     ]);
                 }
 
-                \Illuminate\Support\Facades\Mail::to($m['email'])
-                    ->send(new \App\Mail\MemberCreatedMail($m['name'], $m['email'], $password));
+                try {
+                    \Illuminate\Support\Facades\Mail::to($m['email'])
+                        ->send(new \App\Mail\MemberCreatedMail($m['name'], $m['email'], $password));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error("Gagal mengirim email kredensial ke {$m['email']}: " . $e->getMessage());
+                }
 
                 ActivityLogHelper::log(
                     'member',
