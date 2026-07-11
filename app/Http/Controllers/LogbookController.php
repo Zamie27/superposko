@@ -56,13 +56,18 @@ class LogbookController extends Controller
             });
 
         $programKerjas = ProgramKerja::with(['pic:id,name,email', 'finances' => function ($query) {
-                $query->select('id', 'program_kerja_id', 'title', 'type', 'amount', 'date')->orderBy('date', 'desc');
+                $query->select('id', 'program_kerja_id', 'title', 'type', 'amount', 'date', 'category')->orderBy('date', 'desc');
             }])
             ->withSum(['finances as spent' => function ($query) {
-                $query->where('type', 'expense');
+                $query->where('type', 'expense')->where('category', '!=', 'Alokasi Dana');
             }], 'amount')
             ->withSum(['finances as earned' => function ($query) {
-                $query->where('type', 'income');
+                $query->where(function ($q) {
+                    $q->where('type', 'income')
+                      ->orWhere(function ($sub) {
+                          $sub->where('type', 'expense')->where('category', 'Alokasi Dana');
+                      });
+                });
             }], 'amount')
             ->where('host_id', $hostId)
             ->orderBy('created_at', 'desc')
@@ -87,6 +92,7 @@ class LogbookController extends Controller
                             'title' => $f->title,
                             'type' => $f->type,
                             'amount' => (float) $f->amount,
+                            'category' => $f->category,
                             'date' => $f->date->format('Y-m-d'),
                         ];
                     }),

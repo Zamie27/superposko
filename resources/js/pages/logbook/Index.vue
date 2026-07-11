@@ -1149,13 +1149,13 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                                         <td class="py-2.5 px-3 text-center">
                                             <span 
                                                 class="px-1.5 py-0.5 rounded-full text-[9px] font-bold"
-                                                :class="[item.type === 'income' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400']"
+                                                :class="[(item.type === 'income' || item.category === 'Alokasi Dana') ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-450' : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-450']"
                                             >
-                                                {{ item.type === 'income' ? 'Masuk' : 'Keluar' }}
+                                                {{ (item.type === 'income' || item.category === 'Alokasi Dana') ? 'Masuk' : 'Keluar' }}
                                             </span>
                                         </td>
-                                        <td class="py-2.5 px-3 text-right font-bold" :class="[item.type === 'income' ? 'text-emerald-500' : 'text-slate-900 dark:text-white']">
-                                            {{ item.type === 'income' ? '+' : '-' }} {{ formatRupiah(item.amount) }}
+                                        <td class="py-2.5 px-3 text-right font-bold" :class="[(item.type === 'income' || item.category === 'Alokasi Dana') ? 'text-emerald-500' : 'text-slate-900 dark:text-white']">
+                                            {{ (item.type === 'income' || item.category === 'Alokasi Dana') ? '+' : '-' }} {{ formatRupiah(item.amount) }}
                                         </td>
                                     </tr>
                                 </tbody>

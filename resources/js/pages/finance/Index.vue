@@ -75,6 +75,7 @@ const filePreview = ref<string | null>(null);
 const linkType = ref<'umum' | 'proker'>('umum');
 const selectedCategory = ref('');
 const customCategory = ref('');
+const selectedProkerCategory = ref('Belanja Proker');
 
 const incomeCategories = [
     { value: 'Iuran Anggota', label: 'Iuran Anggota' },
@@ -183,6 +184,7 @@ const openEditModal = (record: FinanceRecord) => {
 
     if (record.program_kerja_id) {
         linkType.value = 'proker';
+        selectedProkerCategory.value = record.category || 'Belanja Proker';
         selectedCategory.value = '';
         customCategory.value = '';
     } else {
@@ -224,7 +226,11 @@ const submitForm = () => {
             form.category = selectedCategory.value;
         }
     } else {
-        form.category = '';
+        if (form.type === 'expense') {
+            form.category = selectedProkerCategory.value || 'Belanja Proker';
+        } else {
+            form.category = 'Pemasukan Proker';
+        }
         if (form.program_kerja_id === 'null' || form.program_kerja_id === '') {
             form.program_kerja_id = '';
         }
@@ -793,24 +799,40 @@ const triggerPrint = () => {
                     </div>
 
                     <!-- Jika Linkage Proker -->
-                    <div v-else>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Program Kerja</label>
-                        <select 
-                            v-model="form.program_kerja_id"
-                            class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
-                            required
-                        >
-                            <option value="" class="dark:bg-slate-900">-- Pilih Program Kerja --</option>
-                            <option 
-                                v-for="proker in programKerjas" 
-                                :key="proker.id" 
-                                :value="proker.id"
-                                class="dark:bg-slate-900"
+                    <div v-else class="space-y-3">
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Program Kerja</label>
+                            <select 
+                                v-model="form.program_kerja_id"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                                required
                             >
-                                {{ proker.name }} (Estimasi Anggaran: {{ formatRupiah(proker.budget) }})
-                            </option>
-                        </select>
-                        <p v-if="form.errors.program_kerja_id" class="text-xs text-red-500 mt-1">{{ form.errors.program_kerja_id }}</p>
+                                <option value="" class="dark:bg-slate-900">-- Pilih Program Kerja --</option>
+                                <option 
+                                    v-for="proker in programKerjas" 
+                                    :key="proker.id" 
+                                    :value="proker.id"
+                                    class="dark:bg-slate-900"
+                                >
+                                    {{ proker.name }} (Estimasi Anggaran: {{ formatRupiah(proker.budget) }})
+                                </option>
+                            </select>
+                            <p v-if="form.errors.program_kerja_id" class="text-xs text-red-500 mt-1">{{ form.errors.program_kerja_id }}</p>
+                        </div>
+
+                        <!-- Tipe Transaksi Proker (Alokasi Dana vs Belanja Proker) -->
+                        <div v-if="form.type === 'expense'">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tipe Transaksi Proker</label>
+                            <select 
+                                v-model="selectedProkerCategory"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                                required
+                            >
+                                <option value="Alokasi Dana" class="dark:bg-slate-900">Alokasi Dana (Kas Posko -> Proker)</option>
+                                <option value="Belanja Proker" class="dark:bg-slate-900">Belanja Proker (Realisasi Pengeluaran)</option>
+                            </select>
+                            <p v-if="form.errors.category" class="text-xs text-red-500 mt-1">{{ form.errors.category }}</p>
+                        </div>
                     </div>
 
                     <!-- Description -->

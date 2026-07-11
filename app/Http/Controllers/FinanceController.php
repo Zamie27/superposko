@@ -117,6 +117,10 @@ class FinanceController extends Controller
             $totalExpense = Finance::where('host_id', $hostId)->where('type', 'expense')->sum('amount');
             $currentBalance = $totalIncome - $totalExpense;
 
+            if ($currentBalance <= 0) {
+                return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan pengeluaran/alokasi dana saat ini (Saldo saat ini: Rp ' . number_format($currentBalance, 0, ',', '.') . ').']);
+            }
+
             if ($currentBalance < $validated['amount']) {
                 return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk transaksi ini (Saldo saat ini: Rp ' . number_format($currentBalance, 0, ',', '.') . ').']);
             }
@@ -192,6 +196,10 @@ class FinanceController extends Controller
                 $adjustedBalance += $finance->amount;
             } else {
                 $adjustedBalance -= $finance->amount;
+            }
+
+            if ($adjustedBalance <= 0) {
+                return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan pengeluaran/alokasi dana saat ini (Saldo saat ini: Rp ' . number_format($adjustedBalance, 0, ',', '.') . ').']);
             }
 
             if ($adjustedBalance < $validated['amount']) {
