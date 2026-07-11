@@ -92,6 +92,28 @@ const form = useForm({
     purchase_price: '' as string | number,
 });
 
+const formattedQuantity = computed(() => {
+    if (!form.quantity) return '';
+    return Number(form.quantity).toLocaleString('id-ID');
+});
+
+const onQuantityInput = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const cleanValue = target.value.replace(/\D/g, '');
+    form.quantity = cleanValue ? parseFloat(cleanValue) : 0;
+};
+
+const formattedPurchasePrice = computed(() => {
+    if (!form.purchase_price) return '';
+    return Number(form.purchase_price).toLocaleString('id-ID');
+});
+
+const onPurchasePriceInput = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const cleanValue = target.value.replace(/\D/g, '');
+    form.purchase_price = cleanValue ? parseInt(cleanValue, 10) : '';
+};
+
 const openCreateModal = () => {
     isEditMode.value = false;
     editingLogisticId.value = null;
@@ -440,11 +462,10 @@ const getStatusDetails = (status: string) => {
                         <div class="space-y-1">
                             <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Jumlah Stok</label>
                             <input
-                                v-model.number="form.quantity"
-                                type="number"
-                                step="any"
-                                min="0"
-                                placeholder="Contoh: 10, 2.5"
+                                :value="formattedQuantity"
+                                @input="onQuantityInput"
+                                type="text"
+                                placeholder="Contoh: 10"
                                 class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
                                 required
                             />
@@ -518,11 +539,10 @@ const getStatusDetails = (status: string) => {
                         <div class="relative">
                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-semibold">Rp</span>
                             <input
-                                v-model="form.purchase_price"
-                                type="number"
-                                min="0"
-                                step="1000"
-                                placeholder="0"
+                                :value="formattedPurchasePrice"
+                                @input="onPurchasePriceInput"
+                                type="text"
+                                placeholder="Contoh: 15.000"
                                 class="w-full rounded-xl border border-slate-200 dark:border-slate-800 pl-9 pr-3 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:bg-slate-950 dark:text-white"
                             />
                         </div>

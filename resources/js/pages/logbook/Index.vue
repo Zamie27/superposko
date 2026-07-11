@@ -173,6 +173,17 @@ const closeProkerFinanceModal = () => {
     selectedProkerForFinance.value = null;
 };
 
+const formattedBudget = computed(() => {
+    if (!prokerForm.budget) return '';
+    return Number(prokerForm.budget).toLocaleString('id-ID');
+});
+
+const onBudgetInput = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const cleanValue = target.value.replace(/\D/g, '');
+    prokerForm.budget = cleanValue ? parseInt(cleanValue, 10) : 0;
+};
+
 // --- PROKER MODAL & ACTION HANDLERS ---
 const isProkerModalOpen = ref(false);
 const isProkerEditMode = ref(false);
@@ -870,10 +881,10 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                     <div class="space-y-1">
                         <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Estimasi Pengeluaran (Rp)</label>
                         <input
-                            v-model.number="prokerForm.budget"
-                            type="number"
-                            min="0"
-                            placeholder="Contoh: 150000"
+                            :value="formattedBudget"
+                            @input="onBudgetInput"
+                            type="text"
+                            placeholder="Contoh: 150.000"
                             class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
                             required
                         />
