@@ -112,6 +112,16 @@ class FinanceController extends Controller
             }
         }
 
+        if ($validated['type'] === 'expense') {
+            $totalIncome = Finance::where('host_id', $hostId)->where('type', 'income')->sum('amount');
+            $totalExpense = Finance::where('host_id', $hostId)->where('type', 'expense')->sum('amount');
+            $currentBalance = $totalIncome - $totalExpense;
+
+            if ($currentBalance < $validated['amount']) {
+                return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk transaksi ini (Saldo saat ini: Rp ' . number_format($currentBalance, 0, ',', '.') . ').']);
+            }
+        }
+
         $receiptPath = null;
         if ($request->hasFile('receipt_file')) {
             $receiptPath = $request->file('receipt_file')->store('receipts', 'public');
@@ -169,6 +179,23 @@ class FinanceController extends Controller
                 ->first();
             if (! $proker) {
                 abort(400, 'Program Kerja tidak valid untuk posko Anda.');
+            }
+        }
+
+        if ($validated['type'] === 'expense') {
+            $totalIncome = Finance::where('host_id', $hostId)->where('type', 'income')->sum('amount');
+            $totalExpense = Finance::where('host_id', $hostId)->where('type', 'expense')->sum('amount');
+            $currentBalance = $totalIncome - $totalExpense;
+
+            $adjustedBalance = $currentBalance;
+            if ($finance->type === 'expense') {
+                $adjustedBalance += $finance->amount;
+            } else {
+                $adjustedBalance -= $finance->amount;
+            }
+
+            if ($adjustedBalance < $validated['amount']) {
+                return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk transaksi ini (Saldo saat ini: Rp ' . number_format($adjustedBalance, 0, ',', '.') . ').']);
             }
         }
 
