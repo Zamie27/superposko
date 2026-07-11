@@ -130,6 +130,62 @@ const submitTransfer = () => {
 };
 
 const isBatchModalOpen = ref(false);
+const batchTab = ref('manual');
+
+const handleCsvUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const text = e.target?.result as string;
+        if (!text) return;
+
+        const lines = text.split('\n');
+        if (lines.length <= 1) {
+            alert('File CSV kosong.');
+            return;
+        }
+
+        const parsedMembers: Array<{ name: string; email: string; role: string }> = [];
+
+        const header = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const nameIdx = header.findIndex(h => h === 'nama' || h === 'name');
+        const emailIdx = header.indexOf('email');
+        const roleIdx = header.indexOf('role');
+
+        if (nameIdx === -1 || emailIdx === -1 || roleIdx === -1) {
+            alert('Format CSV tidak sesuai template. Pastikan baris pertama memiliki header: nama, email, role.');
+            return;
+        }
+
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            // Simple CSV line parser
+            const cols = line.split(',').map(c => c.trim());
+            if (cols.length >= 3) {
+                parsedMembers.push({
+                    name: cols[nameIdx] || '',
+                    email: cols[emailIdx] || '',
+                    role: cols[roleIdx] ? cols[roleIdx].toLowerCase() : 'anggota',
+                });
+            }
+        }
+
+        if (parsedMembers.length > 0) {
+            batchForm.members = parsedMembers;
+            batchTab.value = 'manual';
+            alert(`Berhasil membaca ${parsedMembers.length} data dari CSV. Silakan tinjau dan klik Simpan Batch.`);
+        } else {
+            alert('Tidak ada data anggota valid yang ditemukan di file CSV.');
+        }
+    };
+    reader.readAsText(file);
+};
+
 const batchForm = useForm({
     members: [
         { name: '', email: '', role: 'anggota' }
@@ -138,6 +194,7 @@ const batchForm = useForm({
 
 const openBatchModal = () => {
     batchForm.reset();
+    batchTab.value = 'manual';
     batchForm.members = [{ name: '', email: '', role: 'anggota' }];
     batchForm.clearErrors();
     isBatchModalOpen.value = true;
@@ -502,90 +559,166 @@ defineOptions({
                         </DialogDescription>
                     </DialogHeader>
 
+                    <!-- Tabs -->
+                    <div class="flex border-b border-slate-100 dark:border-slate-800 -mx-6 px-6">
+                        <button 
+                            type="button"
+                            @click="batchTab = 'manual'"
+                            class="px-4 py-2 text-xs font-bold border-b-2 transition"
+                            :class="[batchTab === 'manual' ? 'border-[#38BDF8] text-[#38BDF8]' : 'border-transparent text-slate-500 hover:text-slate-700']"
+                        >
+                            Ketik Manual
+                        </button>
+                        <button 
+                            type="button"
+                            @click="batchTab = 'csv'"
+                            class="px-4 py-2 text-xs font-bold border-b-2 transition"
+                            :class="[batchTab === 'csv' ? 'border-[#38BDF8] text-[#38BDF8]' : 'border-transparent text-slate-500 hover:text-slate-700']"
+                        >
+                            Upload File CSV
+                        </button>
+                    </div>
+
                     <form @submit.prevent="submitBatchForm" class="flex-1 flex flex-col overflow-hidden space-y-4 py-4">
                         <div v-if="batchForm.errors.batch_error" class="rounded-xl bg-red-50 dark:bg-red-950/30 p-3 border border-red-200 text-xs text-red-800 dark:text-red-300">
                             {{ batchForm.errors.batch_error }}
                         </div>
 
-                        <!-- Rows Wrapper -->
-                        <div class="flex-1 overflow-y-auto pr-1 space-y-3 min-h-[200px] max-h-[40vh]">
-                            <div 
-                                v-for="(memberRow, idx) in batchForm.members" 
-                                :key="idx" 
-                                class="grid grid-cols-12 gap-2 items-start border-b pb-3 border-slate-100 dark:border-slate-800"
-                            >
-                                <!-- Name -->
-                                <div class="col-span-4">
-                                    <Label class="text-[10px] uppercase font-bold text-slate-400">Nama Lengkap</Label>
-                                    <Input 
-                                        v-model="memberRow.name" 
-                                        placeholder="Nama" 
-                                        class="h-9 text-xs" 
-                                        required 
-                                    />
-                                    <InputError :message="batchForm.errors[`members.${idx}.name`]" class="text-[10px] mt-0.5" />
-                                </div>
+                        <!-- Manual Grid View -->
+                        <template v-if="batchTab === 'manual'">
+                            <!-- Rows Wrapper -->
+                            <div class="flex-1 overflow-y-auto pr-1 space-y-3 min-h-[200px] max-h-[40vh]">
+                                <div 
+                                    v-for="(memberRow, idx) in batchForm.members" 
+                                    :key="idx" 
+                                    class="grid grid-cols-12 gap-2 items-start border-b pb-3 border-slate-100 dark:border-slate-800"
+                                >
+                                    <!-- Name -->
+                                    <div class="col-span-4">
+                                        <Label class="text-[10px] uppercase font-bold text-slate-400">Nama Lengkap</Label>
+                                        <Input 
+                                            v-model="memberRow.name" 
+                                            placeholder="Nama" 
+                                            class="h-9 text-xs" 
+                                            required 
+                                        />
+                                        <InputError :message="batchForm.errors[`members.${idx}.name`]" class="text-[10px] mt-0.5" />
+                                    </div>
 
-                                <!-- Email -->
-                                <div class="col-span-4">
-                                    <Label class="text-[10px] uppercase font-bold text-slate-400">Email</Label>
-                                    <Input 
-                                        v-model="memberRow.email" 
-                                        type="email" 
-                                        placeholder="Email" 
-                                        class="h-9 text-xs" 
-                                        required 
-                                    />
-                                    <InputError :message="batchForm.errors[`members.${idx}.email`]" class="text-[10px] mt-0.5" />
-                                </div>
+                                    <!-- Email -->
+                                    <div class="col-span-4">
+                                        <Label class="text-[10px] uppercase font-bold text-slate-400">Email</Label>
+                                        <Input 
+                                            v-model="memberRow.email" 
+                                            type="email" 
+                                            placeholder="Email" 
+                                            class="h-9 text-xs" 
+                                            required 
+                                        />
+                                        <InputError :message="batchForm.errors[`members.${idx}.email`]" class="text-[10px] mt-0.5" />
+                                    </div>
 
-                                <!-- Role Select -->
-                                <div class="col-span-3">
-                                    <Label class="text-[10px] uppercase font-bold text-slate-400">Role</Label>
-                                    <select 
-                                        v-model="memberRow.role" 
-                                        class="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-xs focus-visible:outline-none dark:bg-slate-900 dark:text-white"
-                                    >
-                                        <option 
-                                            v-for="(roleData, roleKey) in availableRoles" 
-                                            :key="roleKey" 
-                                            :value="roleKey"
-                                            :disabled="!roleData.available"
+                                    <!-- Role Select -->
+                                    <div class="col-span-3">
+                                        <Label class="text-[10px] uppercase font-bold text-slate-400">Role</Label>
+                                        <select 
+                                            v-model="memberRow.role" 
+                                            class="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-xs focus-visible:outline-none dark:bg-slate-900 dark:text-white"
                                         >
-                                            {{ roleData.label }}
-                                        </option>
-                                    </select>
-                                </div>
+                                            <option 
+                                                v-for="(roleData, roleKey) in availableRoles" 
+                                                :key="roleKey" 
+                                                :value="roleKey"
+                                                :disabled="!roleData.available"
+                                            >
+                                                {{ roleData.label }}
+                                            </option>
+                                        </select>
+                                    </div>
 
-                                <!-- Action button -->
-                                <div class="col-span-1 pt-6 flex justify-center">
-                                    <button 
-                                        type="button" 
-                                        @click="removeBatchRow(idx)" 
-                                        class="text-red-500 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                                        :disabled="batchForm.members.length <= 1"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                        </svg>
-                                    </button>
+                                    <!-- Action button -->
+                                    <div class="col-span-1 pt-6 flex justify-center">
+                                        <button 
+                                            type="button" 
+                                            @click="removeBatchRow(idx)" 
+                                            class="text-red-500 hover:text-red-650 disabled:opacity-30 disabled:cursor-not-allowed"
+                                            :disabled="batchForm.members.length <= 1"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Actions -->
-                        <div class="flex justify-between items-center pt-2">
-                            <Button 
-                                type="button" 
-                                variant="outline" 
-                                size="sm" 
-                                @click="addBatchRow"
-                                class="text-xs text-sky-500 border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-950/20"
-                            >
-                                + Tambah Baris
-                            </Button>
+                            <!-- Actions -->
+                            <div class="flex justify-between items-center pt-2">
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="sm" 
+                                    @click="addBatchRow"
+                                    class="text-xs text-sky-500 border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-950/20"
+                                >
+                                    + Tambah Baris
+                                </Button>
 
-                            <div class="flex gap-2">
+                                <div class="flex gap-2">
+                                    <Button 
+                                        type="button" 
+                                        variant="outline" 
+                                        size="sm" 
+                                        @click="isBatchModalOpen = false"
+                                    >
+                                        Batal
+                                    </Button>
+                                    <Button 
+                                        type="submit" 
+                                        size="sm" 
+                                        :disabled="batchForm.processing"
+                                        class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white text-xs font-bold"
+                                    >
+                                        Simpan Batch
+                                    </Button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- CSV Upload View -->
+                        <template v-else>
+                            <div class="flex-1 flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center space-y-4 min-h-[220px]">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-[#38BDF8] animate-bounce">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                                </svg>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Unggah berkas CSV Anda</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pastikan nama kolom adalah: nama, email, role</p>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-3 w-full max-w-xs justify-center pt-2">
+                                    <a 
+                                        href="/templates/import_anggota_template.csv" 
+                                        download 
+                                        class="inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-350 transition"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                        </svg>
+                                        Download Template CSV
+                                    </a>
+                                    <label class="px-4 py-2 bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white rounded-xl text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5">
+                                        Pilih File CSV
+                                        <input 
+                                            type="file" 
+                                            accept=".csv" 
+                                            @change="handleCsvUpload" 
+                                            class="hidden" 
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-2 pt-2">
                                 <Button 
                                     type="button" 
                                     variant="outline" 
@@ -594,16 +727,8 @@ defineOptions({
                                 >
                                     Batal
                                 </Button>
-                                <Button 
-                                    type="submit" 
-                                    size="sm" 
-                                    :disabled="batchForm.processing"
-                                    class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white text-xs font-bold"
-                                >
-                                    Simpan Batch
-                                </Button>
                             </div>
-                        </div>
+                        </template>
                     </form>
                 </DialogContent>
             </Dialog>
