@@ -65,6 +65,7 @@ const isModalOpen = ref(false);
 const searchQuery = ref('');
 const filterType = ref<'all' | 'income' | 'expense'>('all');
 const filterProker = ref<string>('all');
+const activeTab = ref<'ledger' | 'summary'>('ledger');
 const editingRecord = ref<FinanceRecord | null>(null);
 const previewImage = ref<string | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
