@@ -61,6 +61,9 @@ class LogbookController extends Controller
             ->withSum(['finances as spent' => function ($query) {
                 $query->where('type', 'expense');
             }], 'amount')
+            ->withSum(['finances as earned' => function ($query) {
+                $query->where('type', 'income');
+            }], 'amount')
             ->where('host_id', $hostId)
             ->orderBy('created_at', 'desc')
             ->get()
@@ -75,6 +78,7 @@ class LogbookController extends Controller
                     'progress' => $proker->progress,
                     'budget' => (float) $proker->budget,
                     'spent' => (float) ($proker->spent ?? 0),
+                    'earned' => (float) ($proker->earned ?? 0),
                     'status' => $proker->status,
                     'pic' => $proker->pic,
                     'finances' => $proker->finances->map(function ($f) {

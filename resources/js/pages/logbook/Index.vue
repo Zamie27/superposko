@@ -576,18 +576,22 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                                         <span class="font-semibold text-slate-400">Realisasi Belanja</span>
                                         <span 
                                             class="font-extrabold"
-                                            :class="[proker.spent > proker.budget ? 'text-red-500 dark:text-red-400' : proker.spent > 0 ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-450']"
+                                            :class="[proker.spent > (proker.budget + proker.earned) ? 'text-red-500 dark:text-red-400' : proker.spent > 0 ? 'text-amber-500 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-450']"
                                         >
                                             {{ formatRupiah(proker.spent || 0) }}
                                         </span>
+                                    </div>
+                                    <div v-if="proker.earned > 0" class="flex items-center justify-between text-[11px] md:text-xs">
+                                        <span class="font-semibold text-slate-400">Pemasukan Proker</span>
+                                        <span class="font-bold text-emerald-600">{{ formatRupiah(proker.earned) }}</span>
                                     </div>
                                     <div class="flex items-center justify-between text-[11px] md:text-xs border-t border-dashed border-slate-100 dark:border-slate-850 pt-1 mt-1">
                                         <span class="font-semibold text-slate-400">Dana Tersedia</span>
                                         <span 
                                             class="font-extrabold"
-                                            :class="[(proker.budget - proker.spent) < 0 ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-450']"
+                                            :class="[(proker.budget + proker.earned - proker.spent) < 0 ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-450']"
                                         >
-                                            {{ formatRupiah(proker.budget - proker.spent) }}
+                                            {{ formatRupiah(proker.budget + proker.earned - proker.spent) }}
                                         </span>
                                     </div>
                                     <div class="w-full bg-slate-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden mt-1.5" v-if="proker.budget > 0">
@@ -1079,26 +1083,32 @@ const confirmDeleteLogbook = async (log: Logbook) => {
 
                 <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto font-sans">
                     <!-- Metrics Summary -->
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
-                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Estimasi Anggaran</p>
-                            <p class="text-sm sm:text-base font-extrabold text-slate-850 dark:text-slate-200 mt-1">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
+                            <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Estimasi Anggaran</p>
+                            <p class="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-slate-200 mt-1">
                                 {{ formatRupiah(selectedProkerForFinance.budget) }}
                             </p>
                         </div>
-                        <div class="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
-                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Pengeluaran</p>
-                            <p class="text-sm sm:text-base font-extrabold text-red-500 mt-1">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
+                            <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Pemasukan Proker</p>
+                            <p class="text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-450 mt-1">
+                                {{ formatRupiah(selectedProkerForFinance.earned || 0) }}
+                            </p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
+                            <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Total Pengeluaran</p>
+                            <p class="text-xs sm:text-sm font-extrabold text-red-500 mt-1">
                                 {{ formatRupiah(selectedProkerForFinance.spent) }}
                             </p>
                         </div>
-                        <div class="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
-                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Dana Tersedia</p>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
+                            <p class="text-[9px] uppercase font-bold text-slate-400 tracking-wider">Dana Tersedia</p>
                             <p 
-                                class="text-sm sm:text-base font-extrabold mt-1"
-                                :class="[(selectedProkerForFinance.budget - selectedProkerForFinance.spent) < 0 ? 'text-red-500' : 'text-emerald-500']"
+                                class="text-xs sm:text-sm font-extrabold mt-1"
+                                :class="[(selectedProkerForFinance.budget + selectedProkerForFinance.earned - selectedProkerForFinance.spent) < 0 ? 'text-red-500' : 'text-emerald-500']"
                             >
-                                {{ formatRupiah(selectedProkerForFinance.budget - selectedProkerForFinance.spent) }}
+                                {{ formatRupiah(selectedProkerForFinance.budget + selectedProkerForFinance.earned - selectedProkerForFinance.spent) }}
                             </p>
                         </div>
                     </div>
