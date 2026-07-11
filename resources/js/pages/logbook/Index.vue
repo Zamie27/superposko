@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { 
-    Plus, Edit3, Trash2, Calendar, CheckCircle, Clock, BookOpen, User, Image as ImageIcon, X, FileText, CheckSquare, Target, Search
+    Plus, Edit3, Trash2, Calendar, CheckCircle, Clock, BookOpen, User, Image as ImageIcon, X, FileText, CheckSquare, Target, Search, Wallet
 } from '@lucide/vue';
 import { ref, computed } from 'vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -157,6 +157,20 @@ const getStatusDetails = (status: string) => {
         default:
             return { label: 'Unknown', icon: Clock, class: 'bg-slate-100 text-slate-700' };
     }
+};
+
+// --- PROKER FINANCE MODAL ---
+const isProkerFinanceModalOpen = ref(false);
+const selectedProkerForFinance = ref<any>(null);
+
+const openProkerFinanceModal = (proker: any) => {
+    selectedProkerForFinance.value = proker;
+    isProkerFinanceModalOpen.value = true;
+};
+
+const closeProkerFinanceModal = () => {
+    isProkerFinanceModalOpen.value = false;
+    selectedProkerForFinance.value = null;
 };
 
 // --- PROKER MODAL & ACTION HANDLERS ---
@@ -567,7 +581,16 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                                             {{ formatRupiah(proker.spent || 0) }}
                                         </span>
                                     </div>
-                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden mt-0.5" v-if="proker.budget > 0">
+                                    <div class="flex items-center justify-between text-[11px] md:text-xs border-t border-dashed border-slate-100 dark:border-slate-850 pt-1 mt-1">
+                                        <span class="font-semibold text-slate-400">Dana Tersedia</span>
+                                        <span 
+                                            class="font-extrabold"
+                                            :class="[(proker.budget - proker.spent) < 0 ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-450']"
+                                        >
+                                            {{ formatRupiah(proker.budget - proker.spent) }}
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 dark:bg-slate-800 h-1 rounded-full overflow-hidden mt-1.5" v-if="proker.budget > 0">
                                         <div 
                                             class="h-1 rounded-full transition-all" 
                                             :class="[proker.spent > proker.budget ? 'bg-red-500' : 'bg-emerald-500']"
@@ -576,8 +599,8 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                                     </div>
                                 </div>
 
-                                <!-- PIC Info -->
-                                <div class="flex items-center justify-between text-xs pt-1">
+                                <!-- PIC Info & Finance Action -->
+                                <div class="flex items-center justify-between text-xs pt-2 mt-2 border-t border-slate-100 dark:border-slate-800">
                                     <span class="font-semibold text-slate-400">Penanggung Jawab</span>
                                     <div class="flex items-center gap-1.5">
                                         <Avatar v-if="proker.pic" class="size-5 overflow-hidden rounded-full shrink-0">
@@ -593,6 +616,17 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                                             {{ proker.pic ? proker.pic.name : 'Posko' }}
                                         </span>
                                     </div>
+                                </div>
+
+                                <div class="pt-2 flex justify-start">
+                                    <button 
+                                        type="button" 
+                                        @click="openProkerFinanceModal(proker)"
+                                        class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-500 hover:text-sky-600 transition cursor-pointer"
+                                    >
+                                        <Wallet class="size-3.5" />
+                                        <span>Aliran Kas & Transaksi</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1023,6 +1057,102 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                         </Button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Proker Finance details modal -->
+        <div v-if="isProkerFinanceModalOpen && selectedProkerForFinance" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-300">
+            <div class="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                <!-- Header -->
+                <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <Wallet class="size-5 text-sky-500" />
+                            Aliran Kas & Keuangan Program Kerja
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold">{{ selectedProkerForFinance.name }}</p>
+                    </div>
+                    <button @click="closeProkerFinanceModal" class="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 transition cursor-pointer">
+                        <X class="size-5" />
+                    </button>
+                </div>
+
+                <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto font-sans">
+                    <!-- Metrics Summary -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
+                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Estimasi Anggaran</p>
+                            <p class="text-sm sm:text-base font-extrabold text-slate-850 dark:text-slate-200 mt-1">
+                                {{ formatRupiah(selectedProkerForFinance.budget) }}
+                            </p>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
+                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Pengeluaran</p>
+                            <p class="text-sm sm:text-base font-extrabold text-red-500 mt-1">
+                                {{ formatRupiah(selectedProkerForFinance.spent) }}
+                            </p>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-center">
+                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Dana Tersedia</p>
+                            <p 
+                                class="text-sm sm:text-base font-extrabold mt-1"
+                                :class="[(selectedProkerForFinance.budget - selectedProkerForFinance.spent) < 0 ? 'text-red-500' : 'text-emerald-500']"
+                            >
+                                {{ formatRupiah(selectedProkerForFinance.budget - selectedProkerForFinance.spent) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Transaction List -->
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Rincian Transaksi Proker</h4>
+                        
+                        <div v-if="selectedProkerForFinance.finances && selectedProkerForFinance.finances.length > 0" class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-250 dark:border-slate-800 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                        <th class="py-2.5 px-3">Tanggal</th>
+                                        <th class="py-2.5 px-3">Transaksi</th>
+                                        <th class="py-2.5 px-3 text-center">Tipe</th>
+                                        <th class="py-2.5 px-3 text-right">Nominal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                                    <tr 
+                                        v-for="item in selectedProkerForFinance.finances" 
+                                        :key="item.id"
+                                        class="hover:bg-slate-50/50 dark:hover:bg-slate-850/20"
+                                    >
+                                        <td class="py-2.5 px-3 whitespace-nowrap text-slate-500">
+                                            {{ new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) }}
+                                        </td>
+                                        <td class="py-2.5 px-3 font-semibold">{{ item.title }}</td>
+                                        <td class="py-2.5 px-3 text-center">
+                                            <span 
+                                                class="px-1.5 py-0.5 rounded-full text-[9px] font-bold"
+                                                :class="[item.type === 'income' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400']"
+                                            >
+                                                {{ item.type === 'income' ? 'Masuk' : 'Keluar' }}
+                                            </span>
+                                        </td>
+                                        <td class="py-2.5 px-3 text-right font-bold" :class="[item.type === 'income' ? 'text-emerald-500' : 'text-slate-900 dark:text-white']">
+                                            {{ item.type === 'income' ? '+' : '-' }} {{ formatRupiah(item.amount) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div v-else class="text-center py-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-slate-400 text-xs italic">
+                            Belum ada transaksi kas yang dicatat untuk Program Kerja ini.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                    <Button type="button" @click="closeProkerFinanceModal" class="rounded-xl px-4 cursor-pointer text-xs">
+                        Tutup
+                    </Button>
+                </div>
             </div>
         </div>
 

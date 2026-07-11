@@ -36,6 +36,7 @@ class FinanceController extends Controller
                     'amount' => (float) $fin->amount,
                     'title' => $fin->title,
                     'description' => $fin->description,
+                    'category' => $fin->category,
                     'date' => $fin->date->format('Y-m-d'),
                     'receipt_path' => $fin->receipt_path ? Storage::url($fin->receipt_path) : null,
                     'program_kerja_id' => $fin->program_kerja_id,
@@ -93,6 +94,7 @@ class FinanceController extends Controller
             'amount' => ['required', 'numeric', 'min:0'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'category' => ['nullable', 'string', 'max:100'],
             'date' => ['required', 'date'],
             'program_kerja_id' => ['nullable', 'integer', 'exists:program_kerjas,id'],
             'receipt_file' => ['nullable', 'image', 'max:5120'], // Max 5MB
@@ -118,6 +120,7 @@ class FinanceController extends Controller
         $finance = Finance::create([
             'host_id' => $hostId,
             'program_kerja_id' => $validated['program_kerja_id'] ?? null,
+            'category' => $validated['category'] ?? null,
             'created_by' => $user->id,
             'type' => $validated['type'],
             'amount' => $validated['amount'],
@@ -153,6 +156,7 @@ class FinanceController extends Controller
             'amount' => ['required', 'numeric', 'min:0'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'category' => ['nullable', 'string', 'max:100'],
             'date' => ['required', 'date'],
             'program_kerja_id' => ['nullable', 'integer', 'exists:program_kerjas,id'],
             'receipt_file' => ['nullable', 'image', 'max:5120'], // Max 5MB
@@ -178,6 +182,7 @@ class FinanceController extends Controller
 
         $finance->update([
             'program_kerja_id' => $validated['program_kerja_id'] ?? null,
+            'category' => $validated['category'] ?? null,
             'type' => $validated['type'],
             'amount' => $validated['amount'],
             'title' => $validated['title'],

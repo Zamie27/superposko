@@ -135,6 +135,14 @@ class VotingController extends Controller
             ]);
         }
 
+        \App\Helpers\PushNotificationHelper::sendToHostGroup(
+            $hostId,
+            'Voting Baru Kelompok KKN',
+            "Ada voting baru: '{$poll->title}' oleh {$user->name}. Silakan berikan suara Anda.",
+            '/voting',
+            $user->id
+        );
+
         ActivityLogHelper::log(
             'voting',
             'create_poll',
@@ -271,6 +279,15 @@ class VotingController extends Controller
             'is_anonymous' => $validated['is_anonymous'],
             'status' => 'pending',
         ]);
+
+        $senderName = $aspiration->is_anonymous ? 'Seseorang (Anonim)' : $user->name;
+        \App\Helpers\PushNotificationHelper::sendToHostGroup(
+            $hostId,
+            'Aspirasi Baru Kelompok KKN',
+            "{$senderName} telah mengirim aspirasi baru: '{$aspiration->title}'.",
+            '/voting',
+            $user->id
+        );
 
         ActivityLogHelper::log(
             'voting',

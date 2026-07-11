@@ -199,7 +199,7 @@ const navGroups = computed<NavGroup[]>(() => {
                     locked: !isSubscribed,
                 },
                 {
-                    title: 'Logistik',
+                    title: 'Logistik & Konsumsi',
                     href: '/management/logistic',
                     icon: ClipboardList,
                     locked: !isSubscribed,

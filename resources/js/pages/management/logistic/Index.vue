@@ -52,7 +52,7 @@ defineOptions({
                 href: '#',
             },
             {
-                title: 'Logistik',
+                title: 'Logistik & Konsumsi',
                 href: '/management/logistic',
             },
         ],
@@ -250,7 +250,7 @@ const getStatusDetails = (status: string) => {
 </script>
 
 <template>
-    <Head title="Manajemen Logistik - SuperPosko" />
+    <Head title="Logistik & Konsumsi - SuperPosko" />
 
     <div class="flex h-full flex-1 flex-col gap-6 p-6 max-w-7xl mx-auto font-sans">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -266,7 +266,7 @@ const getStatusDetails = (status: string) => {
                     @click="openBarangKeluarModal"
                     class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl transition duration-200 flex items-center gap-2 cursor-pointer shadow-xs"
                 >
-                    <ArrowUpFromLine class="size-4" /> Barang Keluar
+                    <ArrowUpFromLine class="size-4" /> Bahan Terpakai
                 </Button>
 
                 <!-- Add Button -->
@@ -584,7 +584,7 @@ const getStatusDetails = (status: string) => {
                 <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
                     <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <ArrowUpFromLine class="size-5 text-emerald-500" />
-                        Catat Barang Keluar
+                        Catat Bahan Terpakai
                     </h3>
                     <button @click="closeBarangKeluarModal" class="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 transition cursor-pointer">
                         <X class="size-5" />
@@ -592,7 +592,7 @@ const getStatusDetails = (status: string) => {
                 </div>
 
                 <form @submit.prevent="submitBarangKeluar" class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan jumlah logistik yang keluar atau digunakan oleh posko. Stok akan otomatis dikurangi.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan jumlah logistik/konsumsi yang telah terpakai atau digunakan oleh posko. Stok akan otomatis dikurangi.</p>
                     
                     <div class="space-y-3 divide-y divide-slate-100 dark:divide-slate-850">
                         <div 
@@ -610,7 +610,7 @@ const getStatusDetails = (status: string) => {
                                     type="button"
                                     @click="item.amount = Math.max(0, item.amount - 1)"
                                     class="p-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer"
-                                >
+                                  >
                                     <Minus class="size-3.5" />
                                 </button>
                                 
@@ -645,7 +645,7 @@ const getStatusDetails = (status: string) => {
                             class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl flex items-center gap-2 cursor-pointer"
                         >
                             <Spinner v-if="barangKeluarForm.processing" />
-                            Catat Barang Keluar
+                            Catat Bahan Terpakai
                         </Button>
                     </div>
                 </form>

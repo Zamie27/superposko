@@ -175,6 +175,16 @@ class ScheduleController extends Controller
             'created_by' => $user->id,
         ]);
 
+        $eventDate = \Illuminate\Support\Carbon::parse($event->start_time)->format('d M Y');
+        $locationStr = $event->location ? " di {$event->location}" : "";
+        \App\Helpers\PushNotificationHelper::sendToHostGroup(
+            $hostId,
+            'Agenda Baru Kelompok KKN',
+            "Telah ditambahkan agenda kegiatan baru: '{$event->title}' pada tanggal {$eventDate}{$locationStr}.",
+            '/management/schedule',
+            $user->id
+        );
+
         ActivityLogHelper::log(
             'member',
             'create_event',

@@ -27,6 +27,7 @@ interface FinanceRecord {
     amount: number;
     title: string;
     description: string | null;
+    category: string | null;
     date: string;
     receipt_path: string | null;
     program_kerja_id: number | null;
@@ -60,17 +61,35 @@ const toast = useToast();
 const { confirm } = useConfirm();
 
 // State
+const isModalOpen = ref(false);
 const searchQuery = ref('');
 const filterType = ref<'all' | 'income' | 'expense'>('all');
-const filterProker = ref<number | 'all'>('all');
-const activeTab = ref<'ledger' | 'summary'>('ledger');
-
-// Modal States
-const isModalOpen = ref(false);
+const filterProker = ref<string>('all');
 const editingRecord = ref<FinanceRecord | null>(null);
 const previewImage = ref<string | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const filePreview = ref<string | null>(null);
+
+// Category and Link Type States
+const linkType = ref<'umum' | 'proker'>('umum');
+const selectedCategory = ref('');
+const customCategory = ref('');
+
+const incomeCategories = [
+    { value: 'Iuran Anggota', label: 'Iuran Anggota' },
+    { value: 'Sponsor', label: 'Sponsor' },
+    { value: 'Donasi / Sumbangan', label: 'Donasi / Sumbangan' },
+    { value: 'Dana Kampus', label: 'Dana Kampus' },
+    { value: 'Lainnya', label: 'Lainnya' },
+];
+
+const expenseCategories = [
+    { value: 'Konsumsi', label: 'Konsumsi' },
+    { value: 'Transportasi', label: 'Transportasi' },
+    { value: 'Perlengkapan & Bahan', label: 'Perlengkapan & Bahan' },
+    { value: 'Humas & Publikasi', label: 'Humas & Publikasi' },
+    { value: 'Lainnya', label: 'Lainnya' },
+];
 
 // Form
 const form = useForm({
@@ -78,6 +97,7 @@ const form = useForm({
     amount: '' as number | '',
     title: '',
     description: '',
+    category: '',
     date: new Date().toISOString().split('T')[0],
     program_kerja_id: '' as number | '' | 'null',
     receipt_file: null as File | null,
@@ -93,11 +113,23 @@ const formatRupiah = (val: number) => {
     }).format(val);
 };
 
+const formattedAmount = computed(() => {
+    if (!form.amount) return '';
+    return Number(form.amount).toLocaleString('id-ID');
+});
+
+const onAmountInput = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const cleanValue = target.value.replace(/\D/g, '');
+    form.amount = cleanValue ? parseInt(cleanValue, 10) : '';
+};
+
 // Filtered Records
 const filteredFinances = computed(() => {
     return props.finances.filter(record => {
         const matchesSearch = record.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            (record.description && record.description.toLowerCase().includes(searchQuery.value.toLowerCase()));
+            (record.description && record.description.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+            (record.category && record.category.toLowerCase().includes(searchQuery.value.toLowerCase()));
         
         const matchesType = filterType.value === 'all' || record.type === filterType.value;
         
@@ -129,6 +161,10 @@ const openAddModal = () => {
     form.type = 'expense';
     form.date = new Date().toISOString().split('T')[0];
     form.program_kerja_id = '';
+    form.category = '';
+    linkType.value = 'umum';
+    selectedCategory.value = '';
+    customCategory.value = '';
     filePreview.value = null;
     isModalOpen.value = true;
 };
@@ -141,7 +177,30 @@ const openEditModal = (record: FinanceRecord) => {
     form.description = record.description || '';
     form.date = record.date;
     form.program_kerja_id = record.program_kerja_id || '';
+    form.category = record.category || '';
     filePreview.value = record.receipt_path;
+
+    if (record.program_kerja_id) {
+        linkType.value = 'proker';
+        selectedCategory.value = '';
+        customCategory.value = '';
+    } else {
+        linkType.value = 'umum';
+        const isPredefined = (record.type === 'income' ? incomeCategories : expenseCategories)
+            .some(c => c.value === record.category);
+        if (record.category) {
+            if (isPredefined) {
+                selectedCategory.value = record.category;
+                customCategory.value = '';
+            } else {
+                selectedCategory.value = 'Lainnya';
+                customCategory.value = record.category;
+            }
+        } else {
+            selectedCategory.value = '';
+            customCategory.value = '';
+        }
+    }
     isModalOpen.value = true;
 };
 
@@ -156,9 +215,18 @@ const handleFileChange = (e: Event) => {
 };
 
 const submitForm = () => {
-    // Sanitize program_kerja_id
-    if (form.program_kerja_id === 'null' || form.program_kerja_id === '') {
+    if (linkType.value === 'umum') {
         form.program_kerja_id = '';
+        if (selectedCategory.value === 'Lainnya') {
+            form.category = customCategory.value;
+        } else {
+            form.category = selectedCategory.value;
+        }
+    } else {
+        form.category = '';
+        if (form.program_kerja_id === 'null' || form.program_kerja_id === '') {
+            form.program_kerja_id = '';
+        }
     }
 
     if (editingRecord.value) {
@@ -424,16 +492,24 @@ const triggerPrint = () => {
                                     {{ record.type === 'income' ? '+' : '-' }} {{ formatRupiah(record.amount) }}
                                 </td>
 
-                                <!-- Link Proker -->
+                                <!-- Link Proker / Kategori -->
                                 <td class="py-3.5 px-4">
                                     <span 
                                         v-if="record.program_kerja"
                                         class="inline-flex items-center gap-1 text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/20 text-sky-700 dark:text-sky-400 px-2 py-0.5 rounded-md max-w-[150px] truncate"
+                                        :title="record.program_kerja.name"
                                     >
                                         <FileText class="size-3 shrink-0" />
                                         <span class="truncate">{{ record.program_kerja.name }}</span>
                                     </span>
-                                    <span v-else class="text-slate-400 text-[10px] italic">Bukan Proker</span>
+                                    <span 
+                                        v-else-if="record.category" 
+                                        class="inline-flex items-center gap-1 text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md max-w-[150px] truncate"
+                                        :title="record.category"
+                                    >
+                                        <span class="truncate">{{ record.category }}</span>
+                                    </span>
+                                    <span v-else class="text-slate-400 text-[10px] italic">Umum</span>
                                 </td>
 
                                 <!-- Bukti Nota (no-print) -->
@@ -627,11 +703,11 @@ const triggerPrint = () => {
                         <div>
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Nominal (Rp)</label>
                             <input 
-                                v-model.number="form.amount"
-                                type="number" 
-                                placeholder="0"
+                                :value="formattedAmount"
+                                @input="onAmountInput"
+                                type="text" 
+                                placeholder="Contoh: 100.000"
                                 required
-                                min="0"
                                 class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white font-extrabold"
                             />
                             <p v-if="form.errors.amount" class="text-xs text-red-500 mt-1">{{ form.errors.amount }}</p>
@@ -650,22 +726,87 @@ const triggerPrint = () => {
                         </div>
                     </div>
 
-                    <!-- Program Kerja Linkage -->
+                    <!-- Kategori Transaksi Linkage (Umum vs Proker) -->
                     <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Link Program Kerja (Khusus Pengeluaran)</label>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Kategori Transaksi</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button
+                                type="button"
+                                @click="linkType = 'umum'"
+                                :class="[
+                                    'py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5',
+                                    linkType === 'umum'
+                                        ? 'bg-sky-500 border-sky-500 text-white shadow-xs'
+                                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white'
+                                ]"
+                            >
+                                Secara Umum
+                            </button>
+                            <button
+                                type="button"
+                                @click="linkType = 'proker'"
+                                :class="[
+                                    'py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5',
+                                    linkType === 'proker'
+                                        ? 'bg-sky-500 border-sky-500 text-white shadow-xs'
+                                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white'
+                                ]"
+                            >
+                                Program Kerja (Proker)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Jika Linkage Umum -->
+                    <div v-if="linkType === 'umum'">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                            {{ form.type === 'income' ? 'Jenis Pemasukan' : 'Jenis Pengeluaran' }}
+                        </label>
+                        <select 
+                            v-model="selectedCategory"
+                            class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                            required
+                        >
+                            <option value="" class="dark:bg-slate-900">-- Pilih {{ form.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }} --</option>
+                            <option 
+                                v-for="cat in (form.type === 'income' ? incomeCategories : expenseCategories)" 
+                                :key="cat.value" 
+                                :value="cat.value"
+                                class="dark:bg-slate-900"
+                            >
+                                {{ cat.label }}
+                            </option>
+                        </select>
+                        
+                        <!-- Custom Category Input if "Lainnya" -->
+                        <div v-if="selectedCategory === 'Lainnya'" class="mt-2">
+                            <input 
+                                v-model="customCategory"
+                                type="text"
+                                placeholder="Tulis kategori manual..."
+                                required
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
+                            />
+                        </div>
+                        <p v-if="form.errors.category" class="text-xs text-red-500 mt-1">{{ form.errors.category }}</p>
+                    </div>
+
+                    <!-- Jika Linkage Proker -->
+                    <div v-else>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Program Kerja</label>
                         <select 
                             v-model="form.program_kerja_id"
                             class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
-                            :disabled="form.type === 'income'"
+                            required
                         >
-                            <option value="" class="dark:bg-slate-900">Bukan untuk Program Kerja / Umum</option>
+                            <option value="" class="dark:bg-slate-900">-- Pilih Program Kerja --</option>
                             <option 
                                 v-for="proker in programKerjas" 
                                 :key="proker.id" 
                                 :value="proker.id"
                                 class="dark:bg-slate-900"
                             >
-                                {{ proker.name }} (Anggaran: {{ formatRupiah(proker.budget) }})
+                                {{ proker.name }} (Estimasi Anggaran: {{ formatRupiah(proker.budget) }})
                             </option>
                         </select>
                         <p v-if="form.errors.program_kerja_id" class="text-xs text-red-500 mt-1">{{ form.errors.program_kerja_id }}</p>

@@ -55,7 +55,9 @@ class LogbookController extends Controller
                 ];
             });
 
-        $programKerjas = ProgramKerja::with('pic:id,name,email')
+        $programKerjas = ProgramKerja::with(['pic:id,name,email', 'finances' => function ($query) {
+                $query->select('id', 'program_kerja_id', 'title', 'type', 'amount', 'date')->orderBy('date', 'desc');
+            }])
             ->withSum(['finances as spent' => function ($query) {
                 $query->where('type', 'expense');
             }], 'amount')
@@ -75,6 +77,15 @@ class LogbookController extends Controller
                     'spent' => (float) ($proker->spent ?? 0),
                     'status' => $proker->status,
                     'pic' => $proker->pic,
+                    'finances' => $proker->finances->map(function ($f) {
+                        return [
+                            'id' => $f->id,
+                            'title' => $f->title,
+                            'type' => $f->type,
+                            'amount' => (float) $f->amount,
+                            'date' => $f->date->format('Y-m-d'),
+                        ];
+                    }),
                 ];
             });
 

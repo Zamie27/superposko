@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property float $amount
  * @property string $title
  * @property string|null $description
+ * @property string|null $category
  * @property Carbon $date
  * @property string|null $receipt_path
  * @property User $host
@@ -28,6 +29,7 @@ class Finance extends Model
     protected $fillable = [
         'host_id',
         'program_kerja_id',
+        'category',
         'created_by',
         'type',
         'amount',
