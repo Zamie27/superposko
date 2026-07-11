@@ -25,10 +25,23 @@ import { useConfirm } from '@/composables/useConfirm';
 
 defineProps<{
     members: any[];
+    pendingDpls?: any[];
+    activeDpls?: any[];
     isHost: boolean;
+    availableRoles: Record<string, { label: string; capacity: number; current: number; available: boolean }>;
+    currentUserRole: string;
 }>();
 
+const approveDpl = (id: number) => {
+    router.post(`/management/members/dpl-approve/${id}`);
+};
+
+const rejectDpl = (id: number) => {
+    router.post(`/management/members/dpl-reject/${id}`);
+};
+
 const isModalOpen = ref(false);
+const isTransferModalOpen = ref(false);
 const editingMember = ref<any>(null);
 const { confirm } = useConfirm();
 
@@ -37,6 +50,11 @@ const form = useForm({
     email: '',
     password: '',
     role: 'anggota',
+});
+
+const transferForm = useForm({
+    target_member_id: null as number | null,
+    new_self_role: 'anggota',
 });
 
 const showPassword = ref(false);
@@ -73,6 +91,18 @@ const openEditModal = (member: any) => {
 };
 
 const submitForm = () => {
+    if (form.role === 'ketua') {
+        if (!editingMember.value) {
+            alert('Untuk menjadikan anggota baru sebagai Ketua, silakan buat anggota tersebut terlebih dahulu dengan role lain, kemudian lakukan Edit & Transfer Ketua.');
+            return;
+        }
+        transferForm.target_member_id = editingMember.value.id;
+        transferForm.new_self_role = 'anggota';
+        isTransferModalOpen.value = true;
+        isModalOpen.value = false;
+        return;
+    }
+
     if (editingMember.value) {
         form.put(`/management/members/${editingMember.value.id}`, {
             onSuccess: () => {
@@ -88,6 +118,48 @@ const submitForm = () => {
             },
         });
     }
+};
+
+const submitTransfer = () => {
+    transferForm.post('/management/members/transfer-ketua', {
+        onSuccess: () => {
+            isTransferModalOpen.value = false;
+            transferForm.reset();
+        },
+    });
+};
+
+const isBatchModalOpen = ref(false);
+const batchForm = useForm({
+    members: [
+        { name: '', email: '', role: 'anggota' }
+    ]
+});
+
+const openBatchModal = () => {
+    batchForm.reset();
+    batchForm.members = [{ name: '', email: '', role: 'anggota' }];
+    batchForm.clearErrors();
+    isBatchModalOpen.value = true;
+};
+
+const addBatchRow = () => {
+    batchForm.members.push({ name: '', email: '', role: 'anggota' });
+};
+
+const removeBatchRow = (index: number) => {
+    if (batchForm.members.length > 1) {
+        batchForm.members.splice(index, 1);
+    }
+};
+
+const submitBatchForm = () => {
+    batchForm.post('/management/members/batch', {
+        onSuccess: () => {
+            isBatchModalOpen.value = false;
+            batchForm.reset();
+        }
+    });
 };
 
 const deleteMember = async (id: number) => {
@@ -160,9 +232,53 @@ defineOptions({
                     <h1 class="text-2xl font-bold tracking-tight text-slate-900">Manajemen Anggota</h1>
                     <p class="text-sm text-slate-500 mt-1">Kelola anggota posko dan atur hak akses mereka.</p>
                 </div>
-                <Button v-if="isHost" @click="openCreateModal" class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white">
-                    Tambah Anggota
-                </Button>
+                <div class="flex gap-2">
+                    <Button v-if="isHost" @click="openCreateModal" class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white">
+                        Tambah Anggota
+                    </Button>
+                    <Button v-if="isHost" @click="openBatchModal" variant="outline" class="border-[#38BDF8] text-[#38BDF8] hover:bg-slate-100 dark:hover:bg-slate-800">
+                        Tambah Batch
+                    </Button>
+                </div>
+            </div>
+
+            <!-- Pending DPL Requests Card -->
+            <div v-if="isHost && pendingDpls && pendingDpls.length > 0" class="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-5 space-y-3">
+                <h3 class="text-sm font-bold text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                    Permintaan Pemantauan DPL Baru ({{ pendingDpls.length }})
+                </h3>
+                <p class="text-xs text-amber-700 dark:text-amber-400">
+                    Dosen di bawah ini meminta akses untuk memantau aktivitas posko Anda secara read-only.
+                </p>
+                <div class="space-y-2">
+                    <div 
+                        v-for="req in pendingDpls" 
+                        :key="req.id" 
+                        class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-amber-100 dark:border-amber-950 flex flex-col sm:flex-row justify-between sm:items-center gap-3"
+                    >
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ req.dpl.name }}</h4>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{{ req.dpl.email }}</p>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button 
+                                @click="approveDpl(req.id)"
+                                class="px-3 py-1.5 bg-emerald-555 hover:bg-emerald-600 text-white text-[10px] font-bold rounded-lg transition cursor-pointer"
+                            >
+                                Setujui
+                            </button>
+                            <button 
+                                @click="rejectDpl(req.id)"
+                                class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold rounded-lg transition cursor-pointer"
+                            >
+                                Tolak
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="rounded-xl border bg-card overflow-hidden">
@@ -200,6 +316,34 @@ defineOptions({
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Active DPLs (Supervising DPL) List -->
+            <div v-if="activeDpls && activeDpls.length > 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-3">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4.5 h-4.5 text-sky-500">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.746 3.746 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                    </svg>
+                    Dosen Pembimbing Lapangan (DPL) Terhubung
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Daftar Dosen Pembimbing Lapangan yang memiliki akses read-only untuk memantau data posko Anda.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div 
+                        v-for="dpl in activeDpls" 
+                        :key="dpl.id" 
+                        class="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl flex items-center justify-between"
+                    >
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ dpl.dpl.name }}</h4>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{{ dpl.dpl.email }}</p>
+                        </div>
+                        <span class="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold rounded-full border border-emerald-200/30">
+                            Aktif Memantau
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <Dialog v-model:open="isModalOpen">
@@ -278,10 +422,17 @@ defineOptions({
                                     <SelectValue placeholder="Pilih Role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="anggota">Anggota Biasa</SelectItem>
-                                    <SelectItem value="bendahara">Bendahara</SelectItem>
-                                    <SelectItem value="sekretaris">Sekretaris</SelectItem>
-                                    <SelectItem value="pdd">PDD</SelectItem>
+                                    <SelectItem
+                                        v-for="(roleData, roleKey) in availableRoles"
+                                        :key="roleKey"
+                                        :value="roleKey"
+                                        :disabled="!roleData.available && (editingMember ? editingMember.role !== roleKey : true)"
+                                    >
+                                        {{ roleData.label }}
+                                        <template v-if="roleData.capacity > 0">
+                                            ({{ roleData.current }}/{{ roleData.capacity }})
+                                        </template>
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                             <InputError :message="form.errors.role" />
@@ -291,6 +442,168 @@ defineOptions({
                             <Button type="button" variant="outline" @click="isModalOpen = false">Batal</Button>
                             <Button type="submit" :disabled="form.processing" class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white">Simpan</Button>
                         </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <!-- Transfer Ketua Confirmation Modal -->
+            <Dialog v-model:open="isTransferModalOpen">
+                <DialogContent class="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Transfer Jabatan Ketua</DialogTitle>
+                        <DialogDescription>
+                            Apakah Anda yakin ingin mengganti role Anda (Ketua) dengan akun <strong>{{ editingMember?.name }}</strong>? Jabatan Ketua dan kendali kepemilikan posko akan dipindahkan.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form @submit.prevent="submitTransfer" class="space-y-4 py-4">
+                        <div class="rounded-xl bg-amber-50 dark:bg-amber-950/30 p-4 border border-amber-200 text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+                            <strong>PENTING:</strong> Setelah transfer disetujui, Anda akan kehilangan hak akses penuh kepemilikan posko dan akun Anda akan diturunkan perannya sesuai yang Anda pilih di bawah ini.
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="new_self_role">Pilih Peran Baru untuk Diri Anda Sendiri</Label>
+                            <Select v-model="transferForm.new_self_role">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih Peran Baru" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem
+                                        v-for="(roleData, roleKey) in availableRoles"
+                                        :key="roleKey"
+                                        :value="roleKey"
+                                        :disabled="roleKey === 'ketua' || (!roleData.available && currentUserRole !== roleKey)"
+                                    >
+                                        {{ roleData.label }}
+                                        <template v-if="roleData.capacity > 0">
+                                            ({{ roleData.current }}/{{ roleData.capacity }})
+                                        </template>
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <InputError :message="transferForm.errors.new_self_role" />
+                        </div>
+
+                        <DialogFooter class="pt-4">
+                            <Button type="button" variant="outline" @click="isTransferModalOpen = false">Batal</Button>
+                            <Button type="submit" :disabled="transferForm.processing" class="bg-red-500 hover:bg-red-600 text-white">Ya, Transfer & Ubah Peran Saya</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <!-- Batch Members Modal -->
+            <Dialog v-model:open="isBatchModalOpen">
+                <DialogContent class="sm:max-w-[650px] max-h-[85vh] flex flex-col">
+                    <DialogHeader>
+                        <DialogTitle>Tambah Anggota Batch</DialogTitle>
+                        <DialogDescription>
+                            Tambahkan beberapa anggota kelompok sekaligus. Password acak akan digenerate otomatis dan dikirimkan ke email masing-masing.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form @submit.prevent="submitBatchForm" class="flex-1 flex flex-col overflow-hidden space-y-4 py-4">
+                        <div v-if="batchForm.errors.batch_error" class="rounded-xl bg-red-50 dark:bg-red-950/30 p-3 border border-red-200 text-xs text-red-800 dark:text-red-300">
+                            {{ batchForm.errors.batch_error }}
+                        </div>
+
+                        <!-- Rows Wrapper -->
+                        <div class="flex-1 overflow-y-auto pr-1 space-y-3 min-h-[200px] max-h-[40vh]">
+                            <div 
+                                v-for="(memberRow, idx) in batchForm.members" 
+                                :key="idx" 
+                                class="grid grid-cols-12 gap-2 items-start border-b pb-3 border-slate-100 dark:border-slate-800"
+                            >
+                                <!-- Name -->
+                                <div class="col-span-4">
+                                    <Label class="text-[10px] uppercase font-bold text-slate-400">Nama Lengkap</Label>
+                                    <Input 
+                                        v-model="memberRow.name" 
+                                        placeholder="Nama" 
+                                        class="h-9 text-xs" 
+                                        required 
+                                    />
+                                    <InputError :message="batchForm.errors[`members.${idx}.name`]" class="text-[10px] mt-0.5" />
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-span-4">
+                                    <Label class="text-[10px] uppercase font-bold text-slate-400">Email</Label>
+                                    <Input 
+                                        v-model="memberRow.email" 
+                                        type="email" 
+                                        placeholder="Email" 
+                                        class="h-9 text-xs" 
+                                        required 
+                                    />
+                                    <InputError :message="batchForm.errors[`members.${idx}.email`]" class="text-[10px] mt-0.5" />
+                                </div>
+
+                                <!-- Role Select -->
+                                <div class="col-span-3">
+                                    <Label class="text-[10px] uppercase font-bold text-slate-400">Role</Label>
+                                    <select 
+                                        v-model="memberRow.role" 
+                                        class="w-full h-9 rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-xs focus-visible:outline-none dark:bg-slate-900 dark:text-white"
+                                    >
+                                        <option 
+                                            v-for="(roleData, roleKey) in availableRoles" 
+                                            :key="roleKey" 
+                                            :value="roleKey"
+                                            :disabled="!roleData.available"
+                                        >
+                                            {{ roleData.label }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Action button -->
+                                <div class="col-span-1 pt-6 flex justify-center">
+                                    <button 
+                                        type="button" 
+                                        @click="removeBatchRow(idx)" 
+                                        class="text-red-500 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                        :disabled="batchForm.members.length <= 1"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex justify-between items-center pt-2">
+                            <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="sm" 
+                                @click="addBatchRow"
+                                class="text-xs text-sky-500 border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-950/20"
+                            >
+                                + Tambah Baris
+                            </Button>
+
+                            <div class="flex gap-2">
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    size="sm" 
+                                    @click="isBatchModalOpen = false"
+                                >
+                                    Batal
+                                </Button>
+                                <Button 
+                                    type="submit" 
+                                    size="sm" 
+                                    :disabled="batchForm.processing"
+                                    class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white text-xs font-bold"
+                                >
+                                    Simpan Batch
+                                </Button>
+                            </div>
+                        </div>
                     </form>
                 </DialogContent>
             </Dialog>

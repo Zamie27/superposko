@@ -20,7 +20,8 @@ class AdminSubscriptionController extends Controller
         $search = $request->input('search');
 
         $subscriptions = User::query()
-            ->whereIn('role', ['host', 'user'])
+            ->whereNull('host_id') // Only show posko owners
+            ->where('role', '!=', 'admin')
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
@@ -28,7 +29,6 @@ class AdminSubscriptionController extends Controller
                         ->orWhere('university', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('role', 'asc') // host first, then user
             ->orderBy('subscription_expires_at', 'desc')
             ->paginate(20)
             ->withQueryString();
@@ -44,10 +44,14 @@ class AdminSubscriptionController extends Controller
      */
     public function bypass(Request $request, User $user): JsonResponse
     {
-        $user->update([
-            'role' => 'host',
+        // Only set role to ketua if user doesn't already have an organizational role
+        $updateData = [
             'subscription_expires_at' => now()->addDays(40),
-        ]);
+        ];
+        if (in_array($user->role, ['user', 'trial'])) {
+            $updateData['role'] = 'ketua';
+        }
+        $user->update($updateData);
 
         ActivityLogHelper::log(
             'payment',
@@ -70,10 +74,14 @@ class AdminSubscriptionController extends Controller
             'expires_at' => ['required', 'date'],
         ]);
 
-        $user->update([
-            'role' => 'host', // Ensure role is host
+        $updateData = [
             'subscription_expires_at' => $validated['expires_at'],
-        ]);
+        ];
+        // Only set role to ketua if user doesn't already have an organizational role
+        if (in_array($user->role, ['user', 'trial'])) {
+            $updateData['role'] = 'ketua';
+        }
+        $user->update($updateData);
 
         ActivityLogHelper::log(
             'payment',

@@ -23,7 +23,7 @@ class AdminNotificationController extends Controller
     public function index(): Response
     {
         $totalUsers = User::where('role', '!=', 'admin')->count();
-        $totalHosts = User::where('role', 'host')->count();
+        $totalHosts = User::whereNull('host_id')->where('role', '!=', 'admin')->count();
         $totalTrials = User::where('role', 'trial')->count();
         $totalRegularUsers = User::where('role', 'user')->count();
 

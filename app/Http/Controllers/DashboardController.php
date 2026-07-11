@@ -23,6 +23,35 @@ class DashboardController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
+
+        if ($user->role === 'dpl' && is_null($user->host_id)) {
+            $allPoskos = User::whereNull('host_id')
+                ->whereIn('role', ['host', 'ketua', 'trial'])
+                ->select('id', 'name', 'university', 'group_number')
+                ->get();
+
+            $pendingRequests = \App\Models\DplMonitoring::with('host:id,name,university,group_number')
+                ->where('dpl_id', $user->id)
+                ->where('status', 'pending')
+                ->get();
+
+            return Inertia::render('Dashboard', [
+                'isDplGateway' => true,
+                'allPoskos' => $allPoskos,
+                'pendingRequests' => $pendingRequests,
+                'metrics' => [
+                    'finance' => ['balance' => 0, 'total_income' => 0, 'total_expense' => 0],
+                    'proker' => ['count' => 0, 'total_pagu' => 0, 'total_spent' => 0],
+                    'inventory' => ['count' => 0, 'good_count' => 0],
+                    'logistics' => ['count' => 0, 'critical_count' => 0],
+                    'members' => ['count' => 0],
+                    'voting' => ['active_polls' => 0, 'unresponded_aspirations' => 0],
+                ],
+                'todayRoster' => [],
+                'events' => [],
+            ]);
+        }
+
         $hostId = $user->host_id ?? $user->id;
 
         // 1. Keuangan Metrics

@@ -41,14 +41,14 @@ class AdminSubscriptionRequestController extends Controller
     }
 
     /**
-     * Approve QRIS subscription request and activate user as host.
+     * Approve QRIS subscription request and activate user as ketua.
      */
     public function approve(SubscriptionRequest $subscriptionRequest): JsonResponse
     {
         $user = $subscriptionRequest->user;
         if ($user) {
             $user->update([
-                'role' => 'host',
+                'role' => 'ketua',
                 'subscription_expires_at' => now()->addDays(40),
             ]);
         }
@@ -61,12 +61,12 @@ class AdminSubscriptionRequestController extends Controller
         ActivityLogHelper::log(
             'payment',
             'approve_qris_payment',
-            "Admin approved QRIS subscription request #{$subscriptionRequest->id} from {$subscriptionRequest->name} ({$subscriptionRequest->email}). User role upgraded to host."
+            "Admin approved QRIS subscription request #{$subscriptionRequest->id} from {$subscriptionRequest->name} ({$subscriptionRequest->email}). User role upgraded to ketua."
         );
 
         return response()->json([
             'success' => true,
-            'message' => "Pembayaran dari {$subscriptionRequest->name} disetujui. Akun telah aktif sebagai Host.",
+            'message' => "Pembayaran dari {$subscriptionRequest->name} disetujui. Akun telah aktif sebagai Ketua.",
         ]);
     }
 

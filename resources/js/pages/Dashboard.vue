@@ -56,11 +56,28 @@ interface DashboardMetrics {
     };
 }
 
+import { useForm } from '@inertiajs/vue3';
+
 const props = defineProps<{
     metrics: DashboardMetrics;
     todayRoster: DutyRoster[];
     events: CalendarEvent[];
+    isDplGateway?: boolean;
+    allPoskos?: Array<{ id: number; name: string; university: string; group_number: number }>;
+    pendingRequests?: Array<{ id: number; host: { id: number; name: string; university: string; group_number: number }; status: string }>;
 }>();
+
+const requestForm = useForm({
+    host_id: '',
+});
+
+const submitRequest = () => {
+    requestForm.post('/dpl/request-monitoring', {
+        onSuccess: () => {
+            requestForm.reset();
+        }
+    });
+};
 
 defineOptions({
     layout: {
@@ -304,7 +321,91 @@ const getTodayName = () => {
 
     <div class="flex h-full flex-1 flex-col gap-6 p-6 max-w-7xl mx-auto font-sans">
         
-        <!-- Header -->
+        <!-- DPL Gateway Welcome Screen -->
+        <template v-if="isDplGateway">
+            <div class="max-w-2xl mx-auto w-full space-y-6 pt-6">
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-3xl p-8 shadow-md">
+                    <h2 class="text-2xl font-black">Selamat Datang di Portal DPL</h2>
+                    <p class="text-sm opacity-90 mt-2 leading-relaxed">
+                        Sebagai Dosen Pembimbing Lapangan (DPL), Anda dapat memantau administrasi, keuangan, logbook, dan program kerja kelompok KKN binaan Anda secara real-time.
+                    </p>
+                    <div class="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-white/20 rounded-full text-xs font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.084-1.085l-.041.02H11.25zm0 1.5H12v3.75h-.75V12.75zm9.75-3.562A9.75 9.75 0 111.5 12a9.75 9.75 0 0119.5 0z" />
+                        </svg>
+                        Pilih kelompok di header atas untuk mulai memantau kelompok yang sudah terhubung.
+                    </div>
+                </div>
+
+                <!-- Request Access Form Card -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xs">
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Minta Akses Pemantauan Kelompok</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                        Cari kelompok posko KKN binaan Anda dan kirim permintaan pemantauan. Setelah Ketua, Wakil, atau Sekretaris posko menyetujui, Anda dapat memantau data mereka secara penuh.
+                    </p>
+
+                    <form @submit.prevent="submitRequest" class="space-y-4">
+                        <div v-if="requestForm.errors.host_id" class="text-red-500 text-xs font-semibold">
+                            {{ requestForm.errors.host_id }}
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <select 
+                                v-model="requestForm.host_id"
+                                class="flex-1 h-11 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 text-sm text-slate-855 dark:text-slate-100 focus:outline-none focus:border-sky-500"
+                                required
+                            >
+                                <option value="" disabled>-- Pilih Kelompok KKN --</option>
+                                <option 
+                                    v-for="posko in allPoskos" 
+                                    :key="posko.id" 
+                                    :value="posko.id"
+                                >
+                                    {{ posko.name }} - Kelompok {{ posko.group_number }} ({{ posko.university }})
+                                </option>
+                            </select>
+                            
+                            <button 
+                                type="submit" 
+                                :disabled="requestForm.processing"
+                                class="h-11 px-6 bg-sky-500 hover:bg-sky-600 disabled:bg-sky-400 text-white font-bold rounded-xl text-sm transition shrink-0 cursor-pointer"
+                            >
+                                Kirim Permintaan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Pending Requests Card -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xs">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4">Menunggu Konfirmasi Kelompok ({{ pendingRequests?.length || 0 }})</h3>
+                    
+                    <div v-if="pendingRequests && pendingRequests.length > 0" class="space-y-3">
+                        <div 
+                            v-for="req in pendingRequests" 
+                            :key="req.id" 
+                            class="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-855 rounded-2xl flex items-center justify-between gap-4"
+                        >
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ req.host.name }}</h4>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Kelompok {{ req.host.group_number }} - {{ req.host.university }}</p>
+                            </div>
+                            <span class="px-3 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-[10px] font-bold rounded-full border border-amber-200/50">
+                                Pending
+                            </span>
+                        </div>
+                    </div>
+
+                    <div v-else class="text-center py-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                        <p class="text-xs text-slate-400">Tidak ada permintaan pemantauan yang aktif.</p>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template v-else>
+            <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Pusat Kendali KKN</h1>
@@ -577,6 +678,6 @@ const getTodayName = () => {
                 </div>
             </div>
         </div>
-
+        </template>
     </div>
 </template>

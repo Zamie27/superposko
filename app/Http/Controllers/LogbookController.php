@@ -24,9 +24,21 @@ class LogbookController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        $logbooks = Logbook::with('user:id,name,email')
-            ->where('host_id', $hostId)
-            ->orderBy('date', 'desc')
+        $logbooksQuery = Logbook::with('user:id,name,email')
+            ->where('host_id', $hostId);
+
+        // If not admin/leadership role, restrict personal logbooks to own entries
+        if (! HostRoleHelper::canAdminister($user)) {
+            $logbooksQuery->where(function ($query) use ($user) {
+                $query->where('scope', 'group')
+                    ->orWhere(function ($q) use ($user) {
+                        $q->where('scope', 'personal')
+                          ->where('user_id', $user->id);
+                    });
+            });
+        }
+
+        $logbooks = $logbooksQuery->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function (Logbook $log) {
@@ -37,6 +49,7 @@ class LogbookController extends Controller
                     'description' => $log->description,
                     'date' => $log->date->format('Y-m-d'),
                     'activity_type' => $log->activity_type,
+                    'scope' => $log->scope,
                     'image_path' => $log->image_path,
                     'user' => $log->user,
                 ];
@@ -76,6 +89,7 @@ class LogbookController extends Controller
             'members' => $members,
             'canWriteFinance' => HostRoleHelper::canWriteFinance($user),
             'isHostOrSekretaris' => HostRoleHelper::isHostOrSekretaris($user),
+            'canWriteGroupLogbook' => HostRoleHelper::canWriteGroupLogbook($user),
             'authUserId' => $user->id,
         ]);
     }
@@ -212,8 +226,13 @@ class LogbookController extends Controller
             'date' => ['required', 'date'],
             'description' => ['required', 'string', 'max:5000'],
             'activity_type' => ['required', 'string', Rule::in(['internal', 'community'])],
+            'scope' => ['required', 'string', Rule::in(['personal', 'group'])],
             'image' => ['nullable', 'image', 'max:5120'], // Max 5MB
         ]);
+
+        if ($validated['scope'] === 'group' && ! HostRoleHelper::canWriteGroupLogbook($user)) {
+            abort(403, 'Hanya Ketua, Wakil, dan Sekretaris yang dapat membuat Logbook Kelompok.');
+        }
 
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -227,6 +246,7 @@ class LogbookController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'],
             'activity_type' => $validated['activity_type'],
+            'scope' => $validated['scope'],
             'image_path' => $imagePath,
         ]);
 
@@ -259,8 +279,13 @@ class LogbookController extends Controller
             'date' => ['required', 'date'],
             'description' => ['required', 'string', 'max:5000'],
             'activity_type' => ['required', 'string', Rule::in(['internal', 'community'])],
+            'scope' => ['required', 'string', Rule::in(['personal', 'group'])],
             'image' => ['nullable', 'image', 'max:5120'], // Max 5MB
         ]);
+
+        if ($validated['scope'] === 'group' && ! HostRoleHelper::canWriteGroupLogbook($user)) {
+            abort(403, 'Hanya Ketua, Wakil, dan Sekretaris yang dapat mengelola Logbook Kelompok.');
+        }
 
         $imagePath = $logbook->image_path;
         if ($request->hasFile('image')) {
@@ -275,6 +300,7 @@ class LogbookController extends Controller
             'date' => $validated['date'],
             'description' => $validated['description'],
             'activity_type' => $validated['activity_type'],
+            'scope' => $validated['scope'],
             'image_path' => $imagePath,
         ]);
 

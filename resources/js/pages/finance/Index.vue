@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { 
     Plus, Edit, Trash2, FileText, ArrowUpRight, ArrowDownLeft, Wallet, 
     X, ImageIcon, Search, Filter, Printer, ExternalLink, Info

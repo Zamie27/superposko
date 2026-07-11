@@ -2,6 +2,8 @@
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
+import { usePage, router } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 withDefaults(
     defineProps<{
@@ -11,6 +13,19 @@ withDefaults(
         breadcrumbs: () => [],
     },
 );
+
+const page = usePage();
+const dplData = computed(() => page.props.dpl as any);
+
+const switchPosko = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    const hostId = target.value;
+    if (hostId) {
+        router.post('/dpl/switch-posko', { host_id: hostId }, {
+            preserveState: false,
+        });
+    }
+};
 </script>
 
 <template>
@@ -23,10 +38,28 @@ withDefaults(
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
         </div>
+        <div v-if="dplData" class="ml-auto flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-500">Posko:</span>
+            <select
+                :value="dplData.active_host_id || ''"
+                @change="switchPosko"
+                class="text-xs h-9 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-550 max-w-[200px]"
+            >
+                <option value="" disabled>-- Pilih Posko --</option>
+                <option
+                    v-for="posko in dplData.poskos"
+                    :key="posko.id"
+                    :value="posko.id"
+                >
+                    {{ posko.name }} - Kel. {{ posko.group_number }}
+                </option>
+            </select>
+        </div>
         <img
             src="/logo_superposko.png"
             alt="SuperPosko"
-            class="h-8 w-auto object-contain block md:hidden ml-auto"
+            class="h-8 w-auto object-contain ml-auto"
+            :class="[dplData ? 'hidden md:block' : 'block md:hidden']"
         />
     </header>
 </template>

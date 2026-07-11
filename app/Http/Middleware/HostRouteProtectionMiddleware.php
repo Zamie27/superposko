@@ -43,8 +43,8 @@ class HostRouteProtectionMiddleware
             }
         }
 
-        // Host, trial, and Member can access all host routes
-        $isHostOrMember = $user->role === 'host' || $user->role === 'trial' || ! is_null($user->host_id);
+        // Owner (host_id is null), trial, and Member (host_id is set) can access all host routes
+        $isHostOrMember = is_null($user->host_id) || $user->role === 'trial' || ! is_null($user->host_id);
         if ($isHostOrMember) {
             return $next($request);
         }

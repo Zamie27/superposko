@@ -208,16 +208,16 @@ class TripayController extends Controller
 
                 if ($user) {
                     if ($prefix === 'SUB') {
-                        // Update user role to host and extend active subscription
+                        // Update user role to ketua and extend active subscription
                         $user->update([
-                            'role' => 'host',
+                            'role' => 'ketua',
                             'subscription_expires_at' => now()->addDays(40),
                         ]);
 
                         ActivityLogHelper::log(
                             'payment',
                             'payment_webhook_success_tripay',
-                            "Webhook Tripay mengonfirmasi pembayaran Rp " . number_format($totalAmount) . " untuk referensi {$merchantRef}. User {$user->name} role di-upgrade ke host.",
+                            "Webhook Tripay mengonfirmasi pembayaran Rp " . number_format($totalAmount) . " untuk referensi {$merchantRef}. User {$user->name} role di-upgrade ke ketua.",
                             $user
                         );
 
@@ -242,16 +242,16 @@ class TripayController extends Controller
                             ]);
                         }
 
-                        // Promote user to host as well on approved preorder!
+                        // Promote user to ketua as well on approved preorder!
                         $user->update([
-                            'role' => 'host',
+                            'role' => 'ketua',
                             'subscription_expires_at' => now()->addDays(40),
                         ]);
 
                         ActivityLogHelper::log(
                             'preorder',
                             'preorder_webhook_success_tripay',
-                            "Webhook Tripay mengonfirmasi preorder Rp " . number_format($totalAmount) . " untuk referensi {$merchantRef}. Preorder disetujui, user {$user->name} role di-upgrade ke host.",
+                            "Webhook Tripay mengonfirmasi preorder Rp " . number_format($totalAmount) . " untuk referensi {$merchantRef}. Preorder disetujui, user {$user->name} role di-upgrade ke ketua.",
                             $user
                         );
 
@@ -302,7 +302,7 @@ class TripayController extends Controller
                     }
 
                     $user->update([
-                        'role' => 'host',
+                        'role' => 'ketua',
                         'subscription_expires_at' => now()->addDays(40),
                     ]);
 
@@ -344,9 +344,9 @@ class TripayController extends Controller
             if ($detail && isset($detail['status'])) {
                 $statusStr = strtoupper($detail['status']);
                 if ($statusStr === 'PAID') {
-                    // Subscription is paid! Update role to host immediately
+                    // Subscription is paid! Update role to ketua immediately
                     $user->update([
-                        'role' => 'host',
+                        'role' => 'ketua',
                         'subscription_expires_at' => now()->addDays(40),
                     ]);
 
@@ -381,8 +381,8 @@ class TripayController extends Controller
             }
         }
 
-        // If user returns and role is already host (e.g. webhook processed first)
-        if ($user->role === 'host') {
+        // If user returns and is already owner (e.g. webhook processed first)
+        if (is_null($user->host_id) && $user->subscription_expires_at?->isFuture()) {
             return Inertia::render('payment/Success', [
                 'status' => 'success',
                 'reference' => 'PAID',
@@ -408,8 +408,8 @@ class TripayController extends Controller
     {
         $user = $request->user();
 
-        // 1. If role is already host, they are paid
-        if ($user->role === 'host') {
+        // 1. If user is already owner with active subscription, they are paid
+        if (is_null($user->host_id) && $user->subscription_expires_at?->isFuture()) {
             return response()->json([
                 'success' => true,
                 'status' => 'PAID',
@@ -429,7 +429,7 @@ class TripayController extends Controller
                         $preorder->update(['status' => 'approved']);
                     }
                     $user->update([
-                        'role' => 'host',
+                        'role' => 'ketua',
                         'subscription_expires_at' => now()->addDays(40),
                     ]);
                 }
@@ -448,7 +448,7 @@ class TripayController extends Controller
                 $status = strtoupper($detail['status']);
                 if ($status === 'PAID') {
                     $user->update([
-                        'role' => 'host',
+                        'role' => 'ketua',
                         'subscription_expires_at' => now()->addDays(40),
                     ]);
                 }

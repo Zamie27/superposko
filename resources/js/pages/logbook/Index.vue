@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { 
-    Plus, Edit3, Trash2, Calendar, CheckCircle, Clock, BookOpen, User, Image as ImageIcon, X, FileText, CheckSquare, Target
+    Plus, Edit3, Trash2, Calendar, CheckCircle, Clock, BookOpen, User, Image as ImageIcon, X, FileText, CheckSquare, Target, Search
 } from '@lucide/vue';
 import { ref, computed } from 'vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -41,6 +41,7 @@ interface Logbook {
     description: string;
     date: string;
     activity_type: 'internal' | 'community';
+    scope: 'personal' | 'group';
     image_path: string | null;
     user?: Member | null;
 }
@@ -51,6 +52,7 @@ const props = defineProps<{
     members: Member[];
     canWriteFinance: boolean;
     isHostOrSekretaris: boolean;
+    canWriteGroupLogbook: boolean;
     authUserId: number;
 }>();
 
@@ -71,6 +73,7 @@ const activeTab = ref<'proker' | 'logbook'>('proker');
 // Search Query
 const prokerSearch = ref('');
 const logbookSearch = ref('');
+const logbookScopeFilter = ref<'all' | 'group' | 'personal'>('all');
 
 // Format Currency
 const formatRupiah = (value: number) => {
@@ -101,7 +104,11 @@ const filteredLogbooks = computed(() => {
             log.description.toLowerCase().includes(logbookSearch.value.toLowerCase()) ||
             (log.user && log.user.name.toLowerCase().includes(logbookSearch.value.toLowerCase()));
 
-        return matchesSearch;
+        const matchesScope = 
+            logbookScopeFilter.value === 'all' || 
+            log.scope === logbookScopeFilter.value;
+
+        return matchesSearch && matchesScope;
     });
 });
 
@@ -252,6 +259,7 @@ const logbookForm = useForm({
     date: new Date().toISOString().split('T')[0],
     description: '',
     activity_type: 'internal' as 'internal' | 'community',
+    scope: 'personal' as 'personal' | 'group',
     image: null as File | null,
 });
 
@@ -261,6 +269,7 @@ const openCreateLogbookModal = () => {
     imagePreview.value = null;
     logbookForm.reset();
     logbookForm._method = 'POST';
+    logbookForm.scope = 'personal';
     isLogbookModalOpen.value = true;
 };
 
@@ -274,6 +283,7 @@ const openEditLogbookModal = (log: Logbook) => {
     logbookForm.date = log.date;
     logbookForm.description = log.description;
     logbookForm.activity_type = log.activity_type;
+    logbookForm.scope = log.scope || 'personal';
     logbookForm.image = null;
     isLogbookModalOpen.value = true;
 };
@@ -602,8 +612,8 @@ const confirmDeleteLogbook = async (log: Logbook) => {
 
         <!-- TAB 2: LOGBOOK HARIAN -->
         <div v-if="activeTab === 'logbook'" class="space-y-6 animate-in fade-in duration-200">
-            <!-- Search Controls -->
-            <div class="flex rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs">
+            <!-- Search & Scope Filter Controls -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs">
                 <div class="relative w-full md:w-96">
                     <Search class="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                     <input
@@ -612,6 +622,43 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                         placeholder="Cari logbook, judul, isi laporan, atau penulis..."
                         class="w-full rounded-xl border border-slate-200 dark:border-slate-800 pl-10 pr-4 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
                     />
+                </div>
+
+                <!-- Scope Filter Buttons -->
+                <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl w-full md:w-auto md:min-w-[280px]">
+                    <button
+                        @click="logbookScopeFilter = 'all'"
+                        :class="[
+                            'flex-1 text-center py-1.5 px-3 text-xs font-bold rounded-lg transition duration-200 cursor-pointer',
+                            logbookScopeFilter === 'all'
+                                ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-xs'
+                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                        ]"
+                    >
+                        Semua
+                    </button>
+                    <button
+                        @click="logbookScopeFilter = 'group'"
+                        :class="[
+                            'flex-1 text-center py-1.5 px-3 text-xs font-bold rounded-lg transition duration-200 cursor-pointer',
+                            logbookScopeFilter === 'group'
+                                ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-xs'
+                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                        ]"
+                    >
+                        Kelompok
+                    </button>
+                    <button
+                        @click="logbookScopeFilter = 'personal'"
+                        :class="[
+                            'flex-1 text-center py-1.5 px-3 text-xs font-bold rounded-lg transition duration-200 cursor-pointer',
+                            logbookScopeFilter === 'personal'
+                                ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-white shadow-xs'
+                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                        ]"
+                    >
+                        Pribadi
+                    </button>
                 </div>
             </div>
 
@@ -643,6 +690,14 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                                             : 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-850 dark:text-slate-300 dark:border-slate-800'
                                     ]">
                                         {{ log.activity_type === 'community' ? 'Bakti Masyarakat' : 'Internal Posko' }}
+                                    </span>
+                                    <span :class="[
+                                        'px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase tracking-wider',
+                                        log.scope === 'group' 
+                                            ? 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20' 
+                                            : 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20'
+                                    ]">
+                                        {{ log.scope === 'group' ? 'Kelompok' : 'Pribadi' }}
                                     </span>
                                 </div>
 
@@ -887,6 +942,20 @@ const confirmDeleteLogbook = async (log: Logbook) => {
                             <option value="community">Bakti Masyarakat (Program Kerja, Baksos)</option>
                         </select>
                         <p v-if="logbookForm.errors.activity_type" class="text-xs text-red-500">{{ logbookForm.errors.activity_type }}</p>
+                    </div>
+
+                    <!-- Scope Select -->
+                    <div v-if="canWriteGroupLogbook" class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Lingkup Laporan</label>
+                        <select
+                            v-model="logbookForm.scope"
+                            class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-emerald-550 focus:outline-none bg-white dark:bg-slate-950 dark:text-white"
+                            required
+                        >
+                            <option value="personal">Logbook Pribadi (Laporan Individu)</option>
+                            <option value="group">Logbook Kelompok (Kegiatan Bersama)</option>
+                        </select>
+                        <p v-if="logbookForm.errors.scope" class="text-xs text-red-500">{{ logbookForm.errors.scope }}</p>
                     </div>
 
                     <!-- Description Input -->

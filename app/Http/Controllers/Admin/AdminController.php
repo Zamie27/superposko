@@ -17,8 +17,9 @@ class AdminController extends Controller
     public function index(): Response
     {
         $totalUsers = User::count();
-        $totalHosts = User::where('role', 'host')->count();
-        $activeSubscriptions = User::where('role', 'host')
+        $totalHosts = User::whereNull('host_id')->where('role', '!=', 'admin')->count();
+        $activeSubscriptions = User::whereNull('host_id')
+            ->where('role', '!=', 'admin')
             ->where(function ($query) {
                 $query->whereNull('subscription_expires_at')
                     ->orWhere('subscription_expires_at', '>', now());

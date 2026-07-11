@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Helpers\RoleConfig;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -49,13 +50,20 @@ class HandleInertiaRequests extends Middleware
             'vapid_public_key' => config('services.vapid.public_key'),
             'auth' => [
                 'user' => $request->user() ? array_merge($request->user()->toArray(), [
-                    'display_role' => $request->user()->role === 'admin' ? 'Admin' : ($request->user()->host_id ? ucfirst($request->user()->role) : ($request->user()->role === 'host' ? 'Host' : ($request->user()->role === 'trial' ? 'Trial (' . ((int) max(0, ceil(now()->diffInSeconds($request->user()->trial_ends_at ?? $request->user()->created_at->addDays(5), false) / 86400))) . ' hari)' : 'User'))),
+                    'display_role' => $this->resolveDisplayRole($request->user()),
                     'is_subscribed' => $request->user()->role === 'admin' ||
                         $request->user()->role === 'trial' ||
-                        ($request->user()->role === 'host' && ($request->user()->subscription_expires_at === null || $request->user()->subscription_expires_at->isFuture())) ||
+                        (is_null($request->user()->host_id) && ($request->user()->subscription_expires_at === null || $request->user()->subscription_expires_at->isFuture())) ||
                         ($request->user()->host_id && $request->user()->host && ($request->user()->host->subscription_expires_at === null || $request->user()->host->subscription_expires_at->isFuture())),
                 ]) : null,
             ],
+            'dpl' => $request->user() && $request->user()->role === 'dpl' ? [
+                'active_host_id' => $request->user()->host_id,
+                'poskos' => User::whereNull('host_id')
+                    ->whereIn('role', ['host', 'ketua', 'trial'])
+                    ->select('id', 'name', 'university', 'group_number')
+                    ->get(),
+            ] : null,
             'immich' => $request->user() ? Cache::remember('immich_storage_'.($request->user()->host_id ?? $request->user()->id), 30, function () use ($request) {
                 $user = $request->user();
                 $hostId = $user->host_id ?? $user->id;
@@ -88,5 +96,27 @@ class HandleInertiaRequests extends Middleware
             }) : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+    }
+
+    /**
+     * Resolve a human-friendly display role name for the user.
+     */
+    private function resolveDisplayRole(User $user): string
+    {
+        if ($user->role === 'admin') {
+            return 'Admin';
+        }
+
+        if ($user->role === 'trial') {
+            $daysLeft = (int) max(0, ceil(now()->diffInSeconds($user->trial_ends_at ?? $user->created_at->addDays(5), false) / 86400));
+
+            return 'Trial (' . $daysLeft . ' hari)';
+        }
+
+        if ($user->role === 'user') {
+            return 'User';
+        }
+
+        return RoleConfig::getRoleLabel($user->role);
     }
 }

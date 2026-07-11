@@ -31,7 +31,7 @@ class AdminUserController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $hosts = User::where('role', 'host')->select('id', 'name', 'email')->get();
+        $hosts = User::whereNull('host_id')->where('role', '!=', 'admin')->select('id', 'name', 'email')->get();
 
         return Inertia::render('admin/Users', [
             'users' => $users,
@@ -94,7 +94,7 @@ class AdminUserController extends Controller
     public function updateRole(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([
-            'role' => ['required', 'string', Rule::in(['admin', 'host', 'user', 'member'])],
+            'role' => ['required', 'string', Rule::in(['admin', 'user', 'trial', 'ketua', 'wakil', 'sekretaris', 'bendahara', 'logistik', 'pdd', 'humas', 'acara', 'perlengkapan', 'anggota', 'dpl'])],
             'host_id' => ['nullable', 'exists:users,id'],
         ]);
 

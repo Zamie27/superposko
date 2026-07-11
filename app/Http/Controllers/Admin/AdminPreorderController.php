@@ -39,14 +39,14 @@ class AdminPreorderController extends Controller
     }
 
     /**
-     * Approve preorder and promote user to host.
+     * Approve preorder and promote user to ketua.
      */
     public function approve(Preorder $preorder): JsonResponse
     {
         $user = $preorder->user;
         if ($user) {
             $user->update([
-                'role' => 'host',
+                'role' => 'ketua',
                 'subscription_expires_at' => now()->addDays(40),
             ]);
         }
@@ -56,12 +56,12 @@ class AdminPreorderController extends Controller
         ActivityLogHelper::log(
             'preorder',
             'approve_preorder',
-            "Admin approved preorder request #{$preorder->id} from user {$preorder->name} ({$preorder->email}). User role upgraded to host."
+            "Admin approved preorder request #{$preorder->id} from user {$preorder->name} ({$preorder->email}). User role upgraded to ketua."
         );
 
         return response()->json([
             'success' => true,
-            'message' => "Preorder dari {$preorder->name} disetujui. Akun telah aktif sebagai Host.",
+            'message' => "Preorder dari {$preorder->name} disetujui. Akun telah aktif sebagai Ketua.",
         ]);
     }
 

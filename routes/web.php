@@ -138,6 +138,9 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('dpl/switch-posko', [\App\Http\Controllers\DplController::class, 'switchPosko'])->name('dpl.switch-posko');
+    Route::post('dpl/request-monitoring', [\App\Http\Controllers\DplController::class, 'requestMonitoring'])->name('dpl.request-monitoring');
+
     // Redirection/Rendering helper for main /dashboard entry path
     Route::get('dashboard', function (Request $request) {
         $user = $request->user();
@@ -218,6 +221,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('management/members', [MemberController::class, 'store'])->name('management.members.store');
         Route::put('management/members/{member}', [MemberController::class, 'update'])->name('management.members.update');
         Route::delete('management/members/{member}', [MemberController::class, 'destroy'])->name('management.members.destroy');
+        Route::post('management/members/transfer-ketua', [MemberController::class, 'transferKetua'])->name('management.members.transfer-ketua');
+        Route::post('management/members/batch', [MemberController::class, 'storeBatch'])->name('management.members.store-batch');
+        Route::post('management/members/dpl-approve/{id}', [MemberController::class, 'approveDpl'])->name('management.members.dpl-approve');
+        Route::post('management/members/dpl-reject/{id}', [MemberController::class, 'rejectDpl'])->name('management.members.dpl-reject');
 
         // Tracking Log Aktifitas Anggota
         Route::get('management/activity-logs', [MemberActivityLogController::class, 'index'])->name('management.activity-logs.index');

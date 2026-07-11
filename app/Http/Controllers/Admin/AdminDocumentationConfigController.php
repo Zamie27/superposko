@@ -21,7 +21,8 @@ class AdminDocumentationConfigController extends Controller
         $search = $request->input('search');
 
         $hosts = User::query()
-            ->where('role', 'host')
+            ->whereNull('host_id') // Owners only
+            ->where('role', '!=', 'admin')
             ->when($search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
@@ -42,10 +43,10 @@ class AdminDocumentationConfigController extends Controller
      */
     public function update(Request $request, User $host): JsonResponse
     {
-        if ($host->role !== 'host') {
+        if (! is_null($host->host_id)) {
             return response()->json([
                 'success' => false,
-                'message' => 'User tersebut bukan merupakan Host.',
+                'message' => 'User tersebut bukan merupakan Owner posko.',
             ], 400);
         }
 
