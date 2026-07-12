@@ -144,13 +144,26 @@ const filteredFinances = computed(() => {
 // Proker spending breakdowns
 const prokerSpentBreakdown = computed(() => {
     return props.programKerjas.map(proker => {
+        const allocated = props.finances
+            .filter(f => f.program_kerja_id === proker.id && f.type === 'allocation' && f.category === 'Kas ke Proker')
+            .reduce((sum, f) => sum + Number(f.amount), 0);
+
+        const returned = props.finances
+            .filter(f => f.program_kerja_id === proker.id && f.type === 'allocation' && f.category === 'Proker ke Kas')
+            .reduce((sum, f) => sum + Number(f.amount), 0);
+
+        const netAllocated = allocated - returned;
+
         const spent = props.finances
             .filter(f => f.program_kerja_id === proker.id && f.type === 'expense')
-            .reduce((sum, f) => sum + f.amount, 0);
+            .reduce((sum, f) => sum + Number(f.amount), 0);
+
+        const available = netAllocated - spent;
 
         return {
             ...proker,
             spent,
+            available,
             percent: proker.budget > 0 ? Math.round((spent / proker.budget) * 100) : 0
         };
     }).sort((a, b) => b.spent - a.spent);
@@ -627,20 +640,20 @@ const triggerPrint = () => {
                         <!-- Ledger breakdown list -->
                         <div class="mt-4 grid grid-cols-3 gap-2 text-xs border-b border-slate-100 dark:border-slate-800 pb-3">
                             <div>
-                                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Anggaran</span>
+                                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Estimasi Anggaran</span>
                                 <span class="font-bold text-slate-700 dark:text-slate-300">{{ formatRupiah(breakdown.budget) }}</span>
                             </div>
                             <div>
-                                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Terpakai</span>
+                                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Realisasi Belanja</span>
                                 <span class="font-extrabold text-slate-800 dark:text-slate-200">{{ formatRupiah(breakdown.spent) }}</span>
                             </div>
                             <div>
-                                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Sisa</span>
+                                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Dana Tersedia</span>
                                 <span 
                                     class="font-bold"
-                                    :class="[breakdown.budget - breakdown.spent < 0 ? 'text-red-500 font-extrabold' : 'text-slate-500 dark:text-slate-400']"
+                                    :class="[breakdown.available > 0 ? 'text-emerald-600 dark:text-emerald-450 font-extrabold' : 'text-slate-500 dark:text-slate-400']"
                                 >
-                                    {{ formatRupiah(breakdown.budget - breakdown.spent) }}
+                                    {{ formatRupiah(breakdown.available) }}
                                 </span>
                             </div>
                         </div>
