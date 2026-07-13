@@ -6,7 +6,7 @@ import { usePage, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { LogOut, ArrowLeft } from '@lucide/vue';
+import { LogOut, ArrowLeft, RefreshCw, ChevronDown } from '@lucide/vue';
 
 withDefaults(
     defineProps<{
@@ -85,12 +85,13 @@ const activePoskoName = computed(() => {
                 </Button>
             </template>
             <template v-else>
-                <div class="hidden sm:flex flex-col items-end mr-1">
-                    <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Sedang Masuk Posko</span>
-                    <span class="text-xs font-bold text-indigo-700 truncate max-w-[150px]">{{ activePoskoName }}</span>
-                </div>
-                <Button @click="exitPosko" variant="destructive" class="h-8 text-xs rounded-lg px-3 shadow-sm">
-                    <ArrowLeft class="mr-1.5 size-3.5" /> Kembali
+                <Button @click="isPoskoModalOpen = true" variant="outline" class="h-8 text-xs rounded-lg px-3 shadow-sm border-indigo-200 text-indigo-700 hover:bg-indigo-50" title="Ganti Posko">
+                    <RefreshCw class="mr-1.5 size-3.5 sm:hidden" />
+                    <span class="hidden sm:inline font-bold">{{ activePoskoName }}</span>
+                    <ChevronDown class="ml-1.5 size-3.5" />
+                </Button>
+                <Button @click="exitPosko" variant="destructive" class="h-8 text-xs rounded-lg px-3 shadow-sm" title="Keluar dari mode pemantauan">
+                    <LogOut class="mr-1.5 size-3.5" /> <span class="hidden sm:inline">Keluar</span>
                 </Button>
             </template>
         </div>
