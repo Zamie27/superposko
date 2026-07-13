@@ -445,9 +445,9 @@ defineOptions({
                 </div>
             </div>
 
-            <div class="rounded-xl border bg-card overflow-hidden">
-                <table class="w-full text-sm text-left text-slate-600">
-                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b">
+            <div class="rounded-xl border bg-card overflow-y-auto flex-1 min-h-[300px] shadow-sm">
+                <table class="w-full text-sm text-left text-slate-600 relative">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b sticky top-0 z-10 shadow-sm">
                         <tr>
                             <th scope="col" class="px-6 py-4">Nama Lengkap</th>
                             <th scope="col" class="px-6 py-4">Email</th>
