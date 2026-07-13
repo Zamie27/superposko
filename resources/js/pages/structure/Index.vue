@@ -72,7 +72,7 @@ const downloadImage = async () => {
         link.click();
     } catch (error) {
         console.error('Gagal mengunduh gambar:', error);
-        alert('Gagal mengunduh gambar struktur.');
+        alert('Gagal mengunduh gambar struktur. Pastikan Anda telah menjalankan: npm install html2canvas');
     } finally {
         isDownloading.value = false;
     }
@@ -100,10 +100,9 @@ const downloadImage = async () => {
 
         <!-- Org Chart Container -->
         <div 
-            ref="orgChartRef" 
             class="w-full overflow-x-auto py-12 bg-slate-50 dark:bg-slate-900/30 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-inner flex-1"
         >
-            <div class="min-w-[900px] flex flex-col items-center pb-12">
+            <div ref="orgChartRef" class="min-w-[900px] flex flex-col items-center pb-12 pt-8 px-12 bg-slate-50 dark:bg-slate-900 rounded-2xl">
                 
                 <!-- DPL Level -->
                 <div v-if="groupedMembers.dpl.length" class="flex flex-col items-center">
