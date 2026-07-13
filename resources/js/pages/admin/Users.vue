@@ -427,7 +427,7 @@ const handleSwitchPosko = (user: any) => {
 <template>
     <Head title="Manajemen User - Admin" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-6 max-w-6xl mx-auto font-sans">
+    <div class="flex flex-col gap-6 p-6 max-w-6xl mx-auto font-sans w-full">
         <div class="flex items-center gap-3">
             <Link href="/admin/dashboard" class="rounded-lg p-2 hover:bg-slate-100 text-slate-500 transition-colors">
                 <ArrowLeft class="size-5" />
