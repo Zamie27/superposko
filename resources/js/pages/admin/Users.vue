@@ -3,6 +3,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { Search, Key, Shield, ArrowLeft, Check, AlertCircle } from '@lucide/vue';
 import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useConfirm } from '@/composables/useConfirm';
@@ -53,6 +54,16 @@ const successMessage = ref('');
 const errorMessage = ref('');
 const { confirm } = useConfirm();
 const toast = useToast();
+
+// Create User State
+const isCreateModalOpen = ref(false);
+const createForm = ref({
+    name: '',
+    email: '',
+    password: '',
+    role: 'user',
+    host_id: '' as string | number,
+});
 
 // Role Editing State
 const roleForm = ref({
@@ -123,6 +134,64 @@ const handleResetPassword = async () => {
     }
 };
 
+const openCreateModal = () => {
+    createForm.value = {
+        name: '',
+        email: '',
+        password: '',
+        role: 'user',
+        host_id: '',
+    };
+    successMessage.value = '';
+    errorMessage.value = '';
+    isCreateModalOpen.value = true;
+};
+
+const handleCreateUser = async () => {
+    if (!createForm.value.name || !createForm.value.email || !createForm.value.password) {
+        errorMessage.value = 'Nama, email, dan password wajib diisi.';
+        return;
+    }
+
+    isProcessing.value = true;
+    errorMessage.value = '';
+    successMessage.value = '';
+
+    try {
+        const response = await fetch('/admin/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                name: createForm.value.name,
+                email: createForm.value.email,
+                password: createForm.value.password,
+                role: createForm.value.role,
+                host_id: ['user', 'admin', 'host', 'trial', 'dpl'].includes(createForm.value.role) ? null : (createForm.value.host_id ? Number(createForm.value.host_id) : null),
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            successMessage.value = data.message;
+            router.reload({ only: ['users'] });
+            setTimeout(() => {
+                isCreateModalOpen.value = false;
+            }, 1500);
+        } else {
+            errorMessage.value = data.message || 'Terjadi kesalahan.';
+        }
+    } catch {
+        errorMessage.value = 'Gagal menghubungi server.';
+    } finally {
+        isProcessing.value = false;
+    }
+};
+
 const handleSendResetEmail = async (user: any) => {
     const isConfirmed = await confirm({
         title: 'Reset Password?',
@@ -179,7 +248,7 @@ const handleUpdateRole = async () => {
             },
             body: JSON.stringify({
                 role: roleForm.value.role,
-                host_id: roleForm.value.role === 'member' && roleForm.value.host_id ? Number(roleForm.value.host_id) : null,
+                host_id: ['user', 'admin', 'host', 'trial', 'dpl'].includes(roleForm.value.role) ? null : (roleForm.value.host_id ? Number(roleForm.value.host_id) : null),
             }),
         });
 
@@ -369,15 +438,20 @@ const handleSwitchPosko = (user: any) => {
             </div>
         </div>
 
-        <!-- Search Bar -->
-        <div class="relative max-w-md">
-            <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-            <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Cari nama, email, atau universitas..."
-                class="w-full rounded-xl border border-slate-200 pl-9 pr-4 py-2.5 text-sm focus:border-sky-500 focus:outline-none shadow-sm"
-            />
+        <!-- Action Bar -->
+        <div class="flex items-center justify-between gap-4">
+            <div class="relative w-full max-w-md">
+                <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                <input
+                    v-model="searchQuery"
+                    type="text"
+                    placeholder="Cari nama, email, atau universitas..."
+                    class="w-full rounded-xl border border-slate-200 pl-9 pr-4 py-2.5 text-sm focus:border-sky-500 focus:outline-none shadow-sm"
+                />
+            </div>
+            <Button @click="openCreateModal" class="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl">
+                + Tambah Pengguna
+            </Button>
         </div>
 
         <!-- User Table Card -->
@@ -426,40 +500,37 @@ const handleSwitchPosko = (user: any) => {
                                 </span>
                                 <span v-else class="text-slate-300">-</span>
                             </td>
-                            <td class="px-6 py-4 text-right space-x-2">
-                                <button @click="openRoleModal(user)" class="text-xs font-semibold text-sky-600 hover:text-sky-700 underline">
-                                    Edit Role
-                                </button>
-                                <button @click="openTrialModal(user)" class="text-xs font-semibold text-amber-600 hover:text-amber-700 underline">
-                                    Atur Trial
-                                </button>
-                                <button @click="openResetModal(user)" class="text-xs font-semibold text-slate-600 hover:text-slate-700 underline">
-                                    Reset Password
-                                </button>
-                                <button @click="handleSendResetEmail(user)" class="text-xs font-semibold text-slate-500 hover:text-slate-700 underline">
-                                    Kirim Email Reset
-                                </button>
-                                <button
-                                    v-if="user.banned_at"
-                                    @click="handleUnbanUser(user)"
-                                    class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 underline"
-                                >
-                                    Batal Ban
-                                </button>
-                                <button
-                                    v-else
-                                    @click="handleBanUser(user)"
-                                    class="text-xs font-semibold text-red-600 hover:text-red-700 underline"
-                                >
-                                    Ban Akun
-                                </button>
-                                <button
-                                    v-if="!user.host_id && user.role !== 'admin'"
-                                    @click="handleSwitchPosko(user)"
-                                    class="text-xs font-semibold text-blue-600 hover:text-blue-700 underline"
-                                >
-                                    Masuk Posko
-                                </button>
+                            <td class="px-6 py-4 text-right">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger as-child>
+                                        <Button variant="outline" size="sm" class="h-8 border-slate-200">
+                                            Pengaturan
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" class="w-48">
+                                        <DropdownMenuItem v-if="!user.host_id && user.role !== 'admin'" @click="handleSwitchPosko(user)" class="cursor-pointer font-medium text-blue-600 focus:text-blue-700">
+                                            Masuk Posko
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem @click="openRoleModal(user)" class="cursor-pointer font-medium">
+                                            Edit Role
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem @click="openTrialModal(user)" class="cursor-pointer font-medium text-amber-600 focus:text-amber-700">
+                                            Atur Trial
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem @click="openResetModal(user)" class="cursor-pointer font-medium">
+                                            Reset Password
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem @click="handleSendResetEmail(user)" class="cursor-pointer font-medium">
+                                            Kirim Email Reset
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem v-if="user.banned_at" @click="handleUnbanUser(user)" class="cursor-pointer font-medium text-emerald-600 focus:text-emerald-700">
+                                            Batal Ban
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem v-else @click="handleBanUser(user)" class="cursor-pointer font-medium text-red-600 focus:text-red-700">
+                                            Ban Akun
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </td>
                         </tr>
                         <tr v-if="users.data.length === 0">
@@ -491,6 +562,75 @@ const handleSwitchPosko = (user: any) => {
                 </div>
             </div>
         </div>
+
+        <!-- Create User Modal -->
+        <Dialog v-model:open="isCreateModalOpen">
+            <DialogContent class="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle class="flex items-center gap-2">
+                        <Shield class="size-5 text-indigo-500" /> Tambah Pengguna Baru
+                    </DialogTitle>
+                </DialogHeader>
+                <div class="space-y-4 py-3 max-h-[70vh] overflow-y-auto">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-700">Nama Lengkap</label>
+                        <input v-model="createForm.name" type="text" placeholder="Masukkan nama" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none" />
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-700">Alamat Email</label>
+                        <input v-model="createForm.email" type="email" placeholder="Masukkan email" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none" />
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-700">Kata Sandi (Min. 8 Karakter)</label>
+                        <input v-model="createForm.password" type="password" placeholder="Buat kata sandi" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none" />
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-700">Role Pengguna</label>
+                        <select v-model="createForm.role" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none">
+                            <option value="admin">Admin / Pengurus Pusat</option>
+                            <option value="user">User Biasa (Belum Masuk Posko)</option>
+                            <option value="trial">User Trial</option>
+                            <option value="dpl">DPL (Dosen Pembimbing)</option>
+                            <option value="host">Ketua Posko (Host Baru)</option>
+                            <optgroup label="Anggota Posko (Pilih Divisi)">
+                                <option value="bendahara">Bendahara</option>
+                                <option value="logistik">Logistik</option>
+                                <option value="pdd">PDD</option>
+                                <option value="humas">Humas</option>
+                                <option value="acara">Acara</option>
+                                <option value="perlengkapan">Perlengkapan</option>
+                                <option value="anggota">Anggota Biasa</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Host ID Pick (If not admin/user/trial/dpl/host) -->
+                    <div v-if="!['admin', 'user', 'trial', 'dpl', 'host'].includes(createForm.role)" class="space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-700">Pilih Posko Host Terkait</label>
+                        <select v-model="createForm.host_id" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none">
+                            <option value="">-- Wajib Pilih Host --</option>
+                            <option v-for="h in hosts" :key="h.id" :value="h.id">
+                                {{ h.name }} ({{ h.email }}) - {{ h.university || 'Tanpa Universitas' }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Alerts -->
+                    <div v-if="successMessage" class="p-3 bg-green-50 text-green-700 text-xs rounded-xl flex items-center gap-2">
+                        <Check class="size-4 shrink-0" /> {{ successMessage }}
+                    </div>
+                    <div v-if="errorMessage" class="p-3 bg-red-50 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                        <AlertCircle class="size-4 shrink-0" /> {{ errorMessage }}
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button :disabled="isProcessing" @click="handleCreateUser" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">
+                        <Spinner v-if="isProcessing" /> Tambahkan Pengguna
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
 
         <!-- Reset Password Modal -->
         <Dialog v-model:open="isResetModalOpen">
@@ -547,20 +687,30 @@ const handleSwitchPosko = (user: any) => {
                     <div class="space-y-1.5">
                         <label class="text-xs font-semibold text-slate-700">Role Pengguna</label>
                         <select v-model="roleForm.role" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none">
-                            <option value="admin">Admin</option>
-                            <option value="host">Host</option>
-                            <option value="user">User</option>
-                            <option value="member">Member</option>
+                            <option value="admin">Admin / Pengurus Pusat</option>
+                            <option value="user">User Biasa (Belum Masuk Posko)</option>
+                            <option value="trial">User Trial</option>
+                            <option value="dpl">DPL (Dosen Pembimbing)</option>
+                            <option value="host">Ketua Posko (Host Baru)</option>
+                            <optgroup label="Anggota Posko (Pilih Divisi)">
+                                <option value="bendahara">Bendahara</option>
+                                <option value="logistik">Logistik</option>
+                                <option value="pdd">PDD</option>
+                                <option value="humas">Humas</option>
+                                <option value="acara">Acara</option>
+                                <option value="perlengkapan">Perlengkapan</option>
+                                <option value="anggota">Anggota Biasa</option>
+                            </optgroup>
                         </select>
                     </div>
 
-                    <!-- Host ID Pick (Only if role is member) -->
-                    <div v-if="roleForm.role === 'member'" class="space-y-1.5">
+                    <!-- Host ID Pick (If not admin/user/trial/dpl/host) -->
+                    <div v-if="!['admin', 'user', 'trial', 'dpl', 'host'].includes(roleForm.role)" class="space-y-1.5">
                         <label class="text-xs font-semibold text-slate-700">Pilih Posko Host Terkait</label>
                         <select v-model="roleForm.host_id" class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:border-sky-500 focus:outline-none">
-                            <option value="">-- Tanpa Hubungan Host --</option>
+                            <option value="">-- Wajib Pilih Host --</option>
                             <option v-for="h in hosts" :key="h.id" :value="h.id">
-                                {{ h.name }} ({{ h.email }})
+                                {{ h.name }} ({{ h.email }}) - {{ h.university || 'Tanpa Universitas' }}
                             </option>
                         </select>
                     </div>

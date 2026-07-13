@@ -41,6 +41,40 @@ class AdminUserController extends Controller
     }
 
     /**
+     * Store a newly created user.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+            'role' => ['required', 'string', Rule::in(['admin', 'host', 'user', 'trial', 'ketua', 'wakil', 'sekretaris', 'bendahara', 'logistik', 'pdd', 'humas', 'acara', 'perlengkapan', 'anggota', 'dpl'])],
+            'host_id' => ['nullable', 'exists:users,id'],
+        ]);
+
+        if (!in_array($validated['role'], ['admin', 'user', 'trial', 'dpl', 'host']) && empty($validated['host_id'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Posko tujuan wajib dipilih jika menetapkan peran anggota divisi.'
+            ], 422);
+        }
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'],
+            'host_id' => $validated['host_id'] ?: null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pengguna {$user->name} berhasil ditambahkan.",
+        ]);
+    }
+
+    /**
      * Direct reset password of a user.
      */
     public function resetPassword(Request $request): JsonResponse
@@ -94,12 +128,12 @@ class AdminUserController extends Controller
     public function updateRole(Request $request, User $user): JsonResponse
     {
         $validated = $request->validate([
-            'role' => ['required', 'string', Rule::in(['admin', 'user', 'trial', 'ketua', 'wakil', 'sekretaris', 'bendahara', 'logistik', 'pdd', 'humas', 'acara', 'perlengkapan', 'anggota', 'dpl'])],
+            'role' => ['required', 'string', Rule::in(['admin', 'host', 'user', 'trial', 'ketua', 'wakil', 'sekretaris', 'bendahara', 'logistik', 'pdd', 'humas', 'acara', 'perlengkapan', 'anggota', 'dpl'])],
             'host_id' => ['nullable', 'exists:users,id'],
         ]);
 
-        // Ensure host_id is null if role is not member
-        if ($validated['role'] !== 'member') {
+        // Ensure host_id is null if role is not a posko member
+        if (in_array($validated['role'], ['admin', 'host', 'user', 'trial', 'dpl'])) {
             $validated['host_id'] = null;
         }
 
