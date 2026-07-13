@@ -2,6 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import InputError from '@/components/InputError.vue';
+import { store } from '@/routes/attendance';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -35,7 +36,7 @@ const handlePhotoUpload = (e: Event) => {
 const submitAttendance = () => {
     if (!form.photo) return;
     
-    form.post(route('attendance.store'), {
+    form.post(store(), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
