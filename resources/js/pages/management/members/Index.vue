@@ -46,6 +46,27 @@ const isTransferModalOpen = ref(false);
 const editingMember = ref<any>(null);
 const { confirm } = useConfirm();
 
+const searchQuery = ref('');
+const filterRole = ref('all');
+
+const filteredMembers = computed(() => {
+    let result = props.members;
+    
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        result = result.filter(m => 
+            m.name.toLowerCase().includes(query) || 
+            m.email.toLowerCase().includes(query)
+        );
+    }
+    
+    if (filterRole.value !== 'all') {
+        result = result.filter(m => m.role === filterRole.value);
+    }
+    
+    return result;
+});
+
 const form = useForm({
     name: '',
     email: '',
@@ -404,6 +425,26 @@ defineOptions({
                 </div>
             </div>
 
+            <!-- Search & Filter -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div class="relative w-full sm:w-72">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-slate-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <input type="text" v-model="searchQuery" class="block w-full p-2 pl-10 text-sm text-slate-900 border border-slate-300 rounded-lg bg-slate-50 focus:ring-[#38BDF8] focus:border-[#38BDF8] dark:bg-slate-800 dark:border-slate-700 dark:text-white" placeholder="Cari nama atau email...">
+                </div>
+                <div class="w-full sm:w-48">
+                    <select v-model="filterRole" class="block w-full p-2 text-sm text-slate-900 border border-slate-300 rounded-lg bg-slate-50 focus:ring-[#38BDF8] focus:border-[#38BDF8] dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                        <option value="all">Semua Role</option>
+                        <option v-for="(roleData, key) in availableRoles" :key="key" :value="key">
+                            {{ roleData.label }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
             <div class="rounded-xl border bg-card overflow-hidden">
                 <table class="w-full text-sm text-left text-slate-600">
                     <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b">
@@ -415,7 +456,7 @@ defineOptions({
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="member in members" :key="member.id" class="border-b hover:bg-slate-50/50">
+                        <tr v-for="member in filteredMembers" :key="member.id" class="border-b hover:bg-slate-50/50">
                             <td class="px-6 py-4 font-medium text-slate-900">
                                 {{ member.name }}
                             </td>
@@ -432,9 +473,10 @@ defineOptions({
                                 <button @click="deleteMember(member.id)" class="font-medium text-red-500 hover:underline">Hapus</button>
                             </td>
                         </tr>
-                        <tr v-if="members.length === 0">
+                        <tr v-if="filteredMembers.length === 0">
                             <td :colspan="isHost ? 4 : 3" class="px-6 py-8 text-center text-slate-500">
-                                Belum ada anggota yang ditambahkan.
+                                <span v-if="members.length === 0">Belum ada anggota yang ditambahkan.</span>
+                                <span v-else>Tidak ada anggota yang cocok dengan pencarian/filter.</span>
                             </td>
                         </tr>
                     </tbody>

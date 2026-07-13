@@ -24,7 +24,12 @@ class MemberController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        $members = User::where('host_id', $hostId)->get();
+        $members = User::where(function ($q) use ($hostId) {
+                $q->where('host_id', $hostId)
+                  ->orWhere('id', $hostId);
+            })
+            ->orderBy('name', 'asc')
+            ->get();
 
         $pendingDpls = \App\Models\DplMonitoring::with('dpl:id,name,email')
             ->where('host_id', $hostId)
