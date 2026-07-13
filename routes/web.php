@@ -33,6 +33,7 @@ use App\Http\Controllers\ProkerDocumentController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\StructureController;
 use App\Http\Controllers\VotingController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -176,6 +177,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('host/dashboard', [DashboardController::class, 'index'])->name('host.dashboard');
 
         // Sidebar Menus
+        // Struktur Organisasi
+        Route::get('struktur', [StructureController::class, 'index'])->name('structure.index');
+
         // Absensi
         Route::get('absensi', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::post('absensi', [AttendanceController::class, 'store'])->name('attendance.store');

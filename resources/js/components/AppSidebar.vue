@@ -4,7 +4,7 @@ import {
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
     ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase, Download,
-    Bell, Bug, FileText, Camera
+    Bell, Bug, FileText, Camera, Network
 } from '@lucide/vue';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -221,6 +221,12 @@ const navGroups = computed<NavGroup[]>(() => {
                     href: '/absensi',
                     icon: Camera,
                     locked: !isSubscribed,
+                },
+                {
+                    title: 'Struktur Organisasi',
+                    href: '/struktur',
+                    icon: Network,
+                    locked: !isSubscribed || user.role === 'trial',
                 },
                 {
                     title: 'Anggota',
