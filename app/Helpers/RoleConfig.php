@@ -13,15 +13,15 @@ class RoleConfig
      * @var array<string, array{label: string, capacity: int}>
      */
     private const ROLES = [
-        'ketua' => ['label' => 'Ketua', 'capacity' => 0],
+        'ketua' => ['label' => 'Ketua', 'capacity' => 1],
         'wakil' => ['label' => 'Wakil Ketua', 'capacity' => 1],
         'sekretaris' => ['label' => 'Sekretaris', 'capacity' => 0],
-        'bendahara' => ['label' => 'Bendahara', 'capacity' => 2],
-        'logistik' => ['label' => 'Logistik & Konsumsi', 'capacity' => 2],
-        'pdd' => ['label' => 'PDD (Publikasi, Dokumentasi, Desain)', 'capacity' => 3],
-        'humas' => ['label' => 'Humas', 'capacity' => 3],
-        'acara' => ['label' => 'Acara', 'capacity' => 3],
-        'perlengkapan' => ['label' => 'Perlengkapan', 'capacity' => 3],
+        'bendahara' => ['label' => 'Bendahara', 'capacity' => 0],
+        'logistik' => ['label' => 'Logistik, Perlengkapan & Konsumsi', 'capacity' => 0],
+        'pdd' => ['label' => 'PDD (Publikasi, Dokumentasi, Desain)', 'capacity' => 0],
+        'humas' => ['label' => 'Humas', 'capacity' => 0],
+        'acara' => ['label' => 'Acara', 'capacity' => 0],
+        'lainnya' => ['label' => 'Lainnya (Custom)', 'capacity' => 0],
         'dpl' => ['label' => 'DPL (Dosen Pembimbing Lapangan)', 'capacity' => 0],
         'anggota' => ['label' => 'Anggota Biasa', 'capacity' => 0],
     ];

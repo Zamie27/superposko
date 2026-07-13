@@ -46,6 +46,9 @@ class HostRoleHelper
      */
     public static function canManageMembers(User $user): bool
     {
+        if ($user->role === 'lainnya' && $user->customRole) {
+            return $user->customRole->permissions['can_manage_members'] ?? false;
+        }
         return self::canAdminister($user);
     }
 
@@ -55,6 +58,9 @@ class HostRoleHelper
      */
     public static function canWriteFinance(User $user): bool
     {
+        if ($user->role === 'lainnya' && $user->customRole) {
+            return $user->customRole->permissions['can_write_finance'] ?? false;
+        }
         return self::canAdminister($user) || $user->role === 'bendahara';
     }
 
@@ -64,6 +70,9 @@ class HostRoleHelper
      */
     public static function canWriteLogistic(User $user): bool
     {
+        if ($user->role === 'lainnya' && $user->customRole) {
+            return $user->customRole->permissions['can_write_logistic'] ?? false;
+        }
         return self::canAdminister($user) || $user->role === 'logistik';
     }
 
@@ -73,6 +82,9 @@ class HostRoleHelper
      */
     public static function canWriteInventory(User $user): bool
     {
+        if ($user->role === 'lainnya' && $user->customRole) {
+            return $user->customRole->permissions['can_write_inventory'] ?? false;
+        }
         return self::canAdminister($user) || in_array($user->role, ['perlengkapan', 'logistik'], true);
     }
 
@@ -82,6 +94,9 @@ class HostRoleHelper
      */
     public static function canWriteContact(User $user): bool
     {
+        if ($user->role === 'lainnya' && $user->customRole) {
+            return $user->customRole->permissions['can_write_contact'] ?? false;
+        }
         return self::canAdminister($user) || $user->role === 'humas';
     }
 
@@ -91,6 +106,9 @@ class HostRoleHelper
      */
     public static function canWriteProker(User $user): bool
     {
+        if ($user->role === 'lainnya' && $user->customRole) {
+            return $user->customRole->permissions['can_write_proker'] ?? false;
+        }
         return self::canAdminister($user) || in_array($user->role, ['acara', 'humas', 'pdd'], true);
     }
 
@@ -110,6 +128,9 @@ class HostRoleHelper
      */
     public static function canManageImmich(User $user): bool
     {
+        if ($user->role === 'lainnya' && $user->customRole) {
+            return $user->customRole->permissions['can_manage_immich'] ?? false;
+        }
         return self::canAdminister($user) || $user->role === 'pdd';
     }
 
@@ -119,6 +140,9 @@ class HostRoleHelper
      */
     public static function canWriteSchedule(User $user): bool
     {
+        if ($user->role === 'lainnya' && $user->customRole) {
+            return $user->customRole->permissions['can_write_schedule'] ?? false;
+        }
         return self::canAdminister($user) || $user->role === 'acara';
     }
 
@@ -128,6 +152,9 @@ class HostRoleHelper
      */
     public static function canWriteGroupLogbook(User $user): bool
     {
+        if ($user->role === 'lainnya' && $user->customRole) {
+            return $user->customRole->permissions['can_write_group_logbook'] ?? false;
+        }
         return self::canAdminister($user);
     }
 }

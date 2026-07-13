@@ -4,7 +4,7 @@ import {
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
     ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase, Download,
-    Bell, Bug, FileText
+    Bell, Bug, FileText, Camera
 } from '@lucide/vue';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -214,6 +214,12 @@ const navGroups = computed<NavGroup[]>(() => {
                     title: 'Piket & Agenda',
                     href: '/management/schedule',
                     icon: Calendar,
+                    locked: !isSubscribed,
+                },
+                {
+                    title: 'Absensi',
+                    href: '/absensi',
+                    icon: Camera,
                     locked: !isSubscribed,
                 },
                 {

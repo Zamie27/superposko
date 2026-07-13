@@ -32,7 +32,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'google_id', 'university', 'npm', 'group_number', 'kkn_address', 'role', 'host_id', 'subscription_expires_at', 'trial_ends_at', 'banned_at', 'verification_otp', 'verification_otp_expires_at', 'immich_api_key', 'immich_email', 'immich_password'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'university', 'npm', 'group_number', 'kkn_address', 'role', 'custom_role_id', 'host_id', 'subscription_expires_at', 'trial_ends_at', 'banned_at', 'verification_otp', 'verification_otp_expires_at', 'immich_api_key', 'immich_email', 'immich_password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -100,5 +100,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function preorders(): HasMany
     {
         return $this->hasMany(Preorder::class);
+    }
+
+    /**
+     * Get the custom role if the user's role is 'lainnya'.
+     *
+     * @return BelongsTo<CustomRole, $this>
+     */
+    public function customRole(): BelongsTo
+    {
+        return $this->belongsTo(CustomRole::class);
     }
 }

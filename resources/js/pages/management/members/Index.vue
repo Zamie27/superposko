@@ -29,6 +29,7 @@ defineProps<{
     activeDpls?: any[];
     isHost: boolean;
     availableRoles: Record<string, { label: string; capacity: number; current: number; available: boolean }>;
+    customRoles: any[];
     currentUserRole: string;
 }>();
 
@@ -50,6 +51,7 @@ const form = useForm({
     email: '',
     password: '',
     role: 'anggota',
+    custom_role_id: null as number | null,
 });
 
 const transferForm = useForm({
@@ -85,6 +87,7 @@ const openEditModal = (member: any) => {
     form.email = member.email;
     form.password = '';
     form.role = member.role;
+    form.custom_role_id = member.custom_role_id;
     form.clearErrors();
     showPassword.value = false;
     isModalOpen.value = true;
@@ -233,6 +236,66 @@ const deleteMember = async (id: number) => {
     }
 };
 
+const isCustomRoleModalOpen = ref(false);
+const customRoleForm = useForm({
+    id: null as number | null,
+    name: '',
+    permissions: {
+        can_manage_members: false,
+        can_write_finance: false,
+        can_write_logistic: false,
+        can_write_inventory: false,
+        can_write_contact: false,
+        can_write_proker: false,
+        can_manage_immich: false,
+        can_write_schedule: false,
+        can_write_group_logbook: false,
+    }
+});
+
+const openCustomRoleModal = () => {
+    customRoleForm.reset();
+    isCustomRoleModalOpen.value = true;
+};
+
+const editCustomRole = (cr: any) => {
+    customRoleForm.id = cr.id;
+    customRoleForm.name = cr.name;
+    customRoleForm.permissions = cr.permissions || {};
+};
+
+const submitCustomRole = () => {
+    if (customRoleForm.id) {
+        customRoleForm.put(`/management/custom-roles/${customRoleForm.id}`, {
+            onSuccess: () => {
+                customRoleForm.reset();
+                customRoleForm.id = null;
+            }
+        });
+    } else {
+        customRoleForm.post('/management/custom-roles', {
+            onSuccess: () => {
+                customRoleForm.reset();
+                customRoleForm.id = null;
+            }
+        });
+    }
+};
+
+const deleteCustomRole = async (id: number) => {
+    const isConfirmed = await confirm({
+        title: 'Hapus Role Kustom?',
+        message: 'Apakah Anda yakin ingin menghapus role kustom ini? Pastikan tidak ada anggota yang sedang menggunakannya.',
+        confirmText: 'Ya, Hapus',
+        cancelText: 'Batal',
+        variant: 'destructive',
+    });
+
+    if (isConfirmed) {
+        router.delete(`/management/custom-roles/${id}`);
+    }
+};
+
 defineOptions({
     layout: {
         breadcrumbs: [
@@ -290,6 +353,9 @@ defineOptions({
                     <p class="text-sm text-slate-500 mt-1">Kelola anggota posko dan atur hak akses mereka.</p>
                 </div>
                 <div class="flex gap-2">
+                    <Button v-if="isHost" @click="openCustomRoleModal" variant="outline" class="border-slate-300">
+                        Kelola Role Kustom
+                    </Button>
                     <Button v-if="isHost" @click="openCreateModal" class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white">
                         Tambah Anggota
                     </Button>
@@ -493,6 +559,26 @@ defineOptions({
                                 </SelectContent>
                             </Select>
                             <InputError :message="form.errors.role" />
+                        </div>
+
+                        <div v-if="form.role === 'lainnya'" class="grid gap-2">
+                            <Label for="custom_role">Pilih Role Kustom</Label>
+                            <Select v-model="form.custom_role_id">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih Role Kustom" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem
+                                        v-for="cr in customRoles"
+                                        :key="cr.id"
+                                        :value="cr.id"
+                                    >
+                                        {{ cr.name }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <InputError :message="form.errors.custom_role_id" />
+                            <p class="text-xs text-slate-500">Anda dapat membuat role kustom baru di menu "Kelola Role Kustom".</p>
                         </div>
 
                         <DialogFooter class="pt-4">
@@ -730,6 +816,95 @@ defineOptions({
                             </div>
                         </template>
                     </form>
+                </DialogContent>
+            </Dialog>
+            <!-- Custom Roles Modal -->
+            <Dialog v-model:open="isCustomRoleModalOpen">
+                <DialogContent class="sm:max-w-[550px] max-h-[85vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Kelola Role Kustom</DialogTitle>
+                        <DialogDescription>
+                            Buat role kustom untuk kelompok Anda dan atur hak aksesnya. Role ini bersifat privat untuk kelompok Anda.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div class="space-y-4 py-4">
+                        <form @submit.prevent="submitCustomRole" class="border p-4 rounded-xl space-y-4 bg-slate-50 dark:bg-slate-900/50">
+                            <div>
+                                <Label class="mb-2 block">Nama Role Baru / Edit</Label>
+                                <Input v-model="customRoleForm.name" placeholder="Misal: Divisi Kesenian" required />
+                                <InputError :message="customRoleForm.errors.name" class="mt-1" />
+                            </div>
+                            
+                            <div>
+                                <Label class="mb-2 block">Hak Akses Modul</Label>
+                                <div class="grid grid-cols-2 gap-3 text-sm">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" v-model="customRoleForm.permissions.can_manage_members" class="rounded border-gray-300 text-[#38BDF8] shadow-sm focus:border-[#38BDF8] focus:ring focus:ring-[#38BDF8] focus:ring-opacity-50">
+                                        <span>Kelola Anggota</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" v-model="customRoleForm.permissions.can_write_finance" class="rounded border-gray-300 text-[#38BDF8] shadow-sm focus:border-[#38BDF8] focus:ring focus:ring-[#38BDF8] focus:ring-opacity-50">
+                                        <span>E-Bendahara (Keuangan)</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" v-model="customRoleForm.permissions.can_write_logistic" class="rounded border-gray-300 text-[#38BDF8] shadow-sm focus:border-[#38BDF8] focus:ring focus:ring-[#38BDF8] focus:ring-opacity-50">
+                                        <span>Logistik & Konsumsi</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" v-model="customRoleForm.permissions.can_write_inventory" class="rounded border-gray-300 text-[#38BDF8] shadow-sm focus:border-[#38BDF8] focus:ring focus:ring-[#38BDF8] focus:ring-opacity-50">
+                                        <span>Inventaris Barang</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" v-model="customRoleForm.permissions.can_write_proker" class="rounded border-gray-300 text-[#38BDF8] shadow-sm focus:border-[#38BDF8] focus:ring focus:ring-[#38BDF8] focus:ring-opacity-50">
+                                        <span>Repository Proker</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" v-model="customRoleForm.permissions.can_manage_immich" class="rounded border-gray-300 text-[#38BDF8] shadow-sm focus:border-[#38BDF8] focus:ring focus:ring-[#38BDF8] focus:ring-opacity-50">
+                                        <span>Kelola Dokumentasi & Immich</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" v-model="customRoleForm.permissions.can_write_schedule" class="rounded border-gray-300 text-[#38BDF8] shadow-sm focus:border-[#38BDF8] focus:ring focus:ring-[#38BDF8] focus:ring-opacity-50">
+                                        <span>Jadwal & Piket</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" v-model="customRoleForm.permissions.can_write_contact" class="rounded border-gray-300 text-[#38BDF8] shadow-sm focus:border-[#38BDF8] focus:ring focus:ring-[#38BDF8] focus:ring-opacity-50">
+                                        <span>Buku Kontak</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" v-model="customRoleForm.permissions.can_write_group_logbook" class="rounded border-gray-300 text-[#38BDF8] shadow-sm focus:border-[#38BDF8] focus:ring focus:ring-[#38BDF8] focus:ring-opacity-50">
+                                        <span>Logbook Kelompok</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end gap-2">
+                                <Button type="button" v-if="customRoleForm.id" variant="outline" size="sm" @click="customRoleForm.reset(); customRoleForm.id = null">Batal Edit</Button>
+                                <Button type="submit" size="sm" :disabled="customRoleForm.processing" class="bg-[#38BDF8] text-white">
+                                    {{ customRoleForm.id ? 'Simpan Perubahan' : 'Buat Role' }}
+                                </Button>
+                            </div>
+                        </form>
+
+                        <div>
+                            <h4 class="font-bold text-sm mb-3">Daftar Role Kustom Kelompok Anda</h4>
+                            <div v-if="customRoles.length === 0" class="text-sm text-slate-500 text-center py-4 border rounded-xl">
+                                Belum ada role kustom yang dibuat.
+                            </div>
+                            <div v-else class="space-y-2">
+                                <div v-for="cr in customRoles" :key="cr.id" class="flex justify-between items-center p-3 border rounded-xl">
+                                    <div>
+                                        <div class="font-bold text-sm">{{ cr.name }}</div>
+                                        <div class="text-[10px] text-slate-500">{{ Object.values(cr.permissions || {}).filter(Boolean).length }} Hak Akses</div>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button type="button" @click="editCustomRole(cr)" class="text-[#38BDF8] text-xs font-medium hover:underline">Edit</button>
+                                        <button type="button" @click="deleteCustomRole(cr.id)" class="text-red-500 text-xs font-medium hover:underline">Hapus</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </DialogContent>
             </Dialog>
         </template>

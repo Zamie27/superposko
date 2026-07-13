@@ -226,6 +226,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('management/members/dpl-approve/{id}', [MemberController::class, 'approveDpl'])->name('management.members.dpl-approve');
         Route::post('management/members/dpl-reject/{id}', [MemberController::class, 'rejectDpl'])->name('management.members.dpl-reject');
 
+        Route::get('management/custom-roles', [App\Http\Controllers\CustomRoleController::class, 'index'])->name('management.custom-roles.index');
+        Route::post('management/custom-roles', [App\Http\Controllers\CustomRoleController::class, 'store'])->name('management.custom-roles.store');
+        Route::put('management/custom-roles/{customRole}', [App\Http\Controllers\CustomRoleController::class, 'update'])->name('management.custom-roles.update');
+        Route::delete('management/custom-roles/{customRole}', [App\Http\Controllers\CustomRoleController::class, 'destroy'])->name('management.custom-roles.destroy');
+
         // Tracking Log Aktifitas Anggota
         Route::get('management/activity-logs', [MemberActivityLogController::class, 'index'])->name('management.activity-logs.index');
 

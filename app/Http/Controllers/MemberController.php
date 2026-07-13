@@ -36,12 +36,15 @@ class MemberController extends Controller
             ->where('status', 'approved')
             ->get();
 
+        $customRoles = \App\Models\CustomRole::where('host_id', $hostId)->get();
+
         return Inertia::render('management/members/Index', [
             'members' => $members,
             'pendingDpls' => $pendingDpls,
             'activeDpls' => $activeDpls,
             'isHost' => HostRoleHelper::canManageMembers($user),
             'availableRoles' => RoleConfig::getAvailableRoles($hostId),
+            'customRoles' => $customRoles,
             'currentUserRole' => $user->role,
         ]);
     }
@@ -89,6 +92,7 @@ class MemberController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
             'role' => ['required', 'string', Rule::in(RoleConfig::getRoleKeys())],
+            'custom_role_id' => ['nullable', 'integer', 'exists:custom_roles,id'],
         ], [
             'email.unique' => 'Email Sudah Digunakan',
             'email.email' => 'Email Tidak Sesuai',
@@ -116,6 +120,7 @@ class MemberController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
+            'custom_role_id' => $validated['role'] === 'lainnya' ? ($validated['custom_role_id'] ?? null) : null,
             'host_id' => $validated['role'] === 'dpl' ? null : $hostId,
             'university' => $host->university,
             'group_number' => $host->group_number,
@@ -156,6 +161,7 @@ class MemberController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($member->id)],
             'password' => ['nullable', 'string', 'min:8'],
             'role' => ['required', 'string', Rule::in(RoleConfig::getRoleKeys())],
+            'custom_role_id' => ['nullable', 'integer', 'exists:custom_roles,id'],
         ]);
 
         // Enforce role capacity if role is changing
@@ -177,6 +183,7 @@ class MemberController extends Controller
         $member->name = $validated['name'];
         $member->email = $validated['email'];
         $member->role = $validated['role'];
+        $member->custom_role_id = $validated['role'] === 'lainnya' ? ($validated['custom_role_id'] ?? null) : null;
 
         if (! empty($validated['password'])) {
             $member->password = Hash::make($validated['password']);
@@ -313,6 +320,7 @@ class MemberController extends Controller
             'members.*.name' => ['required', 'string', 'max:255'],
             'members.*.email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'members.*.role' => ['required', 'string', Rule::in(RoleConfig::getRoleKeys())],
+            'members.*.custom_role_id' => ['nullable', 'integer', 'exists:custom_roles,id'],
         ], [
             'members.*.email.unique' => 'Email :input sudah digunakan oleh pengguna lain.',
             'members.*.email.email' => 'Format email :input tidak valid.',
@@ -357,6 +365,7 @@ class MemberController extends Controller
                 'members.*.name' => ['required', 'string', 'max:255'],
                 'members.*.email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
                 'members.*.role' => ['required', 'string', Rule::in(RoleConfig::getRoleKeys())],
+                'members.*.custom_role_id' => ['nullable', 'integer', 'exists:custom_roles,id'],
             ], [
                 'members.*.email.unique' => 'Email :input sudah digunakan oleh pengguna lain.',
                 'members.*.email.email' => 'Format email :input tidak valid.',
@@ -420,6 +429,7 @@ class MemberController extends Controller
                     'email' => $m['email'],
                     'password' => Hash::make($password),
                     'role' => $m['role'],
+                    'custom_role_id' => $m['role'] === 'lainnya' ? ($m['custom_role_id'] ?? null) : null,
                     'host_id' => $m['role'] === 'dpl' ? null : $hostId,
                     'university' => $host->university,
                     'group_number' => $host->group_number,
