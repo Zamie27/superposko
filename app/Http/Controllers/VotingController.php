@@ -48,7 +48,7 @@ class VotingController extends Controller
                     'id' => $poll->id,
                     'title' => $poll->title,
                     'description' => $poll->description,
-                    'image' => $poll->image ? \Illuminate\Support\Facades\Storage::url($poll->image) : null,
+                    'image' => $poll->image ? \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->url($poll->image) : null,
                     'expires_at' => $poll->expires_at ? $poll->expires_at->toIso8601String() : null,
                     'is_expired' => $poll->isExpired(),
                     'created_by' => $creator->name,
@@ -124,7 +124,7 @@ class VotingController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('polls', 'public');
+            $imagePath = $request->file('image')->store('polls', env('FILESYSTEM_DISK', 'public'));
         }
 
         $poll = Poll::create([
@@ -255,7 +255,7 @@ class VotingController extends Controller
         }
 
         if ($poll->image) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($poll->image);
+            \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->delete($poll->image);
         }
 
         $poll->delete();

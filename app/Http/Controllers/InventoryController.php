@@ -68,7 +68,7 @@ class InventoryController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('inventories', 'public');
+            $imagePath = $request->file('image')->store('inventories', env('FILESYSTEM_DISK', 'public'));
         }
 
         $ownerId = $validated['owner_id'] ?? null;
@@ -145,9 +145,9 @@ class InventoryController extends Controller
         $imagePath = $inventory->image_path;
         if ($request->hasFile('image')) {
             if ($imagePath) {
-                Storage::disk('public')->delete($imagePath);
+                Storage::disk(env('FILESYSTEM_DISK', 'public'))->delete($imagePath);
             }
-            $imagePath = $request->file('image')->store('inventories', 'public');
+            $imagePath = $request->file('image')->store('inventories', env('FILESYSTEM_DISK', 'public'));
         }
 
         $ownerId = $validated['owner_id'] ?? null;
@@ -223,7 +223,7 @@ class InventoryController extends Controller
         }
 
         if ($inventory->image_path) {
-            Storage::disk('public')->delete($inventory->image_path);
+            Storage::disk(env('FILESYSTEM_DISK', 'public'))->delete($inventory->image_path);
         }
 
         // If linked to a finance record (purchased from kas), delete it too

@@ -38,7 +38,7 @@ class FinanceController extends Controller
                     'description' => $fin->description,
                     'category' => $fin->category,
                     'date' => $fin->date->format('Y-m-d'),
-                    'receipt_path' => $fin->receipt_path ? Storage::url($fin->receipt_path) : null,
+                    'receipt_path' => $fin->receipt_path ? Storage::disk(env('FILESYSTEM_DISK', 'public'))->url($fin->receipt_path) : null,
                     'program_kerja_id' => $fin->program_kerja_id,
                     'program_kerja' => $fin->programKerja ? [
                         'id' => $fin->programKerja->id,
@@ -182,7 +182,7 @@ class FinanceController extends Controller
 
         $receiptPath = null;
         if ($request->hasFile('receipt_file')) {
-            $receiptPath = $request->file('receipt_file')->store('receipts', 'public');
+            $receiptPath = $request->file('receipt_file')->store('receipts', env('FILESYSTEM_DISK', 'public'));
         }
 
         $finance = Finance::create([
@@ -344,9 +344,9 @@ class FinanceController extends Controller
         $receiptPath = $finance->receipt_path;
         if ($request->hasFile('receipt_file')) {
             if ($receiptPath) {
-                Storage::disk('public')->delete($receiptPath);
+                Storage::disk(env('FILESYSTEM_DISK', 'public'))->delete($receiptPath);
             }
-            $receiptPath = $request->file('receipt_file')->store('receipts', 'public');
+            $receiptPath = $request->file('receipt_file')->store('receipts', env('FILESYSTEM_DISK', 'public'));
         }
 
         $finance->update([
@@ -382,7 +382,7 @@ class FinanceController extends Controller
         }
 
         if ($finance->receipt_path) {
-            Storage::disk('public')->delete($finance->receipt_path);
+            Storage::disk(env('FILESYSTEM_DISK', 'public'))->delete($finance->receipt_path);
         }
 
         $title = $finance->title;

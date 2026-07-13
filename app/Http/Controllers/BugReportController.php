@@ -26,7 +26,7 @@ class BugReportController extends Controller
         $screenshotPaths = [];
         if ($request->hasFile('screenshots')) {
             foreach ($request->file('screenshots') as $file) {
-                $screenshotPaths[] = $file->store('bug-reports', 'public');
+                $screenshotPaths[] = $file->store('bug-reports', env('FILESYSTEM_DISK', 'public'));
             }
         }
 

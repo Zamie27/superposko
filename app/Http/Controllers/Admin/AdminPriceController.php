@@ -27,7 +27,7 @@ class AdminPriceController extends Controller
                 'preorderPromoActive' => filter_var(Setting::get('preorder_promo_active', '1'), FILTER_VALIDATE_BOOLEAN),
                 'checkoutPaymentMethod' => Setting::get('checkout_payment_method', 'tripay'),
                 'staticQrisPath' => Setting::get('static_qris_path', null),
-                'staticQrisUrl' => Setting::get('static_qris_path') ? asset('storage/' . Setting::get('static_qris_path')) : null,
+                'staticQrisUrl' => Setting::get('static_qris_path') ? \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->url(Setting::get('static_qris_path')) : null,
             ],
         ]);
     }
@@ -80,11 +80,11 @@ class AdminPriceController extends Controller
 
         if ($request->hasFile('qris_image')) {
             $oldPath = Setting::get('static_qris_path');
-            if ($oldPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+            if ($oldPath && \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->exists($oldPath)) {
+                \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->delete($oldPath);
             }
 
-            $path = $request->file('qris_image')->store('qris', 'public');
+            $path = $request->file('qris_image')->store('qris', env('FILESYSTEM_DISK', 'public'));
             Setting::set('static_qris_path', $path);
 
             ActivityLogHelper::log(
@@ -108,8 +108,8 @@ class AdminPriceController extends Controller
     public function deleteQris(): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $oldPath = Setting::get('static_qris_path');
-        if ($oldPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+        if ($oldPath && \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->exists($oldPath)) {
+            \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->delete($oldPath);
         }
 
         Setting::set('static_qris_path', null);

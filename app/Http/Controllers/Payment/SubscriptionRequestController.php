@@ -36,7 +36,7 @@ class SubscriptionRequestController extends Controller
         ]);
 
         if ($request->hasFile('payment_proof')) {
-            $path = $request->file('payment_proof')->store('subscription-proofs', 'public');
+            $path = $request->file('payment_proof')->store('subscription-proofs', env('FILESYSTEM_DISK', 'public'));
 
             SubscriptionRequest::updateOrCreate(
                 ['user_id' => $user->id],

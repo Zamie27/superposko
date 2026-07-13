@@ -39,7 +39,7 @@ class ReportController extends Controller
 
         $screenshotPath = null;
         if ($request->hasFile('screenshot')) {
-            $screenshotPath = $request->file('screenshot')->store('reports', 'public');
+            $screenshotPath = $request->file('screenshot')->store('reports', env('FILESYSTEM_DISK', 'public'));
         }
 
         Report::create([

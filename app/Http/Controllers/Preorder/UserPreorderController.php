@@ -57,7 +57,7 @@ class UserPreorderController extends Controller
         return Inertia::render('preorder/Index', [
             'preorderPrice' => (int) Setting::get('preorder_price', 50000),
             'preorderStrikePrice' => (int) Setting::get('preorder_strike_price', 100000),
-            'staticQrisUrl' => Setting::get('static_qris_path') ? asset('storage/' . Setting::get('static_qris_path')) : '/images/qris.jpg',
+            'staticQrisUrl' => Setting::get('static_qris_path') ? \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->url(Setting::get('static_qris_path')) : '/images/qris.jpg',
             'existingPreorder' => $existingPreorder ? [
                 'status' => $existingPreorder->status,
                 'created_at' => $existingPreorder->created_at?->toIso8601String(),
@@ -89,7 +89,7 @@ class UserPreorderController extends Controller
         ]);
 
         if ($request->hasFile('payment_proof')) {
-            $path = $request->file('payment_proof')->store('preorders', 'public');
+            $path = $request->file('payment_proof')->store('preorders', env('FILESYSTEM_DISK', 'public'));
 
             Preorder::updateOrCreate(
                 ['user_id' => $user->id],
