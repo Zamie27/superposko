@@ -134,6 +134,48 @@ class AttendanceController extends Controller
                     'status' => 'hadir'
                 ]);
 
+                // Menambahkan gambar ke album 'Absensi'
+                try {
+                    $albumsResponse = Http::timeout(30)->withHeaders([
+                        'x-api-key' => $this->apiKey,
+                        'Accept' => 'application/json',
+                    ])->get("{$this->url}/api/albums");
+
+                    $albumId = null;
+                    if ($albumsResponse->successful()) {
+                        $albums = $albumsResponse->json();
+                        foreach ($albums as $album) {
+                            if (strtolower($album['albumName'] ?? '') === 'absensi') {
+                                $albumId = $album['id'];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (! $albumId) {
+                        $createResponse = Http::timeout(30)->withHeaders([
+                            'x-api-key' => $this->apiKey,
+                            'Accept' => 'application/json',
+                        ])->post("{$this->url}/api/albums", [
+                            'albumName' => 'Absensi'
+                        ]);
+                        if ($createResponse->successful()) {
+                            $albumId = $createResponse->json('id');
+                        }
+                    }
+
+                    if ($albumId) {
+                        Http::timeout(30)->withHeaders([
+                            'x-api-key' => $this->apiKey,
+                            'Accept' => 'application/json',
+                        ])->put("{$this->url}/api/albums/{$albumId}/assets", [
+                            'ids' => [$immichAssetId]
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    // Abaikan jika terjadi error pada album agar tidak mengganggu absensi utama
+                }
+
                 return back()->with('success', 'Absensi berhasil dicatat.');
             }
 

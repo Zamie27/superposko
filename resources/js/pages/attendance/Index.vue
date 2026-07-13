@@ -146,10 +146,7 @@ defineOptions({
                         :key="item.id" 
                         class="flex items-center gap-4 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50"
                     >
-                        <!-- Immich Thumbnail Proxy (we reuse DocumentationController thumbnail if possible, or just link to it) -->
-                        <div class="w-12 h-12 bg-slate-200 dark:bg-slate-800 rounded-lg shrink-0 overflow-hidden">
-                            <img v-if="item.immich_asset_id" :src="`/host/documentation/thumbnail/${item.immich_asset_id}`" class="w-full h-full object-cover" />
-                        </div>
+                        <!-- Thumbnail dihapus sesuai permintaan -->
                         
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{{ item.user.name }}</p>
