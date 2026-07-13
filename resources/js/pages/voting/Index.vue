@@ -40,6 +40,7 @@ interface Poll {
     id: number;
     title: string;
     description: string | null;
+    image: string | null;
     expires_at: string | null;
     is_expired: boolean;
     created_by: string;
@@ -83,11 +84,21 @@ const activeTab = ref<'polling' | 'aspirasi'>('polling');
 const { confirm } = useConfirm();
 const toast = useToast();
 
+// Image Viewer State
+const isImageViewerOpen = ref(false);
+const currentImageUrl = ref('');
+
+const openImageViewer = (url: string) => {
+    currentImageUrl.value = url;
+    isImageViewerOpen.value = true;
+};
+
 // Modal Poll State
 const isPollModalOpen = ref(false);
 const pollForm = useForm({
     title: '',
     description: '',
+    image: null as File | null,
     expires_at: '',
     options: ['', ''],
 });
@@ -108,6 +119,9 @@ const openCreatePollModal = () => {
     pollForm.reset();
     pollForm.clearErrors();
     pollForm.options = ['', ''];
+    pollForm.image = null;
+    const fileInput = document.getElementById('poll-image') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
     isPollModalOpen.value = true;
 };
 
@@ -375,6 +389,16 @@ const getStatusLabel = (status: string) => {
                         <p v-if="poll.description" class="text-xs text-slate-500 mt-1 mb-4 leading-relaxed">{{ poll.description }}</p>
                     </div>
 
+                    <!-- Image Display -->
+                    <div v-if="poll.image" class="mb-4">
+                        <img 
+                            :src="poll.image" 
+                            alt="Gambar Voting" 
+                            class="w-full h-40 object-cover rounded-xl cursor-pointer hover:opacity-90 transition-opacity border border-slate-200" 
+                            @click="openImageViewer(poll.image)" 
+                        />
+                    </div>
+
                     <!-- Expiration date display -->
                     <div v-if="poll.expires_at" class="flex items-center gap-1.5 text-[11px] text-slate-400 mt-2 mb-4">
                         <Calendar class="size-3.5" />
@@ -554,6 +578,18 @@ const getStatusLabel = (status: string) => {
                     </div>
 
                     <div class="grid gap-1.5">
+                        <Label for="poll-image" class="font-bold">Gambar Pendukung (Opsional)</Label>
+                        <Input 
+                            id="poll-image" 
+                            type="file" 
+                            accept="image/*" 
+                            @change="(e) => pollForm.image = e.target.files[0]" 
+                            class="cursor-pointer file:cursor-pointer file:bg-slate-100 file:border-0 file:rounded-md file:text-slate-700 file:font-semibold file:px-3 file:py-1 hover:file:bg-slate-200"
+                        />
+                        <InputError :message="pollForm.errors.image" />
+                    </div>
+
+                    <div class="grid gap-1.5">
                         <Label for="poll-expiry" class="font-bold">Batas Waktu Voting (Opsional)</Label>
                         <Input id="poll-expiry" type="datetime-local" v-model="pollForm.expires_at" />
                         <InputError :message="pollForm.errors.expires_at" />
@@ -685,6 +721,22 @@ const getStatusLabel = (status: string) => {
                         <Button type="submit" :disabled="respondForm.processing" class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white rounded-xl font-bold cursor-pointer">Simpan Tanggapan</Button>
                     </DialogFooter>
                 </form>
+            </DialogContent>
+        </Dialog>
+
+        <!-- MODAL: IMAGE VIEWER -->
+        <Dialog v-model:open="isImageViewerOpen">
+            <DialogContent class="sm:max-w-3xl p-0 border-none bg-transparent shadow-none" hideClose>
+                <div class="relative flex items-center justify-center p-4">
+                    <img :src="currentImageUrl" alt="Gambar Detail" class="w-full max-h-[85vh] object-contain rounded-lg shadow-2xl" />
+                    <Button 
+                        @click="isImageViewerOpen = false" 
+                        variant="secondary" 
+                        class="absolute top-6 right-6 rounded-full size-10 p-0 shadow-lg"
+                    >
+                        ✕
+                    </Button>
+                </div>
             </DialogContent>
         </Dialog>
     </div>

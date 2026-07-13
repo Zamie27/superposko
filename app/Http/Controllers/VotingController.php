@@ -48,6 +48,7 @@ class VotingController extends Controller
                     'id' => $poll->id,
                     'title' => $poll->title,
                     'description' => $poll->description,
+                    'image' => $poll->image ? \Illuminate\Support\Facades\Storage::url($poll->image) : null,
                     'expires_at' => $poll->expires_at ? $poll->expires_at->toIso8601String() : null,
                     'is_expired' => $poll->isExpired(),
                     'created_by' => $creator->name,
@@ -113,6 +114,7 @@ class VotingController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'expires_at' => ['nullable', 'date', 'after:now'],
             'options' => ['required', 'array', 'min:2', 'max:10'],
             'options.*' => ['required', 'string', 'max:255'],
@@ -120,10 +122,16 @@ class VotingController extends Controller
 
         $hostId = $user->host_id ?? $user->id;
 
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('polls', 'public');
+        }
+
         $poll = Poll::create([
             'host_id' => $hostId,
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'image' => $imagePath,
             'created_by' => $user->id,
             'expires_at' => $validated['expires_at'] ?? null,
         ]);
@@ -244,6 +252,10 @@ class VotingController extends Controller
 
         if ($poll->host_id !== $hostId || ! HostRoleHelper::isHostOrSekretaris($user)) {
             abort(403, 'Hanya Host dan Sekretaris yang dapat menghapus voting.');
+        }
+
+        if ($poll->image) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($poll->image);
         }
 
         $poll->delete();

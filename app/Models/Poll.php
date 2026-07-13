@@ -12,6 +12,7 @@ class Poll extends Model
         'host_id',
         'title',
         'description',
+        'image',
         'created_by',
         'expires_at',
     ];
