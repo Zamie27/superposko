@@ -23,7 +23,6 @@ class RoleConfig
         'acara' => ['label' => 'Acara', 'capacity' => 0],
         'lainnya' => ['label' => 'Lainnya (Custom)', 'capacity' => 0],
         'dpl' => ['label' => 'DPL (Dosen Pembimbing Lapangan)', 'capacity' => 0],
-        'anggota' => ['label' => 'Anggota Biasa', 'capacity' => 0],
     ];
 
     /**

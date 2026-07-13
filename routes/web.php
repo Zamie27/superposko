@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AdminSubscriptionRequestController;
 use App\Http\Controllers\Admin\AdminTrialController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\GoogleLoginController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BugReportController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
@@ -175,6 +176,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('host/dashboard', [DashboardController::class, 'index'])->name('host.dashboard');
 
         // Sidebar Menus
+        // Absensi
+        Route::get('absensi', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::post('absensi', [AttendanceController::class, 'store'])->name('attendance.store');
+
         // E-Bendahara (Kas & Keuangan)
         Route::get('finance', [FinanceController::class, 'index'])->name('finance.index');
         Route::post('finance', [FinanceController::class, 'store'])->name('finance.store');
