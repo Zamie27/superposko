@@ -6,7 +6,7 @@ import { usePage, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { LogOut, ArrowLeft } from 'lucide-vue-next';
+import { LogOut, ArrowLeft } from '@lucide/vue';
 
 withDefaults(
     defineProps<{
