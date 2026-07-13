@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/select';
 import { useConfirm } from '@/composables/useConfirm';
 
-defineProps<{
+const props = defineProps<{
     members: any[];
     pendingDpls?: any[];
     activeDpls?: any[];
