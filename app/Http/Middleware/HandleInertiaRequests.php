@@ -57,7 +57,7 @@ class HandleInertiaRequests extends Middleware
                         ($request->user()->host_id && $request->user()->host && ($request->user()->host->subscription_expires_at === null || $request->user()->host->subscription_expires_at->isFuture())),
                 ]) : null,
             ],
-            'dpl' => $request->user() && $request->user()->role === 'dpl' ? [
+            'dpl' => $request->user() && in_array($request->user()->role, ['dpl', 'admin']) ? [
                 'active_host_id' => $request->user()->host_id,
                 'poskos' => User::whereNull('host_id')
                     ->whereIn('role', ['host', 'ketua', 'trial'])

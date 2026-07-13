@@ -52,7 +52,7 @@ const navGroups = computed<NavGroup[]>(() => {
         return [];
     }
 
-    if (user.role === 'admin') {
+    if (user.role === 'admin' && !user.host_id) {
         return [
             {
                 title: 'Utama',
