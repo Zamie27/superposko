@@ -19,8 +19,18 @@ class DplController extends Controller
         }
 
         $validated = $request->validate([
-            'host_id' => ['required', 'integer', 'exists:users,id'],
+            'host_id' => ['nullable', 'integer', 'exists:users,id'],
         ]);
+
+        if (is_null($validated['host_id'])) {
+            $request->session()->forget('dpl_active_host_id');
+            
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard')->with('success', 'Berhasil keluar dari pemantauan posko.');
+            }
+            
+            return redirect()->route('dashboard')->with('success', 'Berhasil keluar dari pemantauan posko.');
+        }
 
         $host = User::findOrFail($validated['host_id']);
         if (! is_null($host->host_id)) {
