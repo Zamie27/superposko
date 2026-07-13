@@ -12,7 +12,7 @@ class HostRoleHelper
      */
     public static function isOwner(User $user): bool
     {
-        return is_null($user->host_id) && $user->role !== 'dpl';
+        return (is_null($user->host_id) && $user->role !== 'dpl') || $user->role === 'admin';
     }
 
     /**

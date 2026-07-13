@@ -16,7 +16,7 @@ class DplActiveHostMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        if ($user && $user->role === 'dpl' && session()->has('dpl_active_host_id')) {
+        if ($user && in_array($user->role, ['dpl', 'admin']) && session()->has('dpl_active_host_id')) {
             $user->host_id = session('dpl_active_host_id');
         }
 

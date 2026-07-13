@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BugReport;
 use App\Models\Preorder;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,8 +15,10 @@ class AdminController extends Controller
     /**
      * Show the admin dashboard index page.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $request->session()->forget('dpl_active_host_id');
+
         $totalUsers = User::count();
         $totalHosts = User::whereNull('host_id')->where('role', '!=', 'admin')->count();
         $activeSubscriptions = User::whereNull('host_id')

@@ -342,6 +342,17 @@ const getCookie = (name: string): string => {
 
     return '';
 };
+
+const handleSwitchPosko = (user: any) => {
+    router.post('/dpl/switch-posko', { host_id: user.id }, {
+        onSuccess: () => {
+            router.get('/host/dashboard');
+        },
+        onError: (errors) => {
+            toast.error(errors.host_id || 'Gagal masuk ke posko');
+        }
+    });
+};
 </script>
 
 <template>
@@ -441,6 +452,13 @@ const getCookie = (name: string): string => {
                                     class="text-xs font-semibold text-red-600 hover:text-red-700 underline"
                                 >
                                     Ban Akun
+                                </button>
+                                <button
+                                    v-if="!user.host_id && user.role !== 'admin'"
+                                    @click="handleSwitchPosko(user)"
+                                    class="text-xs font-semibold text-blue-600 hover:text-blue-700 underline"
+                                >
+                                    Masuk Posko
                                 </button>
                             </td>
                         </tr>

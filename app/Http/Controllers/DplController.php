@@ -14,8 +14,8 @@ class DplController extends Controller
     public function switchPosko(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if ($user->role !== 'dpl') {
-            abort(403, 'Aksi ini hanya diperbolehkan untuk DPL.');
+        if (!in_array($user->role, ['dpl', 'admin'])) {
+            abort(403, 'Aksi ini hanya diperbolehkan untuk DPL atau Admin.');
         }
 
         $validated = $request->validate([
@@ -25,6 +25,17 @@ class DplController extends Controller
         $host = User::findOrFail($validated['host_id']);
         if (! is_null($host->host_id)) {
             abort(400, 'User target bukan merupakan pemilik posko.');
+        }
+
+        if ($user->role === 'dpl') {
+            $isApproved = \App\Models\DplMonitoring::where('dpl_id', $user->id)
+                ->where('host_id', $validated['host_id'])
+                ->where('status', 'approved')
+                ->exists();
+
+            if (! $isApproved) {
+                abort(403, 'Anda belum disetujui untuk memantau posko ini.');
+            }
         }
 
         $request->session()->put('dpl_active_host_id', $validated['host_id']);
