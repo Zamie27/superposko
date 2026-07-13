@@ -92,7 +92,8 @@ defineOptions({
 
                 <form v-else @submit.prevent="submitAttendance" class="space-y-4">
                     <div 
-                        class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition relative overflow-hidden group"
+                        class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-center cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition relative overflow-hidden group"
+                        :class="previewUrl ? 'min-h-[300px]' : 'p-8'"
                         @click="fileInput?.click()"
                     >
                         <input 
@@ -105,7 +106,7 @@ defineOptions({
                         />
                         
                         <template v-if="previewUrl">
-                            <img :src="previewUrl" class="absolute inset-0 w-full h-full object-cover opacity-80" />
+                            <img :src="previewUrl" class="w-full h-auto object-contain bg-slate-100 dark:bg-slate-800" />
                             <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                 <span class="text-white font-medium text-sm">Ganti Foto</span>
                             </div>
