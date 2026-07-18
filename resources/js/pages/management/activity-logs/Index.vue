@@ -246,11 +246,11 @@ return Smartphone;
             </div>
 
             <!-- Pagination -->
-            <div v-if="logs.last_page > 1" class="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-4">
-                <p class="text-xs text-slate-500 dark:text-slate-400">
+            <div v-if="logs.last_page > 1" class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+                <p class="text-xs text-slate-500 dark:text-slate-400 text-center md:text-left">
                     Menampilkan {{ logs.data.length }} dari {{ logs.total }} log aktifitas.
                 </p>
-                <div class="flex items-center gap-1.5">
+                <div class="flex flex-wrap items-center justify-center md:justify-end gap-1.5">
                     <template v-for="link in logs.links" :key="link.label">
                         <button
                             v-if="link.url"
