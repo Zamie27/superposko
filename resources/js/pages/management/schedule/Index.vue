@@ -82,7 +82,7 @@ onMounted(() => {
 const isRosterModalOpen = ref(false);
 const rosterForm = useForm({
     day_of_week: 'monday',
-    task_name: 'Piket Harian',
+    task_name: '',
     user_id: '' as string | number,
 });
 
@@ -109,11 +109,23 @@ const daysList = [
     { key: 'sunday', label: 'Minggu' },
 ];
 
+const predefinedTasks = [
+    'Menyapu & Mengepel',
+    'Memasak',
+    'Cuci Piring',
+    'Belanja Pasar',
+    'Buang Sampah',
+    'Lainnya'
+];
+const taskOption = ref(predefinedTasks[0]);
+
 
 
 // Open Roster Modal
 const openRosterModal = (dayKey?: string) => {
     rosterForm.reset();
+    taskOption.value = predefinedTasks[0];
+    rosterForm.task_name = taskOption.value;
 
     if (dayKey) {
         rosterForm.day_of_week = dayKey;
@@ -321,9 +333,12 @@ const formatDateTime = (isoString: string) => {
                                     <Trash2 class="size-3.5" />
                                 </button>
                             </div>
-                            <div class="flex items-center gap-1.5 mt-1 text-slate-700">
-                                <UserIcon class="size-3.5 text-slate-400" />
-                                <span class="text-xs font-semibold truncate">{{ roster.user_name }}</span>
+                            <div class="mt-1 flex flex-col gap-1">
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ roster.task_name || 'Piket' }}</span>
+                                <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                                    <UserIcon class="size-3.5" />
+                                    <span class="text-[10px] font-medium truncate">{{ roster.user_name }}</span>
+                                </div>
                             </div>
                         </div>
 
@@ -455,6 +470,29 @@ const formatDateTime = (isoString: string) => {
                         </select>
                     </div>
 
+
+                    <!-- Task Name Input -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-700">Tugas Piket</label>
+                        <select 
+                            v-model="taskOption"
+                            @change="taskOption !== 'Lainnya' ? rosterForm.task_name = taskOption : rosterForm.task_name = ''"
+                            class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+                        >
+                            <option v-for="task in predefinedTasks" :key="task" :value="task">{{ task }}</option>
+                        </select>
+                        
+                        <input 
+                            v-if="taskOption === 'Lainnya'"
+                            v-model="rosterForm.task_name"
+                            type="text"
+                            placeholder="Ketik tugas spesifik..."
+                            class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none mt-2"
+                            required
+                            maxlength="255"
+                        />
+                        <p v-if="rosterForm.errors.task_name" class="text-xs text-red-500">{{ rosterForm.errors.task_name }}</p>
+                    </div>
 
                     <!-- Member Select -->
                     <div class="space-y-1">
