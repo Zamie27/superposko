@@ -89,10 +89,12 @@ const submitBugReport = () => {
         },
     });
 };
+
+defineExpose({ toggleBubble });
 </script>
 
 <template>
-    <div class="fixed bottom-[5.5rem] right-6 z-[998] font-sans">
+    <div v-if="isOpen" class="fixed bottom-6 right-6 z-[998] font-sans">
         <!-- Backdrop -->
         <div v-if="isOpen" @click="isOpen = false" class="fixed inset-0 z-[996] bg-black/20 backdrop-blur-[2px]"></div>
 
@@ -106,8 +108,7 @@ const submitBugReport = () => {
             leave-to-class="opacity-0 translate-y-6 scale-95"
         >
             <div
-                v-if="isOpen"
-                class="absolute bottom-18 right-0 w-[340px] sm:w-[380px] rounded-2xl bg-slate-900 border border-slate-700/50 shadow-2xl z-[997] overflow-hidden"
+                class="absolute bottom-14 right-0 w-[340px] sm:w-[380px] rounded-2xl bg-slate-900 border border-slate-700/50 shadow-2xl z-[997] overflow-hidden"
             >
                 <!-- Header -->
                 <div class="px-5 pt-5 pb-3 flex items-center gap-3">
@@ -238,15 +239,5 @@ const submitBugReport = () => {
                 </form>
             </div>
         </Transition>
-
-        <!-- Floating Bug Button -->
-        <button
-            @click="toggleBubble"
-            class="flex items-center justify-center size-14 rounded-full bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/30 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-0 relative z-[998]"
-            title="Laporkan Bug"
-        >
-            <X v-if="isOpen" class="size-6" />
-            <Bug v-else class="size-6" />
-        </button>
     </div>
 </template>

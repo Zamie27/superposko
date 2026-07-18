@@ -2,7 +2,6 @@
 import AppContent from '@/components/AppContent.vue';
 import AppHeader from '@/components/AppHeader.vue';
 import AppShell from '@/components/AppShell.vue';
-import BugReportBubble from '@/components/BugReportBubble.vue';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
 import ReportBubble from '@/components/ReportBubble.vue';
 import ToastContainer from '@/components/ToastContainer.vue';
@@ -26,6 +25,5 @@ withDefaults(defineProps<Props>(), {
         <ToastContainer />
         <ConfirmationModal />
         <ReportBubble />
-        <BugReportBubble />
     </AppShell>
 </template>

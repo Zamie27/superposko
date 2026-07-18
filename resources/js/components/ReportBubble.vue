@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePage, useForm } from '@inertiajs/vue3';
-import { Headphones, X, Image as ImageIcon, Send, AlertCircle, MessageCircle } from '@lucide/vue';
+import BugReportBubble from './BugReportBubble.vue';
+import { Headphones, X, Image as ImageIcon, Send, AlertCircle, MessageCircle, Bug } from '@lucide/vue';
 import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -15,6 +16,7 @@ const isLoggedIn = computed(() => !!user.value);
 
 const isOpen = ref(false);
 const showOptions = ref(false);
+const bugReportRef = ref<any>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const imagePreview = ref<string | null>(null);
 
@@ -91,20 +93,32 @@ const submitReport = () => {
 
 <template>
     <!-- Only show for logged in users -->
-    <div v-if="isLoggedIn" class="fixed bottom-6 right-6 z-[999] font-sans">
+        <div v-if="isLoggedIn" class="fixed bottom-6 right-0 z-[999] font-sans">
         <!-- Backdrop to close options -->
         <div v-if="showOptions" @click="showOptions = false" class="fixed inset-0 z-[997] bg-transparent"></div>
 
         <!-- Options Menu -->
         <Transition
             enter-active-class="transition ease-out duration-200"
-            enter-from-class="opacity-0 translate-y-4 scale-95"
-            enter-to-class="opacity-100 translate-y-0 scale-100"
+            enter-from-class="opacity-0 translate-y-4 scale-95 translate-x-6"
+            enter-to-class="opacity-100 translate-y-0 scale-100 -translate-x-6"
             leave-active-class="transition ease-in duration-150"
-            leave-from-class="opacity-100 translate-y-0 scale-100"
-            leave-to-class="opacity-0 translate-y-4 scale-95"
+            leave-from-class="opacity-100 translate-y-0 scale-100 -translate-x-6"
+            leave-to-class="opacity-0 translate-y-4 scale-95 translate-x-6"
         >
-            <div v-if="showOptions" class="absolute bottom-18 right-0 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl p-2.5 z-[998] flex flex-col gap-1">
+            <div v-if="showOptions" class="absolute bottom-16 right-0 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl p-2.5 z-[998] flex flex-col gap-1 -translate-x-6">
+                <button
+                    @click="() => { showOptions = false; bugReportRef?.toggleBubble(); }"
+                    class="w-full text-left px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center gap-3 transition cursor-pointer border-0 bg-transparent"
+                >
+                    <span class="p-2 rounded-lg bg-red-50 dark:bg-red-950/50 text-red-500 dark:text-red-400">
+                        <Bug class="size-4.5" />
+                    </span>
+                    <div>
+                        <div class="font-bold text-slate-800 dark:text-slate-200">Lapor Bug</div>
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Sampaikan error & screenshot</div>
+                    </div>
+                </button>
                 <button
                     @click="() => { showOptions = false; openModal(); }"
                     class="w-full text-left px-3 py-2.5 text-sm font-semibold rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex items-center gap-3 transition cursor-pointer border-0 bg-transparent"
@@ -113,8 +127,8 @@ const submitReport = () => {
                         <AlertCircle class="size-4.5" />
                     </span>
                     <div>
-                        <div class="font-bold text-slate-800 dark:text-slate-200">Laporkan Masalah</div>
-                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Kirim keluhan/bug aplikasi</div>
+                        <div class="font-bold text-slate-800 dark:text-slate-200">Layanan Bantuan</div>
+                        <div class="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Pertanyaan umum / kendala</div>
                     </div>
                 </button>
                 <a
@@ -137,12 +151,17 @@ const submitReport = () => {
         <!-- Floating Button -->
         <button
             @click="showOptions = !showOptions"
-            class="flex items-center justify-center size-14 rounded-full bg-sky-500 hover:bg-sky-600 text-white shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-0 relative z-[999]"
+            :class="[
+                'flex items-center justify-center size-12 rounded-l-full bg-sky-500 hover:bg-sky-600 text-white shadow-lg transition-all duration-300 cursor-pointer border-0 relative z-[999]',
+                showOptions ? 'rounded-r-full -translate-x-6' : 'rounded-r-none translate-x-1/2 hover:translate-x-0 opacity-70 hover:opacity-100'
+            ]"
             title="Layanan Bantuan"
         >
-            <X v-if="showOptions" class="size-6" />
-            <Headphones v-else class="size-6" />
+            <X v-if="showOptions" class="size-5" />
+            <Headphones v-else class="size-5" />
         </button>
+
+        <BugReportBubble ref="bugReportRef" />
 
         <!-- Report Modal -->
         <Dialog v-model:open="isOpen">
