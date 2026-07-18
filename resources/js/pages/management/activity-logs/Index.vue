@@ -132,7 +132,7 @@ return Smartphone;
 <template>
     <Head title="Log Aktifitas Anggota - SuperPosko" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-6 max-w-7xl mx-auto font-sans">
+    <div class="flex h-full flex-1 flex-col gap-4 sm:gap-6 p-4 sm:p-6 max-w-7xl mx-auto font-sans w-full min-w-0">
         
         <!-- Header -->
         <div>
@@ -184,7 +184,7 @@ return Smartphone;
         </div>
 
         <!-- Logs Table -->
-        <div v-if="logs.data.length > 0" class="flex flex-col gap-4">
+        <div v-if="logs.data.length > 0" class="flex flex-col gap-4 w-full min-w-0">
             <div class="overflow-x-auto w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
                 <table class="w-full text-left border-collapse min-w-max">
                     <thead>
