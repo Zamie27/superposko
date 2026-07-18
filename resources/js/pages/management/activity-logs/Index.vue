@@ -136,7 +136,7 @@ return Smartphone;
         
         <!-- Header -->
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                 <Clock class="size-6 text-sky-500 shrink-0" />
                 Tracking Log Aktifitas Anggota
             </h1>
@@ -185,8 +185,8 @@ return Smartphone;
 
         <!-- Logs Table -->
         <div v-if="logs.data.length > 0" class="flex flex-col gap-4">
-            <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
-                <table class="w-full text-left border-collapse">
+            <div class="overflow-x-auto w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs">
+                <table class="w-full text-left border-collapse min-w-max">
                     <thead>
                         <tr class="border-b border-slate-250 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
                             <th class="p-4 pl-6">Waktu</th>

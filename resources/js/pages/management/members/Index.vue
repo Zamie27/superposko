@@ -368,12 +368,12 @@ defineOptions({
 
         <!-- Secure Content Wrap -->
         <template v-if="$page.props.auth.user.role !== 'trial' && $page.props.auth.user.is_subscribed">
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-slate-900">Manajemen Anggota</h1>
                     <p class="text-sm text-slate-500 mt-1">Kelola anggota posko dan atur hak akses mereka.</p>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     <Button v-if="isHost" @click="openCustomRoleModal" variant="outline" class="border-slate-300">
                         Kelola Role Kustom
                     </Button>

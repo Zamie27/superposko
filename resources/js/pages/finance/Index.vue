@@ -385,7 +385,7 @@ const triggerPrint = () => {
         </div>
 
         <!-- Quick Tabs for Navigation (no-print) -->
-        <div class="no-print flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-px">
+        <div class="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-px">
             <div class="flex gap-4">
                 <button 
                     @click="activeTab = 'ledger'" 
