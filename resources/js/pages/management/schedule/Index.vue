@@ -107,6 +107,8 @@ const daysList = [
     { key: 'friday', label: 'Jumat' },
     { key: 'saturday', label: 'Sabtu' },
     { key: 'sunday', label: 'Minggu' },
+];
+
 const defaultTasks = [
     'Menyapu & Mengepel',
     'Memasak',
