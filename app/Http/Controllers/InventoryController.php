@@ -27,7 +27,11 @@ class InventoryController extends Controller
         $inventories = Inventory::with('owner:id,name,email')
             ->where('host_id', $hostId)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->image_url = $item->image_path ? Storage::disk(env('FILESYSTEM_DISK', 'public'))->url($item->image_path) : null;
+                return $item;
+            });
 
         $members = User::where('host_id', $hostId)
             ->orWhere('id', $hostId)

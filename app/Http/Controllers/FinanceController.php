@@ -33,6 +33,7 @@ class FinanceController extends Controller
                 return [
                     'id' => $fin->id,
                     'type' => $fin->type,
+                    'payment_method' => $fin->payment_method,
                     'amount' => (float) $fin->amount,
                     'title' => $fin->title,
                     'description' => $fin->description,
@@ -84,6 +85,16 @@ class FinanceController extends Controller
         $totalExpense = $generalExpense + $prokerAllocations;
         $balance = $generalIncome - $totalExpense;
 
+        $paymentMethods = ['Cash', 'SeaBank', 'DANA'];
+        $balancesByMethod = [];
+        foreach ($paymentMethods as $method) {
+            $mIncome = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'income')->whereNull('program_kerja_id')->sum('amount');
+            $mReturns = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'allocation')->where('category', 'Proker ke Kas')->sum('amount');
+            $mExpense = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'expense')->whereNull('program_kerja_id')->sum('amount');
+            $mAllocations = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'allocation')->where('category', 'Kas ke Proker')->sum('amount');
+            $balancesByMethod[$method] = (float) (($mIncome + $mReturns) - ($mExpense + $mAllocations));
+        }
+
         return Inertia::render('finance/Index', [
             'finances' => $finances,
             'programKerjas' => $programKerjas,
@@ -91,6 +102,7 @@ class FinanceController extends Controller
                 'total_income' => (float) $generalIncome,
                 'total_expense' => (float) $totalExpense,
                 'balance' => (float) $balance,
+                'balances_by_method' => $balancesByMethod,
             ],
             'canWrite' => HostRoleHelper::canWriteFinance($user),
         ]);
@@ -108,6 +120,7 @@ class FinanceController extends Controller
 
         $validated = $request->validate([
             'type' => ['required', 'string', Rule::in(['income', 'expense', 'allocation'])],
+            'payment_method' => ['required', 'string', Rule::in(['Cash', 'SeaBank', 'DANA'])],
             'amount' => ['required', 'numeric', 'min:0'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
@@ -191,6 +204,7 @@ class FinanceController extends Controller
             'category' => $validated['category'] ?? null,
             'created_by' => $user->id,
             'type' => $validated['type'],
+            'payment_method' => $validated['payment_method'],
             'amount' => $validated['amount'],
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
@@ -221,6 +235,7 @@ class FinanceController extends Controller
 
         $validated = $request->validate([
             'type' => ['required', 'string', Rule::in(['income', 'expense', 'allocation'])],
+            'payment_method' => ['required', 'string', Rule::in(['Cash', 'SeaBank', 'DANA'])],
             'amount' => ['required', 'numeric', 'min:0'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
@@ -353,6 +368,7 @@ class FinanceController extends Controller
             'program_kerja_id' => $validated['program_kerja_id'] ?? null,
             'category' => $validated['category'] ?? null,
             'type' => $validated['type'],
+            'payment_method' => $validated['payment_method'],
             'amount' => $validated['amount'],
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,

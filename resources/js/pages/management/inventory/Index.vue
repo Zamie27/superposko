@@ -30,6 +30,7 @@ interface Inventory {
     condition: 'good' | 'damaged' | 'lost';
     notes: string | null;
     image_path: string | null;
+    image_url?: string | null;
     owner_id: number | null;
     owner?: User | null;
     source: 'member' | 'purchase';
@@ -134,7 +135,7 @@ const openCreateModal = () => {
 const openEditModal = (item: Inventory) => {
     isEditMode.value = true;
     editingInventoryId.value = item.id;
-    imagePreview.value = item.image_path ? '/storage/' + item.image_path : null;
+    imagePreview.value = item.image_url || (item.image_path ? '/storage/' + item.image_path : null);
     form.reset();
     form._method = 'POST'; // Spoofing PUT using POST + _method
     form.name = item.name;
@@ -318,8 +319,8 @@ const getConditionDetails = (condition: string) => {
             >
                 <div>
                     <!-- Card Image Header -->
-                    <div v-if="item.image_path" class="relative w-full h-32 sm:h-48 bg-slate-100 dark:bg-slate-950 overflow-hidden border-b border-slate-100 dark:border-slate-850">
-                        <img :src="'/storage/' + item.image_path" alt="Foto Barang" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <div v-if="item.image_path || item.image_url" class="relative w-full h-32 sm:h-48 bg-slate-100 dark:bg-slate-950 overflow-hidden border-b border-slate-100 dark:border-slate-850">
+                        <img :src="item.image_url || '/storage/' + item.image_path" alt="Foto Barang" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                     </div>
                     <div v-else class="relative w-full h-16 sm:h-24 bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-slate-850 dark:to-slate-950 flex items-center justify-center border-b border-slate-100 dark:border-slate-850">
                         <Box class="size-6 sm:size-8 text-sky-400/70" />

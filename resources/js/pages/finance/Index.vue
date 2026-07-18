@@ -23,7 +23,8 @@ interface Creator {
 
 interface FinanceRecord {
     id: number;
-    type: 'income' | 'expense';
+    type: 'income' | 'expense' | 'allocation';
+    payment_method: 'Cash' | 'SeaBank' | 'DANA';
     amount: number;
     title: string;
     description: string | null;
@@ -42,6 +43,7 @@ const props = defineProps<{
         total_income: number;
         total_expense: number;
         balance: number;
+        balances_by_method: Record<string, number>;
     };
     canWrite: boolean;
 }>();
@@ -95,7 +97,8 @@ const expenseCategories = [
 
 // Form
 const form = useForm({
-    type: 'expense' as 'income' | 'expense',
+    type: 'expense' as 'income' | 'expense' | 'allocation',
+    payment_method: 'Cash' as 'Cash' | 'SeaBank' | 'DANA',
     amount: '' as number | '',
     title: '',
     description: '',
@@ -174,6 +177,7 @@ const openAddModal = () => {
     editingRecord.value = null;
     form.reset();
     form.type = 'expense';
+    form.payment_method = 'Cash';
     form.date = new Date().toISOString().split('T')[0];
     form.program_kerja_id = '';
     form.category = '';
@@ -187,6 +191,7 @@ const openAddModal = () => {
 const openEditModal = (record: FinanceRecord) => {
     editingRecord.value = record;
     form.type = record.type;
+    form.payment_method = record.payment_method;
     form.amount = record.amount;
     form.title = record.title;
     form.description = record.description || '';
@@ -334,9 +339,11 @@ const triggerPrint = () => {
                 <h3 class="text-3xl font-black mt-2 tracking-tight">
                     {{ formatRupiah(metrics.balance) }}
                 </h3>
-                <div class="flex items-center gap-1.5 mt-4 text-xs text-indigo-100 bg-white/10 w-fit px-2.5 py-1 rounded-full backdrop-blur-xs">
-                    <Info class="size-3.5" />
-                    <span>Selisih pemasukan & pengeluaran</span>
+                <div class="mt-4 grid grid-cols-3 gap-2 text-xs border-t border-indigo-300/30 pt-3">
+                    <div v-for="(bal, method) in metrics.balances_by_method" :key="method">
+                        <span class="block opacity-75 font-semibold">{{ method }}</span>
+                        <span class="font-bold">{{ formatRupiah(bal) }}</span>
+                    </div>
                 </div>
             </div>
 
@@ -741,6 +748,21 @@ const triggerPrint = () => {
                             class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
                         />
                         <p v-if="form.errors.title" class="text-xs text-red-500 mt-1">{{ form.errors.title }}</p>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Penyimpanan / Rekening</label>
+                        <select 
+                            v-model="form.payment_method"
+                            class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                            required
+                        >
+                            <option value="Cash" class="dark:bg-slate-900">Uang Tunai (Cash)</option>
+                            <option value="SeaBank" class="dark:bg-slate-900">SeaBank</option>
+                            <option value="DANA" class="dark:bg-slate-900">DANA</option>
+                        </select>
+                        <p v-if="form.errors.payment_method" class="text-xs text-red-500 mt-1">{{ form.errors.payment_method }}</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
