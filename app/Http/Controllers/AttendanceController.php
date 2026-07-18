@@ -6,65 +6,58 @@ use App\Models\Attendance;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
-    protected string $url = '';
-    protected string $apiKey = '';
-
-    protected function resolveConfig(): bool
-    {
-        $user = auth()->user();
-        if (! $user) {
-            return false;
-        }
-
-        // Get global Immich Server URL
-        $this->url = rtrim(Setting::get('immich_url', config('services.immich.url', '')), '/');
-
-        // Resolve host user
-        $hostId = $user->host_id ?? $user->id;
-        $host = User::find($hostId);
-
-        if ($host) {
-            $this->apiKey = ($host->immich_api_key ?: config('services.immich.api_key')) ?? '';
-        }
-
-        return ! empty($this->apiKey) && ! empty($this->url);
-    }
-
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $user = auth()->user();
         $hostId = $user->host_id ?? $user->id;
 
-        // Retrieve today's attendance for the current user
+        // Retrieve today's attendance for the current user (using Asia/Jakarta timezone)
         $todayAttendance = Attendance::where('user_id', $user->id)
             ->whereDate('date', today())
             ->first();
+
+        // Get selected month/year with defaults (Asia/Jakarta timezone)
+        $nowWib = Carbon::now('Asia/Jakarta');
+        $selectedMonth = $request->query('month', $nowWib->month);
+        $selectedYear = $request->query('year', $nowWib->year);
+
+        // Calculate days in the selected month/year
+        $daysInMonth = (int) Carbon::create($selectedYear, $selectedMonth, 1)->format('t');
 
         // Get all attendances for the host (for recap view)
         $isLeader = in_array($user->role, ['ketua', 'wakil', 'sekretaris']);
         
         $recap = [];
+        $members = [];
+        
         if ($isLeader) {
+            $members = User::where('host_id', $hostId)->orWhere('id', $hostId)->get();
             $recap = Attendance::with('user')
                 ->where('host_id', $hostId)
-                ->orderBy('date', 'desc')
-                ->orderBy('created_at', 'desc')
+                ->whereYear('date', $selectedYear)
+                ->whereMonth('date', $selectedMonth)
+                ->orderBy('date', 'asc')
                 ->get();
         }
 
         return Inertia::render('attendance/Index', [
             'todayAttendance' => $todayAttendance,
             'recap' => $recap,
+            'members' => $members,
+            'daysInMonth' => $daysInMonth,
             'isLeader' => $isLeader,
-            'hasImmichConfig' => $this->resolveConfig()
+            'filters' => [
+                'month' => (int) $selectedMonth,
+                'year' => (int) $selectedYear,
+            ]
         ]);
     }
 
@@ -73,12 +66,11 @@ class AttendanceController extends Controller
         $user = auth()->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if (! $this->resolveConfig()) {
-            return back()->with('error', 'API Key Immich belum dikonfigurasi oleh ketua.');
-        }
-
         $request->validate([
-            'photo' => ['required', 'image', 'max:10240'], // 10MB max
+            'latitude' => ['required', 'numeric'],
+            'longitude' => ['required', 'numeric'],
+            'status' => ['required', 'string', 'in:Hadir,Izin,Sakit,Alfa'],
+            'notes' => ['nullable', 'string', 'max:255'],
         ]);
 
         // Check if already submitted today
@@ -90,98 +82,57 @@ class AttendanceController extends Controller
             return back()->with('error', 'Anda sudah mengisi absensi hari ini.');
         }
 
-        /** @var UploadedFile $file */
-        $file = $request->file('photo');
-
-        $deviceId = 'SuperPosko-Web-Absensi';
-        $deviceAssetId = Str::uuid()->toString();
-        $now = now()->toIso8601String();
+        $village = null;
+        $district = null;
+        $regency = null;
+        $province = null;
 
         try {
-            $stream = fopen($file->getPathname(), 'r');
-            if ($stream === false) {
-                throw new \RuntimeException('Gagal membuka file.');
-            }
-
-            $response = Http::timeout(300)->withHeaders([
-                'x-api-key' => $this->apiKey,
-                'Accept' => 'application/json',
-            ])->attach(
-                'assetData', $stream, $file->getClientOriginalName()
-            )->post("{$this->url}/api/assets", [
-                'deviceId' => $deviceId,
-                'deviceAssetId' => $deviceAssetId,
-                'fileCreatedAt' => $now,
-                'fileModifiedAt' => $now,
-                'isFavorite' => 'false',
+            // Reverse geocoding with Nominatim API
+            $response = Http::withHeaders([
+                'User-Agent' => 'SuperPosko/1.0 (github.com/Zamie27/superposko)',
+            ])->timeout(10)->get('https://nominatim.openstreetmap.org/reverse', [
+                'format' => 'jsonv2',
+                'lat' => $request->latitude,
+                'lon' => $request->longitude,
             ]);
 
             if ($response->successful()) {
-                $responseData = $response->json();
-                $immichAssetId = $responseData['id'] ?? $responseData['duplicateId'] ?? null;
+                $data = $response->json();
+                if (isset($data['address'])) {
+                    $addr = $data['address'];
+                    $village = $addr['village'] ?? $addr['suburb'] ?? $addr['hamlet'] ?? $addr['neighbourhood'] ?? $addr['city_district'] ?? null;
+                    $district = $addr['county'] ?? $addr['municipality'] ?? null;
+                    $regency = $addr['city'] ?? $addr['town'] ?? $addr['region'] ?? null;
+                    
+                    // Fallbacks for common Indonesian mappings in OSM
+                    if (!$district && isset($addr['city_district'])) {
+                        $district = $addr['city_district'];
+                    }
 
-                if (! $immichAssetId) {
-                    return back()->with('error', 'Gagal mendapatkan ID foto dari Immich.');
+                    $province = $addr['state'] ?? $addr['province'] ?? null;
                 }
-
-                // Save Attendance record
-                Attendance::create([
-                    'user_id' => $user->id,
-                    'host_id' => $hostId,
-                    'immich_asset_id' => $immichAssetId,
-                    'date' => today(),
-                    'time' => now()->format('H:i:s'),
-                    'status' => 'hadir'
-                ]);
-
-                // Menambahkan gambar ke album 'Absensi'
-                try {
-                    $albumsResponse = Http::timeout(30)->withHeaders([
-                        'x-api-key' => $this->apiKey,
-                        'Accept' => 'application/json',
-                    ])->get("{$this->url}/api/albums");
-
-                    $albumId = null;
-                    if ($albumsResponse->successful()) {
-                        $albums = $albumsResponse->json();
-                        foreach ($albums as $album) {
-                            if (strtolower($album['albumName'] ?? '') === 'absensi') {
-                                $albumId = $album['id'];
-                                break;
-                            }
-                        }
-                    }
-
-                    if (! $albumId) {
-                        $createResponse = Http::timeout(30)->withHeaders([
-                            'x-api-key' => $this->apiKey,
-                            'Accept' => 'application/json',
-                        ])->post("{$this->url}/api/albums", [
-                            'albumName' => 'Absensi'
-                        ]);
-                        if ($createResponse->successful()) {
-                            $albumId = $createResponse->json('id');
-                        }
-                    }
-
-                    if ($albumId) {
-                        Http::timeout(30)->withHeaders([
-                            'x-api-key' => $this->apiKey,
-                            'Accept' => 'application/json',
-                        ])->put("{$this->url}/api/albums/{$albumId}/assets", [
-                            'ids' => [$immichAssetId]
-                        ]);
-                    }
-                } catch (\Exception $e) {
-                    // Abaikan jika terjadi error pada album agar tidak mengganggu absensi utama
-                }
-
-                return back()->with('success', 'Absensi berhasil dicatat.');
             }
-
-            return back()->with('error', 'Gagal mengunggah foto ke Immich: '.$response->body());
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan saat mengunggah: '.$e->getMessage());
+            // Abaikan jika gagal geocode, biarkan null
         }
+
+        $nowWib = Carbon::now('Asia/Jakarta');
+        Attendance::create([
+            'user_id' => $user->id,
+            'host_id' => $hostId,
+            'date' => $nowWib->toDateString(),
+            'time' => $nowWib->format('H:i:s'),
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'village' => $village,
+            'district' => $district,
+            'regency' => $regency,
+            'province' => $province,
+            'status' => $request->status,
+            'notes' => $request->notes,
+        ]);
+
+        return back()->with('success', 'Absensi berhasil dicatat.');
     }
 }

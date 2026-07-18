@@ -16,6 +16,13 @@ class Attendance extends Model
         'date',
         'time',
         'immich_asset_id',
+        'latitude',
+        'longitude',
+        'village',
+        'district',
+        'regency',
+        'province',
+        'status',
         'notes',
     ];
 
