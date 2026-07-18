@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { 
-    Plus, Edit, Trash2, FileText, ArrowUpRight, ArrowDownLeft, Wallet, 
+import {
+    Plus, Edit, Trash2, FileText, ArrowUpRight, ArrowDownLeft, Wallet, ArrowRightLeft,
     X, ImageIcon, Search, Filter, Printer, ExternalLink, Info, RefreshCw
 } from '@lucide/vue';
 import { ref, computed } from 'vue';
@@ -23,8 +23,9 @@ interface Creator {
 
 interface FinanceRecord {
     id: number;
-    type: 'income' | 'expense' | 'allocation';
+    type: 'income' | 'expense' | 'allocation' | 'transfer';
     payment_method: 'Cash' | 'SeaBank' | 'DANA';
+    destination_payment_method: 'Cash' | 'SeaBank' | 'DANA' | null;
     amount: number;
     title: string;
     description: string | null;
@@ -65,7 +66,7 @@ const { confirm } = useConfirm();
 // State
 const isModalOpen = ref(false);
 const searchQuery = ref('');
-const filterType = ref<'all' | 'income' | 'expense'>('all');
+const filterType = ref<'all' | 'income' | 'expense' | 'allocation' | 'transfer'>('all');
 const filterProker = ref<string>('all');
 const activeTab = ref<'ledger' | 'summary'>('ledger');
 const editingRecord = ref<FinanceRecord | null>(null);
@@ -97,8 +98,9 @@ const expenseCategories = [
 
 // Form
 const form = useForm({
-    type: 'expense' as 'income' | 'expense' | 'allocation',
+    type: 'expense' as 'income' | 'expense' | 'allocation' | 'transfer',
     payment_method: 'Cash' as 'Cash' | 'SeaBank' | 'DANA',
+    destination_payment_method: '' as 'Cash' | 'SeaBank' | 'DANA' | '',
     amount: '' as number | '',
     title: '',
     description: '',
@@ -178,6 +180,7 @@ const openAddModal = () => {
     form.reset();
     form.type = 'expense';
     form.payment_method = 'Cash';
+    form.destination_payment_method = '';
     form.date = new Date().toISOString().split('T')[0];
     form.program_kerja_id = '';
     form.category = '';
@@ -192,6 +195,7 @@ const openEditModal = (record: FinanceRecord) => {
     editingRecord.value = record;
     form.type = record.type;
     form.payment_method = record.payment_method;
+    form.destination_payment_method = record.destination_payment_method || '';
     form.amount = record.amount;
     form.title = record.title;
     form.description = record.description || '';
@@ -244,7 +248,7 @@ const submitForm = () => {
         } else {
             form.category = selectedCategory.value;
         }
-        // type stays as income or expense
+        // type stays as income or expense or transfer
     } else {
         // Proker-linked transactions
         if (form.program_kerja_id === 'null' || form.program_kerja_id === '') {
@@ -447,6 +451,8 @@ const triggerPrint = () => {
                         <option value="all" class="dark:bg-slate-900">Semua Tipe Transaksi</option>
                         <option value="income" class="dark:bg-slate-900">Pemasukan (+)</option>
                         <option value="expense" class="dark:bg-slate-900">Pengeluaran (-)</option>
+                        <option value="allocation" class="dark:bg-slate-900">Alokasi Dana</option>
+                        <option value="transfer" class="dark:bg-slate-900">Transfer Antar Kas</option>
                     </select>
                 </div>
 
@@ -516,43 +522,54 @@ const triggerPrint = () => {
                                                 ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400'
                                                 : record.type === 'income'
                                                     ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-450'
-                                                    : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400'
+                                                    : record.type === 'transfer'
+                                                        ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/20 dark:text-indigo-400'
+                                                        : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400'
                                         ]"
                                     >
-                                        {{ record.type === 'allocation' ? (record.category === 'Kas ke Proker' ? 'Alokasi → Proker' : 'Alokasi → Kas') : record.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}
-                                    </span>
+                                    {{ record.type === 'allocation' ? (record.category === 'Kas ke Proker' ? 'Alokasi → Proker' : 'Alokasi → Kas') : record.type === 'income' ? 'Pemasukan' : record.type === 'transfer' ? 'Transfer Kas' : 'Pengeluaran' }}
+                                </span>
                                 </td>
 
                                 <!-- Amount -->
                                 <td 
                                     class="py-3.5 px-4 text-right font-extrabold whitespace-nowrap"
                                     :class="[
-                                        (record.type === 'income' || (record.type === 'allocation' && record.category === 'Proker ke Kas'))
-                                            ? 'text-emerald-600 dark:text-emerald-450'
-                                            : 'text-slate-800 dark:text-slate-200'
+                                        record.type === 'transfer'
+                                            ? 'text-indigo-600 dark:text-indigo-400'
+                                            : (record.type === 'income' || (record.type === 'allocation' && record.category === 'Proker ke Kas'))
+                                                ? 'text-emerald-600 dark:text-emerald-450'
+                                                : 'text-slate-800 dark:text-slate-200'
                                     ]"
                                 >
-                                    {{ (record.type === 'income' || (record.type === 'allocation' && record.category === 'Proker ke Kas')) ? '+' : '-' }} {{ formatRupiah(record.amount) }}
+                                    {{ record.type === 'transfer' ? '' : (record.type === 'income' || (record.type === 'allocation' && record.category === 'Proker ke Kas')) ? '+' : '-' }} {{ formatRupiah(record.amount) }}
                                 </td>
 
                                 <!-- Link Proker / Kategori -->
                                 <td class="py-3.5 px-4">
-                                    <span 
-                                        v-if="record.program_kerja"
-                                        class="inline-flex items-center gap-1 text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/20 text-sky-700 dark:text-sky-400 px-2 py-0.5 rounded-md max-w-[150px] truncate"
-                                        :title="record.program_kerja.name"
-                                    >
-                                        <FileText class="size-3 shrink-0" />
-                                        <span class="truncate">{{ record.program_kerja.name }}</span>
-                                    </span>
-                                    <span 
-                                        v-else-if="record.category" 
-                                        class="inline-flex items-center gap-1 text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md max-w-[150px] truncate"
-                                        :title="record.category"
-                                    >
-                                        <span class="truncate">{{ record.category }}</span>
-                                    </span>
-                                    <span v-else class="text-slate-400 text-[10px] italic">Umum</span>
+                                    <div v-if="record.type === 'transfer'" class="flex items-center gap-1.5">
+                                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ record.payment_method }}</span>
+                                        <ArrowRightLeft class="size-3 text-slate-400" />
+                                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ record.destination_payment_method }}</span>
+                                    </div>
+                                    <template v-else>
+                                        <span 
+                                            v-if="record.program_kerja"
+                                            class="inline-flex items-center gap-1 text-[10px] font-semibold bg-sky-50 dark:bg-sky-950/20 text-sky-700 dark:text-sky-400 px-2 py-0.5 rounded-md max-w-[150px] truncate"
+                                            :title="record.program_kerja.name"
+                                        >
+                                            <FileText class="size-3 shrink-0" />
+                                            <span class="truncate">{{ record.program_kerja.name }}</span>
+                                        </span>
+                                        <span 
+                                            v-else-if="record.category" 
+                                            class="inline-flex items-center gap-1 text-[10px] font-semibold bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-md max-w-[150px] truncate"
+                                            :title="record.category"
+                                        >
+                                            <span class="truncate">{{ record.category }}</span>
+                                        </span>
+                                        <span v-else class="text-slate-400 text-[10px] italic">Umum</span>
+                                    </template>
                                 </td>
 
                                 <!-- Bukti Nota (no-print) -->
@@ -706,7 +723,7 @@ const triggerPrint = () => {
                     <!-- Type selector -->
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Tipe Transaksi</label>
-                        <div class="grid grid-cols-3 gap-2">
+                        <div class="grid grid-cols-2 gap-2">
                             <button
                                 type="button"
                                 @click="form.type = 'expense'; linkType = 'umum'"
@@ -734,6 +751,15 @@ const triggerPrint = () => {
                                 <RefreshCw class="size-4" />
                                 <span>Alokasi Dana</span>
                             </button>
+                            <button
+                                type="button"
+                                @click="form.type = 'transfer'; linkType = 'umum'"
+                                class="py-2.5 rounded-xl border text-sm font-bold transition-all flex items-center justify-center gap-1.5"
+                                :class="[form.type === 'transfer' ? 'bg-indigo-500 border-indigo-500 text-white shadow-xs' : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white']"
+                            >
+                                <ArrowRightLeft class="size-4" />
+                                <span>Transfer</span>
+                            </button>
                         </div>
                     </div>
 
@@ -750,19 +776,39 @@ const triggerPrint = () => {
                         <p v-if="form.errors.title" class="text-xs text-red-500 mt-1">{{ form.errors.title }}</p>
                     </div>
 
-                    <!-- Payment Method -->
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Penyimpanan / Rekening</label>
-                        <select 
-                            v-model="form.payment_method"
-                            class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
-                            required
-                        >
-                            <option value="Cash" class="dark:bg-slate-900">Uang Tunai (Cash)</option>
-                            <option value="SeaBank" class="dark:bg-slate-900">SeaBank</option>
-                            <option value="DANA" class="dark:bg-slate-900">DANA</option>
-                        </select>
-                        <p v-if="form.errors.payment_method" class="text-xs text-red-500 mt-1">{{ form.errors.payment_method }}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <!-- Payment Method -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                                {{ form.type === 'transfer' ? 'Sumber Uang' : 'Penyimpanan / Rekening' }}
+                            </label>
+                            <select 
+                                v-model="form.payment_method"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                                required
+                            >
+                                <option value="Cash" class="dark:bg-slate-900">Uang Tunai (Cash)</option>
+                                <option value="SeaBank" class="dark:bg-slate-900">SeaBank</option>
+                                <option value="DANA" class="dark:bg-slate-900">DANA</option>
+                            </select>
+                            <p v-if="form.errors.payment_method" class="text-xs text-red-500 mt-1">{{ form.errors.payment_method }}</p>
+                        </div>
+                        
+                        <!-- Destination Payment Method (For Transfer) -->
+                        <div v-if="form.type === 'transfer'">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tujuan Uang</label>
+                            <select 
+                                v-model="form.destination_payment_method"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                                :required="form.type === 'transfer'"
+                            >
+                                <option value="" class="dark:bg-slate-900">-- Pilih Tujuan Uang --</option>
+                                <option value="Cash" class="dark:bg-slate-900">Uang Tunai (Cash)</option>
+                                <option value="SeaBank" class="dark:bg-slate-900">SeaBank</option>
+                                <option value="DANA" class="dark:bg-slate-900">DANA</option>
+                            </select>
+                            <p v-if="form.errors.destination_payment_method" class="text-xs text-red-500 mt-1">{{ form.errors.destination_payment_method }}</p>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">

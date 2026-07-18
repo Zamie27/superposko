@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property User $host
  * @property ProgramKerja|null $programKerja
  * @property string $payment_method
+ * @property string|null $destination_payment_method
  * @property User $creator
  */
 class Finance extends Model
@@ -34,6 +35,7 @@ class Finance extends Model
         'created_by',
         'type',
         'payment_method',
+        'destination_payment_method',
         'amount',
         'title',
         'description',

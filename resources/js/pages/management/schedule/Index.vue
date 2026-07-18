@@ -82,7 +82,7 @@ onMounted(() => {
 const isRosterModalOpen = ref(false);
 const rosterForm = useForm({
     day_of_week: 'monday',
-    task_name: 'Masak & Belanja',
+    task_name: 'Piket Harian',
     user_id: '' as string | number,
 });
 
@@ -109,12 +109,7 @@ const daysList = [
     { key: 'sunday', label: 'Minggu' },
 ];
 
-const preDefinedTasks = [
-    'Masak & Belanja',
-    'Kebersihan Posko',
-    'Piket Malam / Keamanan',
-    'Dokumentasi & Harian',
-];
+
 
 // Open Roster Modal
 const openRosterModal = (dayKey?: string) => {
@@ -316,10 +311,7 @@ const formatDateTime = (isoString: string) => {
                             :key="roster.id"
                             class="group relative border border-slate-100 bg-slate-50/50 rounded-xl p-2.5 flex flex-col gap-1 transition hover:border-slate-200 hover:bg-white"
                         >
-                            <div class="flex items-start justify-between gap-2">
-                                <span class="inline-block text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                                    {{ roster.task_name }}
-                                </span>
+                            <div class="flex items-start justify-end gap-2">
                                 <button 
                                     v-if="canManage" 
                                     @click="deleteRoster(roster.id)" 
@@ -463,17 +455,6 @@ const formatDateTime = (isoString: string) => {
                         </select>
                     </div>
 
-                    <!-- Task Select / Input -->
-                    <div class="space-y-1">
-                        <label class="text-xs font-semibold text-slate-700">Jenis Tugas Piket</label>
-                        <select 
-                            v-model="rosterForm.task_name"
-                            class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
-                            required
-                        >
-                            <option v-for="task in preDefinedTasks" :key="task" :value="task">{{ task }}</option>
-                        </select>
-                    </div>
 
                     <!-- Member Select -->
                     <div class="space-y-1">
