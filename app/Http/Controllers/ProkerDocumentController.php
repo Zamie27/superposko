@@ -92,8 +92,9 @@ class ProkerDocumentController extends Controller
         $mimeType = $file->getClientMimeType();
         $fileSize = $file->getSize();
 
-        // Store file securely under private directory
-        $path = $file->store("proker_documents/{$hostId}");
+        // Store file securely in S3/MinIO under /Dokumen folder
+        $disk = env('FILESYSTEM_DISK', 's3');
+        $path = $file->store('Dokumen', $disk);
 
         $document = ProkerDocument::create([
             'host_id' => $hostId,
@@ -127,11 +128,12 @@ class ProkerDocumentController extends Controller
             abort(403, 'Anda tidak berhak mengunduh dokumen ini.');
         }
 
-        if (! Storage::exists($document->file_path)) {
+        $disk = env('FILESYSTEM_DISK', 's3');
+        if (! Storage::disk($disk)->exists($document->file_path)) {
             abort(404, 'Berkas fisik tidak ditemukan di server.');
         }
 
-        return Storage::download($document->file_path, $document->file_name, [
+        return Storage::disk($disk)->download($document->file_path, $document->file_name, [
             'Content-Disposition' => 'attachment; filename="'.$document->file_name.'"',
         ]);
     }
@@ -147,11 +149,12 @@ class ProkerDocumentController extends Controller
             abort(403, 'Anda tidak berhak melihat dokumen ini.');
         }
 
-        if (! Storage::exists($document->file_path)) {
+        $disk = env('FILESYSTEM_DISK', 's3');
+        if (! Storage::disk($disk)->exists($document->file_path)) {
             abort(404, 'Berkas fisik tidak ditemukan di server.');
         }
 
-        return Storage::response($document->file_path, $document->file_name, [
+        return Storage::disk($disk)->response($document->file_path, $document->file_name, [
             'Content-Disposition' => 'inline; filename="'.$document->file_name.'"',
         ]);
     }
@@ -171,8 +174,9 @@ class ProkerDocumentController extends Controller
             abort(403, 'Anda tidak berhak menghapus dokumen ini.');
         }
 
-        if (Storage::exists($document->file_path)) {
-            Storage::delete($document->file_path);
+        $disk = env('FILESYSTEM_DISK', 's3');
+        if (Storage::disk($disk)->exists($document->file_path)) {
+            Storage::disk($disk)->delete($document->file_path);
         }
 
         $oldTitle = $document->title;
