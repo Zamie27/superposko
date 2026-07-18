@@ -107,24 +107,32 @@ const daysList = [
     { key: 'friday', label: 'Jumat' },
     { key: 'saturday', label: 'Sabtu' },
     { key: 'sunday', label: 'Minggu' },
-];
-
-const predefinedTasks = [
+const defaultTasks = [
     'Menyapu & Mengepel',
     'Memasak',
     'Cuci Piring',
     'Belanja Pasar',
-    'Buang Sampah',
-    'Lainnya'
+    'Buang Sampah'
 ];
-const taskOption = ref(predefinedTasks[0]);
+
+const predefinedTasks = computed(() => {
+    const customTasks = new Set<string>();
+    props.rosters.forEach(r => {
+        if (r.task_name && !defaultTasks.includes(r.task_name)) {
+            customTasks.add(r.task_name);
+        }
+    });
+    return [...defaultTasks, ...Array.from(customTasks), 'Lainnya'];
+});
+
+const taskOption = ref(defaultTasks[0]);
 
 
 
 // Open Roster Modal
 const openRosterModal = (dayKey?: string) => {
     rosterForm.reset();
-    taskOption.value = predefinedTasks[0];
+    taskOption.value = predefinedTasks.value[0];
     rosterForm.task_name = taskOption.value;
 
     if (dayKey) {
