@@ -12,6 +12,7 @@ use App\Models\PollVote;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -48,7 +49,7 @@ class VotingController extends Controller
                     'id' => $poll->id,
                     'title' => $poll->title,
                     'description' => $poll->description,
-                    'image' => $poll->image ? \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->url($poll->image) : null,
+                    'image' => $poll->image ? (Str::isUuid($poll->image) ? \App\Helpers\ImmichHelper::getThumbnailUrl($poll->image) : \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->url($poll->image)) : null,
                     'expires_at' => $poll->expires_at ? $poll->expires_at->toIso8601String() : null,
                     'is_expired' => $poll->isExpired(),
                     'created_by' => $creator->name,
@@ -124,7 +125,9 @@ class VotingController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('polls', env('FILESYSTEM_DISK', 'public'));
+            $uploadedFile = $request->file('image');
+            $immichAssetId = \App\Helpers\ImmichHelper::uploadToAlbum($uploadedFile, 'vote', $hostId);
+            $imagePath = $immichAssetId ?? $uploadedFile->store('polls', env('FILESYSTEM_DISK', 'public'));
         }
 
         $poll = Poll::create([
