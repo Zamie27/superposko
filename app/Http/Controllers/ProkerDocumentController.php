@@ -92,9 +92,9 @@ class ProkerDocumentController extends Controller
         $mimeType = $file->getClientMimeType();
         $fileSize = $file->getSize();
 
-        // Store file securely in S3/MinIO under /Dokumen folder
+        // Store file securely in S3/MinIO under kelompok{hostId}/Dokumen folder
         $disk = env('FILESYSTEM_DISK', 's3');
-        $path = $file->store('Dokumen', $disk);
+        $path = $file->store("kelompok{$hostId}/Dokumen", $disk);
 
         $document = ProkerDocument::create([
             'host_id' => $hostId,
