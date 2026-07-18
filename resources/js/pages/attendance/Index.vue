@@ -237,9 +237,9 @@ defineOptions({
             </div>
 
             <!-- Box Keterangan Warna -->
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6">
                 <h3 class="text-lg font-bold mb-4">Keterangan Laporan</h3>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="flex items-center gap-3">
                         <div class="w-6 h-6 rounded bg-green-500 shadow-sm"></div>
                         <span class="text-sm font-medium">Hadir</span>
@@ -265,10 +265,10 @@ defineOptions({
         </div>
 
         <!-- Tabel Rekap Laporan Bulanan (Khusus Ketua/Admin) -->
-        <div v-if="isLeader" class="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 mt-2">
+        <div v-if="isLeader" class="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 mt-2">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <h3 class="text-lg font-bold">Laporan Kehadiran Bulanan</h3>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
                     <select v-model="selectedMonth" @change="changeFilter" class="rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8] text-sm">
                         <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
                     </select>

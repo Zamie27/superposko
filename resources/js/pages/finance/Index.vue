@@ -478,8 +478,8 @@ const triggerPrint = () => {
 
             <!-- Ledger Table -->
             <div class="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full text-left border-collapse min-w-max">
                         <thead>
                             <tr class="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-[10px] md:text-xs font-bold uppercase tracking-wider text-slate-400">
                                 <th class="py-3.5 px-4">Tanggal</th>
@@ -1063,21 +1063,23 @@ const triggerPrint = () => {
         </div>
 
         <!-- Lightbox Nota Bukti (no-print) -->
-        <div 
-            v-if="previewImage" 
-            @click="previewImage = null"
-            class="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
-        >
-            <div class="relative max-w-3xl max-h-[85vh] overflow-hidden" @click.stop>
-                <img :src="previewImage" alt="Nota Belanja Digital" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl" />
-                <button 
-                    @click="previewImage = null"
-                    class="absolute top-4 right-4 bg-black/60 text-white hover:bg-black p-2 rounded-full transition-all"
-                >
-                    <X class="size-5" />
-                </button>
+        <Transition name="fade">
+            <div 
+                v-if="previewImage" 
+                class="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+                @click.self="previewImage = null"
+            >
+                <div class="relative max-w-[95vw] sm:max-w-3xl max-h-[90vh]">
+                    <img :src="previewImage" alt="Nota Belanja Digital" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl" />
+                    <button 
+                        @click="previewImage = null"
+                        class="absolute top-4 right-4 bg-black/60 text-white hover:bg-black p-2 rounded-full transition-all"
+                    >
+                        <X class="size-5" />
+                    </button>
+                </div>
             </div>
-        </div>
+        </Transition>
     </div>
 </template>
 
