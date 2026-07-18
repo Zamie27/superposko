@@ -3,7 +3,7 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import { 
     Calendar, Clock, MapPin, Trash2, Plus, Edit3, X, User as UserIcon, CalendarDays, ClipboardList
 } from '@lucide/vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
