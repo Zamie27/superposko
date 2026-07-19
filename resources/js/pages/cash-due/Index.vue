@@ -36,7 +36,7 @@ const form = useForm({
 });
 
 const settingsForm = useForm({
-    cash_dues_start_date: props.startDate ? props.startDate.split('T')[0] : '',
+    cash_dues_start_date: props.startDate || '',
 });
 
 const saveSettings = () => {
@@ -52,7 +52,9 @@ const formatDate = (date: Date) => {
 const getWeekBounds = (weekNumber: number) => {
     if (!props.startDate) return null;
     
-    const start = new Date(props.startDate);
+    const [year, month, day] = props.startDate.split('-');
+    const start = new Date(Number(year), Number(month) - 1, Number(day));
+    
     const dayOfWeek = start.getDay(); 
     const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
     

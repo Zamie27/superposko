@@ -19,7 +19,7 @@ class CashDueController extends Controller
 
         // Get host settings
         $host = User::find($hostId);
-        $startDate = $host ? $host->cash_dues_start_date : null;
+        $startDate = $host && $host->cash_dues_start_date ? $host->cash_dues_start_date->format('Y-m-d') : null;
 
         // Is the user allowed to edit?
         $canEdit = in_array($user->role, ['ketua', 'wakil', 'sekretaris', 'bendahara']);
