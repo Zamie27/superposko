@@ -1158,11 +1158,11 @@ const triggerPrint = () => {
                         <!-- Kas Balance -->
                         <div v-if="!(form.type === 'expense' && form.program_kerja_id)">
                             <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Kas Tersedia</h4>
-                            <div class="grid grid-cols-3 gap-2 text-xs">
-                                <div v-for="(bal, method) in metrics.balances_by_method" :key="'kas_'+method" class="flex flex-col">
-                                    <span class="text-[10px] text-slate-400 font-semibold">{{ method }}</span>
+                            <div class="flex flex-wrap items-start gap-3 sm:gap-5">
+                                <div v-for="(bal, method) in metrics.balances_by_method" :key="'kas_'+method" class="flex flex-col min-w-[70px]">
+                                    <span class="text-[9px] md:text-[10px] text-slate-400 font-semibold">{{ method }}</span>
                                     <span 
-                                        class="font-bold"
+                                        class="font-bold text-[11px] md:text-xs"
                                         :class="[bal > 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500']"
                                     >
                                         {{ formatRupiah(bal) }}
@@ -1174,11 +1174,11 @@ const triggerPrint = () => {
                         <!-- Proker Balance (if selected) -->
                         <div v-if="form.program_kerja_id && metrics.proker_balances[form.program_kerja_id]">
                             <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Proker Terpilih</h4>
-                            <div class="grid grid-cols-3 gap-2 text-xs">
-                                <div v-for="(bal, method) in metrics.proker_balances[form.program_kerja_id]" :key="'proker_'+method" class="flex flex-col">
-                                    <span class="text-[10px] text-slate-400 font-semibold">{{ method }}</span>
+                            <div class="flex flex-wrap items-start gap-3 sm:gap-5">
+                                <div v-for="(bal, method) in metrics.proker_balances[form.program_kerja_id]" :key="'proker_'+method" class="flex flex-col min-w-[70px]">
+                                    <span class="text-[9px] md:text-[10px] text-slate-400 font-semibold">{{ method }}</span>
                                     <span 
-                                        class="font-bold"
+                                        class="font-bold text-[11px] md:text-xs"
                                         :class="[bal > 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500']"
                                     >
                                         {{ formatRupiah(bal) }}
