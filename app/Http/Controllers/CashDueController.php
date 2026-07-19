@@ -74,6 +74,7 @@ class CashDueController extends Controller
             'week_number' => ['required', 'integer', 'min:1', 'max:52'],
             'amount' => ['required', 'numeric', 'min:1'],
             'payment_method' => ['required', 'string', 'in:Cash,SeaBank,DANA'],
+            'date' => ['nullable', 'date'],
         ]);
 
         // Ensure amount is float/int regardless of frontend string formats
@@ -103,7 +104,7 @@ class CashDueController extends Controller
                 'title' => 'Uang Kas Minggu ' . $request->week_number . ' - ' . $member->name,
                 'category' => 'Uang Kas',
                 'payment_method' => $request->payment_method,
-                'date' => now(),
+                'date' => $request->date ?? now(),
                 'created_by' => $user->id,
             ]);
 

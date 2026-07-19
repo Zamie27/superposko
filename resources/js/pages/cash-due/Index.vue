@@ -32,6 +32,7 @@ const form = useForm({
     week_number: 0,
     amount: '',
     payment_method: 'Cash',
+    date: '',
 });
 
 const settingsForm = useForm({
@@ -48,8 +49,8 @@ const formatDate = (date: Date) => {
     return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
 };
 
-const getWeekDateRange = (weekNumber: number) => {
-    if (!props.startDate) return '';
+const getWeekBounds = (weekNumber: number) => {
+    if (!props.startDate) return null;
     
     const start = new Date(props.startDate);
     const dayOfWeek = start.getDay(); 
@@ -59,7 +60,7 @@ const getWeekDateRange = (weekNumber: number) => {
     week1End.setDate(start.getDate() + daysUntilSunday);
     
     if (weekNumber === 1) {
-        return `${formatDate(start)} - ${formatDate(week1End)}`;
+        return { start, end: week1End };
     }
     
     const weekStart = new Date(week1End);
@@ -68,7 +69,13 @@ const getWeekDateRange = (weekNumber: number) => {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
     
-    return `${formatDate(weekStart)} - ${formatDate(weekEnd)}`;
+    return { start: weekStart, end: weekEnd };
+};
+
+const getWeekDateRange = (weekNumber: number) => {
+    const bounds = getWeekBounds(weekNumber);
+    if (!bounds) return '';
+    return `${formatDate(bounds.start)} - ${formatDate(bounds.end)}`;
 };
 
 const openPaymentModal = (member: any, week: number) => {
@@ -84,6 +91,15 @@ const openPaymentModal = (member: any, week: number) => {
     form.week_number = week;
     form.amount = '';
     form.payment_method = 'Cash';
+    
+    const bounds = getWeekBounds(week);
+    if (bounds) {
+        // adjust for timezone issues by doing local string extraction
+        const localDate = new Date(bounds.start.getTime() - (bounds.start.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        form.date = localDate;
+    } else {
+        form.date = new Date().toISOString().split('T')[0];
+    }
     
     isModalOpen.value = true;
 };
@@ -237,6 +253,19 @@ defineOptions({
                 </DialogHeader>
 
                 <form @submit.prevent="submitPayment" class="space-y-4 py-2">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tanggal Bayar</label>
+                        <input 
+                            v-model="form.date" 
+                            type="date" 
+                            :min="getWeekBounds(selectedWeek)?.start ? new Date(getWeekBounds(selectedWeek)!.start.getTime() - (getWeekBounds(selectedWeek)!.start.getTimezoneOffset() * 60000)).toISOString().split('T')[0] : ''"
+                            :max="getWeekBounds(selectedWeek)?.end ? new Date(getWeekBounds(selectedWeek)!.end.getTime() - (getWeekBounds(selectedWeek)!.end.getTimezoneOffset() * 60000)).toISOString().split('T')[0] : ''"
+                            required
+                            class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]"
+                        >
+                        <InputError :message="form.errors.date" class="mt-1" />
+                    </div>
+
                     <div>
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nominal Iuran (Rp)</label>
                         <input 
