@@ -20,6 +20,7 @@ class StructureController extends Controller
                   ->orWhere('id', $hostId);
             })
             ->with('customRole') // Eager load custom role details if any
+            ->orderBy('name', 'asc')
             ->get();
 
         return Inertia::render('structure/Index', [

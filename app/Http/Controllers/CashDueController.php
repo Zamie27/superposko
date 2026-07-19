@@ -25,7 +25,7 @@ class CashDueController extends Controller
         $canEdit = in_array($user->role, ['ketua', 'wakil', 'sekretaris', 'bendahara']);
 
         // Get all members for this host
-        $members = User::where('host_id', $hostId)->orWhere('id', $hostId)->get();
+        $members = User::where('host_id', $hostId)->orWhere('id', $hostId)->orderBy('name', 'asc')->get();
 
         // Get all cash dues
         $cashDues = CashDue::with(['finance', 'creator'])

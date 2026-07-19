@@ -35,7 +35,7 @@ class AttendanceController extends Controller
         // Get all attendances for the host (for recap view)
         $isLeader = in_array($user->role, ['ketua', 'wakil', 'sekretaris']);
         
-        $members = User::where('host_id', $hostId)->orWhere('id', $hostId)->get();
+        $members = User::where('host_id', $hostId)->orWhere('id', $hostId)->orderBy('name', 'asc')->get();
         $recapQuery = Attendance::with('user')
             ->where('host_id', $hostId)
             ->whereYear('date', $selectedYear)

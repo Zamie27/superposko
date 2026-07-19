@@ -29,6 +29,7 @@ class ScheduleController extends Controller
             ->orWhere('id', $hostId)
             ->where('role', '!=', 'admin')
             ->select('id', 'name', 'role')
+            ->orderBy('name', 'asc')
             ->get();
 
         // Fetch duty rosters grouped/categorized by day
