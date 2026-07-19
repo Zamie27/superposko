@@ -167,7 +167,7 @@ defineOptions({
         <div v-if="canEdit" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-end">
             <div class="flex-1 w-full sm:max-w-xs">
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mulai Kas (Minggu 1)</label>
-                <input v-model="settingsForm.cash_dues_start_date" type="date" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]">
+                <input v-model="settingsForm.cash_dues_start_date" type="date" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]">
             </div>
             <Button @click="saveSettings" :disabled="settingsForm.processing" class="bg-slate-800 hover:bg-slate-700 text-white">
                 <template v-if="settingsForm.processing">
@@ -261,7 +261,7 @@ defineOptions({
                             :min="getWeekBounds(selectedWeek)?.start ? new Date(getWeekBounds(selectedWeek)!.start.getTime() - (getWeekBounds(selectedWeek)!.start.getTimezoneOffset() * 60000)).toISOString().split('T')[0] : ''"
                             :max="getWeekBounds(selectedWeek)?.end ? new Date(getWeekBounds(selectedWeek)!.end.getTime() - (getWeekBounds(selectedWeek)!.end.getTimezoneOffset() * 60000)).toISOString().split('T')[0] : ''"
                             required
-                            class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]"
+                            class="w-full rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]"
                         >
                         <InputError :message="form.errors.date" class="mt-1" />
                     </div>
@@ -273,14 +273,14 @@ defineOptions({
                             @input="onAmountInput" 
                             type="text" 
                             required 
-                            class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]"
+                            class="w-full rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]"
                         >
                         <InputError :message="form.errors.amount" class="mt-1" />
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Simpan Ke Rekening</label>
-                        <select v-model="form.payment_method" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]">
+                        <select v-model="form.payment_method" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]">
                             <option value="Cash">Cash (Uang Tunai)</option>
                             <option value="SeaBank">SeaBank</option>
                             <option value="DANA">DANA</option>
