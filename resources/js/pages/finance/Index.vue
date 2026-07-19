@@ -1102,7 +1102,7 @@ const triggerPrint = () => {
                         <div>
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
                                 {{ form.type === 'transfer' ? 'Sumber Uang' : 
-                                   (form.type === 'allocation' ? (selectedProkerCategory === 'Kas ke Proker' ? 'Sumber Uang' : 'Tujuan Uang (Masuk Ke)') : 
+                                   (form.type === 'allocation' ? (selectedProkerCategory === 'Kas ke Proker' ? 'Sumber Uang (Dari Kas)' : 'Sumber Uang (Dari Proker)') : 
                                    'Penyimpanan / Rekening') }}
                             </label>
                             <select 
@@ -1117,13 +1117,16 @@ const triggerPrint = () => {
                             <p v-if="form.errors.payment_method" class="text-xs text-red-500 mt-1">{{ form.errors.payment_method }}</p>
                         </div>
                         
-                        <!-- Destination Payment Method (For Transfer) -->
-                        <div v-if="form.type === 'transfer'">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tujuan Uang</label>
+                        <!-- Destination Payment Method (For Transfer & Allocation) -->
+                        <div v-if="form.type === 'transfer' || form.type === 'allocation'">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                                {{ form.type === 'transfer' ? 'Tujuan Uang' : 
+                                   (selectedProkerCategory === 'Kas ke Proker' ? 'Tujuan Uang (Masuk Ke Proker)' : 'Tujuan Uang (Masuk Ke Kas)') }}
+                            </label>
                             <select 
                                 v-model="form.destination_payment_method"
                                 class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
-                                :required="form.type === 'transfer'"
+                                :required="form.type === 'transfer' || form.type === 'allocation'"
                             >
                                 <option value="" class="dark:bg-slate-900">-- Pilih Tujuan Uang --</option>
                                 <option value="Cash" class="dark:bg-slate-900">Uang Tunai (Cash)</option>
@@ -1134,18 +1137,37 @@ const triggerPrint = () => {
                         </div>
                     </div>
 
-                    <!-- Balance info per rekening (shown for Kas ke Proker) -->
-                    <div v-if="form.type === 'allocation' && selectedProkerCategory === 'Kas ke Proker'" class="p-3 bg-indigo-50/50 dark:bg-indigo-950/10 rounded-xl border border-indigo-100 dark:border-indigo-950/30 mt-3">
-                        <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Tersedia per Rekening</h4>
-                        <div class="grid grid-cols-3 gap-2 text-xs">
-                            <div v-for="(bal, method) in metrics.balances_by_method" :key="method" class="flex flex-col">
-                                <span class="text-[10px] text-slate-400 font-semibold">{{ method }}</span>
-                                <span 
-                                    class="font-bold"
-                                    :class="[bal > 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500']"
-                                >
-                                    {{ formatRupiah(bal) }}
-                                </span>
+                    <!-- Balance info per rekening (shown for Allocation) -->
+                    <div v-if="form.type === 'allocation'" class="p-3 bg-indigo-50/50 dark:bg-indigo-950/10 rounded-xl border border-indigo-100 dark:border-indigo-950/30 mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Kas Balance -->
+                        <div>
+                            <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Kas Tersedia</h4>
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <div v-for="(bal, method) in metrics.balances_by_method" :key="'kas_'+method" class="flex flex-col">
+                                    <span class="text-[10px] text-slate-400 font-semibold">{{ method }}</span>
+                                    <span 
+                                        class="font-bold"
+                                        :class="[bal > 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500']"
+                                    >
+                                        {{ formatRupiah(bal) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Proker Balance (if selected) -->
+                        <div v-if="form.program_kerja_id && metrics.proker_balances[form.program_kerja_id]">
+                            <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Proker Terpilih</h4>
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <div v-for="(bal, method) in metrics.proker_balances[form.program_kerja_id]" :key="'proker_'+method" class="flex flex-col">
+                                    <span class="text-[10px] text-slate-400 font-semibold">{{ method }}</span>
+                                    <span 
+                                        class="font-bold"
+                                        :class="[bal > 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500']"
+                                    >
+                                        {{ formatRupiah(bal) }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
