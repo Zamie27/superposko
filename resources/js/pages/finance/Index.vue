@@ -651,7 +651,7 @@ const triggerPrint = () => {
                                                         : 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400'
                                         ]"
                                     >
-                                    {{ record.type === 'allocation' ? (record.category === 'Kas ke Proker' ? 'Alokasi → Proker' : 'Alokasi → Kas') : record.type === 'income' ? 'Pemasukan' : record.type === 'transfer' ? 'Transfer Kas' : 'Pengeluaran' }}
+                                    {{ record.type === 'allocation' ? (record.category === 'Kas ke Proker' ? 'Alokasi → Proker' : 'Alokasi → Kas') : record.type === 'income' ? 'Pemasukan' : record.type === 'transfer' ? (record.program_kerja_id ? 'Transfer Proker' : 'Transfer Kas') : 'Pengeluaran' }}
                                 </span>
                                 </td>
 
@@ -671,10 +671,16 @@ const triggerPrint = () => {
 
                                 <!-- Link Proker / Kategori -->
                                 <td class="py-3.5 px-4">
-                                    <div v-if="record.type === 'transfer'" class="flex items-center gap-1.5">
-                                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ record.payment_method }}</span>
-                                        <ArrowRightLeft class="size-3 text-slate-400" />
-                                        <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ record.destination_payment_method }}</span>
+                                    <div v-if="record.type === 'transfer'" class="flex flex-col gap-1">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ record.payment_method }}</span>
+                                            <ArrowRightLeft class="size-3 text-slate-400" />
+                                            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">{{ record.destination_payment_method }}</span>
+                                        </div>
+                                        <span v-if="record.program_kerja" class="inline-flex items-center gap-1 text-[9px] font-semibold bg-sky-50 dark:bg-sky-950/20 text-sky-700 dark:text-sky-400 px-1.5 py-0.5 rounded-md w-fit max-w-[150px] truncate" :title="record.program_kerja.name">
+                                            <FileText class="size-2.5 shrink-0" />
+                                            <span class="truncate">{{ record.program_kerja.name }}</span>
+                                        </span>
                                     </div>
                                     <template v-else>
                                         <span 
@@ -1113,6 +1119,61 @@ const triggerPrint = () => {
                         </div>
                     </div>
 
+                    <!-- === TRANSFER: Umum / Proker Toggle === -->
+                    <div v-else-if="form.type === 'transfer'" class="space-y-3 mt-3">
+                        <!-- Kategori Transfer -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Kategori Transfer</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button
+                                    type="button"
+                                    @click="linkType = 'umum'; form.program_kerja_id = ''"
+                                    :class="[
+                                        'py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5',
+                                        linkType === 'umum'
+                                            ? 'bg-indigo-500 border-indigo-500 text-white shadow-xs'
+                                            : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white'
+                                    ]"
+                                >
+                                    Transfer Kas Umum
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="linkType = 'proker'"
+                                    :class="[
+                                        'py-2 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5',
+                                        linkType === 'proker'
+                                            ? 'bg-indigo-500 border-indigo-500 text-white shadow-xs'
+                                            : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:text-white'
+                                    ]"
+                                >
+                                    Transfer Saldo Proker
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Jika Transfer Saldo Proker -->
+                        <div v-if="linkType === 'proker'">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Program Kerja</label>
+                            <select 
+                                v-model="form.program_kerja_id"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                                required
+                            >
+                                <option value="" class="dark:bg-slate-900">-- Pilih Program Kerja --</option>
+                                <option 
+                                    v-for="proker in programKerjas" 
+                                    :key="proker.id" 
+                                    :value="proker.id"
+                                    class="dark:bg-slate-900"
+                                >
+                                    {{ proker.name }} (Sisa Saldo: {{ formatRupiah(metrics.proker_balances[proker.id] ? Object.values(metrics.proker_balances[proker.id]).reduce((a,b)=>a+b,0) : 0) }})
+                                </option>
+                            </select>
+                            <p v-if="form.errors.program_kerja_id" class="text-xs text-red-500 mt-1">{{ form.errors.program_kerja_id }}</p>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                         <!-- Payment Method -->
                         <div>
@@ -1156,7 +1217,7 @@ const triggerPrint = () => {
                     <!-- Balance info per rekening -->
                     <div v-if="['allocation', 'expense', 'transfer'].includes(form.type)" class="p-3 bg-indigo-50/50 dark:bg-indigo-950/10 rounded-xl border border-indigo-100 dark:border-indigo-950/30 mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Kas Balance -->
-                        <div v-if="!(form.type === 'expense' && form.program_kerja_id)">
+                        <div v-if="!(form.type === 'expense' && form.program_kerja_id) && !(form.type === 'transfer' && form.program_kerja_id)">
                             <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Kas Tersedia</h4>
                             <div class="flex flex-wrap items-start gap-3 sm:gap-5">
                                 <div v-for="(bal, method) in metrics.balances_by_method" :key="'kas_'+method" class="flex flex-col min-w-[70px]">

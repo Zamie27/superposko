@@ -174,9 +174,16 @@ class FinanceController extends Controller
                 }
             }
         } elseif ($validated['type'] === 'transfer') {
-            $currentBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
-            if ($validated['amount'] > $currentBalance) {
-                return back()->withErrors(['amount' => "Saldo {$validated['payment_method']} tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.')]);
+            if (!empty($validated['program_kerja_id'])) {
+                $currentBalance = $this->getProkerMethodBalance($validated['program_kerja_id'], $validated['payment_method']);
+                if ($validated['amount'] > $currentBalance) {
+                    return back()->withErrors(['amount' => "Saldo {$validated['payment_method']} pada Proker tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.')]);
+                }
+            } else {
+                $currentBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
+                if ($validated['amount'] > $currentBalance) {
+                    return back()->withErrors(['amount' => "Saldo {$validated['payment_method']} tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.')]);
+                }
             }
         } elseif ($validated['type'] === 'allocation') {
             if ($validated['category'] === 'Kas ke Proker') {
@@ -382,16 +389,24 @@ class FinanceController extends Controller
                 return back()->withErrors(['destination_payment_method' => 'Tujuan Uang tidak boleh sama dengan Sumber Uang.']);
             }
 
-            $currentMethodBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
+            if (!empty($validated['program_kerja_id'])) {
+                $currentMethodBalance = $this->getProkerMethodBalance($validated['program_kerja_id'], $validated['payment_method']);
+            } else {
+                $currentMethodBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
+            }
             $adjustedMethodBalance = $currentMethodBalance;
 
-            if ($finance->type === 'transfer' && $finance->payment_method === $validated['payment_method']) {
-                $adjustedMethodBalance += $finance->amount;
-            } elseif ($finance->type === 'transfer' && $finance->destination_payment_method === $validated['payment_method']) {
+            if ($finance->type === 'transfer') {
+                if ($finance->program_kerja_id == ($validated['program_kerja_id'] ?? null)) {
+                    if ($finance->payment_method === $validated['payment_method']) {
+                        $adjustedMethodBalance += $finance->amount;
+                    } elseif ($finance->destination_payment_method === $validated['payment_method']) {
+                        $adjustedMethodBalance -= $finance->amount;
+                    }
+                }
+            } elseif ($finance->type === 'income' && empty($validated['program_kerja_id']) && $finance->payment_method === $validated['payment_method']) {
                 $adjustedMethodBalance -= $finance->amount;
-            } elseif ($finance->type === 'income' && $finance->payment_method === $validated['payment_method']) {
-                $adjustedMethodBalance -= $finance->amount;
-            } elseif ($finance->type === 'expense' && $finance->payment_method === $validated['payment_method']) {
+            } elseif ($finance->type === 'expense' && $finance->program_kerja_id == ($validated['program_kerja_id'] ?? null) && $finance->payment_method === $validated['payment_method']) {
                 $adjustedMethodBalance += $finance->amount;
             }
 
@@ -604,7 +619,19 @@ class FinanceController extends Controller
             ->where('payment_method', $method)
             ->sum('amount');
 
-        return (float) ($kasToProker - $prokerToKas - $spent);
+        // Transfer In (adds to proker method balance)
+        $mTransferIn = Finance::where('program_kerja_id', $prokerId)
+            ->where('type', 'transfer')
+            ->where('destination_payment_method', $method)
+            ->sum('amount');
+
+        // Transfer Out (removes from proker method balance)
+        $mTransferOut = Finance::where('program_kerja_id', $prokerId)
+            ->where('type', 'transfer')
+            ->where('payment_method', $method)
+            ->sum('amount');
+
+        return (float) ($kasToProker - $prokerToKas - $spent + $mTransferIn - $mTransferOut);
     }
 
     private function getMethodBalance($hostId, $method): float
@@ -619,11 +646,11 @@ class FinanceController extends Controller
                   });
             })->sum('amount');
             
-        $mTransferIn = Finance::where('host_id', $hostId)->where('destination_payment_method', $method)->where('type', 'transfer')->sum('amount');
+        $mTransferIn = Finance::where('host_id', $hostId)->where('destination_payment_method', $method)->where('type', 'transfer')->whereNull('program_kerja_id')->sum('amount');
 
         $mExpense = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'expense')->whereNull('program_kerja_id')->sum('amount');
         $mAllocations = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'allocation')->where('category', 'Kas ke Proker')->sum('amount');
-        $mTransferOut = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'transfer')->sum('amount');
+        $mTransferOut = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'transfer')->whereNull('program_kerja_id')->sum('amount');
 
         return (float) (($mIncome + $mReturns + $mTransferIn) - ($mExpense + $mAllocations + $mTransferOut));
     }

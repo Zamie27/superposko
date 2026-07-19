@@ -23,7 +23,7 @@ class LogisticController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        $logistics = Logistic::with('owner:id,name,email')
+        $logistics = Logistic::with(['owner:id,name,email', 'finance:id,payment_method'])
             ->where('host_id', $hostId)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -59,6 +59,7 @@ class LogisticController extends Controller
             'source' => ['required', 'string', Rule::in(['member', 'purchase'])],
             'owner_id' => ['nullable', 'integer', 'exists:users,id'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
+            'payment_method' => ['nullable', 'required_if:source,purchase', 'string', Rule::in(['Cash', 'SeaBank', 'DANA'])],
         ]);
 
         $hostId = $user->host_id ?? $user->id;
@@ -80,6 +81,7 @@ class LogisticController extends Controller
                 'created_by' => $user->id,
                 'type' => 'expense',
                 'amount' => $purchasePrice * $validated['quantity'],
+                'payment_method' => $validated['payment_method'] ?? 'Cash',
                 'title' => 'Pembelian Logistik: '.$validated['name'],
                 'description' => 'Pembelian otomatis dari penambahan logistik.',
                 'date' => now()->toDateString(),
@@ -130,6 +132,7 @@ class LogisticController extends Controller
             'source' => ['required', 'string', Rule::in(['member', 'purchase'])],
             'owner_id' => ['nullable', 'integer', 'exists:users,id'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
+            'payment_method' => ['nullable', 'required_if:source,purchase', 'string', Rule::in(['Cash', 'SeaBank', 'DANA'])],
         ]);
 
         $ownerId = $validated['owner_id'] ?? null;
@@ -148,6 +151,7 @@ class LogisticController extends Controller
                 Finance::where('id', $financeId)->update([
                     'title' => 'Pembelian Logistik: '.$validated['name'],
                     'amount' => $purchasePrice * $validated['quantity'],
+                    'payment_method' => $validated['payment_method'] ?? 'Cash',
                 ]);
             } else {
                 // Create new finance record (source changed from member to purchase)
@@ -157,6 +161,7 @@ class LogisticController extends Controller
                     'created_by' => $user->id,
                     'type' => 'expense',
                     'amount' => $purchasePrice * $validated['quantity'],
+                    'payment_method' => $validated['payment_method'] ?? 'Cash',
                     'title' => 'Pembelian Logistik: '.$validated['name'],
                     'description' => 'Pembelian otomatis dari penambahan logistik.',
                     'date' => now()->toDateString(),

@@ -24,7 +24,7 @@ class InventoryController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        $inventories = Inventory::with('owner:id,name,email')
+        $inventories = Inventory::with(['owner:id,name,email', 'finance:id,payment_method'])
             ->where('host_id', $hostId)
             ->orderBy('created_at', 'desc')
             ->get()
@@ -66,6 +66,7 @@ class InventoryController extends Controller
             'owner_id' => ['nullable', 'integer', 'exists:users,id'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'max:5120'], // Max 5MB
+            'payment_method' => ['nullable', 'required_if:source,purchase', 'string', Rule::in(['Cash', 'SeaBank', 'DANA'])],
         ]);
 
         $hostId = $user->host_id ?? $user->id;
@@ -92,6 +93,7 @@ class InventoryController extends Controller
                 'created_by' => $user->id,
                 'type' => 'expense',
                 'amount' => $purchasePrice * $validated['quantity'],
+                'payment_method' => $validated['payment_method'] ?? 'Cash',
                 'title' => 'Pembelian Inventaris: '.$validated['name'],
                 'description' => 'Pembelian otomatis dari penambahan inventaris.',
                 'date' => now()->toDateString(),
@@ -144,6 +146,7 @@ class InventoryController extends Controller
             'owner_id' => ['nullable', 'integer', 'exists:users,id'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'max:5120'], // Max 5MB
+            'payment_method' => ['nullable', 'required_if:source,purchase', 'string', Rule::in(['Cash', 'SeaBank', 'DANA'])],
         ]);
 
         $imagePath = $inventory->image_path;
@@ -170,6 +173,7 @@ class InventoryController extends Controller
                 Finance::where('id', $financeId)->update([
                     'title' => 'Pembelian Inventaris: '.$validated['name'],
                     'amount' => $purchasePrice * $validated['quantity'],
+                    'payment_method' => $validated['payment_method'] ?? 'Cash',
                 ]);
             } else {
                 // Create new finance record (source changed from member to purchase)
@@ -179,6 +183,7 @@ class InventoryController extends Controller
                     'created_by' => $user->id,
                     'type' => 'expense',
                     'amount' => $purchasePrice * $validated['quantity'],
+                    'payment_method' => $validated['payment_method'] ?? 'Cash',
                     'title' => 'Pembelian Inventaris: '.$validated['name'],
                     'description' => 'Pembelian otomatis dari penambahan inventaris.',
                     'date' => now()->toDateString(),

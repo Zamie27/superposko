@@ -32,6 +32,7 @@ interface Logistic {
     source: 'member' | 'purchase';
     purchase_price: number | null;
     finance_id: number | null;
+    finance?: { id: number, payment_method: string } | null;
     created_at: string;
 }
 
@@ -90,6 +91,7 @@ const form = useForm({
     source: 'member' as 'member' | 'purchase',
     owner_id: '' as string | number,
     purchase_price: '' as string | number,
+    payment_method: 'Cash' as 'Cash' | 'SeaBank' | 'DANA',
 });
 
 const formattedQuantity = computed(() => {
@@ -121,6 +123,7 @@ const openCreateModal = () => {
     form.source = 'member';
     form.owner_id = '';
     form.purchase_price = '';
+    form.payment_method = 'Cash';
     isModalOpen.value = true;
 };
 
@@ -135,6 +138,7 @@ const openEditModal = (item: Logistic) => {
     form.source = item.source ?? 'member';
     form.owner_id = item.owner_id || '';
     form.purchase_price = item.purchase_price ?? '';
+    form.payment_method = (item.finance?.payment_method as 'Cash'|'SeaBank'|'DANA') ?? 'Cash';
     isModalOpen.value = true;
 };
 
@@ -395,7 +399,7 @@ const getStatusDetails = (status: string) => {
                         <div class="flex items-center gap-1.5">
                             <Wallet class="size-3.5 text-emerald-500 shrink-0" />
                             <span class="text-[10px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 truncate">
-                                Beli Kas{{ item.purchase_price ? ' · Rp ' + Number(item.purchase_price).toLocaleString('id-ID') : '' }}
+                                Kas ({{ item.finance?.payment_method ?? 'Cash' }}){{ item.purchase_price ? ' · Rp ' + Number(item.purchase_price).toLocaleString('id-ID') : '' }}
                             </span>
                         </div>
                     </template>
@@ -551,6 +555,20 @@ const getStatusDetails = (status: string) => {
                         </div>
                         <p class="text-[10px] text-slate-400">Otomatis dicatat sebagai pengeluaran kas di E-Bendahara.</p>
                         <p v-if="form.errors.purchase_price" class="text-xs text-red-500">{{ form.errors.purchase_price }}</p>
+                    </div>
+
+                    <!-- Payment Method (only shown when source === 'purchase') -->
+                    <div v-if="form.source === 'purchase'" class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Sumber Kas (Rekening Pengeluaran)</label>
+                        <select
+                            v-model="form.payment_method"
+                            class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none bg-white dark:bg-slate-950 dark:text-white"
+                        >
+                            <option value="Cash">Cash (Uang Tunai)</option>
+                            <option value="SeaBank">SeaBank</option>
+                            <option value="DANA">DANA</option>
+                        </select>
+                        <p v-if="form.errors.payment_method" class="text-xs text-red-500">{{ form.errors.payment_method }}</p>
                     </div>
 
                     <!-- Status Select -->
