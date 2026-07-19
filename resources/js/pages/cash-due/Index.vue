@@ -20,7 +20,7 @@ const props = defineProps<{
     startDate: string | null;
 }>();
 
-const totalWeeks = 10;
+const totalWeeks = 7;
 const weeks = Array.from({ length: totalWeeks }, (_, i) => i + 1);
 
 const isModalOpen = ref(false);
@@ -36,7 +36,7 @@ const form = useForm({
 });
 
 const settingsForm = useForm({
-    cash_dues_start_date: props.startDate || '',
+    cash_dues_start_date: props.startDate ? props.startDate.split('T')[0] : '',
 });
 
 const saveSettings = () => {
