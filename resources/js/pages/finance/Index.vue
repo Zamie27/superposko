@@ -219,13 +219,13 @@ const filteredFinances = computed(() => {
 const filteredSummary = computed(() => {
     const records = filteredFinances.value;
     const totalIncome = records
-        .filter(r => r.type === 'income' || (r.type === 'allocation' && r.category === 'Proker ke Kas'))
+        .filter(r => r.type === 'income')
         .reduce((sum, r) => sum + r.amount, 0);
     const totalExpense = records
-        .filter(r => r.type === 'expense' || (r.type === 'allocation' && r.category === 'Kas ke Proker'))
+        .filter(r => r.type === 'expense')
         .reduce((sum, r) => sum + r.amount, 0);
     const totalTransfer = records
-        .filter(r => r.type === 'transfer')
+        .filter(r => r.type === 'transfer' || r.type === 'allocation')
         .reduce((sum, r) => sum + r.amount, 0);
     return {
         count: records.length,
@@ -659,14 +659,14 @@ const triggerPrint = () => {
                                 <td 
                                     class="py-3.5 px-4 text-right font-extrabold whitespace-nowrap"
                                     :class="[
-                                        record.type === 'transfer'
+                                        record.type === 'transfer' || record.type === 'allocation'
                                             ? 'text-indigo-600 dark:text-indigo-400'
-                                            : (record.type === 'income' || (record.type === 'allocation' && record.category === 'Proker ke Kas'))
+                                            : record.type === 'income'
                                                 ? 'text-emerald-600 dark:text-emerald-450'
                                                 : 'text-slate-800 dark:text-slate-200'
                                     ]"
                                 >
-                                    {{ record.type === 'transfer' ? '' : (record.type === 'income' || (record.type === 'allocation' && record.category === 'Proker ke Kas')) ? '+' : '-' }} {{ formatRupiah(record.amount) }}
+                                    {{ record.type === 'transfer' || record.type === 'allocation' ? '' : (record.type === 'income' ? '+' : '-') }} {{ formatRupiah(record.amount) }}
                                 </td>
 
                                 <!-- Link Proker / Kategori -->
@@ -761,7 +761,7 @@ const triggerPrint = () => {
                     <span class="text-sm font-extrabold text-red-600 dark:text-red-400 mt-0.5">{{ formatRupiah(filteredSummary.totalExpense) }}</span>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Transfer</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Transfer & Alokasi</span>
                     <span class="text-sm font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">{{ formatRupiah(filteredSummary.totalTransfer) }}</span>
                 </div>
                 <div class="flex flex-col">
@@ -847,6 +847,22 @@ const triggerPrint = () => {
                                 >
                                     {{ formatRupiah(breakdown.available) }}
                                 </span>
+                            </div>
+                        </div>
+
+                        <!-- Proker specific balance breakdown -->
+                        <div v-if="metrics.proker_balances && metrics.proker_balances[breakdown.id]" class="mt-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl p-3 border border-slate-100 dark:border-slate-800">
+                            <span class="text-[10px] text-slate-400 font-semibold block uppercase mb-1.5">Rincian Saldo Tersedia</span>
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <div v-for="(bal, method) in metrics.proker_balances[breakdown.id]" :key="method" class="flex flex-col">
+                                    <span class="text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 font-medium">{{ method }}</span>
+                                    <span 
+                                        class="font-bold"
+                                        :class="[bal > 0 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400']"
+                                    >
+                                        {{ formatRupiah(bal) }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1137,10 +1153,10 @@ const triggerPrint = () => {
                         </div>
                     </div>
 
-                    <!-- Balance info per rekening (shown for Allocation) -->
-                    <div v-if="form.type === 'allocation'" class="p-3 bg-indigo-50/50 dark:bg-indigo-950/10 rounded-xl border border-indigo-100 dark:border-indigo-950/30 mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Balance info per rekening -->
+                    <div v-if="['allocation', 'expense', 'transfer'].includes(form.type)" class="p-3 bg-indigo-50/50 dark:bg-indigo-950/10 rounded-xl border border-indigo-100 dark:border-indigo-950/30 mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Kas Balance -->
-                        <div>
+                        <div v-if="!(form.type === 'expense' && form.program_kerja_id)">
                             <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Kas Tersedia</h4>
                             <div class="grid grid-cols-3 gap-2 text-xs">
                                 <div v-for="(bal, method) in metrics.balances_by_method" :key="'kas_'+method" class="flex flex-col">
