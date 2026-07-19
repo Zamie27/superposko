@@ -158,7 +158,39 @@ class FinanceController extends Controller
                 abort(400, 'Program Kerja tidak valid untuk posko Anda.');
             }
         }
-
+        // Hard validation against method balance for 'expense', 'transfer', and 'allocation'
+        if ($validated['type'] === 'expense') {
+            if (empty($validated['program_kerja_id'])) {
+                // Umum Expense: check Kas balance
+                $currentBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
+                if ($validated['amount'] > $currentBalance) {
+                    return back()->withErrors(['amount' => "Saldo {$validated['payment_method']} tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.')]);
+                }
+            } else {
+                // Proker Expense: check Proker method balance
+                $currentBalance = $this->getProkerMethodBalance($validated['program_kerja_id'], $validated['payment_method']);
+                if ($validated['amount'] > $currentBalance) {
+                    return back()->withErrors(['amount' => "Saldo {$validated['payment_method']} pada Proker tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.')]);
+                }
+            }
+        } elseif ($validated['type'] === 'transfer') {
+            $currentBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
+            if ($validated['amount'] > $currentBalance) {
+                return back()->withErrors(['amount' => "Saldo {$validated['payment_method']} tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.')]);
+            }
+        } elseif ($validated['type'] === 'allocation') {
+            if ($validated['category'] === 'Kas ke Proker') {
+                $currentBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
+                if ($validated['amount'] > $currentBalance) {
+                    return back()->withErrors(['amount' => "Saldo Kas {$validated['payment_method']} tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.')]);
+                }
+            } elseif ($validated['category'] === 'Proker ke Kas') {
+                $currentBalance = $this->getProkerMethodBalance($validated['program_kerja_id'], $validated['payment_method']);
+                if ($validated['amount'] > $currentBalance) {
+                    return back()->withErrors(['amount' => "Saldo Proker {$validated['payment_method']} tidak mencukupi. Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.')]);
+                }
+            }
+        } else {
             // normal income: cannot link to Proker
             if (! empty($validated['program_kerja_id'])) {
                 return back()->withErrors(['program_kerja_id' => 'Transaksi Pemasukan tidak dapat dihubungkan ke Program Kerja. Silakan gunakan tipe Alokasi Dana.']);
