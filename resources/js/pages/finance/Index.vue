@@ -305,7 +305,7 @@ const openEditModal = (record: FinanceRecord) => {
         customCategory.value = '';
     } else {
         linkType.value = 'umum';
-        const isPredefined = (record.type === 'income' ? incomeCategories : expenseCategories)
+        const isPredefined = (record.type === 'income' ? incomeCategories.value : expenseCategories.value)
             .some(c => c.value === record.category);
         if (record.category) {
             if (isPredefined) {
