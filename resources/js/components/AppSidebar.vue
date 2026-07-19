@@ -4,7 +4,7 @@ import {
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
     ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase, Download,
-    Bell, Bug, FileText, Camera, Network
+    Bell, Bug, FileText, Camera, Network, Coins
 } from '@lucide/vue';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -174,6 +174,12 @@ const navGroups = computed<NavGroup[]>(() => {
             title: 'Kas & Keuangan',
             href: '/finance',
             icon: Wallet,
+            locked: !isSubscribed,
+        },
+        {
+            title: 'Catatan Kas',
+            href: '/catatan-kas',
+            icon: Coins,
             locked: !isSubscribed,
         },
         {

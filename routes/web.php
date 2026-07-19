@@ -23,6 +23,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\DplController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\CashDueController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\LogisticController;
@@ -198,6 +199,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('finance/tags/{financeTag}', [FinanceController::class, 'destroyTag'])->name('finance.tags.destroy');
         Route::post('finance/{finance}', [FinanceController::class, 'update'])->name('finance.update');
         Route::delete('finance/{finance}', [FinanceController::class, 'destroy'])->name('finance.destroy');
+
+        // Pencatatan Kas Mingguan
+        Route::get('catatan-kas', [CashDueController::class, 'index'])->name('cash-dues.index');
+        Route::post('catatan-kas', [CashDueController::class, 'store'])->name('cash-dues.store');
+        Route::delete('catatan-kas/{cashDue}', [CashDueController::class, 'destroy'])->name('cash-dues.destroy');
 
         // Logbook & Proker
         Route::get('logbook', [LogbookController::class, 'index'])->name('logbook.index');
