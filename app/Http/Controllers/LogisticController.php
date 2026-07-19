@@ -75,6 +75,14 @@ class LogisticController extends Controller
 
         // If purchased from kas, auto-create Finance expense record
         if ($source === 'purchase' && $purchasePrice > 0) {
+            $paymentMethod = $validated['payment_method'] ?? 'Cash';
+            $amount = $purchasePrice * $validated['quantity'];
+            
+            $currentBalance = Finance::getGeneralMethodBalance($hostId, $paymentMethod);
+            if ($amount > $currentBalance) {
+                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp " . number_format($currentBalance, 0, ',', '.') . ")."]);
+            }
+
             $finance = Finance::create([
                 'host_id' => $hostId,
                 'program_kerja_id' => null,
@@ -146,6 +154,22 @@ class LogisticController extends Controller
 
         // Handle finance record updates
         if ($source === 'purchase' && $purchasePrice > 0) {
+            $paymentMethod = $validated['payment_method'] ?? 'Cash';
+            $amount = $purchasePrice * $validated['quantity'];
+            
+            $currentBalance = Finance::getGeneralMethodBalance($hostId, $paymentMethod);
+            
+            if ($financeId) {
+                $financeRec = Finance::find($financeId);
+                if ($financeRec && $financeRec->payment_method === $paymentMethod) {
+                    $currentBalance += $financeRec->amount;
+                }
+            }
+            
+            if ($amount > $currentBalance) {
+                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp " . number_format($currentBalance, 0, ',', '.') . ")."]);
+            }
+
             if ($financeId) {
                 // Update existing finance record
                 Finance::where('id', $financeId)->update([

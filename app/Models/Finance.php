@@ -85,4 +85,52 @@ class Finance extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    /**
+     * Calculate general kas balance (non-proker) for a specific payment method.
+     */
+    public static function getGeneralMethodBalance(int $hostId, string $method): float
+    {
+        $mIncome = self::where('host_id', $hostId)
+            ->where('payment_method', $method)
+            ->where('type', 'income')
+            ->whereNull('program_kerja_id')
+            ->sum('amount');
+            
+        $mReturns = self::where('host_id', $hostId)
+            ->where('type', 'allocation')
+            ->where('category', 'Proker ke Kas')
+            ->where(function ($q) use ($method) {
+                $q->where('destination_payment_method', $method)
+                  ->orWhere(function ($q2) use ($method) {
+                      $q2->whereNull('destination_payment_method')->where('payment_method', $method);
+                  });
+            })->sum('amount');
+            
+        $mTransferIn = self::where('host_id', $hostId)
+            ->where('destination_payment_method', $method)
+            ->where('type', 'transfer')
+            ->whereNull('program_kerja_id')
+            ->sum('amount');
+
+        $mExpense = self::where('host_id', $hostId)
+            ->where('payment_method', $method)
+            ->where('type', 'expense')
+            ->whereNull('program_kerja_id')
+            ->sum('amount');
+            
+        $mAllocations = self::where('host_id', $hostId)
+            ->where('payment_method', $method)
+            ->where('type', 'allocation')
+            ->where('category', 'Kas ke Proker')
+            ->sum('amount');
+            
+        $mTransferOut = self::where('host_id', $hostId)
+            ->where('payment_method', $method)
+            ->where('type', 'transfer')
+            ->whereNull('program_kerja_id')
+            ->sum('amount');
+
+        return (float) (($mIncome + $mReturns + $mTransferIn) - ($mExpense + $mAllocations + $mTransferOut));
+    }
 }
