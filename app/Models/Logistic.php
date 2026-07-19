@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property User $host
  * @property User|null $owner
  * @property Finance|null $finance
+ * @property \Illuminate\Support\Carbon|null $date
  */
 class Logistic extends Model
 {
@@ -34,6 +35,7 @@ class Logistic extends Model
         'unit',
         'status',
         'notes',
+        'date',
     ];
 
     /**
@@ -46,6 +48,7 @@ class Logistic extends Model
         return [
             'quantity' => 'float',
             'purchase_price' => 'float',
+            'date' => 'date',
         ];
     }
 

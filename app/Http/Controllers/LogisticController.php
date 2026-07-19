@@ -60,6 +60,7 @@ class LogisticController extends Controller
             'owner_id' => ['nullable', 'integer', 'exists:users,id'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['nullable', 'required_if:source,purchase', 'string', Rule::in(['Cash', 'SeaBank', 'DANA'])],
+            'date' => ['required', 'date'],
         ]);
 
         $hostId = $user->host_id ?? $user->id;
@@ -92,7 +93,7 @@ class LogisticController extends Controller
                 'payment_method' => $validated['payment_method'] ?? 'Cash',
                 'title' => 'Pembelian Logistik: '.$validated['name'],
                 'description' => 'Pembelian otomatis dari penambahan logistik.',
-                'date' => now()->toDateString(),
+                'date' => $validated['date'],
             ]);
             $financeId = $finance->id;
         }
@@ -108,6 +109,7 @@ class LogisticController extends Controller
             'unit' => $validated['unit'],
             'status' => $validated['status'],
             'notes' => $validated['notes'] ?? null,
+            'date' => $validated['date'],
         ]);
 
         ActivityLogHelper::log(
@@ -141,6 +143,7 @@ class LogisticController extends Controller
             'owner_id' => ['nullable', 'integer', 'exists:users,id'],
             'purchase_price' => ['nullable', 'numeric', 'min:0'],
             'payment_method' => ['nullable', 'required_if:source,purchase', 'string', Rule::in(['Cash', 'SeaBank', 'DANA'])],
+            'date' => ['required', 'date'],
         ]);
 
         $ownerId = $validated['owner_id'] ?? null;
@@ -176,6 +179,7 @@ class LogisticController extends Controller
                     'title' => 'Pembelian Logistik: '.$validated['name'],
                     'amount' => $purchasePrice * $validated['quantity'],
                     'payment_method' => $validated['payment_method'] ?? 'Cash',
+                    'date' => $validated['date'],
                 ]);
             } else {
                 // Create new finance record (source changed from member to purchase)
@@ -188,7 +192,7 @@ class LogisticController extends Controller
                     'payment_method' => $validated['payment_method'] ?? 'Cash',
                     'title' => 'Pembelian Logistik: '.$validated['name'],
                     'description' => 'Pembelian otomatis dari penambahan logistik.',
-                    'date' => now()->toDateString(),
+                    'date' => $validated['date'],
                 ]);
                 $financeId = $finance->id;
             }
@@ -208,6 +212,7 @@ class LogisticController extends Controller
             'unit' => $validated['unit'],
             'status' => $validated['status'],
             'notes' => $validated['notes'] ?? null,
+            'date' => $validated['date'],
         ]);
 
         ActivityLogHelper::log(

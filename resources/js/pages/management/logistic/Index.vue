@@ -33,6 +33,7 @@ interface Logistic {
     purchase_price: number | null;
     finance_id: number | null;
     finance?: { id: number, payment_method: string } | null;
+    date: string | null;
     created_at: string;
 }
 
@@ -92,6 +93,7 @@ const form = useForm({
     owner_id: '' as string | number,
     purchase_price: '' as string | number,
     payment_method: 'Cash' as 'Cash' | 'SeaBank' | 'DANA',
+    date: new Date().toISOString().split('T')[0],
 });
 
 const formattedQuantity = computed(() => {
@@ -124,6 +126,7 @@ const openCreateModal = () => {
     form.owner_id = '';
     form.purchase_price = '';
     form.payment_method = 'Cash';
+    form.date = new Date().toISOString().split('T')[0];
     isModalOpen.value = true;
 };
 
@@ -139,6 +142,7 @@ const openEditModal = (item: Logistic) => {
     form.owner_id = item.owner_id || '';
     form.purchase_price = item.purchase_price ?? '';
     form.payment_method = (item.finance?.payment_method as 'Cash'|'SeaBank'|'DANA') ?? 'Cash';
+    form.date = item.date ?? new Date().toISOString().split('T')[0];
     isModalOpen.value = true;
 };
 
@@ -383,7 +387,10 @@ const getStatusDetails = (status: string) => {
 
                     <!-- Name and Quantity -->
                     <h3 class="font-bold text-slate-900 dark:text-white text-base mb-0.5 leading-snug">{{ item.name }}</h3>
-                    <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-4">Stok: {{ Number(item.quantity) }} {{ item.unit }}</p>
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">Stok: {{ Number(item.quantity) }} {{ item.unit }}</p>
+                        <p v-if="item.date" class="text-xs text-slate-400 dark:text-slate-500">{{ new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) }}</p>
+                    </div>
 
                     <!-- Notes -->
                     <div class="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 rounded-xl text-xs text-slate-500 dark:text-slate-400 italic">
@@ -448,17 +455,29 @@ const getStatusDetails = (status: string) => {
                 </div>
 
                 <form @submit.prevent="submitForm" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-                    <!-- Name Input -->
-                    <div class="space-y-1">
-                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Nama Bahan / Logistik</label>
-                        <input
-                            v-model="form.name"
-                            type="text"
-                            placeholder="Contoh: Beras, Telur, Air Galon, Parasetamol"
-                            class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
-                            required
-                        />
-                        <p v-if="form.errors.name" class="text-xs text-red-500">{{ form.errors.name }}</p>
+                    <!-- Name and Date Input Row -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="col-span-2 space-y-1">
+                            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Nama Bahan / Logistik</label>
+                            <input
+                                v-model="form.name"
+                                type="text"
+                                placeholder="Contoh: Beras, Telur, Air Galon, Parasetamol"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
+                                required
+                            />
+                            <p v-if="form.errors.name" class="text-xs text-red-500">{{ form.errors.name }}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Tanggal</label>
+                            <input
+                                v-model="form.date"
+                                type="date"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
+                                required
+                            />
+                            <p v-if="form.errors.date" class="text-xs text-red-500">{{ form.errors.date }}</p>
+                        </div>
                     </div>
 
                     <!-- Quantity & Unit Row -->

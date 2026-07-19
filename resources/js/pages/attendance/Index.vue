@@ -3,8 +3,10 @@ import { Head, useForm, router } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import InputError from '@/components/InputError.vue';
 import { store } from '@/routes/attendance';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { MapPin, Loader2, CheckCircle2 } from '@lucide/vue';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
 const props = defineProps<{
     todayAttendance: any;
@@ -12,6 +14,11 @@ const props = defineProps<{
     members: any[];
     daysInMonth: number;
     isLeader: boolean;
+    settings: {
+        lat: number | null;
+        lng: number | null;
+        radius: number | null;
+    };
     filters: {
         month: number;
         year: number;
@@ -75,6 +82,84 @@ const submitAttendance = () => {
     );
 };
 
+// Map Settings Form (Khusus Ketua/Wakil/Sekretaris)
+const mapContainer = ref<HTMLElement | null>(null);
+const map = ref<L.Map | null>(null);
+const marker = ref<L.Marker | null>(null);
+const circle = ref<L.Circle | null>(null);
+
+const settingsForm = useForm({
+    lat: props.settings?.lat ?? -6.200000,
+    lng: props.settings?.lng ?? 106.816666,
+    radius: props.settings?.radius ?? 100,
+});
+
+const saveSettings = () => {
+    settingsForm.post('/absensi/settings', {
+        preserveScroll: true,
+        onSuccess: () => {
+            // success
+        }
+    });
+};
+
+watch(() => props.isLeader, (newVal) => {
+    if (newVal) {
+        nextTick(() => {
+            initMap();
+        });
+    }
+}, { immediate: true });
+
+const initMap = () => {
+    if (!mapContainer.value) return;
+    if (map.value) return;
+
+    map.value = L.map(mapContainer.value).setView([Number(settingsForm.lat), Number(settingsForm.lng)], 15);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map.value);
+
+    // Fix default icon issue with webpack/vite
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    });
+
+    marker.value = L.marker([Number(settingsForm.lat), Number(settingsForm.lng)], { draggable: true }).addTo(map.value);
+    
+    circle.value = L.circle([Number(settingsForm.lat), Number(settingsForm.lng)], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.2,
+        radius: Number(settingsForm.radius)
+    }).addTo(map.value);
+
+    marker.value.on('dragend', (e) => {
+        const latlng = e.target.getLatLng();
+        settingsForm.lat = latlng.lat;
+        settingsForm.lng = latlng.lng;
+        circle.value?.setLatLng(latlng);
+    });
+
+    map.value.on('click', (e: L.LeafletMouseEvent) => {
+        const latlng = e.latlng;
+        settingsForm.lat = latlng.lat;
+        settingsForm.lng = latlng.lng;
+        marker.value?.setLatLng(latlng);
+        circle.value?.setLatLng(latlng);
+    });
+};
+
+watch(() => settingsForm.radius, (newRadius) => {
+    if (circle.value) {
+        circle.value.setRadius(Number(newRadius));
+    }
+});
+
 // Filter Bulan & Tahun Laporan
 const selectedMonth = ref(props.filters?.month ?? new Date().getMonth() + 1);
 const selectedYear = ref(props.filters?.year ?? new Date().getFullYear());
@@ -137,6 +222,10 @@ const getCellClass = (userId: number, day: number) => {
     const record = getCellData(userId, day);
     if (!record) {
         return isWeekend(day) ? 'bg-slate-200 dark:bg-slate-800' : 'bg-transparent';
+    }
+    
+    if (record.is_outside_radius) {
+        return 'bg-black text-white';
     }
     
     switch (record.status) {
@@ -260,12 +349,16 @@ defineOptions({
                         <div class="w-6 h-6 rounded bg-slate-200 dark:bg-slate-800 shadow-sm border border-slate-300 dark:border-slate-700"></div>
                         <span class="text-sm font-medium">Hari Libur / Akhir Pekan</span>
                     </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 rounded bg-black shadow-sm"></div>
+                        <span class="text-sm font-medium">Luar Radius (Hitam)</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tabel Rekap Laporan Bulanan (Khusus Ketua/Admin) -->
-        <div v-if="isLeader" class="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 mt-2">
+        <!-- Tabel Rekap Laporan Bulanan (Semua Anggota) -->
+        <div class="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 mt-2">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <h3 class="text-lg font-bold">Laporan Kehadiran Bulanan</h3>
                 <div class="flex flex-wrap items-center gap-3">
@@ -326,6 +419,51 @@ defineOptions({
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Settings Map Khusus Leader -->
+        <div v-if="isLeader" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 mt-6">
+            <h3 class="text-lg font-bold mb-4">Pengaturan Batas Lokasi Kehadiran (Posko)</h3>
+            <p class="text-sm text-slate-500 mb-6">Atur koordinat pusat posko dan batas radius (dalam meter) toleransi absen. Anda bisa menggeser pin merah pada peta atau mengisi form di bawah.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Form Settings -->
+                <form @submit.prevent="saveSettings" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Latitude</label>
+                        <input v-model="settingsForm.lat" type="number" step="any" required class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]">
+                        <InputError :message="settingsForm.errors.lat" class="mt-1" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Longitude</label>
+                        <input v-model="settingsForm.lng" type="number" step="any" required class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]">
+                        <InputError :message="settingsForm.errors.lng" class="mt-1" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Radius (meter)</label>
+                        <input v-model="settingsForm.radius" type="number" min="10" max="5000" required class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]">
+                        <InputError :message="settingsForm.errors.radius" class="mt-1" />
+                    </div>
+                    <Button 
+                        type="submit" 
+                        class="w-full h-10 mt-2 bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white font-bold" 
+                        :disabled="settingsForm.processing"
+                    >
+                        <template v-if="settingsForm.processing">
+                            <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+                            Menyimpan...
+                        </template>
+                        <template v-else>
+                            Simpan Pengaturan
+                        </template>
+                    </Button>
+                </form>
+
+                <!-- Map View -->
+                <div class="md:col-span-2">
+                    <div ref="mapContainer" class="w-full h-[300px] rounded-lg border border-slate-300 dark:border-slate-700 z-10 relative isolate"></div>
+                </div>
             </div>
         </div>
 

@@ -189,6 +189,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Absensi
         Route::get('absensi', [AttendanceController::class, 'index'])->name('attendance.index');
         Route::post('absensi', [AttendanceController::class, 'store'])->name('attendance.store');
+        Route::post('absensi/settings', [AttendanceController::class, 'updateSettings'])->name('attendance.settings.update');
 
         // E-Bendahara (Kas & Keuangan)
         Route::get('finance', [FinanceController::class, 'index'])->name('finance.index');

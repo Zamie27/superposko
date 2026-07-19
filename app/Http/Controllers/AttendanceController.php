@@ -35,18 +35,38 @@ class AttendanceController extends Controller
         // Get all attendances for the host (for recap view)
         $isLeader = in_array($user->role, ['ketua', 'wakil', 'sekretaris']);
         
-        $recap = [];
-        $members = [];
-        
-        if ($isLeader) {
-            $members = User::where('host_id', $hostId)->orWhere('id', $hostId)->get();
-            $recap = Attendance::with('user')
-                ->where('host_id', $hostId)
-                ->whereYear('date', $selectedYear)
-                ->whereMonth('date', $selectedMonth)
-                ->orderBy('date', 'asc')
-                ->get();
-        }
+        $members = User::where('host_id', $hostId)->orWhere('id', $hostId)->get();
+        $recapQuery = Attendance::with('user')
+            ->where('host_id', $hostId)
+            ->whereYear('date', $selectedYear)
+            ->whereMonth('date', $selectedMonth)
+            ->orderBy('date', 'asc')
+            ->get();
+
+        // Get host settings
+        $hostUser = User::find($hostId);
+        $hostLat = $hostUser?->attendance_lat;
+        $hostLng = $hostUser?->attendance_lng;
+        $hostRadius = $hostUser?->attendance_radius ?? 100; // default 100m
+
+        $recap = $recapQuery->map(function ($attendance) use ($hostLat, $hostLng, $hostRadius) {
+            $attendance->is_outside_radius = false;
+            
+            if ($hostLat && $hostLng && $attendance->latitude && $attendance->longitude) {
+                // Haversine formula
+                $earthRadius = 6371000; // in meters
+                $dLat = deg2rad($attendance->latitude - $hostLat);
+                $dLon = deg2rad($attendance->longitude - $hostLng);
+                $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($hostLat)) * cos(deg2rad($attendance->latitude)) * sin($dLon / 2) * sin($dLon / 2);
+                $c = 2 * asin(sqrt($a));
+                $distance = $earthRadius * $c;
+
+                if ($distance > $hostRadius) {
+                    $attendance->is_outside_radius = true;
+                }
+            }
+            return $attendance;
+        });
 
         return Inertia::render('attendance/Index', [
             'todayAttendance' => $todayAttendance,
@@ -54,6 +74,12 @@ class AttendanceController extends Controller
             'members' => $members,
             'daysInMonth' => $daysInMonth,
             'isLeader' => $isLeader,
+            'isLeader' => $isLeader,
+            'settings' => [
+                'lat' => $hostLat,
+                'lng' => $hostLng,
+                'radius' => $hostRadius,
+            ],
             'filters' => [
                 'month' => (int) $selectedMonth,
                 'year' => (int) $selectedYear,
@@ -134,5 +160,32 @@ class AttendanceController extends Controller
         ]);
 
         return back()->with('success', 'Absensi berhasil dicatat.');
+    }
+
+    public function updateSettings(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['ketua', 'wakil', 'sekretaris'])) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'lat' => ['nullable', 'numeric'],
+            'lng' => ['nullable', 'numeric'],
+            'radius' => ['nullable', 'integer', 'min:10', 'max:5000'],
+        ]);
+
+        $hostId = $user->host_id ?? $user->id;
+        $host = User::find($hostId);
+        
+        if ($host) {
+            $host->update([
+                'attendance_lat' => $request->lat,
+                'attendance_lng' => $request->lng,
+                'attendance_radius' => $request->radius,
+            ]);
+        }
+
+        return back()->with('success', 'Pengaturan lokasi absensi berhasil diperbarui.');
     }
 }
