@@ -32,7 +32,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'google_id', 'university', 'npm', 'group_number', 'attendance_lat', 'attendance_lng', 'attendance_radius', 'kkn_address', 'role', 'custom_role_id', 'host_id', 'subscription_expires_at', 'trial_ends_at', 'banned_at', 'verification_otp', 'verification_otp_expires_at', 'immich_api_key', 'immich_email', 'immich_password'])]
+#[Fillable(['name', 'email', 'password', 'google_id', 'university', 'npm', 'group_number', 'attendance_lat', 'attendance_lng', 'attendance_radius', 'cash_dues_start_date', 'kkn_address', 'role', 'custom_role_id', 'host_id', 'subscription_expires_at', 'trial_ends_at', 'banned_at', 'verification_otp', 'verification_otp_expires_at', 'immich_api_key', 'immich_email', 'immich_password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -57,6 +57,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'attendance_lat' => 'float',
             'attendance_lng' => 'float',
             'attendance_radius' => 'integer',
+            'cash_dues_start_date' => 'date',
         ];
     }
 

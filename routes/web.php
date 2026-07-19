@@ -203,6 +203,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Pencatatan Kas Mingguan
         Route::get('catatan-kas', [CashDueController::class, 'index'])->name('cash-dues.index');
         Route::post('catatan-kas', [CashDueController::class, 'store'])->name('cash-dues.store');
+        Route::post('catatan-kas/settings', [CashDueController::class, 'updateSettings'])->name('cash-dues.settings.update');
         Route::delete('catatan-kas/{cashDue}', [CashDueController::class, 'destroy'])->name('cash-dues.destroy');
 
         // Logbook & Proker

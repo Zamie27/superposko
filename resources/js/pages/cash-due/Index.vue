@@ -17,6 +17,7 @@ const props = defineProps<{
     members: any[];
     cashDues: any[];
     canEdit: boolean;
+    startDate: string | null;
 }>();
 
 const totalWeeks = 10;
@@ -33,6 +34,43 @@ const form = useForm({
     payment_method: 'Cash',
 });
 
+const settingsForm = useForm({
+    cash_dues_start_date: props.startDate || '',
+});
+
+const saveSettings = () => {
+    settingsForm.post('/catatan-kas/settings', {
+        preserveScroll: true,
+    });
+};
+
+const formatDate = (date: Date) => {
+    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+};
+
+const getWeekDateRange = (weekNumber: number) => {
+    if (!props.startDate) return '';
+    
+    const start = new Date(props.startDate);
+    const dayOfWeek = start.getDay(); 
+    const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+    
+    const week1End = new Date(start);
+    week1End.setDate(start.getDate() + daysUntilSunday);
+    
+    if (weekNumber === 1) {
+        return `${formatDate(start)} - ${formatDate(week1End)}`;
+    }
+    
+    const weekStart = new Date(week1End);
+    weekStart.setDate(week1End.getDate() + 1 + (weekNumber - 2) * 7);
+    
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    
+    return `${formatDate(weekStart)} - ${formatDate(weekEnd)}`;
+};
+
 const openPaymentModal = (member: any, week: number) => {
     if (!props.canEdit) return;
     
@@ -48,6 +86,17 @@ const openPaymentModal = (member: any, week: number) => {
     form.payment_method = 'Cash';
     
     isModalOpen.value = true;
+};
+
+const formattedAmount = computed(() => {
+    if (!form.amount) return '';
+    return Number(form.amount).toLocaleString('id-ID');
+});
+
+const onAmountInput = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const cleanValue = target.value.replace(/\D/g, '');
+    form.amount = cleanValue ? parseInt(cleanValue, 10).toString() : '';
 };
 
 const submitPayment = () => {
@@ -99,6 +148,22 @@ defineOptions({
             </div>
         </div>
 
+        <div v-if="canEdit" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-end">
+            <div class="flex-1 w-full sm:max-w-xs">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Mulai Kas (Minggu 1)</label>
+                <input v-model="settingsForm.cash_dues_start_date" type="date" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]">
+            </div>
+            <Button @click="saveSettings" :disabled="settingsForm.processing" class="bg-slate-800 hover:bg-slate-700 text-white">
+                <template v-if="settingsForm.processing">
+                    <Loader2 class="w-4 h-4 mr-2 animate-spin" />
+                    Menyimpan...
+                </template>
+                <template v-else>
+                    Simpan Pengaturan
+                </template>
+            </Button>
+        </div>
+
         <div class="w-full min-w-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 mt-2">
             <div class="overflow-x-auto w-full pb-4">
                 <table class="w-full text-sm text-left border-collapse min-w-max">
@@ -109,9 +174,12 @@ defineOptions({
                             <th 
                                 v-for="week in weeks" 
                                 :key="week"
-                                class="border border-slate-300 dark:border-slate-700 bg-sky-500 text-white font-bold py-2 px-2 text-center text-xs"
+                                class="border border-slate-300 dark:border-slate-700 bg-sky-500 text-white font-bold py-2 px-2 text-center text-xs whitespace-nowrap"
                             >
-                                Minggu {{ week }}
+                                <div>Minggu {{ week }}</div>
+                                <div v-if="getWeekDateRange(week)" class="text-[9px] font-normal opacity-80 mt-0.5">
+                                    {{ getWeekDateRange(week) }}
+                                </div>
                             </th>
                         </tr>
                     </thead>
@@ -171,7 +239,13 @@ defineOptions({
                 <form @submit.prevent="submitPayment" class="space-y-4 py-2">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nominal Iuran (Rp)</label>
-                        <input v-model="form.amount" type="number" required min="1" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]">
+                        <input 
+                            :value="formattedAmount" 
+                            @input="onAmountInput" 
+                            type="text" 
+                            required 
+                            class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-900 focus:border-[#38BDF8] focus:ring-[#38BDF8]"
+                        >
                         <InputError :message="form.errors.amount" class="mt-1" />
                     </div>
 

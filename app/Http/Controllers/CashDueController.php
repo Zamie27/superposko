@@ -17,6 +17,10 @@ class CashDueController extends Controller
         $user = auth()->user();
         $hostId = $user->host_id ?? $user->id;
 
+        // Get host settings
+        $host = User::find($hostId);
+        $startDate = $host ? $host->cash_dues_start_date : null;
+
         // Is the user allowed to edit?
         $canEdit = in_array($user->role, ['ketua', 'wakil', 'sekretaris', 'bendahara']);
 
@@ -32,7 +36,30 @@ class CashDueController extends Controller
             'members' => $members,
             'cashDues' => $cashDues,
             'canEdit' => $canEdit,
+            'startDate' => $startDate,
         ]);
+    }
+
+    public function updateSettings(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
+    {
+        $user = auth()->user();
+        if (!in_array($user->role, ['ketua', 'wakil', 'sekretaris', 'bendahara'])) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'cash_dues_start_date' => ['nullable', 'date'],
+        ]);
+
+        $hostId = $user->host_id ?? $user->id;
+        $host = User::find($hostId);
+        if ($host) {
+            $host->update([
+                'cash_dues_start_date' => $request->cash_dues_start_date,
+            ]);
+        }
+
+        return back()->with('success', 'Pengaturan tanggal mulai kas berhasil disimpan.');
     }
 
     public function store(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
@@ -48,6 +75,9 @@ class CashDueController extends Controller
             'amount' => ['required', 'numeric', 'min:1'],
             'payment_method' => ['required', 'string', 'in:Cash,SeaBank,DANA'],
         ]);
+
+        // Ensure amount is float/int regardless of frontend string formats
+        $amount = (float) $request->amount;
 
         $hostId = $user->host_id ?? $user->id;
         $member = User::find($request->user_id);
@@ -69,7 +99,7 @@ class CashDueController extends Controller
             $finance = Finance::create([
                 'host_id' => $hostId,
                 'type' => 'income',
-                'amount' => $request->amount,
+                'amount' => $amount,
                 'title' => 'Uang Kas Minggu ' . $request->week_number . ' - ' . $member->name,
                 'category' => 'Uang Kas',
                 'payment_method' => $request->payment_method,
@@ -82,7 +112,7 @@ class CashDueController extends Controller
                 'user_id' => $request->user_id,
                 'host_id' => $hostId,
                 'week_number' => $request->week_number,
-                'amount' => $request->amount,
+                'amount' => $amount,
                 'finance_id' => $finance->id,
                 'created_by' => $user->id,
             ]);
