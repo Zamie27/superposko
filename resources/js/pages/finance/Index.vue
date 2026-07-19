@@ -944,71 +944,8 @@ const triggerPrint = () => {
                         <p v-if="form.errors.title" class="text-xs text-red-500 mt-1">{{ form.errors.title }}</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <!-- Payment Method -->
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                                {{ form.type === 'transfer' ? 'Sumber Uang' : 'Penyimpanan / Rekening' }}
-                            </label>
-                            <select 
-                                v-model="form.payment_method"
-                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
-                                required
-                            >
-                                <option value="Cash" class="dark:bg-slate-900">Uang Tunai (Cash)</option>
-                                <option value="SeaBank" class="dark:bg-slate-900">SeaBank</option>
-                                <option value="DANA" class="dark:bg-slate-900">DANA</option>
-                            </select>
-                            <p v-if="form.errors.payment_method" class="text-xs text-red-500 mt-1">{{ form.errors.payment_method }}</p>
-                        </div>
-                        
-                        <!-- Destination Payment Method (For Transfer) -->
-                        <div v-if="form.type === 'transfer'">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tujuan Uang</label>
-                            <select 
-                                v-model="form.destination_payment_method"
-                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
-                                :required="form.type === 'transfer'"
-                            >
-                                <option value="" class="dark:bg-slate-900">-- Pilih Tujuan Uang --</option>
-                                <option value="Cash" class="dark:bg-slate-900">Uang Tunai (Cash)</option>
-                                <option value="SeaBank" class="dark:bg-slate-900">SeaBank</option>
-                                <option value="DANA" class="dark:bg-slate-900">DANA</option>
-                            </select>
-                            <p v-if="form.errors.destination_payment_method" class="text-xs text-red-500 mt-1">{{ form.errors.destination_payment_method }}</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <!-- Nominal -->
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Nominal (Rp)</label>
-                            <input 
-                                :value="formattedAmount"
-                                @input="onAmountInput"
-                                type="text" 
-                                placeholder="Contoh: 100.000"
-                                required
-                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white font-extrabold"
-                            />
-                            <p v-if="form.errors.amount" class="text-xs text-red-500 mt-1">{{ form.errors.amount }}</p>
-                        </div>
-
-                        <!-- Date -->
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tanggal</label>
-                            <input 
-                                v-model="form.date"
-                                type="date" 
-                                required
-                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
-                            />
-                            <p v-if="form.errors.date" class="text-xs text-red-500 mt-1">{{ form.errors.date }}</p>
-                        </div>
-                    </div>
-
                     <!-- === INCOME: Jenis Pemasukan Umum === -->
-                    <div v-if="form.type === 'income'">
+                    <div v-if="form.type === 'income'" class="mt-3">
                         <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Jenis Pemasukan</label>
                         <select 
                             v-model="selectedCategory"
@@ -1038,7 +975,7 @@ const triggerPrint = () => {
                     </div>
 
                     <!-- === EXPENSE: Umum / Proker Toggle === -->
-                    <div v-else-if="form.type === 'expense'" class="space-y-3">
+                    <div v-else-if="form.type === 'expense'" class="space-y-3 mt-3">
                         <!-- Kategori Transaksi (Umum vs Proker) -->
                         <div>
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Kategori Pengeluaran</label>
@@ -1123,7 +1060,21 @@ const triggerPrint = () => {
                     </div>
 
                     <!-- === ALLOCATION: Alokasi Dana Proker === -->
-                    <div v-else-if="form.type === 'allocation'" class="space-y-3">
+                    <div v-else-if="form.type === 'allocation'" class="space-y-3 mt-3">
+                        <!-- Arah Alokasi Dana -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Arah Alokasi Dana</label>
+                            <select 
+                                v-model="selectedProkerCategory"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                                required
+                            >
+                                <option value="Kas ke Proker" class="dark:bg-slate-900">Kas Posko → Program Kerja</option>
+                                <option value="Proker ke Kas" class="dark:bg-slate-900">Program Kerja → Kas Posko</option>
+                            </select>
+                            <p v-if="form.errors.category" class="text-xs text-red-500 mt-1">{{ form.errors.category }}</p>
+                        </div>
+
                         <!-- Pilih Program Kerja -->
                         <div>
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Program Kerja</label>
@@ -1144,35 +1095,86 @@ const triggerPrint = () => {
                             </select>
                             <p v-if="form.errors.program_kerja_id" class="text-xs text-red-500 mt-1">{{ form.errors.program_kerja_id }}</p>
                         </div>
+                    </div>
 
-                        <!-- Arah Alokasi Dana -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                        <!-- Payment Method -->
                         <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Arah Alokasi Dana</label>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+                                {{ form.type === 'transfer' ? 'Sumber Uang' : 
+                                   (form.type === 'allocation' ? (selectedProkerCategory === 'Kas ke Proker' ? 'Sumber Uang' : 'Tujuan Uang (Masuk Ke)') : 
+                                   'Penyimpanan / Rekening') }}
+                            </label>
                             <select 
-                                v-model="selectedProkerCategory"
+                                v-model="form.payment_method"
                                 class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
                                 required
                             >
-                                <option value="Kas ke Proker" class="dark:bg-slate-900">Kas Posko → Program Kerja</option>
-                                <option value="Proker ke Kas" class="dark:bg-slate-900">Program Kerja → Kas Posko</option>
+                                <option value="Cash" class="dark:bg-slate-900">Uang Tunai (Cash)</option>
+                                <option value="SeaBank" class="dark:bg-slate-900">SeaBank</option>
+                                <option value="DANA" class="dark:bg-slate-900">DANA</option>
                             </select>
-                            <p v-if="form.errors.category" class="text-xs text-red-500 mt-1">{{ form.errors.category }}</p>
+                            <p v-if="form.errors.payment_method" class="text-xs text-red-500 mt-1">{{ form.errors.payment_method }}</p>
+                        </div>
+                        
+                        <!-- Destination Payment Method (For Transfer) -->
+                        <div v-if="form.type === 'transfer'">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tujuan Uang</label>
+                            <select 
+                                v-model="form.destination_payment_method"
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                                :required="form.type === 'transfer'"
+                            >
+                                <option value="" class="dark:bg-slate-900">-- Pilih Tujuan Uang --</option>
+                                <option value="Cash" class="dark:bg-slate-900">Uang Tunai (Cash)</option>
+                                <option value="SeaBank" class="dark:bg-slate-900">SeaBank</option>
+                                <option value="DANA" class="dark:bg-slate-900">DANA</option>
+                            </select>
+                            <p v-if="form.errors.destination_payment_method" class="text-xs text-red-500 mt-1">{{ form.errors.destination_payment_method }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Balance info per rekening (shown for Kas ke Proker) -->
+                    <div v-if="form.type === 'allocation' && selectedProkerCategory === 'Kas ke Proker'" class="p-3 bg-indigo-50/50 dark:bg-indigo-950/10 rounded-xl border border-indigo-100 dark:border-indigo-950/30 mt-3">
+                        <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Tersedia per Rekening</h4>
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <div v-for="(bal, method) in metrics.balances_by_method" :key="method" class="flex flex-col">
+                                <span class="text-[10px] text-slate-400 font-semibold">{{ method }}</span>
+                                <span 
+                                    class="font-bold"
+                                    :class="[bal > 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500']"
+                                >
+                                    {{ formatRupiah(bal) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-3">
+                        <!-- Nominal -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Nominal (Rp)</label>
+                            <input 
+                                :value="formattedAmount"
+                                @input="onAmountInput"
+                                type="text" 
+                                placeholder="Contoh: 100.000"
+                                required
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white font-extrabold"
+                            />
+                            <p v-if="form.errors.amount" class="text-xs text-red-500 mt-1">{{ form.errors.amount }}</p>
                         </div>
 
-                        <!-- Balance info per rekening (shown for Kas ke Proker) -->
-                        <div v-if="selectedProkerCategory === 'Kas ke Proker'" class="p-3 bg-indigo-50/50 dark:bg-indigo-950/10 rounded-xl border border-indigo-100 dark:border-indigo-950/30">
-                            <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Tersedia per Rekening</h4>
-                            <div class="grid grid-cols-3 gap-2 text-xs">
-                                <div v-for="(bal, method) in metrics.balances_by_method" :key="method" class="flex flex-col">
-                                    <span class="text-[10px] text-slate-400 font-semibold">{{ method }}</span>
-                                    <span 
-                                        class="font-bold"
-                                        :class="[bal > 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500']"
-                                    >
-                                        {{ formatRupiah(bal) }}
-                                    </span>
-                                </div>
-                            </div>
+                        <!-- Date -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tanggal</label>
+                            <input 
+                                v-model="form.date"
+                                type="date" 
+                                required
+                                class="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
+                            />
+                            <p v-if="form.errors.date" class="text-xs text-red-500 mt-1">{{ form.errors.date }}</p>
                         </div>
                     </div>
 
