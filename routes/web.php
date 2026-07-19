@@ -13,20 +13,23 @@ use App\Http\Controllers\Admin\AdminSubscriptionController;
 use App\Http\Controllers\Admin\AdminSubscriptionRequestController;
 use App\Http\Controllers\Admin\AdminTrialController;
 use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\Auth\EmailVerificationOtpController;
+use App\Http\Controllers\Auth\GoogleLoginController;
 use App\Http\Controllers\BugReportController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CustomRoleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentationController;
+use App\Http\Controllers\DplController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\LogisticController;
 use App\Http\Controllers\MemberActivityLogController;
 use App\Http\Controllers\MemberController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Payment\SubscriptionRequestController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PersonalBelongingController;
 use App\Http\Controllers\Preorder\UserPreorderController;
 use App\Http\Controllers\ProkerDocumentController;
@@ -34,9 +37,11 @@ use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StructureController;
+use App\Http\Controllers\TripayController;
 use App\Http\Controllers\VotingController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -86,38 +91,38 @@ Route::get('panduan', [DocumentationController::class, 'showPublicDoc'])->name('
 
 Route::get('about', function () {
     return Inertia::render('static/About', [
-        'footerAbout' => \App\Models\Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
-        'footerEmail' => \App\Models\Setting::get('footer_email', 'kuukok.id@gmail.com'),
-        'footerPhone' => \App\Models\Setting::get('footer_phone', '+62 851-7173-9232'),
-        'footerCopyright' => \App\Models\Setting::get('footer_copyright', 'Kuukok.id'),
+        'footerAbout' => Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
+        'footerEmail' => Setting::get('footer_email', 'kuukok.id@gmail.com'),
+        'footerPhone' => Setting::get('footer_phone', '+62 851-7173-9232'),
+        'footerCopyright' => Setting::get('footer_copyright', 'Kuukok.id'),
     ]);
 })->name('static.about');
 
 Route::get('privacy', function () {
     return Inertia::render('static/Privacy', [
-        'footerAbout' => \App\Models\Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
-        'footerEmail' => \App\Models\Setting::get('footer_email', 'kuukok.id@gmail.com'),
-        'footerPhone' => \App\Models\Setting::get('footer_phone', '+62 851-7173-9232'),
-        'footerCopyright' => \App\Models\Setting::get('footer_copyright', 'Kuukok.id'),
+        'footerAbout' => Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
+        'footerEmail' => Setting::get('footer_email', 'kuukok.id@gmail.com'),
+        'footerPhone' => Setting::get('footer_phone', '+62 851-7173-9232'),
+        'footerCopyright' => Setting::get('footer_copyright', 'Kuukok.id'),
     ]);
 })->name('static.privacy');
 
 Route::get('terms', function () {
     return Inertia::render('static/Terms', [
-        'footerAbout' => \App\Models\Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
-        'footerEmail' => \App\Models\Setting::get('footer_email', 'kuukok.id@gmail.com'),
-        'footerPhone' => \App\Models\Setting::get('footer_phone', '+62 851-7173-9232'),
-        'footerCopyright' => \App\Models\Setting::get('footer_copyright', 'Kuukok.id'),
+        'footerAbout' => Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
+        'footerEmail' => Setting::get('footer_email', 'kuukok.id@gmail.com'),
+        'footerPhone' => Setting::get('footer_phone', '+62 851-7173-9232'),
+        'footerCopyright' => Setting::get('footer_copyright', 'Kuukok.id'),
     ]);
 })->name('static.terms');
 
 Route::get('contact', function () {
     return Inertia::render('static/Contact', [
-        'footerAbout' => \App\Models\Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
-        'footerEmail' => \App\Models\Setting::get('footer_email', 'kuukok.id@gmail.com'),
-        'footerPhone' => \App\Models\Setting::get('footer_phone', '+62 851-7173-9232'),
-        'footerCopyright' => \App\Models\Setting::get('footer_copyright', 'Kuukok.id'),
-        'socialInstagram' => \App\Models\Setting::get('social_instagram', 'superposko'),
+        'footerAbout' => Setting::get('footer_about', 'SuperPosko adalah platform kolaborasi kelompok KKN (Kuliah Kerja Nyata) berbasis web untuk menunjang keterbukaan informasi, kebersamaan, dan kerapian administrasi posko.'),
+        'footerEmail' => Setting::get('footer_email', 'kuukok.id@gmail.com'),
+        'footerPhone' => Setting::get('footer_phone', '+62 851-7173-9232'),
+        'footerCopyright' => Setting::get('footer_copyright', 'Kuukok.id'),
+        'socialInstagram' => Setting::get('social_instagram', 'superposko'),
     ]);
 })->name('static.contact');
 
@@ -126,22 +131,23 @@ Route::post('laporan/buat', [ReportController::class, 'store'])->name('reports.s
 Route::post('bug-report', [BugReportController::class, 'store'])->name('bug-report.store');
 
 // Tripay Payment Webhook Notification
-Route::post('payment/tripay/callback', [\App\Http\Controllers\TripayController::class, 'handleCallback'])->name('payment.tripay.callback');
+Route::post('payment/tripay/callback', [TripayController::class, 'handleCallback'])->name('payment.tripay.callback');
 
 Route::middleware(['auth'])->group(function () {
-    Route::post('email/verify-otp', [\App\Http\Controllers\Auth\EmailVerificationOtpController::class, 'verify'])->name('verification.verify_otp');
-    Route::post('email/resend-otp', [\App\Http\Controllers\Auth\EmailVerificationOtpController::class, 'resend'])->name('verification.resend_otp');
-    Route::post('logout-to-register', function (\Illuminate\Http\Request $request) {
-        \Illuminate\Support\Facades\Auth::logout();
+    Route::post('email/verify-otp', [EmailVerificationOtpController::class, 'verify'])->name('verification.verify_otp');
+    Route::post('email/resend-otp', [EmailVerificationOtpController::class, 'resend'])->name('verification.resend_otp');
+    Route::post('logout-to-register', function (Request $request) {
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('register');
     })->name('logout_to_register');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('dpl/switch-posko', [\App\Http\Controllers\DplController::class, 'switchPosko'])->name('dpl.switch-posko');
-    Route::post('dpl/request-monitoring', [\App\Http\Controllers\DplController::class, 'requestMonitoring'])->name('dpl.request-monitoring');
+    Route::post('dpl/switch-posko', [DplController::class, 'switchPosko'])->name('dpl.switch-posko');
+    Route::post('dpl/request-monitoring', [DplController::class, 'requestMonitoring'])->name('dpl.request-monitoring');
 
     // Redirection/Rendering helper for main /dashboard entry path
     Route::get('dashboard', function (Request $request) {
@@ -153,8 +159,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('host.dashboard');
     })->name('dashboard');
 
-    Route::get('payment/tripay/return', [\App\Http\Controllers\TripayController::class, 'handleReturn'])->name('payment.tripay.return');
-    Route::get('payment/tripay/status', [\App\Http\Controllers\TripayController::class, 'checkStatus'])->name('payment.tripay.status');
+    Route::get('payment/tripay/return', [TripayController::class, 'handleReturn'])->name('payment.tripay.return');
+    Route::get('payment/tripay/status', [TripayController::class, 'checkStatus'])->name('payment.tripay.status');
 
     // User Group (restricted to role 'user' only via user.only middleware)
     Route::middleware(['user.only'])->group(function () {
@@ -165,10 +171,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Beli Langganan (Subscription Checkout)
         Route::get('payment', [PaymentController::class, 'showCheckoutPage'])->name('payment.index');
         Route::post('payment/qris', [SubscriptionRequestController::class, 'store'])->name('payment.qris.store');
-        
+
         // Tripay Payment Initation
-        Route::post('payment/tripay/create', [\App\Http\Controllers\TripayController::class, 'createPayment'])->name('payment.tripay.create');
-        Route::post('payment/tripay/cancel', [\App\Http\Controllers\TripayController::class, 'cancelCurrentPayment'])->name('payment.tripay.cancel');
+        Route::post('payment/tripay/create', [TripayController::class, 'createPayment'])->name('payment.tripay.create');
+        Route::post('payment/tripay/cancel', [TripayController::class, 'cancelCurrentPayment'])->name('payment.tripay.cancel');
     });
 
     // Host Group (under host.protect middleware to restrict user-role modifications)
@@ -187,6 +193,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // E-Bendahara (Kas & Keuangan)
         Route::get('finance', [FinanceController::class, 'index'])->name('finance.index');
         Route::post('finance', [FinanceController::class, 'store'])->name('finance.store');
+        Route::post('finance/tags', [FinanceController::class, 'storeTag'])->name('finance.tags.store');
+        Route::delete('finance/tags/{financeTag}', [FinanceController::class, 'destroyTag'])->name('finance.tags.destroy');
         Route::post('finance/{finance}', [FinanceController::class, 'update'])->name('finance.update');
         Route::delete('finance/{finance}', [FinanceController::class, 'destroy'])->name('finance.destroy');
 
@@ -235,10 +243,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('management/members/dpl-approve/{id}', [MemberController::class, 'approveDpl'])->name('management.members.dpl-approve');
         Route::post('management/members/dpl-reject/{id}', [MemberController::class, 'rejectDpl'])->name('management.members.dpl-reject');
 
-        Route::get('management/custom-roles', [App\Http\Controllers\CustomRoleController::class, 'index'])->name('management.custom-roles.index');
-        Route::post('management/custom-roles', [App\Http\Controllers\CustomRoleController::class, 'store'])->name('management.custom-roles.store');
-        Route::put('management/custom-roles/{customRole}', [App\Http\Controllers\CustomRoleController::class, 'update'])->name('management.custom-roles.update');
-        Route::delete('management/custom-roles/{customRole}', [App\Http\Controllers\CustomRoleController::class, 'destroy'])->name('management.custom-roles.destroy');
+        Route::get('management/custom-roles', [CustomRoleController::class, 'index'])->name('management.custom-roles.index');
+        Route::post('management/custom-roles', [CustomRoleController::class, 'store'])->name('management.custom-roles.store');
+        Route::put('management/custom-roles/{customRole}', [CustomRoleController::class, 'update'])->name('management.custom-roles.update');
+        Route::delete('management/custom-roles/{customRole}', [CustomRoleController::class, 'destroy'])->name('management.custom-roles.destroy');
 
         // Tracking Log Aktifitas Anggota
         Route::get('management/activity-logs', [MemberActivityLogController::class, 'index'])->name('management.activity-logs.index');

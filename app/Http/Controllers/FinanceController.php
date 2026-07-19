@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ActivityLogHelper;
 use App\Helpers\HostRoleHelper;
 use App\Models\Finance;
+use App\Models\FinanceTag;
 use App\Models\ProgramKerja;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,6 +59,11 @@ class FinanceController extends Controller
             ->orderBy('name', 'asc')
             ->get(['id', 'name', 'budget']);
 
+        // Fetch custom tags for this host
+        $customTags = FinanceTag::where('host_id', $hostId)
+            ->orderBy('name', 'asc')
+            ->get(['id', 'name', 'type']);
+
         // Calculate aggregates
         // 1. Total Pemasukan Umum (Cash In, no proker) + returns from proker
         $totalIncome = Finance::where('host_id', $hostId)
@@ -95,6 +101,7 @@ class FinanceController extends Controller
         return Inertia::render('finance/Index', [
             'finances' => $finances,
             'programKerjas' => $programKerjas,
+            'customTags' => $customTags,
             'metrics' => [
                 'total_income' => (float) $generalIncome,
                 'total_expense' => (float) $totalExpense,
@@ -148,10 +155,15 @@ class FinanceController extends Controller
             if ($validated['category'] === 'Kas ke Proker') {
                 $currentGeneralBalance = $this->getGeneralKasBalance($hostId);
                 if ($currentGeneralBalance <= 0) {
-                    return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan alokasi dana ke Program Kerja saat ini (Saldo saat ini: Rp ' . number_format($currentGeneralBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan alokasi dana ke Program Kerja saat ini (Saldo saat ini: Rp '.number_format($currentGeneralBalance, 0, ',', '.').').']);
                 }
                 if ($currentGeneralBalance < $validated['amount']) {
-                    return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk memindahkan dana ke Program Kerja ini (Saldo saat ini: Rp ' . number_format($currentGeneralBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk memindahkan dana ke Program Kerja ini (Saldo saat ini: Rp '.number_format($currentGeneralBalance, 0, ',', '.').').']);
+                }
+                // Also validate per-method balance
+                $currentMethodBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
+                if ($currentMethodBalance < $validated['amount']) {
+                    return back()->withErrors(['amount' => 'Saldo rekening '.$validated['payment_method'].' tidak mencukupi untuk alokasi ini (Saldo saat ini: Rp '.number_format($currentMethodBalance, 0, ',', '.').').']);
                 }
             } elseif ($validated['category'] === 'Proker ke Kas') {
                 $currentProkerBalance = $this->getProkerBalance($validated['program_kerja_id']);
@@ -159,7 +171,7 @@ class FinanceController extends Controller
                     return back()->withErrors(['amount' => 'Saldo dana Program Kerja kosong atau minus. Tidak ada dana proker yang dapat dikembalikan ke kas posko.']);
                 }
                 if ($currentProkerBalance < $validated['amount']) {
-                    return back()->withErrors(['amount' => 'Dana yang ingin dipindahkan melebihi sisa saldo dana Program Kerja (Saldo proker saat ini: Rp ' . number_format($currentProkerBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Dana yang ingin dipindahkan melebihi sisa saldo dana Program Kerja (Saldo proker saat ini: Rp '.number_format($currentProkerBalance, 0, ',', '.').').']);
                 }
             } else {
                 return back()->withErrors(['category' => 'Arah alokasi dana tidak valid.']);
@@ -172,16 +184,16 @@ class FinanceController extends Controller
                     return back()->withErrors(['amount' => 'Saldo dana Program Kerja kosong atau minus. Silakan alokasikan dana dari kas posko terlebih dahulu.']);
                 }
                 if ($currentProkerBalance < $validated['amount']) {
-                    return back()->withErrors(['amount' => 'Saldo dana Program Kerja tidak mencukupi untuk pengeluaran belanja ini (Saldo proker saat ini: Rp ' . number_format($currentProkerBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo dana Program Kerja tidak mencukupi untuk pengeluaran belanja ini (Saldo proker saat ini: Rp '.number_format($currentProkerBalance, 0, ',', '.').').']);
                 }
             } else {
                 // General transaction (not linked to Proker)
                 $currentGeneralBalance = $this->getGeneralKasBalance($hostId);
                 if ($currentGeneralBalance <= 0) {
-                    return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan pengeluaran kas saat ini (Saldo saat ini: Rp ' . number_format($currentGeneralBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan pengeluaran kas saat ini (Saldo saat ini: Rp '.number_format($currentGeneralBalance, 0, ',', '.').').']);
                 }
                 if ($currentGeneralBalance < $validated['amount']) {
-                    return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk transaksi ini (Saldo saat ini: Rp ' . number_format($currentGeneralBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk transaksi ini (Saldo saat ini: Rp '.number_format($currentGeneralBalance, 0, ',', '.').').']);
                 }
             }
         } elseif ($validated['type'] === 'transfer') {
@@ -191,13 +203,13 @@ class FinanceController extends Controller
             if ($validated['payment_method'] === $validated['destination_payment_method']) {
                 return back()->withErrors(['destination_payment_method' => 'Tujuan Uang tidak boleh sama dengan Sumber Uang.']);
             }
-            
+
             $currentMethodBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
             if ($currentMethodBalance <= 0) {
-                return back()->withErrors(['amount' => 'Saldo sumber (' . $validated['payment_method'] . ') kosong atau minus. (Saldo saat ini: Rp ' . number_format($currentMethodBalance, 0, ',', '.') . ').']);
+                return back()->withErrors(['amount' => 'Saldo sumber ('.$validated['payment_method'].') kosong atau minus. (Saldo saat ini: Rp '.number_format($currentMethodBalance, 0, ',', '.').').']);
             }
             if ($currentMethodBalance < $validated['amount']) {
-                return back()->withErrors(['amount' => 'Saldo sumber tidak mencukupi untuk transfer ini (Saldo saat ini: Rp ' . number_format($currentMethodBalance, 0, ',', '.') . ').']);
+                return back()->withErrors(['amount' => 'Saldo sumber tidak mencukupi untuk transfer ini (Saldo saat ini: Rp '.number_format($currentMethodBalance, 0, ',', '.').').']);
             }
         } else {
             // normal income: cannot link to Proker
@@ -278,7 +290,7 @@ class FinanceController extends Controller
             if ($validated['category'] === 'Kas ke Proker') {
                 $currentGeneralBalance = $this->getGeneralKasBalance($hostId);
                 $adjustedGeneralBalance = $currentGeneralBalance;
-                
+
                 // Adjust for current transaction
                 if ($finance->type === 'allocation' && $finance->category === 'Kas ke Proker') {
                     $adjustedGeneralBalance += $finance->amount;
@@ -289,17 +301,33 @@ class FinanceController extends Controller
                 } elseif ($finance->type === 'income' && $finance->program_kerja_id === null) {
                     $adjustedGeneralBalance -= $finance->amount;
                 }
-                
+
                 if ($adjustedGeneralBalance <= 0) {
-                    return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan alokasi dana ke Program Kerja saat ini (Saldo saat ini: Rp ' . number_format($adjustedGeneralBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan alokasi dana ke Program Kerja saat ini (Saldo saat ini: Rp '.number_format($adjustedGeneralBalance, 0, ',', '.').').']);
                 }
                 if ($adjustedGeneralBalance < $validated['amount']) {
-                    return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk memindahkan dana ke Program Kerja ini (Saldo saat ini: Rp ' . number_format($adjustedGeneralBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk memindahkan dana ke Program Kerja ini (Saldo saat ini: Rp '.number_format($adjustedGeneralBalance, 0, ',', '.').').']);
+                }
+                // Also validate per-method balance
+                $currentMethodBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
+                $adjustedMethodBalance = $currentMethodBalance;
+                // Adjust for current transaction's impact on this method
+                if ($finance->payment_method === $validated['payment_method']) {
+                    if ($finance->type === 'allocation' && $finance->category === 'Kas ke Proker') {
+                        $adjustedMethodBalance += $finance->amount;
+                    } elseif ($finance->type === 'income' && $finance->program_kerja_id === null) {
+                        $adjustedMethodBalance -= $finance->amount;
+                    } elseif ($finance->type === 'expense' && $finance->program_kerja_id === null) {
+                        $adjustedMethodBalance += $finance->amount;
+                    }
+                }
+                if ($adjustedMethodBalance < $validated['amount']) {
+                    return back()->withErrors(['amount' => 'Saldo rekening '.$validated['payment_method'].' tidak mencukupi untuk alokasi ini (Saldo saat ini: Rp '.number_format($adjustedMethodBalance, 0, ',', '.').').']);
                 }
             } elseif ($validated['category'] === 'Proker ke Kas') {
                 $currentProkerBalance = $this->getProkerBalance($validated['program_kerja_id']);
                 $adjustedProkerBalance = $currentProkerBalance;
-                
+
                 // Adjust for current transaction if it was linked to the SAME proker
                 if ($finance->program_kerja_id == $validated['program_kerja_id']) {
                     if ($finance->type === 'allocation' && $finance->category === 'Kas ke Proker') {
@@ -310,12 +338,12 @@ class FinanceController extends Controller
                         $adjustedProkerBalance += $finance->amount;
                     }
                 }
-                
+
                 if ($adjustedProkerBalance <= 0) {
                     return back()->withErrors(['amount' => 'Saldo dana Program Kerja kosong atau minus. Tidak ada dana proker yang dapat dikembalikan ke kas posko.']);
                 }
                 if ($adjustedProkerBalance < $validated['amount']) {
-                    return back()->withErrors(['amount' => 'Dana yang ingin dipindahkan melebihi sisa saldo dana Program Kerja (Saldo proker saat ini: Rp ' . number_format($adjustedProkerBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Dana yang ingin dipindahkan melebihi sisa saldo dana Program Kerja (Saldo proker saat ini: Rp '.number_format($adjustedProkerBalance, 0, ',', '.').').']);
                 }
             } else {
                 return back()->withErrors(['category' => 'Arah alokasi dana tidak valid.']);
@@ -325,7 +353,7 @@ class FinanceController extends Controller
                 // Belanja Proker. Check Proker available balance.
                 $currentProkerBalance = $this->getProkerBalance($validated['program_kerja_id']);
                 $adjustedProkerBalance = $currentProkerBalance;
-                
+
                 if ($finance->program_kerja_id == $validated['program_kerja_id']) {
                     if ($finance->type === 'allocation' && $finance->category === 'Kas ke Proker') {
                         $adjustedProkerBalance -= $finance->amount;
@@ -335,18 +363,18 @@ class FinanceController extends Controller
                         $adjustedProkerBalance += $finance->amount;
                     }
                 }
-                
+
                 if ($adjustedProkerBalance <= 0) {
                     return back()->withErrors(['amount' => 'Saldo dana Program Kerja kosong atau minus. Silakan alokasikan dana dari kas posko terlebih dahulu.']);
                 }
                 if ($adjustedProkerBalance < $validated['amount']) {
-                    return back()->withErrors(['amount' => 'Saldo dana Program Kerja tidak mencukupi untuk pengeluaran belanja ini (Saldo proker saat ini: Rp ' . number_format($adjustedProkerBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo dana Program Kerja tidak mencukupi untuk pengeluaran belanja ini (Saldo proker saat ini: Rp '.number_format($adjustedProkerBalance, 0, ',', '.').').']);
                 }
             } else {
                 // General transaction (not linked to Proker)
                 $currentGeneralBalance = $this->getGeneralKasBalance($hostId);
                 $adjustedGeneralBalance = $currentGeneralBalance;
-                
+
                 if ($finance->type === 'allocation' && $finance->category === 'Kas ke Proker') {
                     $adjustedGeneralBalance += $finance->amount;
                 } elseif ($finance->type === 'allocation' && $finance->category === 'Proker ke Kas') {
@@ -356,12 +384,12 @@ class FinanceController extends Controller
                 } elseif ($finance->type === 'income' && $finance->program_kerja_id === null) {
                     $adjustedGeneralBalance -= $finance->amount;
                 }
-                
+
                 if ($adjustedGeneralBalance <= 0) {
-                    return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan pengeluaran kas saat ini (Saldo saat ini: Rp ' . number_format($adjustedGeneralBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo kas umum kosong atau minus. Tidak dapat melakukan pengeluaran kas saat ini (Saldo saat ini: Rp '.number_format($adjustedGeneralBalance, 0, ',', '.').').']);
                 }
                 if ($adjustedGeneralBalance < $validated['amount']) {
-                    return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk transaksi ini (Saldo saat ini: Rp ' . number_format($adjustedGeneralBalance, 0, ',', '.') . ').']);
+                    return back()->withErrors(['amount' => 'Saldo kas umum tidak mencukupi untuk transaksi ini (Saldo saat ini: Rp '.number_format($adjustedGeneralBalance, 0, ',', '.').').']);
                 }
             }
         } elseif ($validated['type'] === 'transfer') {
@@ -371,10 +399,10 @@ class FinanceController extends Controller
             if ($validated['payment_method'] === $validated['destination_payment_method']) {
                 return back()->withErrors(['destination_payment_method' => 'Tujuan Uang tidak boleh sama dengan Sumber Uang.']);
             }
-            
+
             $currentMethodBalance = $this->getMethodBalance($hostId, $validated['payment_method']);
             $adjustedMethodBalance = $currentMethodBalance;
-            
+
             if ($finance->type === 'transfer' && $finance->payment_method === $validated['payment_method']) {
                 $adjustedMethodBalance += $finance->amount;
             } elseif ($finance->type === 'transfer' && $finance->destination_payment_method === $validated['payment_method']) {
@@ -384,12 +412,12 @@ class FinanceController extends Controller
             } elseif ($finance->type === 'expense' && $finance->payment_method === $validated['payment_method']) {
                 $adjustedMethodBalance += $finance->amount;
             }
-            
+
             if ($adjustedMethodBalance <= 0) {
-                return back()->withErrors(['amount' => 'Saldo sumber (' . $validated['payment_method'] . ') kosong atau minus. (Saldo saat ini: Rp ' . number_format($adjustedMethodBalance, 0, ',', '.') . ').']);
+                return back()->withErrors(['amount' => 'Saldo sumber ('.$validated['payment_method'].') kosong atau minus. (Saldo saat ini: Rp '.number_format($adjustedMethodBalance, 0, ',', '.').').']);
             }
             if ($adjustedMethodBalance < $validated['amount']) {
-                return back()->withErrors(['amount' => 'Saldo sumber tidak mencukupi untuk transfer ini (Saldo saat ini: Rp ' . number_format($adjustedMethodBalance, 0, ',', '.') . ').']);
+                return back()->withErrors(['amount' => 'Saldo sumber tidak mencukupi untuk transfer ini (Saldo saat ini: Rp '.number_format($adjustedMethodBalance, 0, ',', '.').').']);
             }
         } else {
             // normal income: cannot link to Proker
@@ -456,6 +484,67 @@ class FinanceController extends Controller
         return back()->with('success', 'Transaksi berhasil dihapus.');
     }
 
+    /**
+     * Store a new custom finance tag.
+     */
+    public function storeTag(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        if (! HostRoleHelper::canWriteFinance($user)) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengelola keuangan.');
+        }
+
+        $hostId = $user->host_id ?? $user->id;
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'type' => ['required', 'string', Rule::in(['income', 'expense'])],
+        ]);
+
+        // Check for duplicate (including default tags)
+        $defaultIncomeTags = ['Iuran Anggota', 'Sponsor', 'Donasi / Sumbangan', 'Dana Kampus'];
+        $defaultExpenseTags = ['Konsumsi', 'Transportasi', 'Perlengkapan & Bahan', 'Humas & Publikasi'];
+        $defaults = $validated['type'] === 'income' ? $defaultIncomeTags : $defaultExpenseTags;
+
+        if (in_array($validated['name'], $defaults, true)) {
+            return back()->withErrors(['name' => 'Tag ini sudah tersedia sebagai tag bawaan.']);
+        }
+
+        $existing = FinanceTag::where('host_id', $hostId)
+            ->where('name', $validated['name'])
+            ->where('type', $validated['type'])
+            ->exists();
+
+        if ($existing) {
+            return back()->withErrors(['name' => 'Tag dengan nama ini sudah ada.']);
+        }
+
+        FinanceTag::create([
+            'host_id' => $hostId,
+            'name' => $validated['name'],
+            'type' => $validated['type'],
+        ]);
+
+        return back()->with('success', 'Tag berhasil ditambahkan.');
+    }
+
+    /**
+     * Delete a custom finance tag.
+     */
+    public function destroyTag(Request $request, FinanceTag $financeTag): RedirectResponse
+    {
+        $user = $request->user();
+        $hostId = $user->host_id ?? $user->id;
+
+        if ($financeTag->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus tag ini.');
+        }
+
+        $financeTag->delete();
+
+        return back()->with('success', 'Tag berhasil dihapus.');
+    }
+
     private function getGeneralKasBalance($hostId): float
     {
         // Income (umum only)
@@ -511,11 +600,11 @@ class FinanceController extends Controller
         $mIncome = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'income')->whereNull('program_kerja_id')->sum('amount');
         $mReturns = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'allocation')->where('category', 'Proker ke Kas')->sum('amount');
         $mTransferIn = Finance::where('host_id', $hostId)->where('destination_payment_method', $method)->where('type', 'transfer')->sum('amount');
-        
+
         $mExpense = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'expense')->whereNull('program_kerja_id')->sum('amount');
         $mAllocations = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'allocation')->where('category', 'Kas ke Proker')->sum('amount');
         $mTransferOut = Finance::where('host_id', $hostId)->where('payment_method', $method)->where('type', 'transfer')->sum('amount');
-        
+
         return (float) (($mIncome + $mReturns + $mTransferIn) - ($mExpense + $mAllocations + $mTransferOut));
     }
 }

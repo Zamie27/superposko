@@ -2,7 +2,7 @@
 import { Head, useForm, router } from '@inertiajs/vue3';
 import {
     Plus, Edit, Trash2, FileText, ArrowUpRight, ArrowDownLeft, Wallet, ArrowRightLeft,
-    X, ImageIcon, Search, Filter, Printer, ExternalLink, Info, RefreshCw
+    X, ImageIcon, Search, Filter, Printer, ExternalLink, Info, RefreshCw, Tag, CirclePlus, CircleMinus
 } from '@lucide/vue';
 import { ref, computed } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -37,9 +37,16 @@ interface FinanceRecord {
     creator: Creator;
 }
 
+interface CustomTag {
+    id: number;
+    name: string;
+    type: 'income' | 'expense';
+}
+
 const props = defineProps<{
     finances: FinanceRecord[];
     programKerjas: ProgramKerja[];
+    customTags: CustomTag[];
     metrics: {
         total_income: number;
         total_expense: number;
@@ -68,11 +75,13 @@ const isModalOpen = ref(false);
 const searchQuery = ref('');
 const filterType = ref<'all' | 'income' | 'expense' | 'allocation' | 'transfer'>('all');
 const filterProker = ref<string>('all');
+const filterCategory = ref<string>('all');
 const activeTab = ref<'ledger' | 'summary'>('ledger');
 const editingRecord = ref<FinanceRecord | null>(null);
 const previewImage = ref<string | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const filePreview = ref<string | null>(null);
+const isTagModalOpen = ref(false);
 
 // Category and Link Type States
 const linkType = ref<'umum' | 'proker'>('umum');
@@ -80,21 +89,79 @@ const selectedCategory = ref('');
 const customCategory = ref('');
 const selectedProkerCategory = ref('Kas ke Proker');
 
-const incomeCategories = [
-    { value: 'Iuran Anggota', label: 'Iuran Anggota' },
-    { value: 'Sponsor', label: 'Sponsor' },
-    { value: 'Donasi / Sumbangan', label: 'Donasi / Sumbangan' },
-    { value: 'Dana Kampus', label: 'Dana Kampus' },
-    { value: 'Lainnya', label: 'Lainnya' },
+const defaultIncomeCategories = [
+    { value: 'Iuran Anggota', label: 'Iuran Anggota', isDefault: true },
+    { value: 'Sponsor', label: 'Sponsor', isDefault: true },
+    { value: 'Donasi / Sumbangan', label: 'Donasi / Sumbangan', isDefault: true },
+    { value: 'Dana Kampus', label: 'Dana Kampus', isDefault: true },
 ];
 
-const expenseCategories = [
-    { value: 'Konsumsi', label: 'Konsumsi' },
-    { value: 'Transportasi', label: 'Transportasi' },
-    { value: 'Perlengkapan & Bahan', label: 'Perlengkapan & Bahan' },
-    { value: 'Humas & Publikasi', label: 'Humas & Publikasi' },
-    { value: 'Lainnya', label: 'Lainnya' },
+const defaultExpenseCategories = [
+    { value: 'Konsumsi', label: 'Konsumsi', isDefault: true },
+    { value: 'Transportasi', label: 'Transportasi', isDefault: true },
+    { value: 'Perlengkapan & Bahan', label: 'Perlengkapan & Bahan', isDefault: true },
+    { value: 'Humas & Publikasi', label: 'Humas & Publikasi', isDefault: true },
 ];
+
+const incomeCategories = computed(() => {
+    const custom = props.customTags
+        .filter(t => t.type === 'income')
+        .map(t => ({ value: t.name, label: t.name, isDefault: false, tagId: t.id }));
+    return [...defaultIncomeCategories, ...custom, { value: 'Lainnya', label: 'Lainnya', isDefault: true }];
+});
+
+const expenseCategories = computed(() => {
+    const custom = props.customTags
+        .filter(t => t.type === 'expense')
+        .map(t => ({ value: t.name, label: t.name, isDefault: false, tagId: t.id }));
+    return [...defaultExpenseCategories, ...custom, { value: 'Lainnya', label: 'Lainnya', isDefault: true }];
+});
+
+// All unique categories from transactions (for filter dropdown)
+const allCategories = computed(() => {
+    const cats = new Set<string>();
+    props.finances.forEach(f => {
+        if (f.category && f.category !== 'Kas ke Proker' && f.category !== 'Proker ke Kas' && f.category !== 'Belanja Proker') {
+            cats.add(f.category);
+        }
+    });
+    return Array.from(cats).sort();
+});
+
+// Tag management form
+const tagForm = useForm({
+    name: '',
+    type: 'expense' as 'income' | 'expense',
+});
+
+const submitTagForm = () => {
+    tagForm.post('/finance/tags', {
+        onSuccess: () => {
+            tagForm.reset();
+            isTagModalOpen.value = false;
+            toast.success('Tag berhasil ditambahkan');
+        },
+        onError: () => {
+            toast.error('Gagal menambahkan tag');
+        }
+    });
+};
+
+const deleteTag = async (tag: CustomTag) => {
+    const proceed = await confirm({
+        title: 'Hapus Tag',
+        message: `Apakah Anda yakin ingin menghapus tag "${tag.name}"? Transaksi yang menggunakan tag ini tidak akan terpengaruh.`,
+        confirmText: 'Ya, Hapus',
+        cancelText: 'Batal',
+        variant: 'destructive'
+    });
+    if (proceed) {
+        router.delete(`/finance/tags/${tag.id}`, {
+            onSuccess: () => toast.success('Tag berhasil dihapus'),
+            onError: () => toast.error('Gagal menghapus tag'),
+        });
+    }
+};
 
 // Form
 const form = useForm({
@@ -142,8 +209,35 @@ const filteredFinances = computed(() => {
         
         const matchesProker = filterProker.value === 'all' || record.program_kerja_id === Number(filterProker.value);
 
-        return matchesSearch && matchesType && matchesProker;
+        const matchesCategory = filterCategory.value === 'all' || record.category === filterCategory.value;
+
+        return matchesSearch && matchesType && matchesProker && matchesCategory;
     });
+});
+
+// Summary of filtered records
+const filteredSummary = computed(() => {
+    const records = filteredFinances.value;
+    const totalIncome = records
+        .filter(r => r.type === 'income' || (r.type === 'allocation' && r.category === 'Proker ke Kas'))
+        .reduce((sum, r) => sum + r.amount, 0);
+    const totalExpense = records
+        .filter(r => r.type === 'expense' || (r.type === 'allocation' && r.category === 'Kas ke Proker'))
+        .reduce((sum, r) => sum + r.amount, 0);
+    const totalTransfer = records
+        .filter(r => r.type === 'transfer')
+        .reduce((sum, r) => sum + r.amount, 0);
+    return {
+        count: records.length,
+        totalIncome,
+        totalExpense,
+        totalTransfer,
+        net: totalIncome - totalExpense,
+    };
+});
+
+const hasActiveFilter = computed(() => {
+    return filterType.value !== 'all' || filterProker.value !== 'all' || filterCategory.value !== 'all' || searchQuery.value !== '';
 });
 
 // Proker spending breakdowns
@@ -405,6 +499,17 @@ const triggerPrint = () => {
 
             <div class="flex items-center gap-2">
                 <Button 
+                    v-if="canWrite"
+                    variant="outline"
+                    size="sm" 
+                    class="h-9 rounded-xl border-slate-200 dark:border-slate-800"
+                    @click="isTagModalOpen = true"
+                >
+                    <Tag class="size-4 mr-1.5" />
+                    <span>Kelola Tag</span>
+                </Button>
+
+                <Button 
                     variant="outline" 
                     size="sm" 
                     class="h-9 rounded-xl border-slate-200 dark:border-slate-800"
@@ -429,7 +534,7 @@ const triggerPrint = () => {
         <!-- Tab 1: Ledger Keuangan -->
         <div v-if="activeTab === 'ledger'" class="flex flex-col gap-4">
             <!-- Search & Filters (no-print) -->
-            <div class="no-print grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-xs">
+            <div class="no-print grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-xs">
                 <!-- Search input -->
                 <div class="relative">
                     <Search class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
@@ -471,6 +576,25 @@ const triggerPrint = () => {
                             class="dark:bg-slate-900"
                         >
                             {{ proker.name }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Category/Tag filter -->
+                <div class="relative">
+                    <Tag class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                    <select 
+                        v-model="filterCategory"
+                        class="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-indigo-500 bg-transparent dark:text-white appearance-none"
+                    >
+                        <option value="all" class="dark:bg-slate-900">Semua Kategori / Tag</option>
+                        <option 
+                            v-for="cat in allCategories" 
+                            :key="cat" 
+                            :value="cat"
+                            class="dark:bg-slate-900"
+                        >
+                            {{ cat }}
                         </option>
                     </select>
                 </div>
@@ -619,6 +743,50 @@ const triggerPrint = () => {
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Summary Bar (no-print) -->
+            <div class="no-print grid grid-cols-2 md:grid-cols-5 gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-xs">
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Transaksi</span>
+                    <span class="text-sm font-extrabold text-slate-800 dark:text-white mt-0.5">{{ filteredSummary.count }} data</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Masuk</span>
+                    <span class="text-sm font-extrabold text-emerald-600 dark:text-emerald-450 mt-0.5">{{ formatRupiah(filteredSummary.totalIncome) }}</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Keluar</span>
+                    <span class="text-sm font-extrabold text-red-600 dark:text-red-400 mt-0.5">{{ formatRupiah(filteredSummary.totalExpense) }}</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Transfer</span>
+                    <span class="text-sm font-extrabold text-indigo-600 dark:text-indigo-400 mt-0.5">{{ formatRupiah(filteredSummary.totalTransfer) }}</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Selisih (Net)</span>
+                    <span 
+                        class="text-sm font-extrabold mt-0.5"
+                        :class="[filteredSummary.net >= 0 ? 'text-emerald-600 dark:text-emerald-450' : 'text-red-600 dark:text-red-400']"
+                    >
+                        {{ formatRupiah(filteredSummary.net) }}
+                    </span>
+                </div>
+                <div v-if="hasActiveFilter" class="col-span-2 md:col-span-5 text-[10px] text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-2 mt-1">
+                    <span class="font-semibold">Filter aktif:</span>
+                    <span v-if="filterType !== 'all'" class="ml-1 inline-flex items-center gap-0.5 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded-md font-bold">
+                        Tipe: {{ filterType === 'income' ? 'Pemasukan' : filterType === 'expense' ? 'Pengeluaran' : filterType === 'allocation' ? 'Alokasi' : 'Transfer' }}
+                    </span>
+                    <span v-if="filterCategory !== 'all'" class="ml-1 inline-flex items-center gap-0.5 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-md font-bold">
+                        Tag: {{ filterCategory }}
+                    </span>
+                    <span v-if="filterProker !== 'all'" class="ml-1 inline-flex items-center gap-0.5 bg-sky-50 dark:bg-sky-950/20 text-sky-600 dark:text-sky-400 px-1.5 py-0.5 rounded-md font-bold">
+                        Proker: {{ programKerjas.find(p => p.id === Number(filterProker))?.name || filterProker }}
+                    </span>
+                    <span v-if="searchQuery" class="ml-1 inline-flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded-md font-bold">
+                        Cari: "{{ searchQuery }}"
+                    </span>
                 </div>
             </div>
         </div>
@@ -990,6 +1158,22 @@ const triggerPrint = () => {
                             </select>
                             <p v-if="form.errors.category" class="text-xs text-red-500 mt-1">{{ form.errors.category }}</p>
                         </div>
+
+                        <!-- Balance info per rekening (shown for Kas ke Proker) -->
+                        <div v-if="selectedProkerCategory === 'Kas ke Proker'" class="p-3 bg-indigo-50/50 dark:bg-indigo-950/10 rounded-xl border border-indigo-100 dark:border-indigo-950/30">
+                            <h4 class="text-[10px] font-bold uppercase tracking-wider text-indigo-500 mb-2">Saldo Tersedia per Rekening</h4>
+                            <div class="grid grid-cols-3 gap-2 text-xs">
+                                <div v-for="(bal, method) in metrics.balances_by_method" :key="method" class="flex flex-col">
+                                    <span class="text-[10px] text-slate-400 font-semibold">{{ method }}</span>
+                                    <span 
+                                        class="font-bold"
+                                        :class="[bal > 0 ? 'text-slate-700 dark:text-slate-300' : 'text-red-500']"
+                                    >
+                                        {{ formatRupiah(bal) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Description -->
@@ -1059,6 +1243,130 @@ const triggerPrint = () => {
                         </Button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Tag Management Modal (no-print) -->
+        <div 
+            v-if="isTagModalOpen" 
+            class="no-print fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+        >
+            <div class="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+                <button 
+                    @click="isTagModalOpen = false" 
+                    class="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                >
+                    <X class="size-4" />
+                </button>
+
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">
+                    <Tag class="size-5 inline-block mr-1.5 -mt-0.5" />
+                    Kelola Tag Keuangan
+                </h3>
+
+                <p class="text-xs text-slate-400 mb-4">
+                    Tag custom yang ditambahkan hanya berlaku untuk kelompok Anda. Kelompok lain tidak akan melihat tag ini.
+                </p>
+
+                <!-- Add New Tag Form -->
+                <form @submit.prevent="submitTagForm" class="flex flex-col gap-3 mb-5 p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Tambah Tag Baru</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <input 
+                                v-model="tagForm.name"
+                                type="text" 
+                                placeholder="Nama tag..."
+                                required
+                                class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
+                            />
+                            <p v-if="tagForm.errors.name" class="text-[10px] text-red-500 mt-0.5">{{ tagForm.errors.name }}</p>
+                        </div>
+                        <div>
+                            <select 
+                                v-model="tagForm.type"
+                                class="w-full px-3 py-2 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl text-sm focus:outline-none focus:border-indigo-500 dark:text-white appearance-none"
+                            >
+                                <option value="expense" class="dark:bg-slate-900">Pengeluaran</option>
+                                <option value="income" class="dark:bg-slate-900">Pemasukan</option>
+                            </select>
+                        </div>
+                    </div>
+                    <Button 
+                        type="submit" 
+                        size="sm"
+                        class="self-end rounded-xl bg-indigo-600 text-white hover:bg-indigo-700"
+                        :disabled="tagForm.processing"
+                    >
+                        <Spinner v-if="tagForm.processing" class="size-3.5 mr-1.5" />
+                        <CirclePlus v-else class="size-3.5 mr-1.5" />
+                        <span>Tambah Tag</span>
+                    </Button>
+                </form>
+
+                <!-- Existing Custom Tags -->
+                <div v-if="customTags.length > 0" class="space-y-3">
+                    <!-- Income Tags -->
+                    <div v-if="customTags.filter(t => t.type === 'income').length > 0">
+                        <h4 class="text-[10px] font-bold uppercase tracking-wider text-emerald-500 mb-1.5">Tag Pemasukan Custom</h4>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span 
+                                v-for="tag in customTags.filter(t => t.type === 'income')" 
+                                :key="tag.id"
+                                class="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-lg"
+                            >
+                                {{ tag.name }}
+                                <button 
+                                    @click="deleteTag(tag)"
+                                    class="ml-0.5 p-0.5 rounded-full hover:bg-emerald-200 dark:hover:bg-emerald-900/40 transition-colors"
+                                    title="Hapus tag"
+                                >
+                                    <X class="size-3" />
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Expense Tags -->
+                    <div v-if="customTags.filter(t => t.type === 'expense').length > 0">
+                        <h4 class="text-[10px] font-bold uppercase tracking-wider text-red-500 mb-1.5">Tag Pengeluaran Custom</h4>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span 
+                                v-for="tag in customTags.filter(t => t.type === 'expense')" 
+                                :key="tag.id"
+                                class="inline-flex items-center gap-1 text-xs font-semibold bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 px-2.5 py-1 rounded-lg"
+                            >
+                                {{ tag.name }}
+                                <button 
+                                    @click="deleteTag(tag)"
+                                    class="ml-0.5 p-0.5 rounded-full hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors"
+                                    title="Hapus tag"
+                                >
+                                    <X class="size-3" />
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else class="text-center py-6 text-slate-400 text-xs">
+                    Belum ada tag custom. Tag bawaan (Iuran Anggota, Konsumsi, dll.) selalu tersedia.
+                </div>
+
+                <!-- Default Tags Info -->
+                <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Tag Bawaan (Semua Kelompok)</h4>
+                    <div class="flex flex-wrap gap-1">
+                        <span class="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md">Iuran Anggota</span>
+                        <span class="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md">Sponsor</span>
+                        <span class="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md">Donasi / Sumbangan</span>
+                        <span class="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md">Dana Kampus</span>
+                        <span class="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md">Konsumsi</span>
+                        <span class="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md">Transportasi</span>
+                        <span class="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md">Perlengkapan &amp; Bahan</span>
+                        <span class="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-md">Humas &amp; Publikasi</span>
+                    </div>
+                </div>
             </div>
         </div>
 
