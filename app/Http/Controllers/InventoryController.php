@@ -30,6 +30,7 @@ class InventoryController extends Controller
             ->get()
             ->map(function ($item) {
                 $item->image_url = $item->image_path ? Storage::disk(env('FILESYSTEM_DISK', 'public'))->url($item->image_path) : null;
+
                 return $item;
             });
 
@@ -41,7 +42,7 @@ class InventoryController extends Controller
         return Inertia::render('management/inventory/Index', [
             'inventories' => $inventories,
             'members' => $members,
-            'canWrite' => HostRoleHelper::canWriteFinance($user),
+            'canWrite' => HostRoleHelper::canWriteInventory($user),
         ]);
     }
 
@@ -52,7 +53,7 @@ class InventoryController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (! HostRoleHelper::canWriteFinance($user)) {
+        if (! HostRoleHelper::canWriteInventory($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola inventaris.');
         }
 
@@ -89,10 +90,10 @@ class InventoryController extends Controller
         if ($source === 'purchase' && $purchasePrice > 0) {
             $paymentMethod = $validated['payment_method'] ?? 'Cash';
             $amount = $purchasePrice * $validated['quantity'];
-            
+
             $currentBalance = Finance::getGeneralMethodBalance($hostId, $paymentMethod);
             if ($amount > $currentBalance) {
-                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp " . number_format($currentBalance, 0, ',', '.') . ")."]);
+                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp ".number_format($currentBalance, 0, ',', '.').').']);
             }
 
             $finance = Finance::create([
@@ -140,7 +141,7 @@ class InventoryController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($inventory->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
+        if ($inventory->host_id !== $hostId || ! HostRoleHelper::canWriteInventory($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola inventaris.');
         }
 
@@ -178,18 +179,18 @@ class InventoryController extends Controller
         if ($source === 'purchase' && $purchasePrice > 0) {
             $paymentMethod = $validated['payment_method'] ?? 'Cash';
             $amount = $purchasePrice * $validated['quantity'];
-            
+
             $currentBalance = Finance::getGeneralMethodBalance($hostId, $paymentMethod);
-            
+
             if ($financeId) {
                 $financeRec = Finance::find($financeId);
                 if ($financeRec && $financeRec->payment_method === $paymentMethod) {
                     $currentBalance += $financeRec->amount;
                 }
             }
-            
+
             if ($amount > $currentBalance) {
-                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp " . number_format($currentBalance, 0, ',', '.') . ")."]);
+                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp ".number_format($currentBalance, 0, ',', '.').').']);
             }
 
             if ($financeId) {
@@ -251,7 +252,7 @@ class InventoryController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($inventory->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
+        if ($inventory->host_id !== $hostId || ! HostRoleHelper::canWriteInventory($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola inventaris.');
         }
 

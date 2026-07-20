@@ -36,7 +36,7 @@ class LogisticController extends Controller
         return Inertia::render('management/logistic/Index', [
             'logistics' => $logistics,
             'members' => $members,
-            'canWrite' => HostRoleHelper::canWriteFinance($user),
+            'canWrite' => HostRoleHelper::canWriteLogistic($user),
         ]);
     }
 
@@ -46,7 +46,7 @@ class LogisticController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $user = $request->user();
-        if (! HostRoleHelper::canWriteFinance($user)) {
+        if (! HostRoleHelper::canWriteLogistic($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola logistik.');
         }
 
@@ -78,10 +78,10 @@ class LogisticController extends Controller
         if ($source === 'purchase' && $purchasePrice > 0) {
             $paymentMethod = $validated['payment_method'] ?? 'Cash';
             $amount = $purchasePrice * $validated['quantity'];
-            
+
             $currentBalance = Finance::getGeneralMethodBalance($hostId, $paymentMethod);
             if ($amount > $currentBalance) {
-                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp " . number_format($currentBalance, 0, ',', '.') . ")."]);
+                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp ".number_format($currentBalance, 0, ',', '.').').']);
             }
 
             $finance = Finance::create([
@@ -129,7 +129,7 @@ class LogisticController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($logistic->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
+        if ($logistic->host_id !== $hostId || ! HostRoleHelper::canWriteLogistic($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola logistik.');
         }
 
@@ -159,18 +159,18 @@ class LogisticController extends Controller
         if ($source === 'purchase' && $purchasePrice > 0) {
             $paymentMethod = $validated['payment_method'] ?? 'Cash';
             $amount = $purchasePrice * $validated['quantity'];
-            
+
             $currentBalance = Finance::getGeneralMethodBalance($hostId, $paymentMethod);
-            
+
             if ($financeId) {
                 $financeRec = Finance::find($financeId);
                 if ($financeRec && $financeRec->payment_method === $paymentMethod) {
                     $currentBalance += $financeRec->amount;
                 }
             }
-            
+
             if ($amount > $currentBalance) {
-                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp " . number_format($currentBalance, 0, ',', '.') . ")."]);
+                return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp ".number_format($currentBalance, 0, ',', '.').').']);
             }
 
             if ($financeId) {
@@ -232,7 +232,7 @@ class LogisticController extends Controller
         $user = $request->user();
         $hostId = $user->host_id ?? $user->id;
 
-        if ($logistic->host_id !== $hostId || ! HostRoleHelper::canWriteFinance($user)) {
+        if ($logistic->host_id !== $hostId || ! HostRoleHelper::canWriteLogistic($user)) {
             abort(403, 'Anda tidak memiliki hak untuk mengelola logistik.');
         }
 
