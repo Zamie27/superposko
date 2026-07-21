@@ -135,6 +135,22 @@ Route::post('bug-report', [BugReportController::class, 'store'])->name('bug-repo
 Route::post('payment/tripay/callback', [TripayController::class, 'handleCallback'])->name('payment.tripay.callback');
 
 Route::middleware(['auth'])->group(function () {
+    // Media storage proxy for MinIO/S3 assets
+    Route::get('/media/{path}', function (string $path) {
+        $disk = env('FILESYSTEM_DISK', 's3');
+        try {
+            if (! Storage::disk($disk)->exists($path)) {
+                abort(404);
+            }
+
+            return Storage::disk($disk)->response($path, null, [
+                'Cache-Control' => 'public, max-age=86400',
+            ]);
+        } catch (\Throwable $e) {
+            abort(404);
+        }
+    })->where('path', '.*')->name('media.show');
+
     Route::post('email/verify-otp', [EmailVerificationOtpController::class, 'verify'])->name('verification.verify_otp');
     Route::post('email/resend-otp', [EmailVerificationOtpController::class, 'resend'])->name('verification.resend_otp');
     Route::post('logout-to-register', function (Request $request) {

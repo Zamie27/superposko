@@ -49,7 +49,7 @@ class VotingController extends Controller
                     'id' => $poll->id,
                     'title' => $poll->title,
                     'description' => $poll->description,
-                    'image' => $poll->image ? (Str::isUuid($poll->image) ? \App\Helpers\ImmichHelper::getThumbnailUrl($poll->image) : \Illuminate\Support\Facades\Storage::disk(env('FILESYSTEM_DISK', 'public'))->url($poll->image)) : null,
+                    'image' => \App\Helpers\StorageHelper::getUrl($poll->image),
                     'expires_at' => $poll->expires_at ? $poll->expires_at->toIso8601String() : null,
                     'is_expired' => $poll->isExpired(),
                     'created_by' => $creator->name,

@@ -32,13 +32,7 @@ class PoskoSettingsController extends Controller
     {
         $host = $this->getHostUser();
 
-        $disk = env('FILESYSTEM_DISK', 'public');
-        $logoUrl = null;
-        if ($host->posko_logo_url) {
-            $logoUrl = Str::startsWith($host->posko_logo_url, ['http://', 'https://'])
-                ? $host->posko_logo_url
-                : Storage::disk($disk)->url($host->posko_logo_url);
-        }
+        $logoUrl = \App\Helpers\StorageHelper::getUrl($host->posko_logo_url);
 
         // Parse numeric group number if prefixed with "Kelompok "
         $cleanGroupNum = $host->group_number;
@@ -109,7 +103,7 @@ class PoskoSettingsController extends Controller
         $host = $this->getHostUser();
         $file = $request->file('logo');
 
-        $disk = env('FILESYSTEM_DISK', 'public');
+        $disk = env('FILESYSTEM_DISK', 's3');
         $groupSlug = Str::slug($host->group_number ?: "kelompok-{$host->id}", '_');
         $path = $file->store("client/{$groupSlug}/logo", $disk);
 
