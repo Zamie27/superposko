@@ -45,8 +45,8 @@ const deleteArticle = (article: any) => {
             </div>
 
             <!-- Articles Data Table Container -->
-            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+                <div class="overflow-x-auto pb-24">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">
@@ -106,30 +106,31 @@ const deleteArticle = (article: any) => {
                                             <span>{{ art.total_cta_count }} CTA</span>
                                         </span>
 
-                                        <!-- Hover Popup Tooltip -->
-                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/cta:block w-48 p-3 bg-slate-900 text-white rounded-xl shadow-2xl text-xs space-y-1.5 z-50 pointer-events-none transition-all border border-slate-700">
+                                        <!-- Hover Popup Tooltip (Positioned Downwards to prevent header clipping) -->
+                                        <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/cta:block w-52 p-3 bg-slate-900 text-white rounded-xl shadow-2xl text-xs space-y-1.5 z-[100] pointer-events-none transition-all border border-slate-700">
+                                            <!-- Tooltip Top Arrow -->
+                                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 -mb-1 border-4 border-transparent border-b-slate-900"></div>
+                                            
                                             <div class="font-bold border-b border-slate-700 pb-1 text-sky-400 flex items-center justify-between">
                                                 <span>Detail Interaksi CTA</span>
-                                                <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">{{ art.total_cta_count }} total</span>
+                                                <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">{{ art.total_cta_count }} total</span>
                                             </div>
                                             <div class="flex items-center justify-between text-emerald-400">
-                                                <span>💬 WhatsApp</span>
+                                                <span class="flex items-center gap-1">💬 WhatsApp</span>
                                                 <span class="font-mono font-bold">{{ art.cta_wa_count || 0 }}</span>
                                             </div>
                                             <div class="flex items-center justify-between text-blue-400">
-                                                <span>🌐 Facebook</span>
+                                                <span class="flex items-center gap-1">🌐 Facebook</span>
                                                 <span class="font-mono font-bold">{{ art.cta_fb_count || 0 }}</span>
                                             </div>
                                             <div class="flex items-center justify-between text-pink-400">
-                                                <span>📸 Instagram</span>
+                                                <span class="flex items-center gap-1">📸 Instagram</span>
                                                 <span class="font-mono font-bold">{{ art.cta_ig_count || 0 }}</span>
                                             </div>
                                             <div class="flex items-center justify-between text-amber-400">
-                                                <span>🔗 Salin Link</span>
+                                                <span class="flex items-center gap-1">🔗 Salin Link</span>
                                                 <span class="font-mono font-bold">{{ art.cta_copy_count || 0 }}</span>
                                             </div>
-                                            <!-- Tooltip Arrow -->
-                                            <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
                                         </div>
                                     </div>
                                 </td>
