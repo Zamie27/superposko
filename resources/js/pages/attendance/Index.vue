@@ -270,6 +270,16 @@ const scanQrUrl = computed(() => {
     return `${window.location.origin}/absensi/scan-qr`;
 });
 
+const formattedGroupName = computed(() => {
+    const groupNum = props.hostPosko?.group_number;
+    if (!groupNum) return 'POSKO KKN';
+    const str = String(groupNum).trim();
+    if (str.toLowerCase().startsWith('kelompok')) {
+        return str.toUpperCase();
+    }
+    return `KELOMPOK ${str}`;
+});
+
 const qrCodeApiUrl = computed(() => {
     return `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=10&data=${encodeURIComponent(scanQrUrl.value)}`;
 });
@@ -699,8 +709,8 @@ defineOptions({
                             <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-snug">
                                 Scan QR di bawah untuk absen
                             </h2>
-                            <p class="text-xs font-bold text-sky-600 mt-1 uppercase tracking-wider">
-                                Kelompok {{ hostPosko?.group_number || 1 }} • {{ hostPosko?.name || 'Posko KKN' }}
+                            <p class="text-xs sm:text-sm font-extrabold text-sky-600 mt-1 uppercase tracking-wider">
+                                {{ formattedGroupName }}
                             </p>
 
                             <!-- High Contrast QR Code -->
