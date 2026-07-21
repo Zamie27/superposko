@@ -499,10 +499,10 @@ const closeLightbox = () => {
                             <ChevronRight class="w-7 h-7" />
                         </button>
 
-                        <!-- Image view -->
+                        <!-- Image view (Uses fast thumbnail for instant preview, download button gets original file_url) -->
                         <img 
                             v-if="activeAsset?.type === 'IMAGE'" 
-                            :src="activeAsset?.file_url" 
+                            :src="activeAsset?.thumbnail_url || activeAsset?.file_url" 
                             class="w-full h-full max-w-[100vw] max-h-[100vh] object-contain select-none" 
                             alt="Media Detail"
                         />
