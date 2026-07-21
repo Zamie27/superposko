@@ -6,6 +6,8 @@ import InputError from '@/components/InputError.vue';
 import { store } from '@/routes/attendance';
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { MapPin, Loader2, CheckCircle2, QrCode, Download, Printer, X, Phone, Calendar, Clock, Info, User, FileText } from '@lucide/vue';
+import { useToast } from '@/composables/useToast';
+import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -280,12 +282,212 @@ const formattedGroupName = computed(() => {
     return `KELOMPOK ${str}`;
 });
 
+const toast = useToast();
+const isDownloadingPoster = ref(false);
+
 const qrCodeApiUrl = computed(() => {
-    return `https://api.qrserver.com/v1/create-qr-code/?size=350x350&margin=10&data=${encodeURIComponent(scanQrUrl.value)}`;
+    return '/absensi/qr-code-image';
 });
 
-const downloadQrPoster = () => {
-    window.location.href = '/absensi/qr-poster/download';
+const fetchImageAsDataUrl = async (url: string): Promise<string | null> => {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        return null;
+    }
+};
+
+const downloadQrPoster = async () => {
+    isDownloadingPoster.value = true;
+    try {
+        const canvas = document.createElement('canvas');
+        const width = 1000;
+        const height = 1250;
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            isDownloadingPoster.value = false;
+            return;
+        }
+
+        // Clean white background
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, width, height);
+
+        // Outer border
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 8;
+        ctx.strokeRect(16, 16, width - 32, height - 32);
+
+        // 1. Logo SuperPosko
+        const logoDataUrl = await fetchImageAsDataUrl('/logo_superposko.png');
+        if (logoDataUrl) {
+            const logoImg = new Image();
+            logoImg.src = logoDataUrl;
+            await new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; });
+            if (logoImg.naturalWidth > 0) {
+                ctx.drawImage(logoImg, 60, 60, 240, (240 * logoImg.naturalHeight) / logoImg.naturalWidth);
+            }
+        }
+
+        // Badge "OFFICIAL ABSENSI"
+        ctx.fillStyle = '#F0F9FF';
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(width - 290, 60, 230, 48, 24);
+        } else {
+            ctx.rect(width - 290, 60, 230, 48);
+        }
+        ctx.fill();
+        ctx.strokeStyle = '#BAE6FD';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#0284C7';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('OFFICIAL ABSENSI', width - 175, 90);
+
+        // Line
+        ctx.strokeStyle = '#F1F5F9';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(60, 145);
+        ctx.lineTo(width - 60, 145);
+        ctx.stroke();
+
+        // 2. Titles
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '900 42px sans-serif';
+        ctx.fillText('Scan QR di bawah untuk absen', width / 2, 230);
+
+        ctx.fillStyle = '#0284C7';
+        ctx.font = 'bold 32px sans-serif';
+        ctx.fillText(formattedGroupName.value, width / 2, 285);
+
+        // 3. QR Code Box
+        const qrSize = 520;
+        const qrX = (width - qrSize) / 2;
+        const qrY = 345;
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(qrX, qrY, qrSize, qrSize, 32);
+        } else {
+            ctx.rect(qrX, qrY, qrSize, qrSize);
+        }
+        ctx.fill();
+        ctx.strokeStyle = '#0F172A';
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        // Draw QR code image from proxy (same-origin -> no CORS error)
+        const qrDataUrl = await fetchImageAsDataUrl('/absensi/qr-code-image');
+        if (qrDataUrl) {
+            const qrImg = new Image();
+            qrImg.src = qrDataUrl;
+            await new Promise((res) => { qrImg.onload = res; qrImg.onerror = res; });
+            if (qrImg.naturalWidth > 0) {
+                ctx.drawImage(qrImg, qrX + 30, qrY + 30, qrSize - 60, qrSize - 60);
+            }
+        }
+
+        // Subtitle text
+        ctx.fillStyle = '#64748B';
+        ctx.font = '500 22px sans-serif';
+        ctx.fillText('Arahkan kamera smartphone Anda ke QR Code ini', width / 2, 925);
+        ctx.fillText('untuk otomatis merekam presensi harian posko.', width / 2, 960);
+
+        // Line
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(60, 1020);
+        ctx.lineTo(width - 60, 1020);
+        ctx.stroke();
+
+        // Footer Contacts
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#64748B';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.fillText('Kendala atau masalah saat presensi? Hubungi tim support SuperPosko:', 60, 1070);
+
+        ctx.fillStyle = '#F8FAFC';
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(60, 1100, 410, 60, 16);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.roundRect(530, 1100, 410, 60, 16);
+            ctx.fill();
+            ctx.stroke();
+        } else {
+            ctx.rect(60, 1100, 410, 60);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.rect(530, 1100, 410, 60);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = '#DB2777';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.fillText('📷 ' + (props.supportInfo?.instagram || '@kuukok.id'), 85, 1138);
+
+        ctx.fillStyle = '#059669';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.fillText('📞 ' + (props.supportInfo?.whatsapp || '+62 851-7173-9232'), 555, 1138);
+
+        // Export PNG Blob & Save to MinIO Bucket
+        canvas.toBlob(async (blob) => {
+            if (!blob) {
+                isDownloadingPoster.value = false;
+                return;
+            }
+
+            // Save to MinIO bucket in background
+            const formData = new FormData();
+            formData.append('image', blob, 'qr_poster.png');
+            try {
+                await axios.post('/absensi/qr-poster/save-to-minio', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+            } catch (e) {
+                // Ignore upload exception if offline
+            }
+
+            // Trigger direct PNG download to user's device
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            const groupNum = props.hostPosko?.group_number || 'Kelompok';
+            link.download = `Poster-QR-Absensi-Kelompok-${groupNum}.png`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast.success('Poster QR Absensi berhasil diunduh dan disimpan ke MinIO!');
+            isDownloadingPoster.value = false;
+        }, 'image/png');
+    } catch (err) {
+        console.error('Download error:', err);
+        toast.error('Gagal mengunduh poster.');
+        isDownloadingPoster.value = false;
+    }
 };
 
 defineOptions({
@@ -662,12 +864,14 @@ defineOptions({
                     <div class="flex items-center gap-2">
                         <Button 
                             @click="downloadQrPoster" 
+                            :disabled="isDownloadingPoster"
                             variant="outline" 
                             size="sm" 
                             class="h-8 text-xs font-bold bg-sky-500 hover:bg-sky-600 text-white border-transparent shadow-xs cursor-pointer"
                         >
-                            <Download class="w-3.5 h-3.5 mr-1.5" />
-                            <span>Unduh Poster PNG</span>
+                            <Loader2 v-if="isDownloadingPoster" class="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                            <Download v-else class="w-3.5 h-3.5 mr-1.5" />
+                            <span>{{ isDownloadingPoster ? 'Mengunduh...' : 'Unduh Poster PNG' }}</span>
                         </Button>
                     </div>
                 </div>

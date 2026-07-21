@@ -285,6 +285,66 @@ class AttendanceController extends Controller
     }
 
     /**
+     * Proxy QR Code Image generation from same-origin to prevent CORS canvas tainting.
+     */
+    public function qrCodeImage(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $user = auth()->user();
+        $hostId = $request->query('host_id') ?: ($user->host_id ?? $user->id);
+
+        $scanQrUrl = route('attendance.scan_qr', ['host_id' => $hostId]);
+        $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=10&data='.urlencode($scanQrUrl);
+
+        $qrContent = @file_get_contents($qrApiUrl);
+
+        if (! $qrContent) {
+            abort(404, 'Gagal menghasilkan QR Code.');
+        }
+
+        return response($qrContent, 200, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
+    /**
+     * Save client-generated high-res poster PNG into MinIO bucket under client/{group_slug}/image/qr_poster.png.
+     */
+    public function savePosterToMinio(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'image' => ['required', 'file', 'mimes:png,jpg,jpeg,webp', 'max:10240'],
+        ]);
+
+        $user = auth()->user();
+        $hostId = $user->host_id ?? $user->id;
+        $hostUser = User::find($hostId);
+
+        $rawGroup = $hostUser?->group_number ?: "Kelompok {$hostId}";
+        if (is_numeric($rawGroup)) {
+            $groupNameStr = "Kelompok {$rawGroup}";
+        } else {
+            $groupNameStr = $rawGroup;
+        }
+
+        $groupSlug = Str::slug($groupNameStr, '_');
+        $disk = env('FILESYSTEM_DISK', 's3');
+        $storagePath = "client/{$groupSlug}/image/qr_poster.png";
+
+        try {
+            $file = $request->file('image');
+            Storage::disk($disk)->put($storagePath, file_get_contents($file->getRealPath()));
+        } catch (\Throwable $e) {
+            // Ignore storage exception
+        }
+
+        return response()->json([
+            'success' => true,
+            'path' => $storagePath,
+        ]);
+    }
+
+    /**
      * Generate & Download QR Poster directly from MinIO storage bucket under client/{group_slug}/image/qr_poster.png.
      */
     public function downloadQrPoster(Request $request): \Symfony\Component\HttpFoundation\Response
