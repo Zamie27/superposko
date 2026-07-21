@@ -628,10 +628,12 @@ const triggerPrint = () => {
                                 </td>
 
                                 <!-- Title / Description -->
-                                <td class="py-3.5 px-4">
-                                    <div>
-                                        <p class="font-bold text-slate-800 dark:text-slate-200">{{ record.title }}</p>
-                                        <p v-if="record.description" class="text-[10px] md:text-xs text-slate-400 mt-0.5 line-clamp-1">
+                                <td class="py-3.5 px-4 max-w-[200px] sm:max-w-xs md:max-w-sm">
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-800 dark:text-slate-200 truncate" :title="record.title">
+                                            {{ record.title }}
+                                        </p>
+                                        <p v-if="record.description" class="text-[10px] md:text-xs text-slate-400 mt-0.5 truncate" :title="record.description">
                                             {{ record.description }}
                                         </p>
                                     </div>
