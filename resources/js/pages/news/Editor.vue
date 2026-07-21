@@ -135,13 +135,14 @@ const handleVisualEditorClick = (event: MouseEvent) => {
     const target = event.target as HTMLElement;
     
     if (selectedImage.value && selectedImage.value !== target) {
+        selectedImage.value.removeAttribute('data-editor-selected');
         selectedImage.value.classList.remove('ring-4', 'ring-[#38BDF8]');
         selectedImage.value = null;
     }
 
     if (target && target.tagName === 'IMG') {
         selectedImage.value = target as HTMLImageElement;
-        selectedImage.value.classList.add('ring-4', 'ring-[#38BDF8]');
+        selectedImage.value.setAttribute('data-editor-selected', 'true');
     }
 };
 
@@ -187,10 +188,18 @@ const uploadInlineImage = async (event: Event) => {
     }
 };
 
-// Sync visual editor content to form.content
+// Sync visual editor content to form.content (stripping editor selection flags)
 const syncContentFromVisual = () => {
     if (visualEditorRef.value && !isCodeMode.value) {
-        form.content = visualEditorRef.value.innerHTML;
+        const clone = visualEditorRef.value.cloneNode(true) as HTMLElement;
+        clone.querySelectorAll('img').forEach((img) => {
+            img.classList.remove('ring-4', 'ring-[#38BDF8]', 'rounded-xl');
+            img.removeAttribute('data-editor-selected');
+            if (!img.getAttribute('class')) {
+                img.removeAttribute('class');
+            }
+        });
+        form.content = clone.innerHTML;
     }
 };
 
@@ -772,6 +781,16 @@ onUnmounted(() => {
     background-color: #f8fafc;
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
+}
+.visual-wysiwyg-editor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    margin: 1rem 0;
+}
+.visual-wysiwyg-editor img[data-editor-selected="true"] {
+    outline: 4px solid #38bdf8 !important;
+    outline-offset: 2px;
 }
 .visual-wysiwyg-editor b, .visual-wysiwyg-editor strong {
     font-weight: 700;
