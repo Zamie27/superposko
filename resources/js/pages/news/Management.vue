@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Plus, Edit, Trash2, Eye, ExternalLink, Newspaper, Calendar, CheckCircle2, Clock } from '@lucide/vue';
+import { Plus, Edit, Trash2, Eye, ExternalLink, Newspaper, Calendar, CheckCircle2, Clock, Share2 } from '@lucide/vue';
 import { useToast } from '@/composables/useToast';
 
 const props = defineProps<{
@@ -9,6 +10,13 @@ const props = defineProps<{
 }>();
 
 const toast = useToast();
+const selectedCtaArticle = ref<any | null>(null);
+const isCtaModalOpen = ref(false);
+
+const openCtaModal = (article: any) => {
+    selectedCtaArticle.value = article;
+    isCtaModalOpen.value = true;
+};
 
 const deleteArticle = (article: any) => {
     if (confirm(`Apakah Anda yakin ingin menghapus artikel "${article.title}"?`)) {
@@ -22,7 +30,7 @@ const deleteArticle = (article: any) => {
 <template>
     <Head title="Manajemen Berita Posko" />
 
-    <div class="relative flex flex-col gap-6 rounded-xl p-4 sm:p-6 min-h-[400px] w-full max-w-full">
+    <div class="relative flex flex-col gap-6 rounded-xl p-4 sm:p-6 min-h-[450px] w-full max-w-full">
             
             <!-- Page Header -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -44,9 +52,9 @@ const deleteArticle = (article: any) => {
                 </Link>
             </div>
 
-            <!-- Articles Data Table Container -->
-            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
-                <div class="overflow-x-auto pb-24">
+            <!-- Articles Data Table Container with min-h-[450px] so tooltip is NEVER clipped -->
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm min-h-[450px] relative">
+                <div class="overflow-x-auto sm:overflow-visible pb-48">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">
@@ -98,38 +106,47 @@ const deleteArticle = (article: any) => {
                                     </span>
                                 </td>
 
-                                <!-- Total CTA with Hover Breakdown Tooltip -->
-                                <td class="p-4">
-                                    <div class="relative group/cta inline-block cursor-pointer">
-                                        <span class="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:scale-105 transition-transform">
-                                            <span>💬</span>
+                                <!-- Total CTA with Hover Breakdown Tooltip & Click Modal -->
+                                <td class="p-4 relative">
+                                    <div class="relative group/cta inline-block">
+                                        <button 
+                                            @click="openCtaModal(art)"
+                                            type="button"
+                                            class="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 hover:scale-105 transition-all cursor-pointer"
+                                            title="Klik atau hover untuk melihat detail interaksi CTA"
+                                        >
+                                            <span class="text-sm">💬</span>
                                             <span>{{ art.total_cta_count }} CTA</span>
-                                        </span>
+                                        </button>
 
-                                        <!-- Hover Popup Tooltip (Positioned Downwards to prevent header clipping) -->
-                                        <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/cta:block w-52 p-3 bg-slate-900 text-white rounded-xl shadow-2xl text-xs space-y-1.5 z-[100] pointer-events-none transition-all border border-slate-700">
-                                            <!-- Tooltip Top Arrow -->
+                                        <!-- Hover Popup Tooltip -->
+                                        <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/cta:block w-56 p-3.5 bg-slate-900 text-white rounded-2xl shadow-2xl text-xs space-y-2 z-[100] border border-slate-700 pointer-events-none">
                                             <div class="absolute bottom-full left-1/2 -translate-x-1/2 -mb-1 border-4 border-transparent border-b-slate-900"></div>
                                             
-                                            <div class="font-bold border-b border-slate-700 pb-1 text-sky-400 flex items-center justify-between">
+                                            <div class="font-bold border-b border-slate-700 pb-1.5 text-sky-400 flex items-center justify-between">
                                                 <span>Detail Interaksi CTA</span>
-                                                <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">{{ art.total_cta_count }} total</span>
+                                                <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-md text-slate-300 font-mono">{{ art.total_cta_count }} Total</span>
                                             </div>
-                                            <div class="flex items-center justify-between text-emerald-400">
-                                                <span class="flex items-center gap-1">💬 WhatsApp</span>
-                                                <span class="font-mono font-bold">{{ art.cta_wa_count || 0 }}</span>
+                                            <div class="space-y-1.5 pt-0.5">
+                                                <div class="flex items-center justify-between text-emerald-400">
+                                                    <span class="flex items-center gap-1 font-medium">💬 WhatsApp</span>
+                                                    <span class="font-mono font-bold text-white bg-slate-800 px-1.5 py-0.5 rounded">{{ art.cta_wa_count || 0 }}</span>
+                                                </div>
+                                                <div class="flex items-center justify-between text-blue-400">
+                                                    <span class="flex items-center gap-1 font-medium">🌐 Facebook</span>
+                                                    <span class="font-mono font-bold text-white bg-slate-800 px-1.5 py-0.5 rounded">{{ art.cta_fb_count || 0 }}</span>
+                                                </div>
+                                                <div class="flex items-center justify-between text-pink-400">
+                                                    <span class="flex items-center gap-1 font-medium">📸 Instagram</span>
+                                                    <span class="font-mono font-bold text-white bg-slate-800 px-1.5 py-0.5 rounded">{{ art.cta_ig_count || 0 }}</span>
+                                                </div>
+                                                <div class="flex items-center justify-between text-amber-400">
+                                                    <span class="flex items-center gap-1 font-medium">🔗 Salin Link</span>
+                                                    <span class="font-mono font-bold text-white bg-slate-800 px-1.5 py-0.5 rounded">{{ art.cta_copy_count || 0 }}</span>
+                                                </div>
                                             </div>
-                                            <div class="flex items-center justify-between text-blue-400">
-                                                <span class="flex items-center gap-1">🌐 Facebook</span>
-                                                <span class="font-mono font-bold">{{ art.cta_fb_count || 0 }}</span>
-                                            </div>
-                                            <div class="flex items-center justify-between text-pink-400">
-                                                <span class="flex items-center gap-1">📸 Instagram</span>
-                                                <span class="font-mono font-bold">{{ art.cta_ig_count || 0 }}</span>
-                                            </div>
-                                            <div class="flex items-center justify-between text-amber-400">
-                                                <span class="flex items-center gap-1">🔗 Salin Link</span>
-                                                <span class="font-mono font-bold">{{ art.cta_copy_count || 0 }}</span>
+                                            <div class="pt-1 border-t border-slate-800 text-[10px] text-slate-400 text-center italic">
+                                                Klik badge untuk modal lengkap
                                             </div>
                                         </div>
                                     </div>
@@ -176,6 +193,60 @@ const deleteArticle = (article: any) => {
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- CTA Detail Modal Popup -->
+            <div v-if="isCtaModalOpen && selectedCtaArticle" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 z-[9999]">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+                    <div class="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-sky-500">Statistik Bagikan / CTA</span>
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white line-clamp-1 mt-0.5">
+                                {{ selectedCtaArticle.title }}
+                            </h3>
+                        </div>
+                        <button @click="isCtaModalOpen = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold p-1 cursor-pointer">
+                            ✕
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 space-y-1">
+                            <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-1">💬 WhatsApp</span>
+                            <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400">{{ selectedCtaArticle.cta_wa_count || 0 }}</p>
+                            <span class="text-[11px] text-slate-500">kali dibagikan</span>
+                        </div>
+
+                        <div class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-2xl p-4 space-y-1">
+                            <span class="text-xs font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-1">🌐 Facebook</span>
+                            <p class="text-2xl font-black text-blue-600 dark:text-blue-400">{{ selectedCtaArticle.cta_fb_count || 0 }}</p>
+                            <span class="text-[11px] text-slate-500">kali dibagikan</span>
+                        </div>
+
+                        <div class="bg-pink-50 dark:bg-pink-950/40 border border-pink-200 dark:border-pink-800 rounded-2xl p-4 space-y-1">
+                            <span class="text-xs font-semibold text-pink-700 dark:text-pink-300 flex items-center gap-1">📸 Instagram</span>
+                            <p class="text-2xl font-black text-pink-600 dark:text-pink-400">{{ selectedCtaArticle.cta_ig_count || 0 }}</p>
+                            <span class="text-[11px] text-slate-500">kali disalin link IG</span>
+                        </div>
+
+                        <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 space-y-1">
+                            <span class="text-xs font-semibold text-amber-700 dark:text-amber-300 flex items-center gap-1">🔗 Salin Link</span>
+                            <p class="text-2xl font-black text-amber-600 dark:text-amber-400">{{ selectedCtaArticle.cta_copy_count || 0 }}</p>
+                            <span class="text-[11px] text-slate-500">kali disalin langsung</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-3 flex items-center justify-between text-xs">
+                        <span class="text-slate-500 font-medium">Total Akumulasi Interaksi</span>
+                        <span class="font-bold text-slate-900 dark:text-white text-sm">{{ selectedCtaArticle.total_cta_count || 0 }} Total CTA</span>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <Button @click="isCtaModalOpen = false" class="bg-slate-900 text-white hover:bg-slate-800 font-bold px-5 rounded-xl cursor-pointer">
+                            Tutup
+                        </Button>
+                    </div>
                 </div>
             </div>
 
