@@ -392,9 +392,9 @@ onMounted(() => {
                         "{{ article.excerpt }}"
                     </div>
 
-                    <!-- HTML Rich Content Container (Light Mode Typography) -->
+                    <!-- HTML Rich Content Container (Compact Elegant Typography) -->
                     <div 
-                        class="article-content bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-sm text-slate-800 text-base sm:text-lg leading-relaxed space-y-6"
+                        class="article-content bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-sm text-slate-700 text-sm sm:text-[15px] leading-relaxed space-y-4"
                         v-html="article.content"
                     ></div>
 
@@ -446,53 +446,70 @@ onMounted(() => {
 </template>
 
 <style>
-/* Light Mode Typography styling for rendered HTML article content */
+/* Light Mode Typography styling for rendered HTML article content (Compact Elegant Size) */
 .article-content h2 {
-    font-size: 1.65rem;
+    font-size: 1.25rem; /* 20px */
     font-weight: 800;
     color: #0f172a;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.6rem;
+    line-height: 1.35;
     scroll-margin-top: 100px;
 }
 .article-content h3 {
-    font-size: 1.3rem;
+    font-size: 1.05rem; /* 16.8px */
     font-weight: 700;
     color: #0284c7;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
     scroll-margin-top: 100px;
 }
 .article-content p {
-    margin-bottom: 1.25rem;
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.7;
+    margin-bottom: 1rem;
     color: #334155;
 }
 .article-content ul {
     list-style-type: disc;
     padding-left: 1.5rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.7;
     color: #334155;
 }
 .article-content ol {
     list-style-type: decimal;
     padding-left: 1.5rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.7;
     color: #334155;
 }
+.article-content li {
+    margin-bottom: 0.35rem;
+}
 .article-content blockquote {
-    border-left: 4px solid #38bdf8;
-    padding-left: 1rem;
+    border-left: 3.5px solid #38bdf8;
+    background-color: rgba(240, 249, 255, 0.6);
+    padding: 0.75rem 1rem;
+    border-radius: 0 0.75rem 0.75rem 0;
     font-style: italic;
+    font-size: 0.875rem; /* 14px */
     color: #475569;
-    margin: 1.5rem 0;
+    margin: 1.25rem 0;
+    line-height: 1.65;
 }
 .article-content a {
     color: #0284c7;
     text-decoration: underline;
+    font-weight: 600;
 }
 .article-content img {
     border-radius: 1rem;
-    margin: 1.5rem 0;
+    margin: 1.25rem 0;
     max-width: 100%;
+    height: auto;
 }
 </style>
