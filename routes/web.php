@@ -138,17 +138,56 @@ Route::middleware(['auth'])->group(function () {
     // Media storage proxy for MinIO/S3 assets
     Route::get('/media/{path}', function (string $path) {
         $disk = env('FILESYSTEM_DISK', 's3');
-        try {
-            if (! Storage::disk($disk)->exists($path)) {
-                abort(404);
-            }
+        $cleanPath = ltrim($path, '/');
 
-            return Storage::disk($disk)->response($path, null, [
-                'Cache-Control' => 'public, max-age=86400',
-            ]);
+        try {
+            $stream = Storage::disk($disk)->readStream($cleanPath);
+            if ($stream) {
+                $mimeType = null;
+                try {
+                    $mimeType = Storage::disk($disk)->mimeType($cleanPath);
+                } catch (\Throwable $e) {
+                    $mimeType = null;
+                }
+
+                if (! $mimeType) {
+                    $ext = strtolower(pathinfo($cleanPath, PATHINFO_EXTENSION));
+                    $mimeTypes = [
+                        'jpg' => 'image/jpeg',
+                        'jpeg' => 'image/jpeg',
+                        'png' => 'image/png',
+                        'gif' => 'image/gif',
+                        'webp' => 'image/webp',
+                        'svg' => 'image/svg+xml',
+                        'pdf' => 'application/pdf',
+                        'mp4' => 'video/mp4',
+                    ];
+                    $mimeType = $mimeTypes[$ext] ?? 'application/octet-stream';
+                }
+
+                return response()->stream(function () use ($stream) {
+                    fpassthru($stream);
+                    if (is_resource($stream)) {
+                        fclose($stream);
+                    }
+                }, 200, [
+                    'Content-Type' => $mimeType,
+                    'Cache-Control' => 'public, max-age=86400',
+                    'Content-Disposition' => 'inline',
+                ]);
+            }
         } catch (\Throwable $e) {
-            abort(404);
+            // Fallback to local public disk if configured locally
+            try {
+                if (Storage::disk('public')->exists($cleanPath)) {
+                    return Storage::disk('public')->response($cleanPath);
+                }
+            } catch (\Throwable $ex) {
+                // Ignore
+            }
         }
+
+        abort(404, 'File media tidak ditemukan.');
     })->where('path', '.*')->name('media.show');
 
     Route::post('email/verify-otp', [EmailVerificationOtpController::class, 'verify'])->name('verification.verify_otp');
