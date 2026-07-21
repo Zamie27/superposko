@@ -52,9 +52,9 @@ const deleteArticle = (article: any) => {
                 </Link>
             </div>
 
-            <!-- Articles Data Table Container with min-h-[450px] so tooltip is NEVER clipped -->
-            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm min-h-[450px] relative">
-                <div class="overflow-x-auto sm:overflow-visible pb-48">
+            <!-- Articles Data Table Container -->
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm relative">
+                <div class="overflow-x-auto sm:overflow-visible">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">
@@ -68,7 +68,7 @@ const deleteArticle = (article: any) => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-                            <tr v-for="art in articles" :key="art.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                            <tr v-for="(art, idx) in articles" :key="art.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                                 
                                 <!-- Title & Thumbnail -->
                                 <td class="p-4 max-w-xs">
@@ -106,7 +106,7 @@ const deleteArticle = (article: any) => {
                                     </span>
                                 </td>
 
-                                <!-- Total CTA with Hover Breakdown Tooltip & Click Modal -->
+                                <!-- Total CTA with Smart Dynamic Hover Breakdown Tooltip & Click Modal -->
                                 <td class="p-4 relative">
                                     <div class="relative group/cta inline-block">
                                         <button 
@@ -119,9 +119,15 @@ const deleteArticle = (article: any) => {
                                             <span>{{ art.total_cta_count }} CTA</span>
                                         </button>
 
-                                        <!-- Hover Popup Tooltip -->
-                                        <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/cta:block w-56 p-3.5 bg-slate-900 text-white rounded-2xl shadow-2xl text-xs space-y-2 z-[100] border border-slate-700 pointer-events-none">
-                                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 -mb-1 border-4 border-transparent border-b-slate-900"></div>
+                                        <!-- Smart Dynamic Hover Popup Tooltip (idx < 2 pops DOWN, idx >= 2 pops UP) -->
+                                        <div 
+                                            :class="idx < 2 ? 'top-full mt-2' : 'bottom-full mb-2'"
+                                            class="absolute left-1/2 -translate-x-1/2 hidden group-hover/cta:block w-56 p-3.5 bg-slate-900 text-white rounded-2xl shadow-2xl text-xs space-y-2 z-[100] border border-slate-700 pointer-events-none"
+                                        >
+                                            <div 
+                                                :class="idx < 2 ? 'bottom-full -mb-1 border-b-slate-900' : 'top-full -mt-1 border-t-slate-900'"
+                                                class="absolute left-1/2 -translate-x-1/2 border-4 border-transparent"
+                                            ></div>
                                             
                                             <div class="font-bold border-b border-slate-700 pb-1.5 text-sky-400 flex items-center justify-between">
                                                 <span>Detail Interaksi CTA</span>
