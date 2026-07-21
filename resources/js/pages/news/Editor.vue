@@ -110,7 +110,7 @@ const submitForm = () => {
                     <Button 
                         @click="submitForm" 
                         :disabled="form.processing"
-                        class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold shadow-md cursor-pointer"
+                        class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white font-semibold shadow-xs cursor-pointer rounded-lg px-4 py-2"
                     >
                         <Save class="w-4 h-4 mr-2" />
                         <span>{{ form.processing ? 'Menyimpan...' : 'Simpan & Publis' }}</span>
