@@ -329,7 +329,7 @@ const getTodayName = () => {
 <template>
     <Head title="Dashboard Utama - SuperPosko" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-6 max-w-7xl mx-auto font-sans">
+    <div class="flex h-full flex-1 flex-col gap-4 sm:gap-6 p-3 sm:p-6 max-w-7xl mx-auto font-sans w-full max-w-full overflow-x-hidden">
         
         <!-- DPL Gateway Welcome Screen -->
         <template v-if="isDplGateway">
@@ -426,32 +426,32 @@ const getTodayName = () => {
         <!-- Attendance Quick Action & Status Widget Card -->
         <div 
             :class="[
-                'p-4 sm:p-5 rounded-2xl border transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4',
+                'p-3.5 sm:p-5 rounded-2xl border transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full min-w-0 overflow-hidden',
                 todayAttendance 
                     ? 'bg-emerald-500/10 dark:bg-emerald-950/30 border-emerald-300/50 dark:border-emerald-800/50' 
                     : 'bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-indigo-500/10 dark:from-sky-950/40 dark:to-indigo-950/30 border-sky-300/60 dark:border-sky-800/60 shadow-xs'
             ]"
         >
-            <div class="flex items-center gap-3.5 min-w-0">
+            <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto flex-1">
                 <div 
                     :class="[
-                        'w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 font-bold',
+                        'w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shrink-0 font-bold',
                         todayAttendance 
                             ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' 
                             : 'bg-sky-500 text-white shadow-md shadow-sky-500/20 animate-pulse'
                     ]"
                 >
-                    <CheckCircle2 v-if="todayAttendance" class="w-6 h-6" />
-                    <MapPin v-else class="w-6 h-6" />
+                    <CheckCircle2 v-if="todayAttendance" class="w-5 h-5 sm:w-6 sm:h-6" />
+                    <MapPin v-else class="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white">
                             {{ todayAttendance ? 'Sudah Absen Hari Ini' : 'Belum Absen Hari Ini' }}
                         </h3>
                         <span 
                             :class="[
-                                'px-2.5 py-0.5 text-[10px] font-extrabold rounded-full uppercase tracking-wider',
+                                'px-2.5 py-0.5 text-[10px] font-extrabold rounded-full uppercase tracking-wider shrink-0',
                                 todayAttendance 
                                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' 
                                     : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
@@ -460,7 +460,7 @@ const getTodayName = () => {
                             {{ todayAttendance ? todayAttendance.status : 'Perlu Aksi' }}
                         </span>
                     </div>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 truncate">
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-snug break-words">
                         <template v-if="todayAttendance">
                             Tercatat pukul <strong>{{ todayAttendance.time }}</strong>
                             <span v-if="todayAttendance.village"> • {{ todayAttendance.village }}</span>
@@ -475,7 +475,7 @@ const getTodayName = () => {
             <Link 
                 href="/absensi"
                 :class="[
-                    'w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs transition duration-200 shrink-0 text-center flex items-center justify-center gap-2 shadow-xs cursor-pointer',
+                    'w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs transition duration-200 shrink-0 text-center flex items-center justify-center gap-2 shadow-xs cursor-pointer',
                     todayAttendance
                         ? 'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
                         : 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/25'
@@ -487,81 +487,81 @@ const getTodayName = () => {
         </div>
 
         <!-- 6 Metrics Cards Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4 w-full">
             <!-- Kas Card -->
             <Link 
                 href="/finance"
-                class="group flex flex-col justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer"
+                class="group flex flex-col justify-between p-3 sm:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer min-w-0 overflow-hidden"
             >
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Saldo Kas</span>
-                    <div class="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl text-emerald-600 shrink-0">
+                <div class="flex items-center justify-between gap-1.5 min-w-0">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">Saldo Kas</span>
+                    <div class="p-1.5 sm:p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl text-emerald-600 shrink-0">
                         <Wallet class="size-4" />
                     </div>
                 </div>
-                <div class="mt-4">
+                <div class="mt-3 sm:mt-4 min-w-0">
                     <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                         Rp {{ Number(metrics.finance.balance).toLocaleString('id-ID') }}
                     </h4>
-                    <span class="text-[9px] font-semibold text-slate-400">Keuangan Posko</span>
+                    <span class="text-[9px] font-semibold text-slate-400 truncate block">Keuangan Posko</span>
                 </div>
             </Link>
 
             <!-- Proker Card -->
             <Link 
                 href="/logbook"
-                class="group flex flex-col justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer"
+                class="group flex flex-col justify-between p-3 sm:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer min-w-0 overflow-hidden"
             >
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Anggaran Proker</span>
-                    <div class="p-2 bg-purple-50 dark:bg-purple-500/10 rounded-xl text-purple-600 shrink-0">
+                <div class="flex items-center justify-between gap-1.5 min-w-0">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">Anggaran Proker</span>
+                    <div class="p-1.5 sm:p-2 bg-purple-50 dark:bg-purple-500/10 rounded-xl text-purple-600 shrink-0">
                         <BookOpen class="size-4" />
                     </div>
                 </div>
-                <div class="mt-4">
+                <div class="mt-3 sm:mt-4 min-w-0">
                     <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                         Rp {{ Number(metrics.proker.total_spent).toLocaleString('id-ID') }}
                     </h4>
-                    <span class="text-[9px] font-semibold text-slate-400">{{ metrics.proker.count }} Proker Terdaftar</span>
+                    <span class="text-[9px] font-semibold text-slate-400 truncate block">{{ metrics.proker.count }} Proker Terdaftar</span>
                 </div>
             </Link>
 
             <!-- Inventaris Card -->
             <Link 
                 href="/management/inventory"
-                class="group flex flex-col justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer"
+                class="group flex flex-col justify-between p-3 sm:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer min-w-0 overflow-hidden"
             >
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Inventaris</span>
-                    <div class="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl text-blue-600 shrink-0">
+                <div class="flex items-center justify-between gap-1.5 min-w-0">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">Inventaris</span>
+                    <div class="p-1.5 sm:p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl text-blue-600 shrink-0">
                         <Box class="size-4" />
                     </div>
                 </div>
-                <div class="mt-4">
-                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                <div class="mt-3 sm:mt-4 min-w-0">
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                         {{ metrics.inventory.count }} Barang
                     </h4>
-                    <span class="text-[9px] font-semibold text-slate-400">{{ metrics.inventory.good_count }} Kondisi Bagus</span>
+                    <span class="text-[9px] font-semibold text-slate-400 truncate block">{{ metrics.inventory.good_count }} Kondisi Bagus</span>
                 </div>
             </Link>
 
             <!-- Logistik Card -->
             <Link 
                 href="/management/logistic"
-                class="group flex flex-col justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer"
+                class="group flex flex-col justify-between p-3 sm:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer min-w-0 overflow-hidden"
             >
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Logistik</span>
-                    <div class="p-2 bg-amber-50 dark:bg-amber-500/10 rounded-xl text-amber-600 shrink-0">
+                <div class="flex items-center justify-between gap-1.5 min-w-0">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">Logistik</span>
+                    <div class="p-1.5 sm:p-2 bg-amber-50 dark:bg-amber-500/10 rounded-xl text-amber-600 shrink-0">
                         <ClipboardList class="size-4" />
                     </div>
                 </div>
-                <div class="mt-4">
-                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <div class="mt-3 sm:mt-4 min-w-0">
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
                         {{ metrics.logistics.count }} Bahan
-                        <span v-if="metrics.logistics.critical_count > 0" class="flex w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                        <span v-if="metrics.logistics.critical_count > 0" class="flex w-2 h-2 bg-red-500 rounded-full animate-ping shrink-0"></span>
                     </h4>
-                    <span :class="['text-[9px] font-bold', metrics.logistics.critical_count > 0 ? 'text-red-500' : 'text-slate-400']">
+                    <span :class="['text-[9px] font-bold truncate block', metrics.logistics.critical_count > 0 ? 'text-red-500' : 'text-slate-400']">
                         {{ metrics.logistics.critical_count > 0 ? metrics.logistics.critical_count + ' Menipis/Habis' : 'Stok Aman' }}
                     </span>
                 </div>
@@ -570,38 +570,38 @@ const getTodayName = () => {
             <!-- Anggota Card -->
             <Link 
                 href="/management/members"
-                class="group flex flex-col justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer"
+                class="group flex flex-col justify-between p-3 sm:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer min-w-0 overflow-hidden"
             >
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Anggota</span>
-                    <div class="p-2 bg-sky-50 dark:bg-sky-500/10 rounded-xl text-sky-600 shrink-0">
+                <div class="flex items-center justify-between gap-1.5 min-w-0">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">Anggota</span>
+                    <div class="p-1.5 sm:p-2 bg-sky-50 dark:bg-sky-500/10 rounded-xl text-sky-600 shrink-0">
                         <Users class="size-4" />
                     </div>
                 </div>
-                <div class="mt-4">
-                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                <div class="mt-3 sm:mt-4 min-w-0">
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                         {{ metrics.members.count }} Orang
                     </h4>
-                    <span class="text-[9px] font-semibold text-slate-400">Total Tim Posko</span>
+                    <span class="text-[9px] font-semibold text-slate-400 truncate block">Total Tim Posko</span>
                 </div>
             </Link>
 
             <!-- Voting & Aspirasi Card -->
             <Link 
                 href="/voting"
-                class="group flex flex-col justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer"
+                class="group flex flex-col justify-between p-3 sm:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs hover:border-sky-500 dark:hover:border-sky-500/80 transition-all duration-300 cursor-pointer min-w-0 overflow-hidden"
             >
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Voting & Aspirasi</span>
-                    <div class="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl text-indigo-600 shrink-0">
+                <div class="flex items-center justify-between gap-1.5 min-w-0">
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">Voting & Aspirasi</span>
+                    <div class="p-1.5 sm:p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl text-indigo-600 shrink-0">
                         <Vote class="size-4" />
                     </div>
                 </div>
-                <div class="mt-4">
-                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                <div class="mt-3 sm:mt-4 min-w-0">
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                         {{ metrics.voting.active_polls }} Voting Aktif
                     </h4>
-                    <span :class="['text-[9px] font-bold', metrics.voting.unresponded_aspirations > 0 ? 'text-amber-500' : 'text-slate-400']">
+                    <span :class="['text-[9px] font-bold truncate block', metrics.voting.unresponded_aspirations > 0 ? 'text-amber-500' : 'text-slate-400']">
                         {{ metrics.voting.unresponded_aspirations > 0 ? metrics.voting.unresponded_aspirations + ' Aspirasi Baru' : 'Aspirasi Terjawab' }}
                     </span>
                 </div>
@@ -612,7 +612,7 @@ const getTodayName = () => {
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             
             <!-- Left 3 Columns: Interactive Spanning Agenda Calendar (Vuetify Style) -->
-            <div class="lg:col-span-3 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
+            <div class="lg:col-span-3 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden w-full max-w-full">
                 <!-- Calendar Header controls -->
                 <div class="p-4 border-b border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950 flex flex-col sm:flex-row justify-between items-center gap-3">
                     <h3 class="text-xs sm:text-sm font-bold text-slate-850 dark:text-slate-200 flex items-center gap-2">
