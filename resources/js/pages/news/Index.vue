@@ -194,8 +194,12 @@ const resetFilters = () => {
                 <!-- Left Column (8 cols) -->
                 <div class="lg:col-span-8 space-y-8">
                     
-                    <!-- Featured Hero Article Card (Light Mode) -->
-                    <div v-if="featuredArticle" class="group relative rounded-2xl overflow-hidden bg-white border border-slate-200/80 shadow-md hover:shadow-xl transition-all duration-300">
+                    <!-- Featured Hero Article Card (Light Mode - Entirely Clickable) -->
+                    <Link 
+                        v-if="featuredArticle" 
+                        :href="`/berita/${featuredArticle.slug}`"
+                        class="block group relative rounded-2xl overflow-hidden bg-white border border-slate-200/80 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+                    >
                         <!-- Cover Image -->
                         <div class="aspect-video w-full overflow-hidden bg-slate-100 relative">
                             <img 
@@ -214,13 +218,11 @@ const resetFilters = () => {
                             </div>
 
                             <!-- Title -->
-                            <Link :href="`/berita/${featuredArticle.slug}`">
-                                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 group-hover:text-[#38BDF8] transition-colors leading-tight">
-                                    {{ featuredArticle.title }}
-                                </h2>
-                            </Link>
+                            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 group-hover:text-[#38BDF8] transition-colors leading-tight">
+                                {{ featuredArticle.title }}
+                            </h2>
 
-                            <!-- Meta Info -->
+                            <!-- Meta Info with Total Views -->
                             <div class="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-500">
                                 <div class="flex items-center gap-2 font-bold text-slate-800">
                                     <img :src="featuredArticle.posko_logo_url" alt="Logo Posko" class="w-5 h-5 rounded-full object-cover border border-slate-200" />
@@ -234,6 +236,10 @@ const resetFilters = () => {
                                     <Clock class="w-4 h-4 text-slate-400" />
                                     <span>{{ featuredArticle.reading_time_minutes }} menit baca</span>
                                 </div>
+                                <div class="flex items-center gap-1.5 font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-100">
+                                    <Eye class="w-4 h-4" />
+                                    <span>{{ featuredArticle.views_count || 0 }} dilihat</span>
+                                </div>
                             </div>
 
                             <!-- Excerpt -->
@@ -243,16 +249,13 @@ const resetFilters = () => {
 
                             <!-- Action Button -->
                             <div class="pt-2">
-                                <Link 
-                                    :href="`/berita/${featuredArticle.slug}`" 
-                                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white text-sm font-bold shadow-md transition-all"
-                                >
+                                <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white text-sm font-bold shadow-md transition-all">
                                     <span>Baca Selengkapnya</span>
                                     <ArrowRight class="w-4 h-4" />
-                                </Link>
+                                </span>
                             </div>
                         </div>
-                    </div>
+                    </Link>
 
                     <!-- Article Grid Header -->
                     <div class="flex items-center justify-between pt-2">
@@ -263,12 +266,13 @@ const resetFilters = () => {
                         <span class="text-xs font-semibold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200">{{ articles.length }} artikel</span>
                     </div>
 
-                    <!-- Articles Grid (2 columns on sm/md) -->
+                    <!-- Articles Grid (2 columns - Entire Card Clickable + Views Count) -->
                     <div v-if="articles.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div 
+                        <Link 
                             v-for="art in articles" 
                             :key="art.id" 
-                            class="group rounded-2xl bg-white border border-slate-200/80 hover:border-sky-300 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md"
+                            :href="`/berita/${art.slug}`"
+                            class="block group rounded-2xl bg-white border border-slate-200/80 hover:border-sky-300 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md cursor-pointer"
                         >
                             <!-- Article Image Thumbnail -->
                             <div class="aspect-[16/10] w-full overflow-hidden bg-slate-100 relative">
@@ -287,18 +291,23 @@ const resetFilters = () => {
                             <!-- Card Body -->
                             <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
                                 <div class="space-y-2">
-                                    <!-- Meta -->
+                                    <!-- Meta Info with Views Count -->
                                     <div class="flex items-center justify-between text-xs text-slate-500">
-                                        <span>{{ art.published_at }}</span>
-                                        <span>{{ art.reading_time_minutes }} menit</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <span>{{ art.published_at }}</span>
+                                            <span>•</span>
+                                            <span>{{ art.reading_time_minutes }} menit</span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-sky-600 font-bold bg-sky-50 px-2 py-0.5 rounded-md border border-sky-100">
+                                            <Eye class="w-3.5 h-3.5" />
+                                            <span>{{ art.views_count || 0 }} dilihat</span>
+                                        </div>
                                     </div>
 
                                     <!-- Title -->
-                                    <Link :href="`/berita/${art.slug}`">
-                                        <h4 class="text-base font-bold text-slate-900 group-hover:text-[#38BDF8] transition-colors line-clamp-2 leading-snug">
-                                            {{ art.title }}
-                                        </h4>
-                                    </Link>
+                                    <h4 class="text-base font-bold text-slate-900 group-hover:text-[#38BDF8] transition-colors line-clamp-2 leading-snug">
+                                        {{ art.title }}
+                                    </h4>
 
                                     <!-- Excerpt -->
                                     <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">
@@ -314,16 +323,13 @@ const resetFilters = () => {
                                         <span class="truncate font-semibold">{{ art.author_display_name }}</span>
                                     </div>
 
-                                    <Link 
-                                        :href="`/berita/${art.slug}`" 
-                                        class="text-xs font-bold text-[#38BDF8] hover:text-sky-600 flex items-center gap-1 group-hover:translate-x-1 transition-transform"
-                                    >
+                                    <span class="text-xs font-bold text-[#38BDF8] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                                         <span>Baca</span>
                                         <ArrowRight class="w-3.5 h-3.5" />
-                                    </Link>
+                                    </span>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     </div>
 
                     <!-- Empty State -->
