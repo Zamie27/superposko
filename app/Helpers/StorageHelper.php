@@ -24,11 +24,6 @@ class StorageHelper
             return $path;
         }
 
-        $awsUrl = env('AWS_URL');
-        if ($awsUrl && ! Str::contains($awsUrl, ['minio:9000', 'localhost:9000'])) {
-            return rtrim($awsUrl, '/').'/'.ltrim($path, '/');
-        }
-
         return url('/media/'.ltrim($path, '/'));
     }
 }
