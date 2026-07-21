@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import InputError from '@/components/InputError.vue';
 import { 
     ArrowLeft, Save, Image as ImageIcon, Heading1, Heading2, 
-    Bold, Italic, List, Quote, Sparkles, Eye, Edit3, Wand2, FileText, CheckCircle2 
+    Bold, Italic, List, Quote, Sparkles, Eye, Edit3, Wand2, FileText, Code 
 } from '@lucide/vue';
 import { useToast } from '@/composables/useToast';
 
@@ -17,7 +17,8 @@ const props = defineProps<{
 const toast = useToast();
 
 const isEditing = computed(() => !!props.article?.id);
-const activeTab = ref<'write' | 'preview'>('write');
+const activeTab = ref<'editor' | 'preview'>('editor');
+const isCodeMode = ref(false);
 
 const form = useForm({
     title: props.article?.title || '',
@@ -30,7 +31,26 @@ const form = useForm({
 });
 
 const previewCoverUrl = ref<string | null>(props.article?.cover_image_url || null);
-const editorRef = ref<HTMLTextAreaElement | null>(null);
+const visualEditorRef = ref<HTMLDivElement | null>(null);
+
+// Sync visual editor content to form.content
+const syncContentFromVisual = () => {
+    if (visualEditorRef.value && !isCodeMode.value) {
+        form.content = visualEditorRef.value.innerHTML;
+    }
+};
+
+// Exec WYSIWYG formatting commands
+const execFormat = (command: string, value: string | null = null) => {
+    if (isCodeMode.value) return;
+    
+    document.execCommand(command, false, value ?? undefined);
+    syncContentFromVisual();
+    
+    if (visualEditorRef.value) {
+        visualEditorRef.value.focus();
+    }
+};
 
 const handleFileSelect = (event: Event) => {
     const target = event.target as HTMLInputElement;
@@ -39,23 +59,6 @@ const handleFileSelect = (event: Event) => {
         form.cover_image = file;
         previewCoverUrl.value = URL.createObjectURL(file);
     }
-};
-
-const insertFormatting = (openTag: string, closeTag: string = '', defaultText: string = 'teks di sini') => {
-    const textarea = editorRef.value;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = form.content.substring(start, end) || defaultText;
-    const replacement = `${openTag}${selectedText}${closeTag}`;
-
-    form.content = form.content.substring(0, start) + replacement + form.content.substring(end);
-    
-    // Focus back to editor
-    setTimeout(() => {
-        textarea.focus();
-    }, 50);
 };
 
 const loadSampleTemplate = () => {
@@ -67,7 +70,7 @@ const loadSampleTemplate = () => {
     form.category = 'Kegiatan Posko';
     form.tags = 'KKN, Pengabdian, Desa, Kegiatan';
     
-    form.content = `<h2>Latar Belakang Kegiatan</h2>
+    const sampleHtml = `<h2>Latar Belakang Kegiatan</h2>
 <p>Dalam rangka mendukung pemberdayaan masyarakat desa, tim mahasiswa KKN Posko melaksanakan program kerja utama berupa sosialisasi dan pendampingan warga secara langsung.</p>
 
 <h2>Tujuan & Sasaran</h2>
@@ -83,6 +86,11 @@ const loadSampleTemplate = () => {
 <h2>Hasil & Impact Pengabdian</h2>
 <p>Kegiatan berjalan dengan lancar dan disambut antusias oleh seluruh warga. Seluruh rangkaian program terlaksana sesuai dengan jadwal perencanaan posko.</p>`;
 
+    form.content = sampleHtml;
+    if (visualEditorRef.value) {
+        visualEditorRef.value.innerHTML = sampleHtml;
+    }
+
     form.excerpt = 'Sosialisasi dan pendampingan masyarakat desa oleh tim mahasiswa KKN Posko secara langsung untuk peningkatan kesejahteraan warga.';
     toast.success('Template berita posko berhasil dimuat!');
 };
@@ -93,23 +101,37 @@ const generateAutoExcerpt = () => {
         return;
     }
 
-    // Strip HTML tags to get pure plain text
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = form.content;
     const plainText = tempDiv.textContent || tempDiv.innerText || '';
     
-    // Take first 160 characters
     const trimmed = plainText.trim().substring(0, 160);
     form.excerpt = trimmed ? `${trimmed}...` : '';
     toast.success('Ringkasan singkat berhasil dibuat otomatis!');
 };
 
+const toggleCodeMode = () => {
+    if (isCodeMode.value) {
+        // Exiting code mode: apply textarea content to visual editor
+        if (visualEditorRef.value) {
+            visualEditorRef.value.innerHTML = form.content;
+        }
+        isCodeMode.value = false;
+    } else {
+        // Entering code mode: get HTML from visual editor
+        syncContentFromVisual();
+        isCodeMode.value = true;
+    }
+};
+
 const submitForm = () => {
+    syncContentFromVisual();
+
     if (!form.title.trim()) {
         toast.error('Judul berita tidak boleh kosong.');
         return;
     }
-    if (!form.content.trim()) {
+    if (!form.content.trim() || form.content === '<br>') {
         toast.error('Isi konten berita tidak boleh kosong.');
         return;
     }
@@ -144,6 +166,12 @@ const submitForm = () => {
         });
     }
 };
+
+onMounted(() => {
+    if (visualEditorRef.value && form.content) {
+        visualEditorRef.value.innerHTML = form.content;
+    }
+});
 </script>
 
 <template>
@@ -169,7 +197,7 @@ const submitForm = () => {
                 <button 
                     @click="loadSampleTemplate"
                     type="button"
-                    class="px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 text-xs font-bold border border-amber-300 dark:border-amber-800 flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
+                    class="px-3.5 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 text-xs font-bold border border-amber-300 dark:border-amber-800 flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
                     title="Isi otomatis dengan struktur berita posko standar"
                 >
                     <Wand2 class="w-4 h-4 text-amber-500" />
@@ -187,15 +215,6 @@ const submitForm = () => {
                     <Save class="w-4 h-4 mr-2" />
                     <span>{{ form.processing ? 'Menyimpan...' : 'Simpan & Publis' }}</span>
                 </Button>
-            </div>
-        </div>
-
-        <!-- Friendly Tip Box -->
-        <div class="p-4 rounded-xl bg-sky-50 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800 text-xs text-sky-800 dark:text-sky-300 flex items-start gap-3">
-            <Sparkles class="w-5 h-5 text-[#38BDF8] shrink-0 mt-0.5" />
-            <div class="space-y-1">
-                <p class="font-bold">Mudah & Tanpa Perlu Koding HTML!</p>
-                <p>Klik tombol <strong>"Gunakan Template Berita"</strong> di kanan atas untuk memuat contoh struktur tulisan posko secara otomatis, atau gunakan tombol bantuan judul/tebal di atas kolom ketik.</p>
             </div>
         </div>
 
@@ -219,23 +238,23 @@ const submitForm = () => {
                     <InputError :message="form.errors.title" />
                 </div>
 
-                <!-- Editor Toolbar & Live Preview Tabs Header -->
+                <!-- Editor Container -->
                 <div class="space-y-2">
                     <div class="flex items-center justify-between">
                         <label class="text-sm font-bold text-slate-900 dark:text-white block">
                             Isi Konten Artikel <span class="text-rose-500">*</span>
                         </label>
                         
-                        <!-- Tab Switcher: Write vs Preview -->
+                        <!-- Mode Tabs (Visual Editor vs Preview) -->
                         <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
                             <button 
-                                @click="activeTab = 'write'" 
+                                @click="activeTab = 'editor'" 
                                 type="button"
-                                :class="activeTab === 'write' ? 'bg-white dark:bg-slate-900 text-[#38BDF8] font-bold shadow-2xs' : 'text-slate-600 dark:text-slate-400'"
+                                :class="activeTab === 'editor' ? 'bg-white dark:bg-slate-900 text-[#38BDF8] font-bold shadow-2xs' : 'text-slate-600 dark:text-slate-400'"
                                 class="px-3 py-1 text-xs rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
                             >
                                 <Edit3 class="w-3.5 h-3.5" />
-                                <span>Tulis Artikel</span>
+                                <span>Editor Visual (WYSIWYG)</span>
                             </button>
                             <button 
                                 @click="activeTab = 'preview'" 
@@ -244,105 +263,130 @@ const submitForm = () => {
                                 class="px-3 py-1 text-xs rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
                             >
                                 <Eye class="w-3.5 h-3.5" />
-                                <span>Pratinjau Hasil Tampilan</span>
+                                <span>Pratinjau Hasil</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Mode Write Editor -->
-                    <div v-show="activeTab === 'write'" class="rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+                    <!-- WYSIWYG Visual Editor Mode -->
+                    <div v-show="activeTab === 'editor'" class="rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-2xs">
                         
-                        <!-- Easy Formatting Helper Toolbar -->
-                        <div class="flex flex-wrap items-center gap-1.5 p-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
-                            <button 
-                                @click="insertFormatting('<h2>', '</h2>', 'Judul Bab Utama')" 
-                                type="button" 
-                                class="px-2 py-1 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-sky-400 text-xs font-bold flex items-center gap-1 text-sky-600 dark:text-sky-400 cursor-pointer shadow-2xs" 
-                                title="Judul Utama Bab (H2)"
-                            >
-                                <Heading1 class="w-3.5 h-3.5" />
-                                <span>Judul Bab (H2)</span>
-                            </button>
+                        <!-- Visual Toolbar Buttons -->
+                        <div class="flex flex-wrap items-center justify-between gap-1.5 p-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <button 
+                                    @click="execFormat('formatBlock', '<h2>')" 
+                                    type="button" 
+                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 text-sky-600 dark:text-sky-400 cursor-pointer shadow-2xs" 
+                                    title="Judul Utama Bab (H2)"
+                                >
+                                    <Heading1 class="w-3.5 h-3.5" />
+                                    <span>Judul Bab (H2)</span>
+                                </button>
 
-                            <button 
-                                @click="insertFormatting('<h3>', '</h3>', 'Sub Judul')" 
-                                type="button" 
-                                class="px-2 py-1 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-sky-400 text-xs font-bold flex items-center gap-1 text-sky-600 dark:text-sky-400 cursor-pointer shadow-2xs" 
-                                title="Sub-Bab (H3)"
-                            >
-                                <Heading2 class="w-3.5 h-3.5" />
-                                <span>Sub-Bab (H3)</span>
-                            </button>
+                                <button 
+                                    @click="execFormat('formatBlock', '<h3>')" 
+                                    type="button" 
+                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 text-sky-600 dark:text-sky-400 cursor-pointer shadow-2xs" 
+                                    title="Sub-Bab (H3)"
+                                >
+                                    <Heading2 class="w-3.5 h-3.5" />
+                                    <span>Sub-Bab (H3)</span>
+                                </button>
 
-                            <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
+                                <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
 
-                            <button 
-                                @click="insertFormatting('<b>', '</b>', 'teks tebal')" 
-                                type="button" 
-                                class="px-2 py-1 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-sky-400 text-xs font-bold flex items-center gap-1 cursor-pointer shadow-2xs" 
-                                title="Cetak Tebal"
-                            >
-                                <Bold class="w-3.5 h-3.5" />
-                                <span>Tebal</span>
-                            </button>
+                                <button 
+                                    @click="execFormat('bold')" 
+                                    type="button" 
+                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 cursor-pointer shadow-2xs" 
+                                    title="Cetak Tebal"
+                                >
+                                    <Bold class="w-3.5 h-3.5" />
+                                    <span>Tebal</span>
+                                </button>
 
-                            <button 
-                                @click="insertFormatting('<i>', '</i>', 'teks miring')" 
-                                type="button" 
-                                class="px-2 py-1 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-sky-400 text-xs font-bold flex items-center gap-1 cursor-pointer shadow-2xs" 
-                                title="Cetak Miring"
-                            >
-                                <Italic class="w-3.5 h-3.5" />
-                                <span>Miring</span>
-                            </button>
+                                <button 
+                                    @click="execFormat('italic')" 
+                                    type="button" 
+                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 cursor-pointer shadow-2xs" 
+                                    title="Cetak Miring"
+                                >
+                                    <Italic class="w-3.5 h-3.5" />
+                                    <span>Miring</span>
+                                </button>
 
-                            <button 
-                                @click="insertFormatting('<blockquote>', '</blockquote>', 'Kutipan pesan tokoh / warga')" 
-                                type="button" 
-                                class="px-2 py-1 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-sky-400 text-xs font-bold flex items-center gap-1 text-amber-600 dark:text-amber-400 cursor-pointer shadow-2xs" 
-                                title="Format Kutipan Kalimat"
-                            >
-                                <Quote class="w-3.5 h-3.5" />
-                                <span>Kutipan</span>
-                            </button>
+                                <button 
+                                    @click="execFormat('formatBlock', '<blockquote>')" 
+                                    type="button" 
+                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 text-amber-600 dark:text-amber-400 cursor-pointer shadow-2xs" 
+                                    title="Format Kutipan"
+                                >
+                                    <Quote class="w-3.5 h-3.5" />
+                                    <span>Kutipan</span>
+                                </button>
 
-                            <button 
-                                @click="insertFormatting('<ul>\n  <li>', '</li>\n  <li>Poin kedua</li>\n</ul>', 'Poin pertama')" 
-                                type="button" 
-                                class="px-2 py-1 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-sky-400 text-xs font-bold flex items-center gap-1 text-indigo-600 dark:text-indigo-400 cursor-pointer shadow-2xs" 
-                                title="Daftar List Poin"
-                            >
-                                <List class="w-3.5 h-3.5" />
-                                <span>Daftar Poin</span>
-                            </button>
+                                <button 
+                                    @click="execFormat('insertUnorderedList')" 
+                                    type="button" 
+                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 text-indigo-600 dark:text-indigo-400 cursor-pointer shadow-2xs" 
+                                    title="Daftar Poin"
+                                >
+                                    <List class="w-3.5 h-3.5" />
+                                    <span>Daftar Poin</span>
+                                </button>
 
+                                <button 
+                                    @click="execFormat('formatBlock', '<p>')" 
+                                    type="button" 
+                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold cursor-pointer shadow-2xs" 
+                                    title="Normal Paragraf"
+                                >
+                                    <span>Paragraf Normal</span>
+                                </button>
+                            </div>
+
+                            <!-- Mode HTML Toggle -->
                             <button 
-                                @click="insertFormatting('<p>', '</p>', 'Tuliskan isi paragraf penjelasan di sini...')" 
+                                @click="toggleCodeMode" 
                                 type="button" 
-                                class="px-2 py-1 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-sky-400 text-xs font-bold cursor-pointer shadow-2xs" 
-                                title="Paragraf Baru"
+                                class="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 border border-transparent hover:border-slate-300 dark:hover:border-slate-600 transition-colors cursor-pointer"
+                                title="Beralih ke mode Kode HTML"
                             >
-                                <span>Paragraf</span>
+                                <Code class="w-3.5 h-3.5 text-slate-400" />
+                                <span>{{ isCodeMode ? 'Beralih ke Mode Visual' : 'Mode Kode HTML' }}</span>
                             </button>
                         </div>
 
-                        <!-- Main Editor Textarea -->
+                        <!-- 1. Real Visual ContentEditable Editor (Default) -->
+                        <div 
+                            v-if="!isCodeMode"
+                            ref="visualEditorRef"
+                            contenteditable="true"
+                            @input="syncContentFromVisual"
+                            @blur="syncContentFromVisual"
+                            @keyup="syncContentFromVisual"
+                            class="visual-wysiwyg-editor min-h-[350px] p-5 font-sans text-slate-900 dark:text-white leading-relaxed outline-none cursor-text"
+                            placeholder="Ketik artikel Anda di sini secara langsung seperti di Word..."
+                        ></div>
+
+                        <!-- 2. Code HTML Editor (Advanced Mode) -->
                         <textarea 
-                            ref="editorRef"
+                            v-else
                             v-model="form.content" 
                             rows="16" 
-                            placeholder="Tulis berita kegiatan posko di sini... Gunakan tombol 'Judul Bab (H2)' di atas untuk membagi sub-bab tulisan Anda."
-                            class="w-full bg-white dark:bg-slate-900 px-4 py-3 text-sm text-slate-900 dark:text-white leading-relaxed placeholder-slate-400 focus:outline-none font-sans"
+                            placeholder="Kode HTML artikel..."
+                            class="w-full bg-slate-900 text-sky-300 font-mono text-xs p-4 outline-none leading-relaxed"
                         ></textarea>
                     </div>
 
-                    <!-- Mode Live Preview Container -->
-                    <div v-show="activeTab === 'preview'" class="rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 min-h-[400px]">
-                        <div v-if="form.content" class="prose prose-slate dark:prose-invert max-w-none space-y-4" v-html="form.content"></div>
+                    <!-- Live Preview Mode Container -->
+                    <div v-show="activeTab === 'preview'" class="rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 min-h-[350px]">
+                        <div v-if="form.content" class="visual-wysiwyg-editor space-y-4" v-html="form.content"></div>
                         <div v-else class="text-center py-16 text-slate-400 space-y-2">
                             <FileText class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700" />
                             <p class="font-medium">Belum ada teks yang ditulis.</p>
-                            <p class="text-xs text-slate-500">Pindah ke tab 'Tulis Artikel' untuk mulai menulis.</p>
+                            <p class="text-xs text-slate-500">Mulai ketik pada tab Editor Visual.</p>
                         </div>
                     </div>
 
@@ -440,3 +484,51 @@ const submitForm = () => {
 
     </div>
 </template>
+
+<style>
+/* Real visual WYSIWYG editor styling - zero raw tags visible */
+.visual-wysiwyg-editor h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+.visual-wysiwyg-editor h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0284c7;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+.visual-wysiwyg-editor p {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+.visual-wysiwyg-editor ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+.visual-wysiwyg-editor ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+.visual-wysiwyg-editor blockquote {
+    border-left: 4px solid #38bdf8;
+    padding-left: 1rem;
+    font-style: italic;
+    color: #475569;
+    margin: 1rem 0;
+    background-color: #f8fafc;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+}
+.visual-wysiwyg-editor b, .visual-wysiwyg-editor strong {
+    font-weight: 700;
+}
+.visual-wysiwyg-editor i, .visual-wysiwyg-editor em {
+    font-style: italic;
+}
+</style>
