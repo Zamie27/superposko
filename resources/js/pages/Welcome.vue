@@ -129,6 +129,7 @@ const faqs = [
                 <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
                     <Link href="/" class="text-[#38BDF8] transition-colors">Home</Link>
                     <Link href="/event" class="hover:text-[#38BDF8] transition-colors">Event</Link>
+                    <Link href="/berita" class="hover:text-[#38BDF8] transition-colors">Berita</Link>
                     <Link href="/panduan" class="hover:text-[#38BDF8] transition-colors">Panduan</Link>
                     <a href="#fitur" class="hover:text-[#38BDF8] transition-colors">Fitur</a>
                     <a href="#pricing" class="hover:text-[#38BDF8] transition-colors">Harga</a>
@@ -180,6 +181,7 @@ const faqs = [
                 <nav class="flex flex-col gap-4 text-sm font-semibold text-slate-600">
                     <Link href="/" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Home</Link>
                     <Link href="/event" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Event</Link>
+                    <Link href="/berita" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Berita</Link>
                     <Link href="/panduan" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Panduan</Link>
                     <a href="#fitur" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Fitur</a>
                     <a href="#pricing" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Harga</a>

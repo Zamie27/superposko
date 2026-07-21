@@ -59,6 +59,7 @@ result += '-' + part3;
                     <h4 class="text-xs font-bold uppercase tracking-wider text-white">Pintasan</h4>
                     <ul class="mt-4 space-y-2.5 text-sm">
                         <li><Link href="/" class="hover:text-[#38BDF8] transition-colors">Home Page</Link></li>
+                        <li><Link href="/berita" class="hover:text-[#38BDF8] transition-colors">Berita & Artikel</Link></li>
                         <li><Link href="/about" class="hover:text-[#38BDF8] transition-colors">Tentang Kami</Link></li>
                         <li><Link href="/panduan" class="hover:text-[#38BDF8] transition-colors">Panduan</Link></li>
                         <li><Link href="/privacy" class="hover:text-[#38BDF8] transition-colors">Kebijakan Privasi</Link></li>

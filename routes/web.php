@@ -28,6 +28,8 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\LogisticController;
 use App\Http\Controllers\MemberActivityLogController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\NewsManagementController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\Payment\SubscriptionRequestController;
 use App\Http\Controllers\PaymentController;
@@ -89,6 +91,10 @@ Route::get('banned', function () {
 })->name('banned');
 
 Route::get('panduan', [DocumentationController::class, 'showPublicDoc'])->name('documentation.public');
+
+// Public News / Articles Routes
+Route::get('berita', [NewsController::class, 'index'])->name('news.index');
+Route::get('berita/{slug}', [NewsController::class, 'show'])->name('news.show');
 
 Route::get('about', function () {
     return Inertia::render('static/About', [
@@ -287,6 +293,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('management/logistic/{logistic}', [LogisticController::class, 'update'])->name('management.logistic.update');
         Route::delete('management/logistic/{logistic}', [LogisticController::class, 'destroy'])->name('management.logistic.destroy');
         Route::post('management/logistic/barang-keluar', [LogisticController::class, 'barangKeluar'])->name('management.logistic.barang-keluar');
+
+        // News / Article Management (Berita Posko KKN)
+        Route::get('management/news', [NewsManagementController::class, 'index'])->name('news-management.index');
+        Route::get('management/news/create', [NewsManagementController::class, 'create'])->name('news-management.create');
+        Route::post('management/news', [NewsManagementController::class, 'store'])->name('news-management.store');
+        Route::get('management/news/{article}/edit', [NewsManagementController::class, 'edit'])->name('news-management.edit');
+        Route::post('management/news/{article}', [NewsManagementController::class, 'update'])->name('news-management.update');
+        Route::delete('management/news/{article}', [NewsManagementController::class, 'destroy'])->name('news-management.destroy');
 
         // Personal Belongings Checklist (Barang Bawaan Pribadi KKN)
         Route::get('personal-belongings', [PersonalBelongingController::class, 'index'])->name('personal-belongings.index');

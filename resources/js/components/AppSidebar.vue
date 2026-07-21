@@ -4,7 +4,7 @@ import {
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
     ShoppingBag, Settings, Clock, Server, ClipboardList, Calendar, Briefcase, Download,
-    Bell, Bug, FileText, Camera, Network, Coins
+    Bell, Bug, FileText, Camera, Network, Coins, Newspaper
 } from '@lucide/vue';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
@@ -251,6 +251,12 @@ const navGroups = computed<NavGroup[]>(() => {
         {
             title: 'Hubungan Masyarakat & Media',
             items: [
+                {
+                    title: 'Berita Posko',
+                    href: '/management/news',
+                    icon: Newspaper,
+                    locked: !isSubscribed,
+                },
                 {
                     title: 'Buku Kontak',
                     href: '/contacts',
