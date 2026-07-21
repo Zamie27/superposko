@@ -330,7 +330,7 @@ class AttendanceController extends Controller
         // Background
         imagefill($img, 0, 0, $bg);
         imagesetthickness($img, 8);
-        imagerectangle($img, 16, 16, $width - 16, $height - 16);
+        imagerectangle($img, 16, 16, $width - 16, $height - 16, $dark);
 
         // Logo SuperPosko
         $logoPath = public_path('logo_superposko.png');
