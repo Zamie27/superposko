@@ -305,10 +305,14 @@ class AttendanceController extends Controller
         $storagePath = "client/{$groupSlug}/image/qr_poster.png";
 
         // 1. If already generated & stored in MinIO bucket, stream direct download
-        if (Storage::disk($disk)->exists($storagePath)) {
-            return Storage::disk($disk)->download($storagePath, "Poster-QR-Absensi-{$groupSlug}.png", [
-                'Content-Type' => 'image/png',
-            ]);
+        try {
+            if (Storage::disk($disk)->exists($storagePath)) {
+                return Storage::disk($disk)->download($storagePath, "Poster-QR-Absensi-{$groupSlug}.png", [
+                    'Content-Type' => 'image/png',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // File does not exist yet in S3/MinIO
         }
 
         // 2. Generate poster image using PHP GD
@@ -395,17 +399,21 @@ class AttendanceController extends Controller
             // Ignore upload exception if offline
         }
 
-        @unlink($tempPath);
-
         // Return streamed attachment download from MinIO / disk
-        if (Storage::disk($disk)->exists($storagePath)) {
-            return Storage::disk($disk)->download($storagePath, "Poster-QR-Absensi-{$groupSlug}.png", [
-                'Content-Type' => 'image/png',
-            ]);
+        try {
+            if (Storage::disk($disk)->exists($storagePath)) {
+                @unlink($tempPath);
+
+                return Storage::disk($disk)->download($storagePath, "Poster-QR-Absensi-{$groupSlug}.png", [
+                    'Content-Type' => 'image/png',
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Fallback to local response download
         }
 
         return response()->download($tempPath, "Poster-QR-Absensi-{$groupSlug}.png", [
             'Content-Type' => 'image/png',
-        ]);
+        ])->deleteFileAfterSend(true);
     }
 }
