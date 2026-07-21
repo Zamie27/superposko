@@ -69,14 +69,16 @@ const resetFilters = () => {
                 </Link>
 
                 <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-                    <Link href="/" class="hover:text-white transition-colors">Beranda</Link>
-                    <Link href="/event" class="hover:text-white transition-colors">Event Testing</Link>
+                    <Link href="/" class="hover:text-white transition-colors">Home</Link>
+                    <Link href="/event" class="hover:text-white transition-colors">Event</Link>
                     <Link href="/berita" class="text-sky-400 font-bold flex items-center gap-1.5">
                         <span>Berita</span>
                         <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
                     </Link>
                     <Link href="/panduan" class="hover:text-white transition-colors">Panduan</Link>
-                    <Link href="/about" class="hover:text-white transition-colors">Tentang Kami</Link>
+                    <a href="/#fitur" class="hover:text-white transition-colors">Fitur</a>
+                    <a href="/#pricing" class="hover:text-white transition-colors">Harga</a>
+                    <a href="/#faq" class="hover:text-white transition-colors">FAQ</a>
                 </nav>
 
                 <div class="hidden md:flex items-center gap-3">
@@ -95,11 +97,13 @@ const resetFilters = () => {
 
             <!-- Mobile Drawer -->
             <div v-if="isMenuOpen" class="md:hidden border-b border-slate-800 bg-[#0F172A] px-4 pt-2 pb-6 space-y-3">
-                <Link href="/" @click="isMenuOpen = false" class="block py-2 text-slate-300 hover:text-white font-medium">Beranda</Link>
-                <Link href="/event" @click="isMenuOpen = false" class="block py-2 text-slate-300 hover:text-white font-medium">Event Testing</Link>
+                <Link href="/" @click="isMenuOpen = false" class="block py-2 text-slate-300 hover:text-white font-medium">Home</Link>
+                <Link href="/event" @click="isMenuOpen = false" class="block py-2 text-slate-300 hover:text-white font-medium">Event</Link>
                 <Link href="/berita" @click="isMenuOpen = false" class="block py-2 text-sky-400 font-bold">Berita & Artikel</Link>
                 <Link href="/panduan" @click="isMenuOpen = false" class="block py-2 text-slate-300 hover:text-white font-medium">Panduan</Link>
-                <Link href="/about" @click="isMenuOpen = false" class="block py-2 text-slate-300 hover:text-white font-medium">Tentang Kami</Link>
+                <a href="/#fitur" @click="isMenuOpen = false" class="block py-2 text-slate-300 hover:text-white font-medium">Fitur</a>
+                <a href="/#pricing" @click="isMenuOpen = false" class="block py-2 text-slate-300 hover:text-white font-medium">Harga</a>
+                <a href="/#faq" @click="isMenuOpen = false" class="block py-2 text-slate-300 hover:text-white font-medium">FAQ</a>
                 <div class="pt-4 flex flex-col gap-2">
                     <Link href="/login" class="w-full text-center py-2.5 text-sm font-semibold text-slate-300 bg-slate-800 rounded-xl">Masuk</Link>
                     <Link href="/register" class="w-full text-center py-2.5 text-sm font-semibold bg-gradient-to-r from-sky-500 to-indigo-600 text-white rounded-xl">Daftar Posko</Link>

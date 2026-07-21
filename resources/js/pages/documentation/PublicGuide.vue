@@ -105,9 +105,11 @@ const selectTopic = (slug: string) => {
                 <nav class="flex flex-col gap-4 text-sm font-semibold text-slate-600">
                     <Link href="/" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Home</Link>
                     <Link href="/event" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Event</Link>
-                    <Link href="/panduan" @click="isMenuOpen = false" class="text-[#38BDF8]">Panduan</Link>
+                    <Link href="/berita" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Berita</Link>
+                    <Link href="/panduan" @click="isMenuOpen = false" class="text-[#38BDF8] font-bold">Panduan</Link>
                     <a href="/#fitur" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Fitur</a>
                     <a href="/#pricing" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">Harga</a>
+                    <a href="/#faq" @click="isMenuOpen = false" class="hover:text-[#38BDF8]">FAQ</a>
                     <div class="h-px bg-slate-200/50 my-2"></div>
                     <Link
                         v-if="$page.props.auth.user"
