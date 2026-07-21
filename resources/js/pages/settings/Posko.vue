@@ -126,6 +126,16 @@ const handleLogoChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files[0]) {
         const file = target.files[0];
+        
+        // Client side check max 5MB (5 * 1024 * 1024)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Ukuran berkas logo terlalu besar! Maksimal 5MB. Silakan gunakan berkas gambar yang lebih kecil.');
+            target.value = '';
+            logoForm.logo = null;
+            return;
+        }
+
+        logoForm.clearErrors();
         logoForm.logo = file;
         logoPreview.value = URL.createObjectURL(file);
     }

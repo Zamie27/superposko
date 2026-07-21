@@ -97,7 +97,12 @@ class PoskoSettingsController extends Controller
     public function uploadLogo(Request $request): RedirectResponse
     {
         $request->validate([
-            'logo' => ['required', 'image', 'mimes:png,jpg,jpeg,svg,webp', 'max:5120'],
+            'logo' => ['required', 'file', 'mimes:png,jpg,jpeg,svg,webp,gif', 'max:10240'],
+        ], [
+            'logo.uploaded' => 'Berkas logo gagal diunggah. Ukuran berkas melebihi batas maksimum PHP server (upload_max_filesize). Silakan gunakan gambar yang lebih kecil atau di bawah 2MB.',
+            'logo.max' => 'Ukuran berkas logo maksimal 10MB.',
+            'logo.mimes' => 'Format berkas logo harus berupa PNG, JPG, JPEG, SVG, atau WEBP.',
+            'logo.required' => 'Silakan pilih berkas logo terlebih dahulu.',
         ]);
 
         $host = $this->getHostUser();
@@ -108,7 +113,11 @@ class PoskoSettingsController extends Controller
         $path = $file->store("client/{$groupSlug}/logo", $disk);
 
         if ($host->posko_logo_url && Storage::disk($disk)->exists($host->posko_logo_url)) {
-            Storage::disk($disk)->delete($host->posko_logo_url);
+            try {
+                Storage::disk($disk)->delete($host->posko_logo_url);
+            } catch (\Throwable $e) {
+                // Ignore delete error
+            }
         }
 
         $host->update([
