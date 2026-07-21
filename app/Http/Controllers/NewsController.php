@@ -145,7 +145,7 @@ class NewsController extends Controller
             $index = 1;
             foreach ($matches as $match) {
                 $level = (int) $match[1];
-                $headingText = strip_tags($match[3]);
+                $headingText = html_entity_decode(strip_tags($match[3]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $headingId = 'section-'.\Illuminate\Support\Str::slug($headingText)."-{$index}";
 
                 // Inject id into heading tag if not present

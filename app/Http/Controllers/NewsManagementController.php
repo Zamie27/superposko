@@ -273,4 +273,38 @@ class NewsManagementController extends Controller
 
         return redirect()->route('news-management.index')->with('success', 'Artikel berita posko berhasil dihapus.');
     }
+
+    /**
+     * Upload an inline image for article body content
+     */
+    public function uploadImage(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'image' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:10240'],
+        ]);
+
+        $user = auth()->user();
+        $hostId = $user->host_id ?? $user->id;
+        $hostUser = User::find($hostId);
+
+        $groupRaw = $hostUser?->group_number ?: "Kelompok {$hostId}";
+        if (is_numeric($groupRaw)) {
+            $groupRaw = "Kelompok {$groupRaw}";
+        }
+        $groupSlug = Str::slug($groupRaw, '_');
+
+        $file = $request->file('image');
+        $fileName = time().'_'.Str::random(8).'.webp';
+        $imagePath = "client/{$groupSlug}/image/news_inline/{$fileName}";
+
+        $disk = env('FILESYSTEM_DISK', 's3');
+        Storage::disk($disk)->put($imagePath, file_get_contents($file->getRealPath()));
+
+        $url = \App\Helpers\StorageHelper::getUrl($imagePath);
+
+        return response()->json([
+            'url' => $url,
+            'path' => $imagePath,
+        ]);
+    }
 }

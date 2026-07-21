@@ -9,6 +9,8 @@ import {
 } from '@lucide/vue';
 import { useToast } from '@/composables/useToast';
 
+import axios from 'axios';
+
 const props = defineProps<{
     article?: any;
     categories: string[];
@@ -32,6 +34,39 @@ const form = useForm({
 
 const previewCoverUrl = ref<string | null>(props.article?.cover_image_url || null);
 const visualEditorRef = ref<HTMLDivElement | null>(null);
+const inlineImageInputRef = ref<HTMLInputElement | null>(null);
+const isUploadingInlineImage = ref(false);
+
+const triggerInlineImageSelect = () => {
+    inlineImageInputRef.value?.click();
+};
+
+const uploadInlineImage = async (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (!target.files || !target.files[0]) return;
+
+    const file = target.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+
+    isUploadingInlineImage.value = true;
+    try {
+        const response = await axios.post('/management/news/upload-image', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        const imageUrl = response.data.url;
+        if (imageUrl) {
+            execFormat('insertImage', imageUrl);
+            toast.success('Gambar berhasil disisipkan ke dalam artikel!');
+        }
+    } catch (err: any) {
+        toast.error('Gagal mengunggah gambar artikel.');
+    } finally {
+        isUploadingInlineImage.value = false;
+        if (target) target.value = '';
+    }
+};
 
 // Sync visual editor content to form.content
 const syncContentFromVisual = () => {
@@ -344,6 +379,27 @@ onMounted(() => {
                                 >
                                     <span>Paragraf Normal</span>
                                 </button>
+
+                                <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
+
+                                <button 
+                                    @click="triggerInlineImageSelect" 
+                                    type="button" 
+                                    :disabled="isUploadingInlineImage"
+                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 text-emerald-600 dark:text-emerald-400 cursor-pointer shadow-2xs" 
+                                    title="Unggah & Sisipkan Gambar ke Isi Artikel"
+                                >
+                                    <ImageIcon class="w-3.5 h-3.5" />
+                                    <span>{{ isUploadingInlineImage ? 'Mengunggah...' : 'Sisipkan Gambar' }}</span>
+                                </button>
+
+                                <input 
+                                    ref="inlineImageInputRef" 
+                                    type="file" 
+                                    accept="image/*" 
+                                    @change="uploadInlineImage" 
+                                    class="hidden" 
+                                />
                             </div>
 
                             <!-- Mode HTML Toggle -->
