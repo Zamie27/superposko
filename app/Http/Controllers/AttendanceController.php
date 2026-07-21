@@ -282,4 +282,129 @@ class AttendanceController extends Controller
 
         return back()->with('success', 'Pengaturan lokasi absensi berhasil diperbarui.');
     }
+
+    /**
+     * Generate & Download QR Poster directly from MinIO storage bucket under client/{group_slug}/image/qr_poster.png.
+     */
+    public function downloadQrPoster(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
+        $user = auth()->user();
+        $hostId = $user->host_id ?? $user->id;
+        $hostUser = User::find($hostId);
+
+        $rawGroup = $hostUser?->group_number ?: "Kelompok {$hostId}";
+        if (is_numeric($rawGroup)) {
+            $groupNameStr = "Kelompok {$rawGroup}";
+        } else {
+            $groupNameStr = $rawGroup;
+        }
+
+        $groupSlug = Str::slug($groupNameStr, '_');
+        $disk = env('FILESYSTEM_DISK', 's3');
+        $storagePath = "client/{$groupSlug}/image/qr_poster.png";
+
+        // 1. If already generated & stored in MinIO bucket, stream direct download
+        if (Storage::disk($disk)->exists($storagePath)) {
+            return Storage::disk($disk)->download($storagePath, "Poster-QR-Absensi-{$groupSlug}.png", [
+                'Content-Type' => 'image/png',
+            ]);
+        }
+
+        // 2. Generate poster image using PHP GD
+        $width = 1000;
+        $height = 1250;
+        $img = imagecreatetruecolor($width, $height);
+
+        $bg = imagecolorallocate($img, 255, 255, 255);
+        $dark = imagecolorallocate($img, 15, 23, 42);
+        $primary = imagecolorallocate($img, 2, 132, 199);
+        $skyBg = imagecolorallocate($img, 240, 249, 255);
+        $skyBorder = imagecolorallocate($img, 186, 230, 253);
+        $grayText = imagecolorallocate($img, 100, 116, 139);
+
+        // Background
+        imagefill($img, 0, 0, $bg);
+        imagesetthickness($img, 8);
+        imagerectangle($img, 16, 16, $width - 16, $height - 16);
+
+        // Logo SuperPosko
+        $logoPath = public_path('logo_superposko.png');
+        if (file_exists($logoPath)) {
+            $logo = @imagecreatefrompng($logoPath);
+            if ($logo) {
+                $lw = imagesx($logo);
+                $lh = imagesy($logo);
+                $targetLw = 240;
+                $targetLh = (int) (($targetLw * $lh) / $lw);
+                imagecopyresampled($img, $logo, 60, 60, 0, 0, $targetLw, $targetLh, $lw, $lh);
+                imagedestroy($logo);
+            }
+        }
+
+        // Badge "OFFICIAL ABSENSI"
+        imagefilledrectangle($img, $width - 290, 60, $width - 60, 108, $skyBg);
+        imagesetthickness($img, 2);
+        imagerectangle($img, $width - 290, 60, $width - 60, 108, $skyBorder);
+        imagestring($img, 5, $width - 265, 75, 'OFFICIAL ABSENSI', $primary);
+
+        // Separator line
+        imagesetthickness($img, 2);
+        imageline($img, 60, 145, $width - 60, 145, $border = imagecolorallocate($img, 241, 245, 249));
+
+        // Heading Titles
+        $titleStr = 'Scan QR di bawah untuk absen';
+        imagestring($img, 5, (int) (($width - (strlen($titleStr) * 10)) / 2), 220, $titleStr, $dark);
+
+        $groupDisplayStr = strtoupper($groupNameStr);
+        imagestring($img, 5, (int) (($width - (strlen($groupDisplayStr) * 10)) / 2), 270, $groupDisplayStr, $primary);
+
+        // QR Code Box
+        $scanQrUrl = route('attendance.scan_qr', ['host_id' => $hostId]);
+        $qrApiUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=10&data='.urlencode($scanQrUrl);
+
+        $qrX = (int) (($width - 500) / 2);
+        $qrY = 340;
+        imagesetthickness($img, 6);
+        imagerectangle($img, $qrX - 10, $qrY - 10, $qrX + 510, $qrY + 510, $dark);
+
+        $qrContent = @file_get_contents($qrApiUrl);
+        if ($qrContent) {
+            $qrImg = @imagecreatefromstring($qrContent);
+            if ($qrImg) {
+                imagecopyresampled($img, $qrImg, $qrX, $qrY, 0, 0, 500, 500, imagesx($qrImg), imagesy($qrImg));
+                imagedestroy($qrImg);
+            }
+        }
+
+        // Subtitle Text
+        $subStr1 = 'Arahkan kamera smartphone Anda ke QR Code ini';
+        $subStr2 = 'untuk otomatis merekam presensi harian posko.';
+        imagestring($img, 5, (int) (($width - (strlen($subStr1) * 10)) / 2), 920, $subStr1, $grayText);
+        imagestring($img, 5, (int) (($width - (strlen($subStr2) * 10)) / 2), 950, $subStr2, $grayText);
+
+        // Save image to temporary file
+        $tempPath = tempnam(sys_get_temp_dir(), 'qr_poster_').'.png';
+        imagepng($img, $tempPath);
+        imagedestroy($img);
+
+        // Upload to MinIO bucket
+        try {
+            Storage::disk($disk)->put($storagePath, file_get_contents($tempPath));
+        } catch (\Throwable $e) {
+            // Ignore upload exception if offline
+        }
+
+        @unlink($tempPath);
+
+        // Return streamed attachment download from MinIO / disk
+        if (Storage::disk($disk)->exists($storagePath)) {
+            return Storage::disk($disk)->download($storagePath, "Poster-QR-Absensi-{$groupSlug}.png", [
+                'Content-Type' => 'image/png',
+            ]);
+        }
+
+        return response()->download($tempPath, "Poster-QR-Absensi-{$groupSlug}.png", [
+            'Content-Type' => 'image/png',
+        ]);
+    }
 }

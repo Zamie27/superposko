@@ -247,6 +247,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('absensi', [AttendanceController::class, 'store'])->name('attendance.store');
         Route::get('absensi/scan-qr', [AttendanceController::class, 'scanQr'])->name('attendance.scan_qr');
         Route::post('absensi/scan-qr', [AttendanceController::class, 'storeScanQr'])->name('attendance.scan_qr.store');
+        Route::get('absensi/qr-poster/download', [AttendanceController::class, 'downloadQrPoster'])->name('attendance.qr_poster.download');
         Route::post('absensi/settings', [AttendanceController::class, 'updateSettings'])->name('attendance.settings.update');
 
         // E-Bendahara (Kas & Keuangan)
