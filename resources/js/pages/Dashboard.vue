@@ -2,7 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { 
     Wallet, BookOpen, Box, ClipboardList, Users, Vote, 
-    ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle, Info
+    ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle, Info, MapPin, CheckCircle2
 } from '@lucide/vue';
 import { ref, computed } from 'vue';
 
@@ -62,6 +62,16 @@ const props = defineProps<{
     metrics: DashboardMetrics;
     todayRoster: DutyRoster[];
     events: CalendarEvent[];
+    todayAttendance?: {
+        id: number;
+        status: string;
+        time: string;
+        date: string;
+        village?: string;
+        district?: string;
+        regency?: string;
+        province?: string;
+    } | null;
     isDplGateway?: boolean;
     allPoskos?: Array<{ id: number; name: string; university: string; group_number: number }>;
     pendingRequests?: Array<{ id: number; host: { id: number; name: string; university: string; group_number: number }; status: string }>;
@@ -411,6 +421,69 @@ const getTodayName = () => {
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Pusat Kendali KKN</h1>
                 <p class="text-sm text-slate-500 dark:text-slate-400">Ringkasan administrasi, program kerja, keuangan, dan agenda posko dalam satu halaman.</p>
             </div>
+        </div>
+
+        <!-- Attendance Quick Action & Status Widget Card -->
+        <div 
+            :class="[
+                'p-4 sm:p-5 rounded-2xl border transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4',
+                todayAttendance 
+                    ? 'bg-emerald-500/10 dark:bg-emerald-950/30 border-emerald-300/50 dark:border-emerald-800/50' 
+                    : 'bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-indigo-500/10 dark:from-sky-950/40 dark:to-indigo-950/30 border-sky-300/60 dark:border-sky-800/60 shadow-xs'
+            ]"
+        >
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div 
+                    :class="[
+                        'w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 font-bold',
+                        todayAttendance 
+                            ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' 
+                            : 'bg-sky-500 text-white shadow-md shadow-sky-500/20 animate-pulse'
+                    ]"
+                >
+                    <CheckCircle2 v-if="todayAttendance" class="w-6 h-6" />
+                    <MapPin v-else class="w-6 h-6" />
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">
+                            {{ todayAttendance ? 'Sudah Absen Hari Ini' : 'Belum Absen Hari Ini' }}
+                        </h3>
+                        <span 
+                            :class="[
+                                'px-2.5 py-0.5 text-[10px] font-extrabold rounded-full uppercase tracking-wider',
+                                todayAttendance 
+                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300' 
+                                    : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
+                            ]"
+                        >
+                            {{ todayAttendance ? todayAttendance.status : 'Perlu Aksi' }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 truncate">
+                        <template v-if="todayAttendance">
+                            Tercatat pukul <strong>{{ todayAttendance.time }}</strong>
+                            <span v-if="todayAttendance.village"> • {{ todayAttendance.village }}</span>
+                        </template>
+                        <template v-else>
+                            Lakukan pengisian absensi presensi harian lokasi GPS anggota posko hari ini.
+                        </template>
+                    </p>
+                </div>
+            </div>
+
+            <Link 
+                href="/absensi"
+                :class="[
+                    'w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs transition duration-200 shrink-0 text-center flex items-center justify-center gap-2 shadow-xs cursor-pointer',
+                    todayAttendance
+                        ? 'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                        : 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/25'
+                ]"
+            >
+                <MapPin class="w-4 h-4" />
+                <span>{{ todayAttendance ? 'Lihat Details Absensi' : 'Rekam Absen Sekarang' }}</span>
+            </Link>
         </div>
 
         <!-- 6 Metrics Cards Grid -->

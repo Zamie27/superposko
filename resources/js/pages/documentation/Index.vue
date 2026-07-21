@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { Upload, X, Download, Play, Image as ImageIcon, ChevronLeft, ChevronRight } from '@lucide/vue';
+import { Upload, X, Download, Play, Image as ImageIcon, ChevronLeft, ChevronRight, Calendar, ArrowUpDown } from '@lucide/vue';
 import axios from 'axios';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,49 @@ const props = defineProps<{
     canWrite?: boolean;
     showCredentials?: boolean;
 }>();
+
+const sortOrder = ref<'desc' | 'asc'>('desc');
+
+const formatDateGroupHeader = (dateStr: string) => {
+    if (!dateStr) return 'Tanpa Tanggal';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'Tanpa Tanggal';
+    return d.toLocaleDateString('id-ID', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+    });
+};
+
+const groupedAssets = computed(() => {
+    if (!props.assets || props.assets.length === 0) return [];
+
+    const sorted = [...props.assets].sort((a, b) => {
+        const timeA = new Date(a.createdAt || 0).getTime();
+        const timeB = new Date(b.createdAt || 0).getTime();
+        return sortOrder.value === 'desc' ? timeB - timeA : timeA - timeB;
+    });
+
+    const groupsMap = new Map<string, { dateKey: string; dateTitle: string; items: Asset[] }>();
+
+    sorted.forEach(asset => {
+        const d = new Date(asset.createdAt || Date.now());
+        const dateKey = isNaN(d.getTime()) ? 'unknown' : d.toISOString().split('T')[0];
+        const dateTitle = formatDateGroupHeader(asset.createdAt);
+
+        if (!groupsMap.has(dateKey)) {
+            groupsMap.set(dateKey, {
+                dateKey,
+                dateTitle,
+                items: []
+            });
+        }
+        groupsMap.get(dateKey)!.items.push(asset);
+    });
+
+    return Array.from(groupsMap.values());
+});
 
 defineOptions({
     layout: {
@@ -262,6 +305,17 @@ const closeLightbox = () => {
 
                     <!-- Action buttons -->
                     <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <!-- Sort Order Toggle -->
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            @click="sortOrder = sortOrder === 'desc' ? 'asc' : 'desc'"
+                            class="text-xs font-semibold flex items-center gap-1.5 h-[38px] border border-slate-200 dark:border-slate-800"
+                        >
+                            <ArrowUpDown class="w-3.5 h-3.5" />
+                            <span>{{ sortOrder === 'desc' ? 'Terbaru' : 'Terlama' }}</span>
+                        </Button>
+
                         <!-- Local Upload Button -->
                         <template v-if="canWrite">
                             <Label for="file-upload" class="cursor-pointer w-full sm:w-auto">
@@ -304,31 +358,49 @@ const closeLightbox = () => {
                 {{ success }}
             </div>
 
-            <!-- Gallery Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                <div v-if="assets.length === 0" class="col-span-full py-12 text-center text-muted-foreground bg-muted/30 rounded-lg border border-dashed">
-                    Belum ada dokumentasi.
-                </div>
+            <!-- Date Grouped Gallery Grid (Immich / Google Photos Style) -->
+            <div v-if="assets.length === 0" class="py-12 text-center text-muted-foreground bg-muted/30 rounded-lg border border-dashed">
+                Belum ada dokumentasi.
+            </div>
 
-                <div 
-                    v-for="asset in assets" 
-                    :key="asset.id"
-                    class="relative aspect-square rounded-lg overflow-hidden border bg-muted group cursor-pointer hover:ring-2 ring-primary transition-all"
-                    @click="openLightbox(asset)"
-                >
-                    <img 
-                        v-if="asset.thumbnail_url" 
-                        :src="asset.thumbnail_url" 
-                        class="w-full h-full object-cover"
-                        loading="lazy"
-                    />
-                    <div v-else class="w-full h-full flex items-center justify-center text-muted-foreground">
-                        <ImageIcon v-if="asset.type === 'IMAGE'" class="w-8 h-8 opacity-50" />
-                        <Play v-if="asset.type === 'VIDEO'" class="w-8 h-8 opacity-50" />
+            <div v-else class="space-y-8">
+                <div v-for="group in groupedAssets" :key="group.dateKey" class="space-y-3">
+                    <!-- Date Header Section -->
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                        <div class="flex items-center gap-2">
+                            <Calendar class="w-4 h-4 text-sky-500" />
+                            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">
+                                {{ group.dateTitle }}
+                            </h3>
+                        </div>
+                        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-0.5 rounded-full">
+                            {{ group.items.length }} {{ group.items.length === 1 ? 'file' : 'files' }}
+                        </span>
                     </div>
-                    
-                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Play v-if="asset.type === 'VIDEO'" class="w-12 h-12 text-white/80" />
+
+                    <!-- Photos Grid under Date Header -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+                        <div 
+                            v-for="asset in group.items" 
+                            :key="asset.id"
+                            class="relative aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-muted group cursor-pointer hover:ring-2 ring-primary transition-all shadow-xs"
+                            @click="openLightbox(asset)"
+                        >
+                            <img 
+                                v-if="asset.thumbnail_url" 
+                                :src="asset.thumbnail_url" 
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                loading="lazy"
+                            />
+                            <div v-else class="w-full h-full flex items-center justify-center text-muted-foreground">
+                                <ImageIcon v-if="asset.type === 'IMAGE'" class="w-8 h-8 opacity-50" />
+                                <Play v-if="asset.type === 'VIDEO'" class="w-8 h-8 opacity-50" />
+                            </div>
+                            
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Play v-if="asset.type === 'VIDEO'" class="w-12 h-12 text-white/80" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -122,6 +122,11 @@ class DashboardController extends Controller
                 ];
             });
 
+        // 8. Today's attendance for logged in user
+        $todayAttendance = \App\Models\Attendance::where('user_id', $user->id)
+            ->whereDate('date', today())
+            ->first();
+
         return Inertia::render('Dashboard', [
             'metrics' => [
                 'finance' => [
@@ -152,6 +157,7 @@ class DashboardController extends Controller
             ],
             'todayRoster' => $todayRoster,
             'events' => $events,
+            'todayAttendance' => $todayAttendance,
         ]);
     }
 }

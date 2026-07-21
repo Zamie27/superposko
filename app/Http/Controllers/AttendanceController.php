@@ -74,7 +74,14 @@ class AttendanceController extends Controller
             'members' => $members,
             'daysInMonth' => $daysInMonth,
             'isLeader' => $isLeader,
-            'isLeader' => $isLeader,
+            'hostPosko' => [
+                'name' => $hostUser?->name ?? 'Posko KKN',
+                'group_number' => $hostUser?->group_number ?? 1,
+            ],
+            'supportInfo' => [
+                'instagram' => Setting::get('footer_instagram', '@kuukok.id'),
+                'whatsapp' => Setting::get('footer_phone', '+62 851-7173-9232'),
+            ],
             'settings' => [
                 'lat' => $hostLat,
                 'lng' => $hostLng,
@@ -85,6 +92,93 @@ class AttendanceController extends Controller
                 'year' => (int) $selectedYear,
             ]
         ]);
+    }
+
+    public function scanQr(Request $request): Response|\Illuminate\Http\RedirectResponse
+    {
+        $user = auth()->user();
+        $todayAttendance = Attendance::where('user_id', $user->id)
+            ->whereDate('date', today())
+            ->first();
+
+        if ($todayAttendance) {
+            return redirect()->route('attendance.index')->with('error', 'Anda sudah mengisi absensi hari ini.');
+        }
+
+        return Inertia::render('attendance/ScanQr', [
+            'user' => $user,
+        ]);
+    }
+
+    public function storeScanQr(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
+    {
+        $user = auth()->user();
+        $hostId = $user->host_id ?? $user->id;
+
+        $alreadySubmitted = Attendance::where('user_id', $user->id)
+            ->whereDate('date', today())
+            ->exists();
+
+        if ($alreadySubmitted) {
+            return redirect()->route('attendance.index')->with('error', 'Anda sudah mengisi absensi hari ini.');
+        }
+
+        $lat = $request->input('latitude');
+        $lng = $request->input('longitude');
+
+        // Fallback to host location if GPS coordinates not provided
+        if (is_null($lat) || is_null($lng)) {
+            $hostUser = User::find($hostId);
+            $lat = $hostUser?->attendance_lat ?? 0;
+            $lng = $hostUser?->attendance_lng ?? 0;
+        }
+
+        $village = null;
+        $district = null;
+        $regency = null;
+        $province = null;
+
+        if ($lat && $lng) {
+            try {
+                $response = Http::withHeaders([
+                    'User-Agent' => 'SuperPosko/1.0 (github.com/Zamie27/superposko)',
+                ])->timeout(8)->get('https://nominatim.openstreetmap.org/reverse', [
+                    'format' => 'jsonv2',
+                    'lat' => $lat,
+                    'lon' => $lng,
+                ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    if (isset($data['address'])) {
+                        $addr = $data['address'];
+                        $village = $addr['village'] ?? $addr['suburb'] ?? $addr['hamlet'] ?? $addr['neighbourhood'] ?? $addr['city_district'] ?? null;
+                        $district = $addr['county'] ?? $addr['municipality'] ?? $addr['city_district'] ?? null;
+                        $regency = $addr['city'] ?? $addr['town'] ?? $addr['region'] ?? null;
+                        $province = $addr['state'] ?? $addr['province'] ?? null;
+                    }
+                }
+            } catch (\Exception $e) {
+            }
+        }
+
+        $nowWib = Carbon::now('Asia/Jakarta');
+        Attendance::create([
+            'user_id' => $user->id,
+            'host_id' => $hostId,
+            'date' => $nowWib->toDateString(),
+            'time' => $nowWib->format('H:i:s'),
+            'latitude' => $lat,
+            'longitude' => $lng,
+            'village' => $village,
+            'district' => $district,
+            'regency' => $regency,
+            'province' => $province,
+            'status' => 'Hadir',
+            'notes' => 'Absen via QR Code Posko',
+        ]);
+
+        return redirect()->route('attendance.index')->with('success', 'Absensi Hadir berhasil dicatat via QR Code!');
     }
 
     public function store(Request $request): \Symfony\Component\HttpFoundation\Response
