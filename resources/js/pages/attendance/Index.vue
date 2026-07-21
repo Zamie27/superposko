@@ -5,7 +5,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import InputError from '@/components/InputError.vue';
 import { store } from '@/routes/attendance';
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
-import { MapPin, Loader2, CheckCircle2, QrCode, Download, Printer, X, Instagram, Phone, Calendar, Clock, Info, User, FileText } from '@lucide/vue';
+import { MapPin, Loader2, CheckCircle2, QrCode, Download, Printer, X, Phone, Calendar, Clock, Info, User, FileText } from '@lucide/vue';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -726,7 +726,11 @@ defineOptions({
                             </p>
                             <div class="flex items-center justify-between gap-2 text-[11px] font-bold text-slate-800">
                                 <div class="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200/60">
-                                    <Instagram class="w-3.5 h-3.5 text-pink-600 shrink-0" />
+                                    <svg class="w-3.5 h-3.5 text-pink-600 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                                    </svg>
                                     <span>{{ supportInfo?.instagram || '@kuukok.id' }}</span>
                                 </div>
                                 <div class="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200/60">
