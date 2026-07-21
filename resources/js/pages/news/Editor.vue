@@ -130,19 +130,55 @@ const loadSampleTemplate = () => {
     toast.success('Template berita posko berhasil dimuat!');
 };
 
+const isGeneratingExcerpt = ref(false);
+
 const generateAutoExcerpt = () => {
-    if (!form.content) {
-        toast.error('Tuliskan konten artikel terlebih dahulu.');
+    syncContentFromVisual();
+
+    if (!form.content || form.content.trim() === '' || form.content === '<br>') {
+        toast.error('Tuliskan konten artikel terlebih dahulu sebelum membuat ringkasan.');
         return;
     }
 
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = form.content;
-    const plainText = tempDiv.textContent || tempDiv.innerText || '';
-    
-    const trimmed = plainText.trim().substring(0, 160);
-    form.excerpt = trimmed ? `${trimmed}...` : '';
-    toast.success('Ringkasan singkat berhasil dibuat otomatis!');
+    isGeneratingExcerpt.value = true;
+
+    setTimeout(() => {
+        // Strip HTML tags to get pure clean text
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = form.content;
+        const rawText = tempDiv.textContent || tempDiv.innerText || '';
+
+        // Clean whitespace and split into meaningful sentences (> 15 chars)
+        const cleanText = rawText.replace(/\s+/g, ' ').trim();
+        const sentences = cleanText
+            .split(/(?<=[.!?])\s+/)
+            .map((s) => s.trim())
+            .filter((s) => s.length > 15 && !s.toLowerCase().startsWith('latar belakang') && !s.toLowerCase().startsWith('tujuan') && !s.toLowerCase().startsWith('hasil'));
+
+        if (sentences.length === 0) {
+            form.excerpt = cleanText.substring(0, 160) + '...';
+            isGeneratingExcerpt.value = false;
+            toast.success('Ringkasan singkat artikel berhasil dibuat!');
+            return;
+        }
+
+        // Smart Synthesis: Select top 1-2 key sentences
+        let summary = sentences[0];
+        if (sentences.length > 1 && summary.length < 110) {
+            summary += ' ' + sentences[1];
+        }
+
+        // Limit to ~175 chars without breaking words
+        if (summary.length > 175) {
+            const trimmed = summary.substring(0, 170);
+            const lastSpace = trimmed.lastIndexOf(' ');
+            summary = (lastSpace > 0 ? trimmed.substring(0, lastSpace) : trimmed) + '...';
+        }
+
+        form.excerpt = summary;
+        isGeneratingExcerpt.value = false;
+        toast.success('Ringkasan cerdas artikel berhasil digenerate!');
+    }, 450);
 };
 
 const toggleCodeMode = () => {
@@ -456,10 +492,12 @@ onMounted(() => {
                         <button 
                             @click="generateAutoExcerpt" 
                             type="button" 
-                            class="text-xs font-bold text-[#38BDF8] hover:text-sky-600 flex items-center gap-1 cursor-pointer"
+                            :disabled="isGeneratingExcerpt"
+                            class="text-xs font-bold text-[#38BDF8] hover:text-sky-600 flex items-center gap-1.5 cursor-pointer bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 px-3 py-1 rounded-lg transition-colors"
                         >
-                            <Wand2 class="w-3.5 h-3.5" />
-                            <span>Isi Ringkasan Otomatis</span>
+                            <Sparkles class="w-3.5 h-3.5 text-amber-500 animate-spin" v-if="isGeneratingExcerpt" />
+                            <Wand2 class="w-3.5 h-3.5 text-[#38BDF8]" v-else />
+                            <span>{{ isGeneratingExcerpt ? 'Menganalisis Artikel...' : 'Generate Ringkasan Otomatis' }}</span>
                         </button>
                     </div>
                     <textarea 
