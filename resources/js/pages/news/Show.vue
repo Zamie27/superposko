@@ -251,28 +251,29 @@ onMounted(() => {
                 <img :src="article.cover_image_url" :alt="article.title" class="w-full h-full object-cover max-h-[500px]" />
             </div>
 
-            <!-- Main Layout Grid: Left Sticky TOC (4 cols) | Content (8 cols) -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4">
+            <!-- Main Layout Grid: Left Sticky Sidebar (4 cols) | Content (8 cols) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-4 items-start">
                 
-                <!-- Left Column (4 cols): Sticky Table of Contents -->
-                <div class="lg:col-span-4 space-y-6">
-                    <div v-if="tableOfContents.length > 0" class="sticky top-24 rounded-2xl bg-white border border-slate-200/80 p-6 space-y-4 shadow-sm">
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
-                            <Bookmark class="w-4 h-4 text-[#38BDF8]" />
+                <!-- Left Column (4 cols): Sticky Sidebar with TOC -->
+                <aside class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 self-start max-h-[calc(100vh-7rem)] overflow-y-auto overflow-x-hidden pr-1">
+                    <div v-if="tableOfContents.length > 0" class="rounded-2xl bg-white border border-slate-200/80 p-5 space-y-3 shadow-sm overflow-hidden">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                            <Bookmark class="w-4 h-4 text-[#38BDF8] shrink-0" />
                             <span>Daftar Isi Artikel</span>
                         </h3>
-                        <nav class="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1">
+                        <nav class="space-y-1 overflow-x-hidden">
                             <button 
                                 v-for="item in tableOfContents" 
                                 :key="item.id" 
                                 @click="scrollToHeading(item.id)" 
+                                :title="item.text"
                                 :class="[
                                     activeHeadingId === item.id 
                                         ? 'bg-sky-50 text-sky-600 font-bold border-l-2 border-[#38BDF8] pl-3' 
                                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 pl-2',
-                                    item.level === 3 ? 'ml-3 text-xs' : 'text-sm font-medium'
+                                    item.level === 3 ? 'ml-2 text-xs' : 'text-xs sm:text-sm font-semibold'
                                 ]"
-                                class="w-full py-2 rounded-r-lg text-left transition-all block truncate cursor-pointer"
+                                class="w-full py-2 rounded-r-lg text-left transition-all block truncate text-ellipsis overflow-hidden whitespace-nowrap cursor-pointer"
                             >
                                 {{ item.text }}
                             </button>
@@ -280,8 +281,8 @@ onMounted(() => {
                     </div>
 
                     <!-- Quick Support Posko Widget -->
-                    <div class="rounded-2xl bg-white border border-slate-200/80 p-6 space-y-3 shadow-sm">
-                        <h4 class="text-sm font-bold text-slate-900">Tentang SuperPosko</h4>
+                    <div class="rounded-2xl bg-white border border-slate-200/80 p-5 space-y-3 shadow-sm">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">Tentang SuperPosko</h4>
                         <p class="text-xs text-slate-600 leading-relaxed">
                             Platform kolaborasi digital posko KKN untuk keterbukaan informasi, presensi harian, manajemen kas, dan publikasi kegiatan desa.
                         </p>
@@ -289,7 +290,7 @@ onMounted(() => {
                             Buat Posko Sekarang &rarr;
                         </Link>
                     </div>
-                </div>
+                </aside>
 
                 <!-- Right Main Column (8 cols): Article Content -->
                 <div class="lg:col-span-8 space-y-8">
