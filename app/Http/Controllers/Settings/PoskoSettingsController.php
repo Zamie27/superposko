@@ -1,0 +1,126 @@
+<?php
+
+namespace App\Http\Controllers\Settings;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class PoskoSettingsController extends Controller
+{
+    /**
+     * Get target host user model.
+     */
+    protected function getHostUser()
+    {
+        $user = auth()->user();
+        if ($user->host_id) {
+            return \App\Models\User::find($user->host_id);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Show posko settings form.
+     */
+    public function edit(Request $request): Response
+    {
+        $host = $this->getHostUser();
+
+        $disk = env('FILESYSTEM_DISK', 'public');
+        $logoUrl = null;
+        if ($host->posko_logo_url) {
+            $logoUrl = Str::startsWith($host->posko_logo_url, ['http://', 'https://'])
+                ? $host->posko_logo_url
+                : Storage::disk($disk)->url($host->posko_logo_url);
+        }
+
+        // Parse numeric group number if prefixed with "Kelompok "
+        $cleanGroupNum = $host->group_number;
+        if ($cleanGroupNum && preg_match('/^Kelompok\s+(\d+)$/i', trim($cleanGroupNum), $matches)) {
+            $cleanGroupNum = $matches[1];
+        }
+
+        return Inertia::render('settings/Posko', [
+            'posko' => [
+                'group_number' => $cleanGroupNum,
+                'full_group_name' => $host->group_number,
+                'kkn_address' => $host->kkn_address,
+                'posko_village' => $host->posko_village,
+                'posko_district' => $host->posko_district,
+                'posko_regency' => $host->posko_regency,
+                'posko_province' => $host->posko_province,
+                'posko_postal_code' => $host->posko_postal_code,
+                'posko_logo_url' => $logoUrl,
+            ],
+            'canEdit' => in_array(auth()->user()->role, ['host', 'admin', 'ketua', 'wakil', 'sekretaris']),
+        ]);
+    }
+
+    /**
+     * Update posko details.
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        $host = $this->getHostUser();
+
+        $validated = $request->validate([
+            'group_number' => ['required', 'string', 'max:255'],
+            'kkn_address' => ['nullable', 'string', 'max:500'],
+            'posko_village' => ['nullable', 'string', 'max:255'],
+            'posko_district' => ['nullable', 'string', 'max:255'],
+            'posko_regency' => ['nullable', 'string', 'max:255'],
+            'posko_province' => ['nullable', 'string', 'max:255'],
+            'posko_postal_code' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $groupNum = trim($validated['group_number']);
+        if (is_numeric($groupNum)) {
+            $groupNum = "Kelompok {$groupNum}";
+        }
+
+        $host->update([
+            'group_number' => $groupNum,
+            'kkn_address' => $validated['kkn_address'],
+            'posko_village' => $validated['posko_village'],
+            'posko_district' => $validated['posko_district'],
+            'posko_regency' => $validated['posko_regency'],
+            'posko_province' => $validated['posko_province'],
+            'posko_postal_code' => $validated['posko_postal_code'],
+        ]);
+
+        return back()->with('success', 'Data Posko KKN berhasil diperbarui.');
+    }
+
+    /**
+     * Upload posko logo to MinIO storage under client/kelompok_{group_number}/logo/.
+     */
+    public function uploadLogo(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'logo' => ['required', 'image', 'mimes:png,jpg,jpeg,svg,webp', 'max:5120'],
+        ]);
+
+        $host = $this->getHostUser();
+        $file = $request->file('logo');
+
+        $disk = env('FILESYSTEM_DISK', 'public');
+        $groupSlug = Str::slug($host->group_number ?: "kelompok-{$host->id}", '_');
+        $path = $file->store("client/{$groupSlug}/logo", $disk);
+
+        if ($host->posko_logo_url && Storage::disk($disk)->exists($host->posko_logo_url)) {
+            Storage::disk($disk)->delete($host->posko_logo_url);
+        }
+
+        $host->update([
+            'posko_logo_url' => $path,
+        ]);
+
+        return back()->with('success', 'Logo Posko berhasil diperbarui.');
+    }
+}

@@ -126,8 +126,10 @@ class VotingController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
             $uploadedFile = $request->file('image');
-            $immichAssetId = \App\Helpers\ImmichHelper::uploadToAlbum($uploadedFile, 'vote', $hostId);
-            $imagePath = $immichAssetId ?? $uploadedFile->store('polls', env('FILESYSTEM_DISK', 'public'));
+            $hostUser = User::find($hostId);
+            $groupSlug = Str::slug($hostUser?->group_number ?: "kelompok-{$hostId}", '_');
+            $disk = env('FILESYSTEM_DISK', 's3');
+            $imagePath = $uploadedFile->store("client/{$groupSlug}/image/vote", $disk);
         }
 
         $poll = Poll::create([

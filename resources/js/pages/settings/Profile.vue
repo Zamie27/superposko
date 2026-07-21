@@ -33,8 +33,6 @@ const nameForm = useForm({
     email: user.value.email, // backend requires email in validation rules
     university: user.value.university || '',
     npm: user.value.npm || '',
-    group_number: user.value.group_number || '',
-    kkn_address: user.value.kkn_address || '',
 });
 
 const submitName = () => {
@@ -219,7 +217,7 @@ return;
             <Heading
                 variant="small"
                 title="Profil Umum"
-                description="Perbarui informasi profil dan detail KKN Anda"
+                description="Perbarui nama lengkap, universitas, dan NPM/NIM Anda"
             />
 
             <form @submit.prevent="submitName" class="space-y-6 max-w-xl">
@@ -260,31 +258,7 @@ return;
                     <InputError class="mt-2" :message="nameForm.errors.npm" />
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="group_number">Nomor / Kelompok KKN</Label>
-                    <Input
-                        id="group_number"
-                        class="mt-1 block w-full"
-                        v-model="nameForm.group_number"
-                        required
-                        placeholder="Nomor / Kelompok KKN"
-                    />
-                    <InputError class="mt-2" :message="nameForm.errors.group_number" />
-                </div>
-
-                <div class="grid gap-2">
-                    <Label for="kkn_address">Alamat Posko KKN</Label>
-                    <Input
-                        id="kkn_address"
-                        class="mt-1 block w-full"
-                        v-model="nameForm.kkn_address"
-                        required
-                        placeholder="Alamat Posko KKN"
-                    />
-                    <InputError class="mt-2" :message="nameForm.errors.kkn_address" />
-                </div>
-
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 pt-2">
                     <Button :disabled="nameForm.processing" class="bg-sky-500 hover:bg-sky-600 text-white font-bold cursor-pointer">
                         <Spinner v-if="nameForm.processing" />
                         Simpan Perubahan

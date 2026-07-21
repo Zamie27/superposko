@@ -12,11 +12,15 @@ import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profile',
+        title: 'Profil Saya',
         href: editProfile(),
     },
     {
-        title: 'Security',
+        title: 'Kelompok / Posko',
+        href: '/settings/posko',
+    },
+    {
+        title: 'Keamanan',
         href: editSecurity(),
     },
 ];
