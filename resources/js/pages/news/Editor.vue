@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import InputError from '@/components/InputError.vue';
 import { 
@@ -38,7 +38,100 @@ const inlineImageInputRef = ref<HTMLInputElement | null>(null);
 const isUploadingInlineImage = ref(false);
 const selectedImage = ref<HTMLImageElement | null>(null);
 
+const activeFormats = ref({
+    bold: false,
+    italic: false,
+    h2: false,
+    h3: false,
+    quote: false,
+    ul: false,
+    p: false,
+});
+
+const updateActiveFormats = () => {
+    if (!visualEditorRef.value || isCodeMode.value) return;
+
+    try {
+        activeFormats.value.bold = document.queryCommandState('bold');
+        activeFormats.value.italic = document.queryCommandState('italic');
+        activeFormats.value.ul = document.queryCommandState('insertUnorderedList');
+    } catch (e) {
+        // Fallback
+    }
+
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+        let node: Node | null = selection.getRangeAt(0).commonAncestorContainer;
+        if (node.nodeType === Node.TEXT_NODE) {
+            node = node.parentNode;
+        }
+
+        let isH2 = false;
+        let isH3 = false;
+        let isQuote = false;
+        let isUL = false;
+        let isP = false;
+
+        let current = node as HTMLElement | null;
+        while (current && current !== visualEditorRef.value) {
+            const tag = current.tagName?.toUpperCase();
+            if (tag === 'H2') isH2 = true;
+            if (tag === 'H3') isH3 = true;
+            if (tag === 'BLOCKQUOTE') isQuote = true;
+            if (tag === 'UL' || tag === 'OL') isUL = true;
+            if (tag === 'P') isP = true;
+            current = current.parentElement;
+        }
+
+        activeFormats.value.h2 = isH2;
+        activeFormats.value.h3 = isH3;
+        activeFormats.value.quote = isQuote;
+        activeFormats.value.ul = isUL || activeFormats.value.ul;
+        activeFormats.value.p = isP && !isH2 && !isH3 && !isQuote && !isUL;
+    }
+};
+
+const toggleFormat = (type: 'h2' | 'h3' | 'bold' | 'italic' | 'quote' | 'ul' | 'p') => {
+    if (isCodeMode.value) return;
+
+    if (type === 'bold') {
+        document.execCommand('bold', false);
+    } else if (type === 'italic') {
+        document.execCommand('italic', false);
+    } else if (type === 'h2') {
+        if (activeFormats.value.h2) {
+            document.execCommand('formatBlock', false, '<p>');
+        } else {
+            document.execCommand('formatBlock', false, '<h2>');
+        }
+    } else if (type === 'h3') {
+        if (activeFormats.value.h3) {
+            document.execCommand('formatBlock', false, '<p>');
+        } else {
+            document.execCommand('formatBlock', false, '<h3>');
+        }
+    } else if (type === 'quote') {
+        if (activeFormats.value.quote) {
+            document.execCommand('formatBlock', false, '<p>');
+        } else {
+            document.execCommand('formatBlock', false, '<blockquote>');
+        }
+    } else if (type === 'ul') {
+        document.execCommand('insertUnorderedList', false);
+    } else if (type === 'p') {
+        document.execCommand('formatBlock', false, '<p>');
+    }
+
+    syncContentFromVisual();
+    updateActiveFormats();
+
+    if (visualEditorRef.value) {
+        visualEditorRef.value.focus();
+    }
+};
+
 const handleVisualEditorClick = (event: MouseEvent) => {
+    updateActiveFormats();
     const target = event.target as HTMLElement;
     
     if (selectedImage.value && selectedImage.value !== target) {
@@ -268,6 +361,11 @@ onMounted(() => {
     if (visualEditorRef.value && form.content) {
         visualEditorRef.value.innerHTML = form.content;
     }
+    document.addEventListener('selectionchange', updateActiveFormats);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('selectionchange', updateActiveFormats);
 });
 </script>
 
@@ -372,9 +470,10 @@ onMounted(() => {
                         <div class="flex flex-wrap items-center justify-between gap-1.5 p-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                             <div class="flex flex-wrap items-center gap-1.5">
                                 <button 
-                                    @click="execFormat('formatBlock', '<h2>')" 
+                                    @click="toggleFormat('h2')" 
                                     type="button" 
-                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 text-sky-600 dark:text-sky-400 cursor-pointer shadow-2xs" 
+                                    :class="activeFormats.h2 ? 'bg-[#38BDF8] text-white border-[#38BDF8] shadow-xs' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-sky-600 dark:text-sky-400 hover:border-[#38BDF8]'"
+                                    class="px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors" 
                                     title="Judul Utama Bab (H2)"
                                 >
                                     <Heading1 class="w-3.5 h-3.5" />
@@ -382,9 +481,10 @@ onMounted(() => {
                                 </button>
 
                                 <button 
-                                    @click="execFormat('formatBlock', '<h3>')" 
+                                    @click="toggleFormat('h3')" 
                                     type="button" 
-                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 text-sky-600 dark:text-sky-400 cursor-pointer shadow-2xs" 
+                                    :class="activeFormats.h3 ? 'bg-[#38BDF8] text-white border-[#38BDF8] shadow-xs' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-sky-600 dark:text-sky-400 hover:border-[#38BDF8]'"
+                                    class="px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors" 
                                     title="Sub-Bab (H3)"
                                 >
                                     <Heading2 class="w-3.5 h-3.5" />
@@ -394,9 +494,10 @@ onMounted(() => {
                                 <div class="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
 
                                 <button 
-                                    @click="execFormat('bold')" 
+                                    @click="toggleFormat('bold')" 
                                     type="button" 
-                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 cursor-pointer shadow-2xs" 
+                                    :class="activeFormats.bold ? 'bg-[#38BDF8] text-white border-[#38BDF8] shadow-xs' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-[#38BDF8]'"
+                                    class="px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors" 
                                     title="Cetak Tebal"
                                 >
                                     <Bold class="w-3.5 h-3.5" />
@@ -404,9 +505,10 @@ onMounted(() => {
                                 </button>
 
                                 <button 
-                                    @click="execFormat('italic')" 
+                                    @click="toggleFormat('italic')" 
                                     type="button" 
-                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 cursor-pointer shadow-2xs" 
+                                    :class="activeFormats.italic ? 'bg-[#38BDF8] text-white border-[#38BDF8] shadow-xs' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-200 hover:border-[#38BDF8]'"
+                                    class="px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors" 
                                     title="Cetak Miring"
                                 >
                                     <Italic class="w-3.5 h-3.5" />
@@ -414,9 +516,10 @@ onMounted(() => {
                                 </button>
 
                                 <button 
-                                    @click="execFormat('formatBlock', '<blockquote>')" 
+                                    @click="toggleFormat('quote')" 
                                     type="button" 
-                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 text-amber-600 dark:text-amber-400 cursor-pointer shadow-2xs" 
+                                    :class="activeFormats.quote ? 'bg-amber-500 text-white border-amber-500 shadow-xs' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-amber-600 dark:text-amber-400 hover:border-amber-400'"
+                                    class="px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors" 
                                     title="Format Kutipan"
                                 >
                                     <Quote class="w-3.5 h-3.5" />
@@ -424,9 +527,10 @@ onMounted(() => {
                                 </button>
 
                                 <button 
-                                    @click="execFormat('insertUnorderedList')" 
+                                    @click="toggleFormat('ul')" 
                                     type="button" 
-                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold flex items-center gap-1 text-indigo-600 dark:text-indigo-400 cursor-pointer shadow-2xs" 
+                                    :class="activeFormats.ul ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-indigo-600 dark:text-indigo-400 hover:border-indigo-400'"
+                                    class="px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors" 
                                     title="Daftar Poin"
                                 >
                                     <List class="w-3.5 h-3.5" />
@@ -434,9 +538,10 @@ onMounted(() => {
                                 </button>
 
                                 <button 
-                                    @click="execFormat('formatBlock', '<p>')" 
+                                    @click="toggleFormat('p')" 
                                     type="button" 
-                                    class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:border-[#38BDF8] text-xs font-bold cursor-pointer shadow-2xs" 
+                                    :class="activeFormats.p ? 'bg-slate-800 text-white border-slate-800 shadow-xs' : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:border-slate-400'"
+                                    class="px-2.5 py-1 rounded-lg border text-xs font-bold cursor-pointer transition-colors" 
                                     title="Normal Paragraf"
                                 >
                                     <span>Paragraf Normal</span>
