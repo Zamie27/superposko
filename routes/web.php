@@ -95,6 +95,7 @@ Route::get('panduan', [DocumentationController::class, 'showPublicDoc'])->name('
 // Public News / Articles Routes
 Route::get('berita', [NewsController::class, 'index'])->name('news.index');
 Route::get('berita/{slug}', [NewsController::class, 'show'])->name('news.show');
+Route::post('berita/{slug}/track-cta', [NewsController::class, 'trackCta'])->name('news.track-cta');
 
 Route::get('about', function () {
     return Inertia::render('static/About', [

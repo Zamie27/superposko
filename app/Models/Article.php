@@ -24,6 +24,10 @@ class Article extends Model
         'cover_image',
         'reading_time_minutes',
         'views_count',
+        'cta_wa_count',
+        'cta_fb_count',
+        'cta_ig_count',
+        'cta_copy_count',
         'is_published',
         'published_at',
     ];
@@ -34,11 +38,21 @@ class Article extends Model
         'published_at' => 'datetime',
         'reading_time_minutes' => 'integer',
         'views_count' => 'integer',
+        'cta_wa_count' => 'integer',
+        'cta_fb_count' => 'integer',
+        'cta_ig_count' => 'integer',
+        'cta_copy_count' => 'integer',
     ];
 
     protected $appends = [
         'cover_image_url',
+        'total_cta_count',
     ];
+
+    public function getTotalCtaCountAttribute(): int
+    {
+        return (int) ($this->cta_wa_count + $this->cta_fb_count + $this->cta_ig_count + $this->cta_copy_count);
+    }
 
     /**
      * Posko Host User (Group)

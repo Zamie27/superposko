@@ -208,4 +208,37 @@ class NewsController extends Controller
             'relatedArticles' => $relatedArticles,
         ]);
     }
+
+    /**
+     * Track CTA share action (wa, fb, ig, copy)
+     */
+    public function trackCta(Request $request, string $slug): \Illuminate\Http\JsonResponse
+    {
+        $type = $request->input('type');
+        $article = Article::where('slug', $slug)->firstOrFail();
+
+        switch ($type) {
+            case 'wa':
+                $article->increment('cta_wa_count');
+                break;
+            case 'fb':
+                $article->increment('cta_fb_count');
+                break;
+            case 'ig':
+                $article->increment('cta_ig_count');
+                break;
+            case 'copy':
+                $article->increment('cta_copy_count');
+                break;
+        }
+
+        return response()->json([
+            'success' => true,
+            'cta_wa_count' => $article->cta_wa_count,
+            'cta_fb_count' => $article->cta_fb_count,
+            'cta_ig_count' => $article->cta_ig_count,
+            'cta_copy_count' => $article->cta_copy_count,
+            'total_cta_count' => $article->total_cta_count,
+        ]);
+    }
 }

@@ -34,6 +34,8 @@ const props = defineProps<{
     footerCopyright?: string;
 }>();
 
+import axios from 'axios';
+
 const toast = useToast();
 const copied = ref(false);
 const activeHeadingId = ref('');
@@ -47,7 +49,34 @@ const scrollToHeading = (headingId: string) => {
     }
 };
 
+const trackCtaAction = async (type: 'wa' | 'fb' | 'ig' | 'copy') => {
+    try {
+        await axios.post(`/berita/${props.article.slug}/track-cta`, { type });
+    } catch (e) {
+        // Ignore tracking error
+    }
+};
+
+const shareToWA = () => {
+    trackCtaAction('wa');
+    const shareText = encodeURIComponent(`${props.article.title}\n\nBaca selengkapnya di SuperPosko:\n${window.location.href}`);
+    window.open(`https://api.whatsapp.com/send?text=${shareText}`, '_blank');
+};
+
+const shareToFB = () => {
+    trackCtaAction('fb');
+    const shareUrl = encodeURIComponent(window.location.href);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank');
+};
+
+const shareToIG = () => {
+    trackCtaAction('ig');
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('Tautan disalin! Buka Instagram untuk membagikan artikel ini.');
+};
+
 const copyArticleLink = () => {
+    trackCtaAction('copy');
     navigator.clipboard.writeText(window.location.href);
     copied.value = true;
     toast.success('Tautan artikel berhasil disalin!');
@@ -234,15 +263,42 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Share Button -->
-                    <button 
-                        @click="copyArticleLink" 
-                        class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all border border-slate-200 shadow-xs cursor-pointer"
-                    >
-                        <Check v-if="copied" class="w-4 h-4 text-emerald-500" />
-                        <Share2 v-else class="w-4 h-4 text-[#38BDF8]" />
-                        <span>{{ copied ? 'Tautan Disalin!' : 'Bagikan Berita' }}</span>
-                    </button>
+                    <!-- CTA Share Buttons Group -->
+                    <div class="flex items-center gap-1.5">
+                        <button 
+                            @click="shareToWA" 
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                            title="Bagikan ke WhatsApp"
+                        >
+                            <span class="text-sm">💬</span>
+                            <span class="hidden sm:inline">WhatsApp</span>
+                        </button>
+                        <button 
+                            @click="shareToFB" 
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                            title="Bagikan ke Facebook"
+                        >
+                            <span class="text-sm">🌐</span>
+                            <span class="hidden sm:inline">Facebook</span>
+                        </button>
+                        <button 
+                            @click="shareToIG" 
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 hover:opacity-90 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                            title="Salin Tautan untuk Instagram"
+                        >
+                            <span class="text-sm">📸</span>
+                            <span class="hidden sm:inline">Instagram</span>
+                        </button>
+                        <button 
+                            @click="copyArticleLink" 
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all border border-slate-200 shadow-2xs cursor-pointer"
+                            title="Salin Tautan Artikel"
+                        >
+                            <Check v-if="copied" class="w-3.5 h-3.5 text-emerald-500" />
+                            <Share2 v-else class="w-3.5 h-3.5 text-[#38BDF8]" />
+                            <span>{{ copied ? 'Tersalin!' : 'Salin Link' }}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 

@@ -54,6 +54,7 @@ const deleteArticle = (article: any) => {
                                 <th class="p-4">Kategori & Tags</th>
                                 <th class="p-4">Penulis (Anggota)</th>
                                 <th class="p-4">Pembaca</th>
+                                <th class="p-4">Total CTA</th>
                                 <th class="p-4">Status</th>
                                 <th class="p-4 text-right">Aksi</th>
                             </tr>
@@ -97,6 +98,42 @@ const deleteArticle = (article: any) => {
                                     </span>
                                 </td>
 
+                                <!-- Total CTA with Hover Breakdown Tooltip -->
+                                <td class="p-4">
+                                    <div class="relative group/cta inline-block cursor-pointer">
+                                        <span class="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:scale-105 transition-transform">
+                                            <span>💬</span>
+                                            <span>{{ art.total_cta_count }} CTA</span>
+                                        </span>
+
+                                        <!-- Hover Popup Tooltip -->
+                                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/cta:block w-48 p-3 bg-slate-900 text-white rounded-xl shadow-2xl text-xs space-y-1.5 z-50 pointer-events-none transition-all border border-slate-700">
+                                            <div class="font-bold border-b border-slate-700 pb-1 text-sky-400 flex items-center justify-between">
+                                                <span>Detail Interaksi CTA</span>
+                                                <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">{{ art.total_cta_count }} total</span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-emerald-400">
+                                                <span>💬 WhatsApp</span>
+                                                <span class="font-mono font-bold">{{ art.cta_wa_count || 0 }}</span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-blue-400">
+                                                <span>🌐 Facebook</span>
+                                                <span class="font-mono font-bold">{{ art.cta_fb_count || 0 }}</span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-pink-400">
+                                                <span>📸 Instagram</span>
+                                                <span class="font-mono font-bold">{{ art.cta_ig_count || 0 }}</span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-amber-400">
+                                                <span>🔗 Salin Link</span>
+                                                <span class="font-mono font-bold">{{ art.cta_copy_count || 0 }}</span>
+                                            </div>
+                                            <!-- Tooltip Arrow -->
+                                            <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900"></div>
+                                        </div>
+                                    </div>
+                                </td>
+
                                 <!-- Status -->
                                 <td class="p-4">
                                     <span v-if="art.is_published" class="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center gap-1 w-max">
@@ -126,7 +163,7 @@ const deleteArticle = (article: any) => {
                             </tr>
 
                             <tr v-if="articles.length === 0">
-                                <td colspan="6" class="p-12 text-center text-slate-500 dark:text-slate-400 space-y-3">
+                                <td colspan="7" class="p-12 text-center text-slate-500 dark:text-slate-400 space-y-3">
                                     <Newspaper class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700" />
                                     <p class="font-medium">Belum ada berita yang ditulis untuk posko ini.</p>
                                     <Link href="/management/news/create">
