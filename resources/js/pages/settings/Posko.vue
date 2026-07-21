@@ -121,18 +121,73 @@ const fetchGpsAddress = () => {
     );
 };
 
+// Auto compress large images in browser before upload to prevent server upload limit errors
+const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+        if (file.type.includes('svg') || file.size <= 800 * 1024) {
+            resolve(file);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target?.result as string;
+            img.onload = () => {
+                const maxDim = 1000;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            const compressed = new File([blob], file.name.replace(/\.[^/.]+$/, '') + '.webp', {
+                                type: 'image/webp',
+                                lastModified: Date.now(),
+                            });
+                            resolve(compressed);
+                        } else {
+                            resolve(file);
+                        }
+                    },
+                    'image/webp',
+                    0.85
+                );
+            };
+            img.onerror = () => resolve(file);
+        };
+        reader.onerror = () => resolve(file);
+    });
+};
+
 // Handle file selection for logo
-const handleLogoChange = (event: Event) => {
+const handleLogoChange = async (event: Event) => {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files[0]) {
-        const file = target.files[0];
-        
-        // Client side check max 5MB (5 * 1024 * 1024)
-        if (file.size > 5 * 1024 * 1024) {
-            toast.error('Ukuran berkas logo terlalu besar! Maksimal 5MB. Silakan gunakan berkas gambar yang lebih kecil.');
-            target.value = '';
-            logoForm.logo = null;
-            return;
+        let file = target.files[0];
+
+        try {
+            file = await compressImage(file);
+        } catch (e) {
+            console.error('Compression error:', e);
         }
 
         logoForm.clearErrors();
