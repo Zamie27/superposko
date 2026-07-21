@@ -285,31 +285,7 @@ const qrCodeApiUrl = computed(() => {
 });
 
 const printQrPoster = () => {
-    const posterEl = document.getElementById('qr-poster-printable');
-    if (!posterEl) return;
-    
-    const printWin = window.open('', '_blank');
-    if (!printWin) return;
-
-    printWin.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>QR Code Presensi - Kelompok ${props.hostPosko?.group_number || '01'}</title>
-            <script src="https://cdn.tailwindcss.com"><\/script>
-            <style>
-                @page { size: A4 portrait; margin: 0; }
-                body { margin: 0; padding: 20px; display: flex; align-items: center; justify-content: center; min-h: 100vh; background: #fff; }
-            </style>
-        </head>
-        <body onload="window.print(); window.close();">
-            <div style="width: 100%; max-width: 500px; aspect-ratio: 4/5;">
-                ${posterEl.innerHTML}
-            </div>
-        </body>
-        </html>
-    `);
-    printWin.document.close();
+    window.print();
 };
 
 defineOptions({
@@ -756,3 +732,29 @@ defineOptions({
 
     </div>
 </template>
+
+<style>
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+    #qr-poster-printable, #qr-poster-printable * {
+        visibility: visible !important;
+    }
+    #qr-poster-printable {
+        position: fixed !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 100% !important;
+        max-width: 480px !important;
+        margin: 0 !important;
+        padding: 28px !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        z-index: 999999 !important;
+    }
+}
+</style>
