@@ -45,13 +45,12 @@ const deleteArticle = (article: any) => {
                 </div>
 
                 <div class="flex items-center gap-2.5">
-                    <a href="/berita" target="_blank">
+                    <Link href="/berita">
                         <Button variant="outline" class="border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold shadow-xs cursor-pointer rounded-lg px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2">
                             <Globe class="w-4 h-4 text-sky-500" />
                             <span>Buka Berita</span>
-                            <ExternalLink class="w-3.5 h-3.5 text-slate-400" />
                         </Button>
-                    </a>
+                    </Link>
 
                     <Link href="/management/news/create">
                         <Button class="bg-[#38BDF8] hover:bg-[#38BDF8]/90 text-white font-semibold shadow-xs cursor-pointer rounded-lg px-4 py-2">
