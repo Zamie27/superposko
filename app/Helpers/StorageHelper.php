@@ -15,12 +15,13 @@ class StorageHelper
             return null;
         }
 
-        if (Str::startsWith($path, ['http://', 'https://'])) {
-            return $path;
+        // Ignore Immich UUIDs for Voting as requested (use pure MinIO bucket)
+        if (Str::isUuid($path)) {
+            return null;
         }
 
-        if (Str::isUuid($path)) {
-            return ImmichHelper::getThumbnailUrl($path);
+        if (Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
         }
 
         $awsUrl = env('AWS_URL');
