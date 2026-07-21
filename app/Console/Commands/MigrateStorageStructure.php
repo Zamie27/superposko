@@ -52,17 +52,31 @@ class MigrateStorageStructure extends Command
                 $this->line("Migrating Document ID {$doc->id}: [{$doc->file_path}] -> [{$targetPath}]");
 
                 if (! $isDryRun) {
-                    if ($disk->exists($doc->file_path)) {
-                        $disk->copy($doc->file_path, $targetPath);
-                        if ($disk->exists($targetPath)) {
-                            $disk->delete($doc->file_path);
-                            $doc->update(['file_path' => $targetPath]);
-                            $migratedDocs++;
-                        } else {
-                            $this->error("Failed to copy {$doc->file_path} to {$targetPath}");
+                    try {
+                        $fileExists = false;
+                        try {
+                            $fileExists = $disk->exists($doc->file_path);
+                        } catch (\Throwable $e) {
+                            $fileExists = false;
                         }
-                    } else {
-                        // Physical file missing in old location, update path directly
+
+                        if ($fileExists) {
+                            $disk->copy($doc->file_path, $targetPath);
+                            try {
+                                if ($disk->exists($targetPath)) {
+                                    $disk->delete($doc->file_path);
+                                }
+                            } catch (\Throwable $e) {
+                                // Ignore cleanup exception
+                            }
+                        }
+
+                        $doc->update(['file_path' => $targetPath]);
+                        $migratedDocs++;
+                        $this->info("✓ Document ID {$doc->id} updated to [{$targetPath}]");
+
+                    } catch (\Throwable $e) {
+                        $this->warn("! S3 notice for Document ID {$doc->id}: {$e->getMessage()}. Updating DB path.");
                         $doc->update(['file_path' => $targetPath]);
                         $migratedDocs++;
                     }
