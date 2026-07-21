@@ -286,6 +286,21 @@ const qrCodeApiUrl = computed(() => {
 
 const isDownloadingPoster = ref(false);
 
+const fetchImageAsDataUrl = async (url: string): Promise<string | null> => {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        return null;
+    }
+};
+
 const downloadQrPoster = async () => {
     isDownloadingPoster.value = true;
     try {
@@ -311,12 +326,14 @@ const downloadQrPoster = async () => {
         ctx.strokeRect(16, 16, width - 32, height - 32);
 
         // Top Logo
-        const logoImg = new Image();
-        logoImg.crossOrigin = 'anonymous';
-        logoImg.src = '/logo_superposko.png';
-        await new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; });
-        if (logoImg.complete && logoImg.naturalWidth > 0) {
-            ctx.drawImage(logoImg, 60, 60, 240, (240 * logoImg.naturalHeight) / logoImg.naturalWidth);
+        const logoDataUrl = await fetchImageAsDataUrl('/logo_superposko.png');
+        if (logoDataUrl) {
+            const logoImg = new Image();
+            logoImg.src = logoDataUrl;
+            await new Promise((res) => { logoImg.onload = res; logoImg.onerror = res; });
+            if (logoImg.naturalWidth > 0) {
+                ctx.drawImage(logoImg, 60, 60, 240, (240 * logoImg.naturalHeight) / logoImg.naturalWidth);
+            }
         } else {
             ctx.fillStyle = '#0284C7';
             ctx.font = 'bold 36px sans-serif';
@@ -376,13 +393,15 @@ const downloadQrPoster = async () => {
         ctx.lineWidth = 6;
         ctx.stroke();
 
-        // Draw QR code image
-        const qrImg = new Image();
-        qrImg.crossOrigin = 'anonymous';
-        qrImg.src = qrCodeApiUrl.value;
-        await new Promise((res) => { qrImg.onload = res; qrImg.onerror = res; });
-        if (qrImg.complete) {
-            ctx.drawImage(qrImg, qrX + 30, qrY + 30, qrSize - 60, qrSize - 60);
+        // Draw QR code image via base64 Data URL to prevent CORS canvas tainting
+        const qrDataUrl = await fetchImageAsDataUrl(qrCodeApiUrl.value);
+        if (qrDataUrl) {
+            const qrImg = new Image();
+            qrImg.src = qrDataUrl;
+            await new Promise((res) => { qrImg.onload = res; qrImg.onerror = res; });
+            if (qrImg.naturalWidth > 0) {
+                ctx.drawImage(qrImg, qrX + 30, qrY + 30, qrSize - 60, qrSize - 60);
+            }
         }
 
         // Helper text
@@ -435,22 +454,21 @@ const downloadQrPoster = async () => {
         ctx.font = 'bold 22px sans-serif';
         ctx.fillText('📞 ' + (supportInfo.value?.whatsapp || '+62 851-7173-9232'), 555, 1138);
 
-        // Trigger Direct PNG Download
-        canvas.toBlob((blob) => {
-            if (!blob) {
-                isDownloadingPoster.value = false;
-                return;
-            }
-            const link = document.createElement('a');
-            const fileName = `Poster-QR-Absensi-${(props.hostPosko?.group_number || 'Kelompok').toString().replace(/\s+/g, '-')}.png`;
-            link.download = fileName;
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            URL.revokeObjectURL(link.href);
-            isDownloadingPoster.value = false;
-        }, 'image/png');
+        // Export PNG Data URL & Trigger Direct Download
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        const groupNum = props.hostPosko?.group_number || 'Kelompok';
+        link.download = `Poster-QR-Absensi-Kelompok-${groupNum}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('Poster QR Absensi berhasil diunduh!');
     } catch (err) {
         console.error('Download error:', err);
+        toast.error('Gagal mengunduh poster QR.');
+    } finally {
         isDownloadingPoster.value = false;
     }
 };
