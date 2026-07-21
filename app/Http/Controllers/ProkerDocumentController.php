@@ -131,13 +131,17 @@ class ProkerDocumentController extends Controller
         }
 
         $disk = env('FILESYSTEM_DISK', 's3');
-        if (! Storage::disk($disk)->exists($document->file_path)) {
+        try {
+            if (! Storage::disk($disk)->exists($document->file_path)) {
+                abort(404, 'Berkas fisik tidak ditemukan di server.');
+            }
+
+            return Storage::disk($disk)->download($document->file_path, $document->file_name, [
+                'Content-Disposition' => 'attachment; filename="'.$document->file_name.'"',
+            ]);
+        } catch (\Throwable $e) {
             abort(404, 'Berkas fisik tidak ditemukan di server.');
         }
-
-        return Storage::disk($disk)->download($document->file_path, $document->file_name, [
-            'Content-Disposition' => 'attachment; filename="'.$document->file_name.'"',
-        ]);
     }
 
     /**
@@ -152,13 +156,17 @@ class ProkerDocumentController extends Controller
         }
 
         $disk = env('FILESYSTEM_DISK', 's3');
-        if (! Storage::disk($disk)->exists($document->file_path)) {
+        try {
+            if (! Storage::disk($disk)->exists($document->file_path)) {
+                abort(404, 'Berkas fisik tidak ditemukan di server.');
+            }
+
+            return Storage::disk($disk)->response($document->file_path, $document->file_name, [
+                'Content-Disposition' => 'inline; filename="'.$document->file_name.'"',
+            ]);
+        } catch (\Throwable $e) {
             abort(404, 'Berkas fisik tidak ditemukan di server.');
         }
-
-        return Storage::disk($disk)->response($document->file_path, $document->file_name, [
-            'Content-Disposition' => 'inline; filename="'.$document->file_name.'"',
-        ]);
     }
 
     /**
