@@ -69,10 +69,32 @@ const shareToFB = () => {
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank');
 };
 
-const shareToIG = () => {
+const shareToIG = async () => {
     trackCtaAction('ig');
-    navigator.clipboard.writeText(window.location.href);
-    toast.success('Tautan disalin! Buka Instagram untuk membagikan artikel ini.');
+
+    // 1. Try native Web Share API (mobile devices / supported browsers)
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: props.article.title,
+                text: props.article.excerpt || props.article.title,
+                url: window.location.href,
+            });
+            return;
+        } catch (e) {
+            // User cancelled or fallback
+        }
+    }
+
+    // 2. Desktop Fallback: Copy link to clipboard AND open Instagram website
+    try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Tautan disalin! Membuka Instagram...');
+    } catch (e) {
+        toast.success('Membuka Instagram...');
+    }
+
+    window.open('https://www.instagram.com/', '_blank');
 };
 
 const copyArticleLink = () => {
