@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
 import InputError from '@/components/InputError.vue';
 import { ArrowLeft, Save, Upload, Image as ImageIcon, Heading1, Heading2, Bold, Italic, List, Link as LinkIcon, Quote, Sparkles } from '@lucide/vue';
@@ -87,8 +86,7 @@ const submitForm = () => {
 <template>
     <Head :title="isEditing ? 'Edit Artikel Berita' : 'Tulis Artikel Berita Baru'" />
 
-    <AppLayout>
-        <div class="relative flex flex-col gap-6 rounded-xl p-4 sm:p-6 min-h-[400px] w-full max-w-full">
+    <div class="relative flex flex-col gap-6 rounded-xl p-4 sm:p-6 min-h-[400px] w-full max-w-full">
             
             <!-- Page Top Bar -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -262,5 +260,4 @@ const submitForm = () => {
             </div>
 
         </div>
-    </AppLayout>
 </template>

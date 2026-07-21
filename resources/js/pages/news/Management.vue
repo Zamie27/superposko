@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Plus, Edit, Trash2, Eye, ExternalLink, Newspaper, Calendar, CheckCircle2, Clock } from '@lucide/vue';
 import { useToast } from '@/composables/useToast';
@@ -23,8 +22,7 @@ const deleteArticle = (article: any) => {
 <template>
     <Head title="Manajemen Berita Posko" />
 
-    <AppLayout>
-        <div class="relative flex flex-col gap-6 rounded-xl p-4 sm:p-6 min-h-[400px] w-full max-w-full">
+    <div class="relative flex flex-col gap-6 rounded-xl p-4 sm:p-6 min-h-[400px] w-full max-w-full">
             
             <!-- Page Header -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -144,5 +142,4 @@ const deleteArticle = (article: any) => {
             </div>
 
         </div>
-    </AppLayout>
 </template>
