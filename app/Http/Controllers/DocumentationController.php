@@ -162,19 +162,34 @@ class DocumentationController extends Controller
 
         $isDownload = $request->query('download') === 'true';
 
-        // For large files/videos, we stream the response
-        $response = Http::withHeaders([
+        $reqHeaders = [
             'x-api-key' => $this->apiKey,
-        ])->send('GET', "{$this->url}/api/assets/{$id}/original", [
+        ];
+
+        // Forward Range header for HTML5 video streaming and seeking
+        if ($request->hasHeader('Range')) {
+            $reqHeaders['Range'] = (string) $request->header('Range');
+        }
+
+        $response = Http::withHeaders($reqHeaders)->send('GET', "{$this->url}/api/assets/{$id}/original", [
             'stream' => true,
         ]);
 
-        if ($response->successful()) {
+        $status = $response->status();
+
+        if ($response->successful() || $status === 206) {
             $headers = [
                 'Content-Type' => (string) $response->header('Content-Type'),
-                'Content-Length' => (string) $response->header('Content-Length'),
                 'Accept-Ranges' => 'bytes',
             ];
+
+            if ($response->hasHeader('Content-Length')) {
+                $headers['Content-Length'] = (string) $response->header('Content-Length');
+            }
+
+            if ($response->hasHeader('Content-Range')) {
+                $headers['Content-Range'] = (string) $response->header('Content-Range');
+            }
 
             if ($isDownload) {
                 $headers['Content-Disposition'] = 'attachment; filename="immich_asset_'.$id.'"';
@@ -183,11 +198,12 @@ class DocumentationController extends Controller
             }
 
             return response()->stream(function () use ($response) {
-                while (! $response->toPsrResponse()->getBody()->eof()) {
-                    echo $response->toPsrResponse()->getBody()->read(1024 * 8);
+                $body = $response->toPsrResponse()->getBody();
+                while (! $body->eof()) {
+                    echo $body->read(1024 * 32);
                     flush();
                 }
-            }, 200, $headers);
+            }, $status, $headers);
         }
 
         abort(404);

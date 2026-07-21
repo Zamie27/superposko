@@ -426,16 +426,16 @@ const getTodayName = () => {
         <!-- Attendance Quick Action & Status Widget Card -->
         <div 
             :class="[
-                'p-3.5 sm:p-5 rounded-2xl border transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full min-w-0 overflow-hidden',
+                'p-4 sm:p-5 rounded-2xl border transition-all duration-300 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5 sm:gap-4 w-full min-w-0',
                 todayAttendance 
                     ? 'bg-emerald-500/10 dark:bg-emerald-950/30 border-emerald-300/50 dark:border-emerald-800/50' 
                     : 'bg-gradient-to-r from-sky-500/10 via-sky-500/5 to-indigo-500/10 dark:from-sky-950/40 dark:to-indigo-950/30 border-sky-300/60 dark:border-sky-800/60 shadow-xs'
             ]"
         >
-            <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto flex-1">
+            <div class="flex items-start sm:items-center gap-3 min-w-0 w-full sm:w-auto flex-1">
                 <div 
                     :class="[
-                        'w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shrink-0 font-bold',
+                        'w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shrink-0 font-bold mt-0.5 sm:mt-0',
                         todayAttendance 
                             ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' 
                             : 'bg-sky-500 text-white shadow-md shadow-sky-500/20 animate-pulse'
@@ -460,7 +460,7 @@ const getTodayName = () => {
                             {{ todayAttendance ? todayAttendance.status : 'Perlu Aksi' }}
                         </span>
                     </div>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-snug break-words">
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-normal break-words">
                         <template v-if="todayAttendance">
                             Tercatat pukul <strong>{{ todayAttendance.time }}</strong>
                             <span v-if="todayAttendance.village"> • {{ todayAttendance.village }}</span>
@@ -475,7 +475,7 @@ const getTodayName = () => {
             <Link 
                 href="/absensi"
                 :class="[
-                    'w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs transition duration-200 shrink-0 text-center flex items-center justify-center gap-2 shadow-xs cursor-pointer',
+                    'w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs transition duration-200 shrink-0 text-center flex items-center justify-center gap-2 shadow-xs cursor-pointer mt-1 sm:mt-0',
                     todayAttendance
                         ? 'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
                         : 'bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/25'
