@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import InputError from '@/components/InputError.vue';
 import { 
     ArrowLeft, Save, Image as ImageIcon, Heading1, Heading2, 
-    Bold, Italic, List, Quote, Sparkles, Eye, Edit3, Wand2, FileText, Code 
+    Bold, Italic, List, Quote, Sparkles, Eye, Edit3, Wand2, FileText, Code, Trash2 
 } from '@lucide/vue';
 import { useToast } from '@/composables/useToast';
 
@@ -36,6 +36,32 @@ const previewCoverUrl = ref<string | null>(props.article?.cover_image_url || nul
 const visualEditorRef = ref<HTMLDivElement | null>(null);
 const inlineImageInputRef = ref<HTMLInputElement | null>(null);
 const isUploadingInlineImage = ref(false);
+const selectedImage = ref<HTMLImageElement | null>(null);
+
+const handleVisualEditorClick = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    
+    if (selectedImage.value && selectedImage.value !== target) {
+        selectedImage.value.classList.remove('ring-4', 'ring-[#38BDF8]');
+        selectedImage.value = null;
+    }
+
+    if (target && target.tagName === 'IMG') {
+        selectedImage.value = target as HTMLImageElement;
+        selectedImage.value.classList.add('ring-4', 'ring-[#38BDF8]');
+    }
+};
+
+const deleteSelectedImage = () => {
+    if (selectedImage.value) {
+        selectedImage.value.remove();
+        selectedImage.value = null;
+        syncContentFromVisual();
+        toast.success('Gambar berhasil dihapus dari isi artikel.');
+    } else {
+        toast.error('Klik gambar di dalam area penulisan terlebih dahulu.');
+    }
+};
 
 const triggerInlineImageSelect = () => {
     inlineImageInputRef.value?.click();
@@ -429,6 +455,17 @@ onMounted(() => {
                                     <span>{{ isUploadingInlineImage ? 'Mengunggah...' : 'Sisipkan Gambar' }}</span>
                                 </button>
 
+                                <button 
+                                    @click="deleteSelectedImage" 
+                                    type="button" 
+                                    :class="selectedImage ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 border-rose-300 dark:border-rose-800 animate-pulse' : 'bg-white dark:bg-slate-700 text-slate-500 border-slate-200 dark:border-slate-600'"
+                                    class="px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 hover:border-rose-400 hover:text-rose-600 cursor-pointer shadow-2xs transition-colors" 
+                                    title="Klik gambar di editor terlebih dahulu, lalu klik tombol ini untuk menghapus"
+                                >
+                                    <Trash2 class="w-3.5 h-3.5 text-rose-500" />
+                                    <span>Hapus Gambar</span>
+                                </button>
+
                                 <input 
                                     ref="inlineImageInputRef" 
                                     type="file" 
@@ -450,11 +487,23 @@ onMounted(() => {
                             </button>
                         </div>
 
+                        <!-- Selected Image Hint Floating Bar -->
+                        <div v-if="selectedImage" class="bg-rose-50 dark:bg-rose-950/40 px-4 py-2 border-b border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 flex items-center justify-between">
+                            <span class="font-bold flex items-center gap-1.5">
+                                <ImageIcon class="w-4 h-4 text-rose-500" />
+                                Gambar artikel dipilih
+                            </span>
+                            <button @click="deleteSelectedImage" type="button" class="px-2.5 py-1 rounded-md bg-rose-600 text-white font-bold text-[11px] hover:bg-rose-700 cursor-pointer">
+                                Hapus Gambar Terpilih Sekarang
+                            </button>
+                        </div>
+
                         <!-- 1. Real Visual ContentEditable Editor (Default) -->
                         <div 
                             v-if="!isCodeMode"
                             ref="visualEditorRef"
                             contenteditable="true"
+                            @click="handleVisualEditorClick"
                             @input="syncContentFromVisual"
                             @blur="syncContentFromVisual"
                             @keyup="syncContentFromVisual"
