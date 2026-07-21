@@ -55,9 +55,11 @@ const selectTopic = (slug: string) => {
                 <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
                     <Link href="/" class="hover:text-[#38BDF8] transition-colors">Home</Link>
                     <Link href="/event" class="hover:text-[#38BDF8] transition-colors">Event</Link>
-                    <Link href="/panduan" class="text-[#38BDF8] transition-colors">Panduan</Link>
+                    <Link href="/berita" class="hover:text-[#38BDF8] transition-colors">Berita</Link>
+                    <Link href="/panduan" class="text-[#38BDF8] font-bold transition-colors">Panduan</Link>
                     <a href="/#fitur" class="hover:text-[#38BDF8] transition-colors">Fitur</a>
                     <a href="/#pricing" class="hover:text-[#38BDF8] transition-colors">Harga</a>
+                    <a href="/#faq" class="hover:text-[#38BDF8] transition-colors">FAQ</a>
                 </nav>
 
                 <!-- Actions -->
