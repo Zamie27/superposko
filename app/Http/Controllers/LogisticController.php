@@ -41,7 +41,7 @@ class LogisticController extends Controller
     }
 
     /**
-     * Store a newly created logistic item.
+     * Store a newly created logistic item or restock an existing logistic item.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -51,8 +51,9 @@ class LogisticController extends Controller
         }
 
         $validated = $request->validate([
+            'logistic_id' => ['nullable', 'integer', 'exists:logistics,id'],
             'name' => ['required', 'string', 'max:255'],
-            'quantity' => ['required', 'numeric', 'min:0'],
+            'quantity' => ['required', 'numeric', 'min:0.01'],
             'unit' => ['required', 'string', 'max:255'],
             'status' => ['required', 'string', Rule::in(['sufficient', 'low', 'out'])],
             'notes' => ['nullable', 'string', 'max:255'],
@@ -65,6 +66,15 @@ class LogisticController extends Controller
 
         $hostId = $user->host_id ?? $user->id;
 
+        $existingLogistic = null;
+        if (! empty($validated['logistic_id'])) {
+            $existingLogistic = Logistic::where('host_id', $hostId)->where('id', $validated['logistic_id'])->first();
+        } else {
+            $existingLogistic = Logistic::where('host_id', $hostId)
+                ->whereRaw('LOWER(name) = ?', [mb_strtolower(trim($validated['name']))])
+                ->first();
+        }
+
         $ownerId = $validated['owner_id'] ?? null;
         if (empty($ownerId) || $ownerId === 'null') {
             $ownerId = null;
@@ -72,12 +82,68 @@ class LogisticController extends Controller
 
         $source = $validated['source'] ?? 'member';
         $purchasePrice = $validated['purchase_price'] ?? null;
+        $addedQuantity = (float) $validated['quantity'];
+
+        // If restocking an existing item
+        if ($existingLogistic) {
+            $financeId = $existingLogistic->finance_id;
+
+            if ($source === 'purchase' && $purchasePrice > 0) {
+                $paymentMethod = $validated['payment_method'] ?? 'Cash';
+                $totalExpense = $purchasePrice * $addedQuantity;
+
+                $currentBalance = Finance::getGeneralMethodBalance($hostId, $paymentMethod);
+                if ($totalExpense > $currentBalance) {
+                    return back()->withErrors(['purchase_price' => "Saldo {$paymentMethod} tidak mencukupi (Saldo: Rp ".number_format($currentBalance, 0, ',', '.').').']);
+                }
+
+                $finance = Finance::create([
+                    'host_id' => $hostId,
+                    'program_kerja_id' => null,
+                    'created_by' => $user->id,
+                    'type' => 'expense',
+                    'amount' => $totalExpense,
+                    'payment_method' => $paymentMethod,
+                    'title' => 'Pembelian Logistik: '.$existingLogistic->name,
+                    'description' => 'Pembelian otomatis dari penambahan logistik.',
+                    'date' => $validated['date'],
+                ]);
+                $financeId = $finance->id;
+            }
+
+            $newQuantity = $existingLogistic->quantity + $addedQuantity;
+
+            // Recalculate status based on new quantity if needed
+            $status = $validated['status'];
+            if ($newQuantity > 3 && $status === 'out') {
+                $status = 'sufficient';
+            } elseif ($newQuantity > 0 && $newQuantity <= 3 && $status === 'out') {
+                $status = 'low';
+            }
+
+            $existingLogistic->update([
+                'quantity' => $newQuantity,
+                'status' => $status,
+                'notes' => ! empty($validated['notes']) ? $validated['notes'] : $existingLogistic->notes,
+                'date' => $validated['date'],
+                'finance_id' => $financeId,
+            ]);
+
+            ActivityLogHelper::log(
+                'member',
+                'restock_logistic',
+                "User restocked logistic item '{$existingLogistic->name}' (+{$addedQuantity} {$existingLogistic->unit}, Total: {$newQuantity} {$existingLogistic->unit})."
+            );
+
+            return back()->with('success', 'Stok bahan logistik berhasil ditambahkan.');
+        }
+
+        // Creating a brand new logistic item
         $financeId = null;
 
-        // If purchased from kas, auto-create Finance expense record
         if ($source === 'purchase' && $purchasePrice > 0) {
             $paymentMethod = $validated['payment_method'] ?? 'Cash';
-            $amount = $purchasePrice * $validated['quantity'];
+            $amount = $purchasePrice * $addedQuantity;
 
             $currentBalance = Finance::getGeneralMethodBalance($hostId, $paymentMethod);
             if ($amount > $currentBalance) {
@@ -89,8 +155,8 @@ class LogisticController extends Controller
                 'program_kerja_id' => null,
                 'created_by' => $user->id,
                 'type' => 'expense',
-                'amount' => $purchasePrice * $validated['quantity'],
-                'payment_method' => $validated['payment_method'] ?? 'Cash',
+                'amount' => $amount,
+                'payment_method' => $paymentMethod,
                 'title' => 'Pembelian Logistik: '.$validated['name'],
                 'description' => 'Pembelian otomatis dari penambahan logistik.',
                 'date' => $validated['date'],
@@ -105,7 +171,7 @@ class LogisticController extends Controller
             'purchase_price' => $source === 'purchase' ? $purchasePrice : null,
             'finance_id' => $financeId,
             'name' => $validated['name'],
-            'quantity' => $validated['quantity'],
+            'quantity' => $addedQuantity,
             'unit' => $validated['unit'],
             'status' => $validated['status'],
             'notes' => $validated['notes'] ?? null,

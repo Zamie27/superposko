@@ -84,6 +84,7 @@ const isEditMode = ref(false);
 const editingLogisticId = ref<number | null>(null);
 
 const form = useForm({
+    logistic_id: null as number | null,
     name: '',
     quantity: 0,
     unit: 'pcs',
@@ -95,6 +96,45 @@ const form = useForm({
     payment_method: 'Cash' as 'Cash' | 'SeaBank' | 'DANA',
     date: new Date().toISOString().split('T')[0],
 });
+
+const selectedExistingLogistic = computed(() => {
+    if (!form.logistic_id) return null;
+    return props.logistics.find(item => item.id === form.logistic_id) || null;
+});
+
+const onSelectExistingLogistic = (e: Event) => {
+    const target = e.target as HTMLSelectElement;
+    const val = target.value ? Number(target.value) : null;
+    if (val) {
+        const item = props.logistics.find(i => i.id === val);
+        if (item) {
+            form.logistic_id = item.id;
+            form.name = item.name;
+            form.unit = item.unit;
+            form.status = item.status;
+        }
+    } else {
+        form.logistic_id = null;
+        form.name = '';
+        form.unit = 'pcs';
+    }
+};
+
+const onNameInput = () => {
+    if (isEditMode.value) return;
+    const trimmed = form.name.trim().toLowerCase();
+    if (!trimmed) {
+        form.logistic_id = null;
+        return;
+    }
+    const match = props.logistics.find(item => item.name.trim().toLowerCase() === trimmed);
+    if (match) {
+        form.logistic_id = match.id;
+        form.unit = match.unit;
+    } else {
+        form.logistic_id = null;
+    }
+};
 
 const formattedQuantity = computed(() => {
     if (!form.quantity) return '';
@@ -122,6 +162,7 @@ const openCreateModal = () => {
     isEditMode.value = false;
     editingLogisticId.value = null;
     form.reset();
+    form.logistic_id = null;
     form.source = 'member';
     form.owner_id = '';
     form.purchase_price = '';
@@ -133,6 +174,7 @@ const openCreateModal = () => {
 const openEditModal = (item: Logistic) => {
     isEditMode.value = true;
     editingLogisticId.value = item.id;
+    form.logistic_id = null;
     form.name = item.name;
     form.quantity = item.quantity;
     form.unit = item.unit;
@@ -455,15 +497,34 @@ const getStatusDetails = (status: string) => {
                 </div>
 
                 <form @submit.prevent="submitForm" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+                    <!-- Dropdown Pilih Bahan Existing (Restok) -->
+                    <div v-if="!isEditMode && props.logistics.length > 0" class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Pilih Bahan yang Sudah Ada (Restok)</label>
+                        <select
+                            :value="form.logistic_id ?? ''"
+                            @change="onSelectExistingLogistic"
+                            class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-950 dark:text-white"
+                        >
+                            <option value="">-- Ketik Nama Bahan Baru --</option>
+                            <option v-for="item in props.logistics" :key="item.id" :value="item.id">
+                                Restok: {{ item.name }} (Stok saat ini: {{ Number(item.quantity) }} {{ item.unit }})
+                            </option>
+                        </select>
+                    </div>
+
                     <!-- Name and Date Input Row -->
                     <div class="grid grid-cols-3 gap-4">
                         <div class="col-span-2 space-y-1">
-                            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Nama Bahan / Logistik</label>
+                            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                {{ form.logistic_id ? 'Nama Bahan (Restok)' : 'Nama Bahan / Logistik' }}
+                            </label>
                             <input
                                 v-model="form.name"
+                                @input="onNameInput"
                                 type="text"
                                 placeholder="Contoh: Beras, Telur, Air Galon, Parasetamol"
-                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400"
+                                :disabled="!!form.logistic_id"
                                 required
                             />
                             <p v-if="form.errors.name" class="text-xs text-red-500">{{ form.errors.name }}</p>
@@ -483,7 +544,9 @@ const getStatusDetails = (status: string) => {
                     <!-- Quantity & Unit Row -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">
-                            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Jumlah Stok</label>
+                            <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                {{ form.logistic_id ? 'Jumlah Tambahan Stok' : 'Jumlah Stok' }}
+                            </label>
                             <input
                                 :value="formattedQuantity"
                                 @input="onQuantityInput"
@@ -500,11 +563,17 @@ const getStatusDetails = (status: string) => {
                                 v-model="form.unit"
                                 type="text"
                                 placeholder="Contoh: kg, Dus, Pcs, Liter"
-                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400"
+                                :disabled="!!form.logistic_id"
                                 required
                             />
                             <p v-if="form.errors.unit" class="text-xs text-red-500">{{ form.errors.unit }}</p>
                         </div>
+                    </div>
+
+                    <!-- Restock Indicator Banner -->
+                    <div v-if="selectedExistingLogistic" class="p-3 bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-850 rounded-xl text-xs text-sky-800 dark:text-sky-300 font-medium">
+                        Stok awal {{ Number(selectedExistingLogistic.quantity) }} {{ form.unit }} + Tambahan {{ Number(form.quantity || 0) }} {{ form.unit }} = Total Stok {{ Number(selectedExistingLogistic.quantity) + Number(form.quantity || 0) }} {{ form.unit }}
                     </div>
 
                     <!-- Source Toggle: Sumber Barang -->

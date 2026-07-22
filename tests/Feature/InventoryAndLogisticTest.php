@@ -627,4 +627,75 @@ class InventoryAndLogisticTest extends TestCase
         $this->assertDatabaseMissing('logistics', ['id' => $logistic->id]);
         $this->assertDatabaseMissing('finances', ['id' => $finance->id]);
     }
+
+    public function test_host_can_restock_existing_logistic_item_and_creates_new_finance_record()
+    {
+        $host = User::factory()->create(['role' => 'host']);
+        $this->actingAs($host);
+
+        // Initial purchase: 1 kg Wortel (Rp 10.000)
+        $initialFinance = Finance::create([
+            'host_id' => $host->id,
+            'program_kerja_id' => null,
+            'created_by' => $host->id,
+            'type' => 'expense',
+            'amount' => 10000,
+            'payment_method' => 'Cash',
+            'title' => 'Pembelian Logistik: Wortel',
+            'description' => 'Awal',
+            'date' => now()->toDateString(),
+        ]);
+
+        $logistic = Logistic::create([
+            'host_id' => $host->id,
+            'source' => 'purchase',
+            'purchase_price' => 10000,
+            'finance_id' => $initialFinance->id,
+            'name' => 'Wortel',
+            'quantity' => 1,
+            'unit' => 'kg',
+            'status' => 'sufficient',
+            'date' => now()->toDateString(),
+        ]);
+
+        // Restock: Buy 5 kg Wortel at 10.000/kg (50.000) using Kas
+        $payload = [
+            'logistic_id' => $logistic->id,
+            'name' => 'Wortel',
+            'quantity' => 5,
+            'unit' => 'kg',
+            'status' => 'sufficient',
+            'source' => 'purchase',
+            'purchase_price' => 10000,
+            'payment_method' => 'Cash',
+            'date' => now()->toDateString(),
+        ];
+
+        $response = $this->post(route('management.logistic.store'), $payload);
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        // 1. Logistic card should not be duplicated (total count = 1), quantity updated to 6
+        $this->assertEquals(1, Logistic::where('host_id', $host->id)->where('name', 'Wortel')->count());
+
+        $logistic->refresh();
+        $this->assertEquals(6.0, (float) $logistic->quantity);
+
+        // 2. Initial finance record remains untouched (Rp 10.000)
+        $this->assertDatabaseHas('finances', [
+            'id' => $initialFinance->id,
+            'amount' => 10000,
+        ]);
+
+        // 3. New finance record created for this new purchase (5 kg * 10,000 = Rp 50.000)
+        $this->assertDatabaseHas('finances', [
+            'host_id' => $host->id,
+            'type' => 'expense',
+            'amount' => 50000,
+            'payment_method' => 'Cash',
+            'title' => 'Pembelian Logistik: Wortel',
+        ]);
+
+        $this->assertEquals(2, Finance::where('host_id', $host->id)->where('type', 'expense')->count());
+    }
 }
