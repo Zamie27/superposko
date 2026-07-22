@@ -97,31 +97,41 @@ const form = useForm({
     date: new Date().toISOString().split('T')[0],
 });
 
+const showSuggestions = ref(false);
+const highlightedIndex = ref(-1);
+
 const selectedExistingLogistic = computed(() => {
     if (!form.logistic_id) return null;
     return props.logistics.find(item => item.id === form.logistic_id) || null;
 });
 
-const onSelectExistingLogistic = (e: Event) => {
-    const target = e.target as HTMLSelectElement;
-    const val = target.value ? Number(target.value) : null;
-    if (val) {
-        const item = props.logistics.find(i => i.id === val);
-        if (item) {
-            form.logistic_id = item.id;
-            form.name = item.name;
-            form.unit = item.unit;
-            form.status = item.status;
-        }
-    } else {
-        form.logistic_id = null;
-        form.name = '';
-        form.unit = 'pcs';
-    }
+const matchingLogistics = computed(() => {
+    if (isEditMode.value || !form.name.trim()) return [];
+    const query = form.name.trim().toLowerCase();
+    return props.logistics.filter(item => item.name.toLowerCase().includes(query));
+});
+
+const selectLogisticSuggestion = (item: Logistic) => {
+    form.logistic_id = item.id;
+    form.name = item.name;
+    form.unit = item.unit;
+    form.status = item.status;
+    showSuggestions.value = false;
+    highlightedIndex.value = -1;
+};
+
+const clearSelectedLogistic = () => {
+    form.logistic_id = null;
+    form.name = '';
+    form.unit = 'pcs';
+    showSuggestions.value = true;
 };
 
 const onNameInput = () => {
     if (isEditMode.value) return;
+    showSuggestions.value = true;
+    highlightedIndex.value = -1;
+
     const trimmed = form.name.trim().toLowerCase();
     if (!trimmed) {
         form.logistic_id = null;
@@ -134,6 +144,31 @@ const onNameInput = () => {
     } else {
         form.logistic_id = null;
     }
+};
+
+const onNameKeyDown = (e: KeyboardEvent) => {
+    if (isEditMode.value || !showSuggestions.value || matchingLogistics.value.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        highlightedIndex.value = (highlightedIndex.value + 1) % matchingLogistics.value.length;
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        highlightedIndex.value = (highlightedIndex.value - 1 + matchingLogistics.value.length) % matchingLogistics.value.length;
+    } else if ((e.key === 'Enter' || e.key === 'Tab') && highlightedIndex.value >= 0) {
+        if (highlightedIndex.value < matchingLogistics.value.length) {
+            e.preventDefault();
+            selectLogisticSuggestion(matchingLogistics.value[highlightedIndex.value]);
+        }
+    } else if (e.key === 'Escape') {
+        showSuggestions.value = false;
+    }
+};
+
+const onNameBlur = () => {
+    setTimeout(() => {
+        showSuggestions.value = false;
+    }, 200);
 };
 
 const formattedQuantity = computed(() => {
@@ -497,36 +532,66 @@ const getStatusDetails = (status: string) => {
                 </div>
 
                 <form @submit.prevent="submitForm" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-                    <!-- Dropdown Pilih Bahan Existing (Restok) -->
-                    <div v-if="!isEditMode && props.logistics.length > 0" class="space-y-1">
-                        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Pilih Bahan yang Sudah Ada (Restok)</label>
-                        <select
-                            :value="form.logistic_id ?? ''"
-                            @change="onSelectExistingLogistic"
-                            class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none bg-white dark:bg-slate-950 dark:text-white"
-                        >
-                            <option value="">-- Ketik Nama Bahan Baru --</option>
-                            <option v-for="item in props.logistics" :key="item.id" :value="item.id">
-                                Restok: {{ item.name }} (Stok saat ini: {{ Number(item.quantity) }} {{ item.unit }})
-                            </option>
-                        </select>
-                    </div>
-
                     <!-- Name and Date Input Row -->
                     <div class="grid grid-cols-3 gap-4">
-                        <div class="col-span-2 space-y-1">
+                        <div class="col-span-2 space-y-1 relative">
                             <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">
                                 {{ form.logistic_id ? 'Nama Bahan (Restok)' : 'Nama Bahan / Logistik' }}
                             </label>
-                            <input
-                                v-model="form.name"
-                                @input="onNameInput"
-                                type="text"
-                                placeholder="Contoh: Beras, Telur, Air Galon, Parasetamol"
-                                class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400"
-                                :disabled="!!form.logistic_id"
-                                required
-                            />
+                            <div class="relative">
+                                <input
+                                    v-model="form.name"
+                                    @input="onNameInput"
+                                    @focus="showSuggestions = true"
+                                    @blur="onNameBlur"
+                                    @keydown="onNameKeyDown"
+                                    type="text"
+                                    placeholder="Contoh: Beras, Wortel, Telur..."
+                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none dark:bg-slate-950 dark:text-white"
+                                    required
+                                    autocomplete="off"
+                                />
+                                <button
+                                    v-if="form.logistic_id"
+                                    type="button"
+                                    @click="clearSelectedLogistic"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold bg-sky-100 hover:bg-sky-200 text-sky-800 dark:bg-sky-900/60 dark:hover:bg-sky-800 dark:text-sky-300 px-2 py-1 rounded-lg flex items-center gap-1 transition cursor-pointer"
+                                    title="Batal Restok (Ubah ke Bahan Baru)"
+                                >
+                                    Restok <X class="size-3" />
+                                </button>
+                            </div>
+
+                            <!-- Autocomplete Suggestions Panel -->
+                            <div
+                                v-if="!isEditMode && showSuggestions && matchingLogistics.length > 0 && !form.logistic_id"
+                                class="absolute left-0 right-0 top-full mt-1 z-30 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg max-h-48 overflow-y-auto py-1"
+                            >
+                                <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-850">
+                                    Pilih untuk Restok Stok Ada:
+                                </div>
+                                <button
+                                    v-for="(item, index) in matchingLogistics"
+                                    :key="item.id"
+                                    type="button"
+                                    @mousedown.prevent="selectLogisticSuggestion(item)"
+                                    :class="[
+                                        'w-full text-left px-3 py-2 text-xs flex items-center justify-between transition cursor-pointer',
+                                        highlightedIndex === index
+                                            ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 font-semibold'
+                                            : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
+                                    ]"
+                                >
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium">{{ item.name }}</span>
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 font-semibold">
+                                            Stok: {{ Number(item.quantity) }} {{ item.unit }}
+                                        </span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 font-normal">Restok (Enter)</span>
+                                </button>
+                            </div>
+
                             <p v-if="form.errors.name" class="text-xs text-red-500">{{ form.errors.name }}</p>
                         </div>
                         <div class="space-y-1">
