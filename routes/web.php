@@ -23,6 +23,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\DplController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\FinancialAdministrationController;
 use App\Http\Controllers\CashDueController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LogbookController;
@@ -266,6 +267,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('finance/tags/{financeTag}', [FinanceController::class, 'destroyTag'])->name('finance.tags.destroy');
         Route::post('finance/{finance}', [FinanceController::class, 'update'])->name('finance.update');
         Route::delete('finance/{finance}', [FinanceController::class, 'destroy'])->name('finance.destroy');
+
+        // Modul Administrasi Keuangan (7 Modul Baru)
+        Route::get('financial-administration/buku-kas-umum', [FinancialAdministrationController::class, 'bukuKasUmum'])->name('financial-admin.buku-kas-umum');
+        Route::get('financial-administration/buku-penerimaan-dana', [FinancialAdministrationController::class, 'bukuPenerimaan'])->name('financial-admin.buku-penerimaan');
+        Route::get('financial-administration/buku-pengeluaran-dana', [FinancialAdministrationController::class, 'bukuPengeluaran'])->name('financial-admin.buku-pengeluaran');
+        Route::get('financial-administration/bukti-pembayaran', [FinancialAdministrationController::class, 'buktiPembayaran'])->name('financial-admin.bukti-pembayaran');
+        Route::get('financial-administration/kwitansi', [FinancialAdministrationController::class, 'kwitansi'])->name('financial-admin.kwitansi');
+        Route::get('financial-administration/nota-belanja', [FinancialAdministrationController::class, 'notaBelanja'])->name('financial-admin.nota-belanja');
+        Route::get('financial-administration/lpj-keuangan', [FinancialAdministrationController::class, 'lpjKeuangan'])->name('financial-admin.lpj-keuangan');
 
         // Pencatatan Kas Mingguan
         Route::get('catatan-kas', [CashDueController::class, 'index'])->name('cash-dues.index');

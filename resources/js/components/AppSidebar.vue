@@ -177,6 +177,41 @@ const navGroups = computed<NavGroup[]>(() => {
             locked: !isSubscribed,
         },
         {
+            title: 'Modul Keuangan',
+            icon: FileText,
+            locked: !isSubscribed,
+            items: [
+                {
+                    title: 'Buku kas umum',
+                    href: '/financial-administration/buku-kas-umum',
+                },
+                {
+                    title: 'Buku penerimaan dana',
+                    href: '/financial-administration/buku-penerimaan-dana',
+                },
+                {
+                    title: 'Buku Pengeluaran dana',
+                    href: '/financial-administration/buku-pengeluaran-dana',
+                },
+                {
+                    title: 'Bukti pembayaran',
+                    href: '/financial-administration/bukti-pembayaran',
+                },
+                {
+                    title: 'Kwitansi',
+                    href: '/financial-administration/kwitansi',
+                },
+                {
+                    title: 'Nota Belanja',
+                    href: '/financial-administration/nota-belanja',
+                },
+                {
+                    title: 'LPJ Keuangan',
+                    href: '/financial-administration/lpj-keuangan',
+                },
+            ],
+        },
+        {
             title: 'Catatan Kas',
             href: '/catatan-kas',
             icon: Coins,

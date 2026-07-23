@@ -49,6 +49,7 @@ return false;
     const hostPaths = [
         '/dashboard',
         '/finance',
+        '/financial-administration',
         '/logbook',
         '/management',
         '/contacts',
