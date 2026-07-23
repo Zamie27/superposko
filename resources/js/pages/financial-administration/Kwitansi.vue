@@ -104,7 +104,7 @@ const printKwitansi = () => {
 <template>
     <Head title="Kwitansi Digital - Modul Keuangan" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-6 max-w-5xl mx-auto font-sans">
+    <div class="flex flex-col gap-6 p-4 md:p-6 w-full max-w-5xl mx-auto font-sans">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
             <div>

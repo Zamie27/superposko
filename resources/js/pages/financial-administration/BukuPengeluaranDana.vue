@@ -49,7 +49,7 @@ const printPage = () => {
 <template>
     <Head title="Buku Pengeluaran Dana - Modul Keuangan" />
 
-    <div class="flex h-full flex-1 flex-col gap-6 p-6 max-w-7xl mx-auto font-sans">
+    <div class="flex flex-col gap-6 p-4 md:p-6 w-full max-w-7xl mx-auto font-sans">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
             <div>
@@ -116,8 +116,8 @@ const printPage = () => {
 
         <!-- Table -->
         <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left text-xs min-w-max">
                     <thead class="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase">
                         <tr>
                             <th class="py-3 px-4 w-28">Tanggal</th>
