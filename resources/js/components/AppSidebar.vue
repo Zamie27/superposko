@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import { 
     CreditCard, Info, LayoutGrid, Wallet, BookOpen, Box, 
     Contact, Archive, Vote, Image, Users, CheckCircle as CheckCircle2, 
@@ -25,7 +25,7 @@ import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
 const page = usePage();
-const { state } = useSidebar();
+const { state, isMobile, setOpenMobile } = useSidebar();
 
 const formatBytes = (bytes: number, decimals = 1) => {
     if (!+bytes) {
@@ -332,6 +332,7 @@ const footerNavItems: NavItem[] = [
 // PWA Installation prompt logic
 const deferredPrompt = ref<any>(null);
 const showInstallBtn = ref(false);
+let unsubscribeNavigate: (() => void) | null = null;
 
 const handleBeforeInstallPrompt = (e: Event) => {
     e.preventDefault();
@@ -351,11 +352,21 @@ onMounted(() => {
     if (window.matchMedia('(display-mode: standalone)').matches) {
         showInstallBtn.value = false;
     }
+
+    unsubscribeNavigate = router.on('navigate', () => {
+        if (isMobile.value) {
+            setOpenMobile(false);
+        }
+    });
 });
 
 onUnmounted(() => {
     window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.removeEventListener('appinstalled', handleAppInstalled);
+
+    if (unsubscribeNavigate) {
+        unsubscribeNavigate();
+    }
 });
 
 const installPwa = () => {
