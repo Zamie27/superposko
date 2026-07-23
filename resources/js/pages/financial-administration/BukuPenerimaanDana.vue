@@ -119,9 +119,9 @@ const printPage = () => {
                         </tr>
                         <tr v-for="item in incomes" :key="item.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-850/50">
                             <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">{{ item.date }}</td>
-                            <td class="py-3 px-4">
-                                <div class="font-bold text-slate-900 dark:text-white">{{ item.title }}</div>
-                                <div v-if="item.description" class="text-[11px] text-slate-400 mt-0.5">{{ item.description }}</div>
+                            <td class="py-3 px-4 max-w-[240px] sm:max-w-xs md:max-w-sm">
+                                <div class="font-bold text-slate-900 dark:text-white truncate" :title="item.title">{{ item.title }}</div>
+                                <div v-if="item.description" class="text-[11px] text-slate-400 mt-0.5 truncate" :title="item.description">{{ item.description }}</div>
                             </td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">

@@ -133,10 +133,10 @@ const printPage = () => {
                         </tr>
                         <tr v-for="item in expenses" :key="item.id" class="hover:bg-slate-50/50 dark:hover:bg-slate-850/50">
                             <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">{{ item.date }}</td>
-                            <td class="py-3 px-4">
-                                <div class="font-bold text-slate-900 dark:text-white">{{ item.title }}</div>
-                                <div v-if="item.description" class="text-[11px] text-slate-400 mt-0.5">{{ item.description }}</div>
-                                <div v-if="item.program_kerja" class="text-[10px] text-sky-600 font-semibold mt-0.5">Proker: {{ item.program_kerja }}</div>
+                            <td class="py-3 px-4 max-w-[240px] sm:max-w-xs md:max-w-sm">
+                                <div class="font-bold text-slate-900 dark:text-white truncate" :title="item.title">{{ item.title }}</div>
+                                <div v-if="item.description" class="text-[11px] text-slate-400 mt-0.5 truncate" :title="item.description">{{ item.description }}</div>
+                                <div v-if="item.program_kerja" class="text-[10px] text-sky-600 font-semibold mt-0.5 truncate" :title="item.program_kerja">Proker: {{ item.program_kerja }}</div>
                             </td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400">
