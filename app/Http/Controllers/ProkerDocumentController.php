@@ -185,8 +185,10 @@ class ProkerDocumentController extends Controller
         }
 
         $disk = env('FILESYSTEM_DISK', 's3');
-        if (Storage::disk($disk)->exists($document->file_path)) {
+        try {
             Storage::disk($disk)->delete($document->file_path);
+        } catch (\Throwable $e) {
+            // Ignore storage deletion errors to ensure the database record can still be deleted
         }
 
         $oldTitle = $document->title;
